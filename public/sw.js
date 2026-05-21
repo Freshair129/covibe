@@ -17,6 +17,23 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+
+  const url = new URL(event.request.url);
+  // สำหรับหน้าหลัก (HTML) ให้ใช้กลยุทธ์ Network-First เพื่ออัปเดตชื่อไฟล์ JS/CSS ล่าสุดเสมอ
+  if (url.origin === self.location.origin && (url.pathname === "/" || url.pathname === "/index.html")) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // สำหรับทรัพยากรอื่นๆ (เช่น ไอคอน, Manifest) ให้ใช้ Cache-First ตามปกติ
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
