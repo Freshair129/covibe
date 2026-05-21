@@ -1,0 +1,285 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.roadmap { padding: 1.5rem 0; }
+.phase { margin-bottom: 1.5rem; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+.phase-header { display: flex; align-items: center; gap: 12px; padding: 1rem 1.25rem; cursor: pointer; user-select: none; }
+.phase-header:hover { background: var(--color-background-secondary); }
+.phase-badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 999px; flex-shrink: 0; }
+.phase-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); flex: 1; }
+.phase-meta { font-size: 12px; color: var(--color-text-secondary); flex-shrink: 0; }
+.phase-chevron { font-size: 16px; color: var(--color-text-secondary); transition: transform 0.2s; flex-shrink: 0; }
+.phase-chevron.open { transform: rotate(180deg); }
+.phase-body { border-top: 0.5px solid var(--color-border-tertiary); padding: 1rem 1.25rem; display: none; }
+.phase-body.open { display: block; }
+.phase-desc { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1rem; line-height: 1.6; }
+.sprint-grid { display: flex; flex-direction: column; gap: 10px; }
+.sprint { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.875rem 1rem; }
+.sprint-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.sprint-tag { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 999px; flex-shrink: 0; }
+.sprint-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); flex: 1; }
+.sprint-dur { font-size: 11px; color: var(--color-text-secondary); }
+.tasks { display: flex; flex-direction: column; gap: 4px; }
+.task { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+.task i { font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+.exit { margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--color-border-tertiary); }
+.exit-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.exit-items { display: flex; flex-direction: column; gap: 3px; }
+.exit-item { font-size: 12px; color: var(--color-text-secondary); display: flex; gap: 6px; align-items: flex-start; }
+.p0-badge { background: #E6F1FB; color: #0C447C; }
+.p1-badge { background: #EAF3DE; color: #27500A; }
+.p2-badge { background: #EEEDFE; color: #3C3489; }
+.p3-badge { background: #FAEEDA; color: #633806; }
+.s0 { background: #E6F1FB; color: #0C447C; }
+.s1 { background: #EAF3DE; color: #27500A; }
+.s2 { background: #EEEDFE; color: #3C3489; }
+.s3 { background: #FAEEDA; color: #633806; }
+.s4 { background: #FAECE7; color: #993C1D; }
+.s5 { background: #E1F5EE; color: #085041; }
+.nsm { background: #F1EFE8; color: #5F5E5A; }
+</style>
+
+<h2 class="sr-only">CoVibe product roadmap แบ่งเป็น 4 phases และ tasks ย่อย</h2>
+<div class="roadmap">
+
+<div class="phase" id="p0">
+  <div class="phase-header" onclick="toggle('p0')">
+    <span class="phase-badge p0-badge">Phase 0</span>
+    <span class="phase-title">Feasibility Spike — พิสูจน์ว่าใช้ได้จริง</span>
+    <span class="phase-meta">3–5 วัน</span>
+    <i class="ti ti-chevron-down phase-chevron open" id="p0-ch"></i>
+  </div>
+  <div class="phase-body open" id="p0-body">
+    <p class="phase-desc">ก่อนลงทุน Sprint จริง ต้องรู้ก่อนว่า YouTube IFrame + WebSocket sync ทำงานได้จริงบนมือถือ 2 เครื่องหรือไม่ และระบุข้อจำกัดของแพลตฟอร์ม</p>
+    <div class="sprint-grid">
+      <div class="sprint">
+        <div class="sprint-header">
+          <span class="sprint-tag s0">Sprint 0</span>
+          <span class="sprint-name">Technical Spike</span>
+          <span class="sprint-dur">3–5 วัน</span>
+        </div>
+        <div class="tasks">
+          <div class="task"><i class="ti ti-device-mobile" aria-hidden="true"></i>Prototype YouTube IFrame Player บน 2 clients พร้อมกัน</div>
+          <div class="task"><i class="ti ti-wifi" aria-hidden="true"></i>WebSocket room ขั้นต่ำ: สร้างห้อง / join / broadcast event</div>
+          <div class="task"><i class="ti ti-player-play" aria-hidden="true"></i>Play / Pause / Seek sync เบื้องต้น</div>
+          <div class="task"><i class="ti ti-clock" aria-hidden="true"></i>วัด drift จริงระหว่าง 2 เครื่อง</div>
+          <div class="task"><i class="ti ti-device-iphone" aria-hidden="true"></i>ทดสอบบน iOS Safari + Android Chrome</div>
+          <div class="task"><i class="ti ti-alert-triangle" aria-hidden="true"></i>ระบุข้อจำกัด autoplay / background playback / wake lock</div>
+        </div>
+        <div class="exit">
+          <div class="exit-label">Exit criteria</div>
+          <div class="exit-items">
+            <div class="exit-item"><i class="ti ti-check" style="color:#1D9E75;font-size:13px;flex-shrink:0;margin-top:2px" aria-hidden="true"></i>มือถือ 2 เครื่องเล่นเพลงเดียวกัน drift เฉลี่ย &lt; 500ms</div>
+            <div class="exit-item"><i class="ti ti-check" style="color:#1D9E75;font-size:13px;flex-shrink:0;margin-top:2px" aria-hidden="true"></i>Join ด้วย room link ได้</div>
+            <div class="exit-item"><i class="ti ti-check" style="color:#1D9E75;font-size:13px;flex-shrink:0;margin-top:2px" aria-hidden="true"></i>มี document สรุปข้อจำกัดของแต่ละแพลตฟอร์ม</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="phase" id="p1">
+  <div class="phase-header" onclick="toggle('p1')">
+    <span class="phase-badge p1-badge">Phase 1</span>
+    <span class="phase-title">MVP Core — สร้างและ join ห้องได้</span>
+    <span class="phase-meta">2 สัปดาห์</span>
+    <i class="ti ti-chevron-down phase-chevron open" id="p1-ch"></i>
+  </div>
+  <div class="phase-body open" id="p1-body">
+    <p class="phase-desc">วางรากฐาน backend + frontend ให้ Rider สร้างห้อง และ Passenger join ผ่าน QR ได้ในสภาพแวดล้อมใกล้เคียง production</p>
+    <div class="sprint-grid">
+      <div class="sprint">
+        <div class="sprint-header">
+          <span class="sprint-tag s1">Sprint 1A</span>
+          <span class="sprint-name">Project Setup + Room Creation</span>
+          <span class="sprint-dur">1 สัปดาห์</span>
+        </div>
+        <div class="tasks">
+          <div class="task"><i class="ti ti-brand-react" aria-hidden="true"></i>ตั้งโปรเจกต์ React + Vite (PWA manifest, service worker shell)</div>
+          <div class="task"><i class="ti ti-server" aria-hidden="true"></i>Backend Node.js + TypeScript + Socket.IO พร้อม Redis room state</div>
+          <div class="task"><i class="ti ti-plus" aria-hidden="true"></i>Rider: สร้างห้อง → รับ roomId → แสดง QR code</div>
+          <div class="task"><i class="ti ti-qrcode" aria-hidden="true"></i>QR generator + share link</div>
+          <div class="task"><i class="ti ti-users" aria-hidden="true"></i>Passenger: สแกน QR → ใส่ชื่อ → join ห้อง</div>
+          <div class="task"><i class="ti ti-circle" aria-hidden="true"></i>Participant presence (connected / disconnected)</div>
+          <div class="task"><i class="ti ti-language" aria-hidden="true"></i>Thai UI ขั้นพื้นฐาน, dark mode, mobile-first layout</div>
+        </div>
+        <div class="exit">
+          <div class="exit-label">Exit criteria</div>
+          <div class="exit-items">
+            <div class="exit-item"><i class="ti ti-check" style="color:#1D9E75;font-size:13px;flex-shrink:0;margin-top:2px" aria-hidden="true"></i>Rider เปิดห้องและ Passenger join ได้บน production URL จริง</div>
+          </div>
+        </div>
+      </div>
+      <div class="sprint">
+        <div class="sprint-header">
+          <span class="sprint-tag s1">Sprint 1B</span>
+          <span class="sprint-name">Queue + Playback Sync</span>
+          <span class="sprint-dur">1 สัปดาห์</span>
+        </div>
+        <div class="tasks">
+          <div class="task"><i class="ti ti-brand-youtube" aria-hidden="true"></i>YouTube link parser + YouTube IFrame API integration</div>
+          <div class="task"><i class="ti ti-list" aria-hidden="true"></i>Queue เพลง: add / remove / reorder</div>
+          <div class="task"><i class="ti ti-music" aria-hidden="true"></i>Current track state บน server (trackId, positionMs, serverStartedAt)</div>
+          <div class="task"><i class="ti ti-player-play" aria-hidden="true"></i>Play / Pause / Skip / Seek ซิงค์ผ่าน WebSocket</div>
+          <div class="task"><i class="ti ti-arrows-right" aria-hidden="true"></i>Auto-next เมื่อเพลงจบ</div>
+          <div class="task"><i class="ti ti-volume" aria-hidden="true"></i>Volume control แยกแต่ละ device</div>
+        </div>
+        <div class="exit">
+          <div class="exit-label">Exit criteria</div>
+          <div class="exit-items">
+            <div class="exit-item"><i class="ti ti-check" style="color:#1D9E75;font-size:13px;flex-shrink:0;margin-top:2px" aria-hidden="true"></i>เล่นเพลงต่อคิว 5 เพลงขึ้นไปโดยไม่ต้อง refresh</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="phase" id="p2">
+  <div class="phase-header" onclick="toggle('p2')">
+    <span class="phase-badge p2-badge">Phase 2</span>
+    <span class="phase-title">Hardening + Rider UX — พร้อม Beta</span>
+    <span class="phase-meta">2 สัปดาห์</span>
+    <i class="ti ti-chevron-down phase-chevron open" id="p2-ch"></i>
+  </div>
+  <div class="phase-body open" id="p2-body">
+    <p class="phase-desc">เพิ่มความเสถียร drift correction, reconnect และทำ Rider UX ให้ขับได้จริง ก่อนส่ง Beta users ใช้</p>
+    <div class="sprint-grid">
+      <div class="sprint">
+        <div class="sprint-header">
+          <span class="sprint-tag s2">Sprint 2A</span>
+          <span class="sprint-name">Sync Hardening</span>
+          <span class="sprint-dur">1 สัปดาห์</span>
+        </div>
+        <div class="tasks">
+          <div class="task"><i class="ti ti-adjustments" aria-hidden="true"></i>Drift correction algorithm (&lt;250ms ปล่อย / 250-800ms ปรับ rate / &gt;800ms seek)</div>
+          <div class="task"><i class="ti ti-antenna" aria-hidden="true"></i>Latency ping ทุก 1-3 วินาที + clock sync กับ server</div>
+          <div class="task"><i class="ti ti-plug-connected" aria-hidden="true"></i>Reconnect อัตโนมัติหลังเน็ตหลุด + resync position</div>
+          <div class="task"><i class="ti ti-loader" aria-hidden="true"></i>Buffer state handling + แจ้งผู้ใช้เมื่อ buffering</div>
+          <div class="task"><i class="ti ti-transfer" aria-hidden="true"></i>Host handoff fallback เมื่อ Rider ออกจากห้อง</div>
+          <div class="task"><i class="ti ti-chart-line" aria-hidden="true"></i>Drift metric logging สำหรับ debug</div>
+        </div>
+        <div class="exit">
+          <div class="exit-label">Exit criteria</div>
+          <div class="exit-items">
+            <div class="exit-item"><i class="ti ti-check" style="color:#1D9E75;font-size:13px;flex-shrink:0;margin-top:2px" aria-hidden="true"></i>เน็ตหลุดแล้วกลับมา drift &lt; 500ms ภายใน 5 วินาที</div>
+          </div>
+        </div>
+      </div>
+      <div class="sprint">
+        <div class="sprint-header">
+          <span class="sprint-tag s2">Sprint 2B</span>
+          <span class="sprint-name">Rider Mode + Beta Polish</span>
+          <span class="sprint-dur">1 สัปดาห์</span>
+        </div>
+        <div class="tasks">
+          <div class="task"><i class="ti ti-layout" aria-hidden="true"></i>Rider dashboard ปุ่มใหญ่ (Play/Pause/Skip) อ่านได้กลางแดด</div>
+          <div class="task"><i class="ti ti-moon" aria-hidden="true"></i>OLED saver / black screen mode พร้อม control ขั้นต่ำ</div>
+          <div class="task"><i class="ti ti-search" aria-hidden="true"></i>Passenger remote: ค้นหา YouTube + เพิ่มเพลงเข้าคิว</div>
+          <div class="task"><i class="ti ti-report" aria-hidden="true"></i>Trip summary หน้าสรุปหลังจบทริป</div>
+          <div class="task"><i class="ti ti-chart-bar" aria-hidden="true"></i>Analytics events ขั้นพื้นฐาน (room created, joined, played, drift avg)</div>
+          <div class="task"><i class="ti ti-bug" aria-hidden="true"></i>Error tracking integration (Sentry หรือเทียบเท่า)</div>
+        </div>
+        <div class="exit">
+          <div class="exit-label">Exit criteria</div>
+          <div class="exit-items">
+            <div class="exit-item"><i class="ti ti-check" style="color:#1D9E75;font-size:13px;flex-shrink:0;margin-top:2px" aria-hidden="true"></i>Beta users ใช้ได้โดยไม่ต้องมี developer คอยประกบ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="phase" id="p3">
+  <div class="phase-header" onclick="toggle('p3')">
+    <span class="phase-badge p3-badge">Phase 3</span>
+    <span class="phase-title">Private Beta — ทดสอบกับผู้ใช้จริง</span>
+    <span class="phase-meta">2–3 สัปดาห์</span>
+    <i class="ti ti-chevron-down phase-chevron open" id="p3-ch"></i>
+  </div>
+  <div class="phase-body open" id="p3-body">
+    <p class="phase-desc">ปล่อยให้กลุ่ม 20–50 คู่ขี่ทดลองจริง เก็บ feedback, bugs และ retention data เพื่อตัดสินใจ roadmap ถัดไป</p>
+    <div class="sprint-grid">
+      <div class="sprint">
+        <div class="sprint-header">
+          <span class="sprint-tag s3">Sprint 3A</span>
+          <span class="sprint-name">Beta Onboarding + Distribution</span>
+          <span class="sprint-dur">1 สัปดาห์</span>
+        </div>
+        <div class="tasks">
+          <div class="task"><i class="ti ti-door-enter" aria-hidden="true"></i>Beta onboarding flow อธิบาย autoplay tap + วิธีใช้</div>
+          <div class="task"><i class="ti ti-message-circle" aria-hidden="true"></i>In-app feedback form + rating หลังจบทริป</div>
+          <div class="task"><i class="ti ti-users" aria-hidden="true"></i>เชิญ 20–50 คู่แรก ผ่านกลุ่ม Facebook / เพื่อน</div>
+          <div class="task"><i class="ti ti-brand-tiktok" aria-hidden="true"></i>ทำ demo video สำหรับ TikTok/Reels + ช่องทาง Beta</div>
+          <div class="task"><i class="ti ti-qrcode" aria-hidden="true"></i>QR ติดร้านหมวก/อุปกรณ์มอเตอร์ไซค์ (ถ้าได้)</div>
+        </div>
+      </div>
+      <div class="sprint">
+        <div class="sprint-header">
+          <span class="sprint-tag s3">Sprint 3B</span>
+          <span class="sprint-name">Monitoring + Learning</span>
+          <span class="sprint-dur">1–2 สัปดาห์</span>
+        </div>
+        <div class="tasks">
+          <div class="task"><i class="ti ti-dashboard" aria-hidden="true"></i>Usage dashboard: trips, activation rate, listening duration</div>
+          <div class="task"><i class="ti ti-trending-up" aria-hidden="true"></i>Retention tracking: repeat trip ภายใน 7 วัน</div>
+          <div class="task"><i class="ti ti-list-check" aria-hidden="true"></i>รวบรวม top 5 bugs จาก error log + feedback</div>
+          <div class="task"><i class="ti ti-user-search" aria-hidden="true"></i>วิเคราะห์ว่า persona ไหน retain ดีที่สุด (คู่รัก / BigBike / TWS)</div>
+          <div class="task"><i class="ti ti-refresh" aria-hidden="true"></i>Quick-fix iteration จาก feedback</div>
+        </div>
+        <div class="exit">
+          <div class="exit-label">Exit criteria</div>
+          <div class="exit-items">
+            <div class="exit-item"><i class="ti ti-check" style="color:#1D9E75;font-size:13px;flex-shrink:0;margin-top:2px" aria-hidden="true"></i>อย่างน้อย 20 ทริปที่ฟังต่อเนื่องเกิน 15 นาที (North Star)</div>
+            <div class="exit-item"><i class="ti ti-check" style="color:#1D9E75;font-size:13px;flex-shrink:0;margin-top:2px" aria-hidden="true"></i>รู้ top 5 bugs และ persona ที่ retain ดีที่สุด</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="phase" id="p4">
+  <div class="phase-header" onclick="toggle('p4')">
+    <span class="phase-badge nsm">Phase ถัดไป (ไม่ใช่ MVP)</span>
+    <span class="phase-title">Post-Beta Expansion — ต่อยอดหลังพิสูจน์ demand</span>
+    <span class="phase-meta">TBD</span>
+    <i class="ti ti-chevron-down phase-chevron" id="p4-ch"></i>
+  </div>
+  <div class="phase-body" id="p4-body">
+    <p class="phase-desc">ฟีเจอร์เหล่านี้ยังไม่ทำใน MVP เพราะมีความเสี่ยงด้านแพลตฟอร์มสูง รอพิสูจน์ demand จาก Beta ก่อน</p>
+    <div class="sprint-grid">
+      <div class="sprint">
+        <div class="sprint-header">
+          <span class="sprint-tag nsm">เฟสถัดไป</span>
+          <span class="sprint-name">Backlog ที่รอ demand จาก Beta</span>
+        </div>
+        <div class="tasks">
+          <div class="task"><i class="ti ti-wifi-off" aria-hidden="true"></i>Hotspot / Local WebSocket mode (ไม่พึ่ง cloud)</div>
+          <div class="task"><i class="ti ti-microphone" aria-hidden="true"></i>Intercom voice chat</div>
+          <div class="task"><i class="ti ti-map-pin" aria-hidden="true"></i>Convoy GPS tracking</div>
+          <div class="task"><i class="ti ti-microphone-2" aria-hidden="true"></i>Voice command</div>
+          <div class="task"><i class="ti ti-credit-card" aria-hidden="true"></i>Payment / subscription model</div>
+          <div class="task"><i class="ti ti-download" aria-hidden="true"></i>Offline YouTube download (ถ้า legal)</div>
+          <div class="task"><i class="ti ti-device-mobile" aria-hidden="true"></i>Native App (iOS/Android) สำหรับ background playback ที่ดีขึ้น</div>
+          <div class="task"><i class="ti ti-music" aria-hidden="true"></i>Spotify / Apple Music integration</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function toggle(id) {
+  const body = document.getElementById(id + '-body');
+  const ch = document.getElementById(id + '-ch');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  ch.classList.toggle('open', !isOpen);
+}
+</script>
