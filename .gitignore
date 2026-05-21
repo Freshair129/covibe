@@ -2,3 +2,10 @@ node_modules/
 dist/
 *.log
 covibe-*.png
+
+# Local environment variables
+.env
+.env.local
+.env.*.local
+
+.vercel
