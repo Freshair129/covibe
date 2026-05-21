@@ -146,6 +146,7 @@
       letter-spacing: -0.02em;
       background: linear-gradient(135deg, #ffffff 0%, var(--color-text-secondary) 100%);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
       margin-bottom: 0.25rem;
     }
@@ -682,13 +683,20 @@
 
     /* Interactive Agent Terminal Console */
     .terminal-panel {
-      background: #06080a;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      width: min(380px, calc(100vw - 2rem));
+      z-index: 9999;
+      background: rgba(6, 8, 10, 0.95);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: var(--border-radius-lg);
       font-family: 'Consolas', 'Courier New', Courier, monospace;
       overflow: hidden;
       box-shadow: var(--shadow-lg);
-      margin-top: 1.5rem;
+      margin-top: 0;
     }
 
     .terminal-header {
@@ -722,7 +730,7 @@
       padding: 12px 14px;
       font-size: 0.75rem;
       color: #f3f7f4;
-      max-height: 180px;
+      max-height: 200px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -1630,16 +1638,16 @@
 
         } else if (currentVal === 'pending') {
           // หากอยู่ในระหว่างรอดำเนินการ ให้ยกเลิกคิวงาน
+          taskItem.setAttribute('data-state', 'todo');
+          saveStateToStorage();
+          updateProgress();
+          logToTerminal('CANCEL', `Canceled request: "${taskText}"`);
+
           if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify({
               type: 'cancel_agent_task',
               taskId
             }));
-          } else {
-            taskItem.setAttribute('data-state', 'todo');
-            saveStateToStorage();
-            updateProgress();
-            logToTerminal('CANCEL', `Canceled request: "${taskText}" (offline)`);
           }
 
         } else if (currentVal === 'done') {
