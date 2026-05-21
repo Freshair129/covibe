@@ -1317,11 +1317,19 @@
 
   <!-- Simulated Agent Terminal Console -->
   <section class="terminal-panel" aria-label="จำลองประวัติคำสั่งเอเจนต์">
-    <div class="terminal-header">
+    <div class="terminal-header" style="display: flex; align-items: center;">
       <span class="terminal-dot red"></span>
       <span class="terminal-dot yellow"></span>
       <span class="terminal-dot green"></span>
       <span class="terminal-title">covibe-agent-pipeline ~ sh</span>
+      <div class="agent-selector-container" style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+        <label for="agent-select" style="color: var(--color-text-secondary); font-size: 11px; font-family: var(--font-sans);">เอเจนต์:</label>
+        <select id="agent-select" style="background: rgba(255,255,255,0.04); color: var(--color-text-primary); border: 1px solid var(--color-border); border-radius: 4px; padding: 2px 8px; font-size: 11px; font-family: var(--font-sans); cursor: pointer; outline: none; transition: border-color 0.2s;">
+          <option value="eva" style="background: #12131a; color: var(--color-text-primary);">EVA Agent (eva-cli)</option>
+          <option value="qwen" style="background: #12131a; color: var(--color-text-primary);">Qwen Coder (qwen-cli)</option>
+        </select>
+        <span id="connection-status" style="width: 8px; height: 8px; border-radius: 50%; background: #ef4444; transition: background 0.3s;" title="Disconnected"></span>
+      </div>
     </div>
     <div class="terminal-body" id="terminal-body">
       <!-- Logs printed dynamically -->
@@ -1494,12 +1502,91 @@
   }
 
 
-  // ออบเจ็กต์เก็บคีย์ timeouts สำหรับการทำแทรกแซง/ยกเลิกคำสั่งของงานแต่ละชิ้น
-  const activeTimeouts = {};
+  // ระบบเชื่อมต่อและจัดการงานผ่านเอเจนต์จริง
+  let socket = null;
+  let reconnectTimer = null;
+
+  function connectWebSocket() {
+    const statusEl = document.getElementById('connection-status');
+    const wsUrl = `ws://${window.location.hostname || 'localhost'}:8787`;
+    socket = new WebSocket(wsUrl);
+
+    socket.onopen = () => {
+      if (statusEl) {
+        statusEl.style.background = '#27c93f';
+        statusEl.title = 'Connected';
+      }
+      logToTerminal('SYSTEM', 'Connected to CoVibe Realtime Server.');
+      if (reconnectTimer) {
+        clearInterval(reconnectTimer);
+        reconnectTimer = null;
+      }
+    };
+
+    socket.onclose = () => {
+      if (statusEl) {
+        statusEl.style.background = '#ff5f56';
+        statusEl.title = 'Disconnected (Trying to reconnect...)';
+      }
+      logToTerminal('SYSTEM', 'WebSocket connection closed. Retrying in 5s...');
+      if (!reconnectTimer) {
+        reconnectTimer = setInterval(connectWebSocket, 5000);
+      }
+    };
+
+    socket.onerror = () => {
+      if (statusEl) {
+        statusEl.style.background = '#ff5f56';
+      }
+    };
+
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'agent_log') {
+          const { taskId, stream, text } = data;
+          const lines = text.split('\n');
+          lines.forEach(line => {
+            const trimmed = line.trimEnd();
+            if (trimmed) {
+              if (stream === 'stderr') {
+                logToTerminal('SYSTEM', `<span style="color: #ff5f56; font-weight: bold;">[ERR]</span> ${trimmed}`);
+              } else if (stream === 'system') {
+                logToTerminal('SYSTEM', trimmed);
+              } else {
+                logToTerminal('AGENT', trimmed);
+              }
+            }
+          });
+        } else if (data.type === 'agent_status') {
+          const { taskId, status } = data;
+          const taskItem = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
+          if (!taskItem) return;
+
+          if (status === 'success') {
+            logToTerminal('SYSTEM', `Task completed successfully by Agent.`);
+            taskItem.setAttribute('data-state', 'done');
+            saveStateToStorage();
+            updateProgress();
+          } else if (status === 'failed' || status === 'canceled') {
+            logToTerminal('CANCEL', `Task ended with status: ${status.toUpperCase()}`);
+            taskItem.setAttribute('data-state', 'todo');
+            saveStateToStorage();
+            updateProgress();
+          }
+        }
+      } catch (err) {
+        console.error('Error parsing WS message:', err);
+      }
+    };
+  }
 
   // เริ่มทำงานเมื่อโหลดเสร็จ
   document.addEventListener('DOMContentLoaded', () => {
     const state = loadState();
+
+    // เริ่มการเชื่อมต่อ WebSocket
+    connectWebSocket();
 
     // บันทึก Log ต้อนรับ
     logToTerminal('SYSTEM', 'CoVibe Developer Agent Core initialized successfully.');
@@ -1520,47 +1607,40 @@
         const taskText = taskItem.querySelector('.task-text').textContent.trim();
 
         if (currentVal === 'todo') {
+          if (!socket || socket.readyState !== WebSocket.OPEN) {
+            logToTerminal('SYSTEM', `<span style="color: #ff5f56; font-weight: bold;">ERROR:</span> Cannot execute agent. Local CoVibe Server is offline. Please run "npm run dev:server" first.`);
+            alert('ไม่สามารถส่งงานให้เอเจนต์ได้เนื่องจากเชื่อมต่อกับระบบหลังบ้านไม่ได้ กรุณาตรวจสอบว่ารันเซิร์ฟเวอร์ด้วยคำสั่ง "npm run dev" หรือ "npm run dev:server" อยู่หรือไม่ครับ');
+            return;
+          }
+
           // ปรับเป็น Pending (Waiting for Agent)
           taskItem.setAttribute('data-state', 'pending');
           saveStateToStorage();
           updateProgress();
 
-          logToTerminal('REQUEST', `Queued task: "${taskText}"`);
+          const selectedAgent = document.getElementById('agent-select').value;
+          logToTerminal('REQUEST', `Queued task: "${taskText}" with agent "${selectedAgent}"`);
 
-          // สร้าง Multi-step Simulated Execution Pipeline
-          const t1 = setTimeout(() => {
-            logToTerminal('AGENT', `Robot Agent received request for "${taskText}". Standing by in execution pipeline queue...`);
-          }, 500);
-
-          const t2 = setTimeout(() => {
-            logToTerminal('AGENT', `Starting execution for: "${taskText}" (Analyzing codebase & planning modifications...)`);
-          }, 2000);
-
-          const t3 = setTimeout(() => {
-            logToTerminal('AGENT', `Applying code changes & running automated unit tests...`);
-          }, 4000);
-
-          const t4 = setTimeout(() => {
-            logToTerminal('SYSTEM', `Deploy successful to Vercel production. Task "${taskText}" completed!`);
-            taskItem.setAttribute('data-state', 'done');
-            saveStateToStorage();
-            updateProgress();
-            delete activeTimeouts[taskId];
-          }, 5500);
-
-          activeTimeouts[taskId] = [t1, t2, t3, t4];
+          socket.send(JSON.stringify({
+            type: 'run_agent_task',
+            agent: selectedAgent,
+            taskId,
+            taskText
+          }));
 
         } else if (currentVal === 'pending') {
           // หากอยู่ในระหว่างรอดำเนินการ ให้ยกเลิกคิวงาน
-          if (activeTimeouts[taskId]) {
-            activeTimeouts[taskId].forEach(t => clearTimeout(t));
-            delete activeTimeouts[taskId];
+          if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({
+              type: 'cancel_agent_task',
+              taskId
+            }));
+          } else {
+            taskItem.setAttribute('data-state', 'todo');
+            saveStateToStorage();
+            updateProgress();
+            logToTerminal('CANCEL', `Canceled request: "${taskText}" (offline)`);
           }
-
-          taskItem.setAttribute('data-state', 'todo');
-          saveStateToStorage();
-          updateProgress();
-          logToTerminal('CANCEL', `Canceled request: "${taskText}"`);
 
         } else if (currentVal === 'done') {
           // หากเสร็จแล้ว ต้องการย้อนกลับไปทำใหม่เพื่อการทดสอบ
@@ -1575,10 +1655,15 @@
     // ปุ่ม Reset เพื่อกู้คืนสถานะทางการ
     document.getElementById('reset-btn').addEventListener('click', () => {
       if (confirm('คุณต้องการรีเซ็ตคิวงานกลับไปยังประวัติสถานะทางการตามกิ่งก้าน Git Codebase หรือไม่? (รายการรอดำเนินการที่กดเลือกไว้จะหายไป)')) {
-        // เคลียร์ timeouts งานที่ยังวิ่งค้างอยู่ทั้งหมด
-        Object.keys(activeTimeouts).forEach(taskId => {
-          activeTimeouts[taskId].forEach(t => clearTimeout(t));
-          delete activeTimeouts[taskId];
+        // เคลียร์งานที่ค้างอยู่
+        document.querySelectorAll('.task-item[data-state="pending"]').forEach(taskItem => {
+          const taskId = taskItem.getAttribute('data-task-id');
+          if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({
+              type: 'cancel_agent_task',
+              taskId
+            }));
+          }
         });
 
         localStorage.setItem('covibe_roadmap_states', JSON.stringify(OFFICIAL_STATE));

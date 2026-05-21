@@ -1,10 +1,37 @@
 import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 import { WebSocketServer } from "ws";
+import { spawn } from "node:child_process";
+import { readFileSync, existsSync } from "node:fs";
 
 const PORT = Number(process.env.COVIBE_SERVER_PORT || 8787);
 const rooms = new Map();
 const clients = new Map();
+const activeTasks = new Map();
+
+function getEvaEnv() {
+  const env = { ...process.env, EVA_NO_TUI: "1" };
+  const envPath = "g:/eva-cli/.env";
+  if (existsSync(envPath)) {
+    try {
+      const content = readFileSync(envPath, "utf-8");
+      for (const line of content.split("\n")) {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith("#")) {
+          const idx = trimmed.indexOf("=");
+          if (idx > 0) {
+            const key = trimmed.slice(0, idx).trim();
+            const val = trimmed.slice(idx + 1).trim();
+            env[key] = val.replace(/^["']|["']$/g, "");
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Failed to read g:/eva-cli/.env:", e);
+    }
+  }
+  return env;
+}
 
 const server = createServer((req, res) => {
   if (req.url === "/health") {
@@ -195,6 +222,162 @@ wss.on("connection", (ws) => {
       });
       appendLog(room, { type: "join", participantId });
       broadcastState(room.roomId);
+    }
+
+    if (data.type === "run_agent_task") {
+      const { agent, taskId, taskText } = data;
+      if (activeTasks.has(taskId)) {
+        try {
+          activeTasks.get(taskId).kill("SIGKILL");
+        } catch (e) {}
+        activeTasks.delete(taskId);
+      }
+
+      send(ws, {
+        type: "agent_log",
+        taskId,
+        stream: "system",
+        text: `Starting agent execution: "${agent}" for task: "${taskText}"`
+      });
+
+      let cp;
+      if (agent === "eva") {
+        cp = spawn(
+          "node",
+          ["g:/eva-cli/node_modules/tsx/dist/cli.mjs", "g:/eva-cli/src/entry.ts", "--auto"],
+          {
+            cwd: "g:/covibe",
+            env: getEvaEnv()
+          }
+        );
+        cp.stdin.write(`${taskText}\n`);
+      } else if (agent === "qwen") {
+        cp = spawn("python", ["g:/qwen-cli/qwen.py", taskText], {
+          cwd: "g:/covibe"
+        });
+      } else {
+        send(ws, {
+          type: "agent_log",
+          taskId,
+          stream: "system",
+          text: `Unknown agent type: "${agent}"`
+        });
+        send(ws, {
+          type: "agent_status",
+          taskId,
+          status: "failed"
+        });
+        return;
+      }
+
+      activeTasks.set(taskId, cp);
+
+      let outputBuffer = "";
+      let hasExited = false;
+
+      cp.stdout.on("data", (chunk) => {
+        const text = chunk.toString();
+        send(ws, {
+          type: "agent_log",
+          taskId,
+          stream: "stdout",
+          text
+        });
+
+        if (agent === "eva" && !hasExited) {
+          outputBuffer += text;
+          const occurrences = (outputBuffer.match(/Boss:/g) || []).length;
+          if (occurrences >= 2) {
+            hasExited = true;
+            
+            // 1. Send success status immediately so the UI transitions to done state
+            send(ws, {
+              type: "agent_status",
+              taskId,
+              status: "success"
+            });
+
+            // 2. Remove from activeTasks registry so that process exit/close events won't trigger status overrides
+            if (activeTasks.get(taskId) === cp) {
+              activeTasks.delete(taskId);
+            }
+
+            send(ws, {
+              type: "agent_log",
+              taskId,
+              stream: "system",
+              text: `Finished task execution. Terminating agent session gracefully...`
+            });
+
+            // 3. Write exit command to stdin to let the agent run loop.end() and save its episodic memory
+            setTimeout(() => {
+              try {
+                cp.stdin.write("exit\n");
+              } catch (e) {}
+            }, 500);
+
+            // 4. Force kill after 3000ms to clean up the hanging node process from event loop on Windows
+            setTimeout(() => {
+              try {
+                cp.kill("SIGKILL");
+              } catch (e) {}
+            }, 3000);
+          }
+        }
+      });
+
+      cp.stderr.on("data", (chunk) => {
+        send(ws, {
+          type: "agent_log",
+          taskId,
+          stream: "stderr",
+          text: chunk.toString()
+        });
+      });
+
+      cp.on("error", (err) => {
+        send(ws, {
+          type: "agent_log",
+          taskId,
+          stream: "stderr",
+          text: `Failed to spawn process: ${err.message}`
+        });
+      });
+
+      cp.on("close", (code) => {
+        if (activeTasks.get(taskId) === cp) {
+          activeTasks.delete(taskId);
+          send(ws, {
+            type: "agent_status",
+            taskId,
+            status: code === 0 ? "success" : "failed"
+          });
+        }
+      });
+
+      return;
+    }
+
+    if (data.type === "cancel_agent_task") {
+      const { taskId } = data;
+      if (activeTasks.has(taskId)) {
+        const cp = activeTasks.get(taskId);
+        try {
+          cp.kill("SIGKILL");
+        } catch (e) {}
+        activeTasks.delete(taskId);
+        send(ws, {
+          type: "agent_log",
+          taskId,
+          stream: "system",
+          text: `Canceled task: "${taskId}"`
+        });
+        send(ws, {
+          type: "agent_status",
+          taskId,
+          status: "canceled"
+        });
+      }
       return;
     }
 
