@@ -1493,6 +1493,10 @@
     ch.classList.toggle('open', !isOpen);
   }
 
+
+  // ออบเจ็กต์เก็บคีย์ timeouts สำหรับการทำแทรกแซง/ยกเลิกคำสั่งของงานแต่ละชิ้น
+  const activeTimeouts = {};
+
   // เริ่มทำงานเมื่อโหลดเสร็จ
   document.addEventListener('DOMContentLoaded', () => {
     const state = loadState();
@@ -1514,34 +1518,69 @@
       taskItem.addEventListener('click', (e) => {
         const currentVal = taskItem.getAttribute('data-state') || 'todo';
         const taskText = taskItem.querySelector('.task-text').textContent.trim();
-        let nextVal = 'todo';
 
         if (currentVal === 'todo') {
-          nextVal = 'pending';
+          // ปรับเป็น Pending (Waiting for Agent)
+          taskItem.setAttribute('data-state', 'pending');
+          saveStateToStorage();
+          updateProgress();
+
           logToTerminal('REQUEST', `Queued task: "${taskText}"`);
-          
-          // สุ่มดีเลย์ตอบรับจำลองของบอทเอเจนต์
-          setTimeout(() => {
+
+          // สร้าง Multi-step Simulated Execution Pipeline
+          const t1 = setTimeout(() => {
             logToTerminal('AGENT', `Robot Agent received request for "${taskText}". Standing by in execution pipeline queue...`);
-          }, 450);
+          }, 500);
+
+          const t2 = setTimeout(() => {
+            logToTerminal('AGENT', `Starting execution for: "${taskText}" (Analyzing codebase & planning modifications...)`);
+          }, 2000);
+
+          const t3 = setTimeout(() => {
+            logToTerminal('AGENT', `Applying code changes & running automated unit tests...`);
+          }, 4000);
+
+          const t4 = setTimeout(() => {
+            logToTerminal('SYSTEM', `Deploy successful to Vercel production. Task "${taskText}" completed!`);
+            taskItem.setAttribute('data-state', 'done');
+            saveStateToStorage();
+            updateProgress();
+            delete activeTimeouts[taskId];
+          }, 5500);
+
+          activeTimeouts[taskId] = [t1, t2, t3, t4];
+
         } else if (currentVal === 'pending') {
-          nextVal = 'todo';
+          // หากอยู่ในระหว่างรอดำเนินการ ให้ยกเลิกคิวงาน
+          if (activeTimeouts[taskId]) {
+            activeTimeouts[taskId].forEach(t => clearTimeout(t));
+            delete activeTimeouts[taskId];
+          }
+
+          taskItem.setAttribute('data-state', 'todo');
+          saveStateToStorage();
+          updateProgress();
           logToTerminal('CANCEL', `Canceled request: "${taskText}"`);
+
         } else if (currentVal === 'done') {
-          // หากผู้ใช้ต้องการปลดงานเสร็จกลับไปเป็น todo เพื่อทดสอบเล่น
-          nextVal = 'todo';
+          // หากเสร็จแล้ว ต้องการย้อนกลับไปทำใหม่เพื่อการทดสอบ
+          taskItem.setAttribute('data-state', 'todo');
+          saveStateToStorage();
+          updateProgress();
           logToTerminal('CANCEL', `Reverted finished task: "${taskText}" back to TODO.`);
         }
-
-        taskItem.setAttribute('data-state', nextVal);
-        saveStateToStorage();
-        updateProgress();
       });
     });
 
     // ปุ่ม Reset เพื่อกู้คืนสถานะทางการ
     document.getElementById('reset-btn').addEventListener('click', () => {
       if (confirm('คุณต้องการรีเซ็ตคิวงานกลับไปยังประวัติสถานะทางการตามกิ่งก้าน Git Codebase หรือไม่? (รายการรอดำเนินการที่กดเลือกไว้จะหายไป)')) {
+        // เคลียร์ timeouts งานที่ยังวิ่งค้างอยู่ทั้งหมด
+        Object.keys(activeTimeouts).forEach(taskId => {
+          activeTimeouts[taskId].forEach(t => clearTimeout(t));
+          delete activeTimeouts[taskId];
+        });
+
         localStorage.setItem('covibe_roadmap_states', JSON.stringify(OFFICIAL_STATE));
         document.querySelectorAll('.task-item').forEach(taskItem => {
           const taskId = taskItem.getAttribute('data-task-id');
