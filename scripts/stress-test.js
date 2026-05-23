@@ -1,6 +1,6 @@
 import { WebSocket } from 'ws';
 
-const SERVER_URL = process.env.SERVER_URL || 'ws://localhost:8800';
+const SERVER_URL = process.env.SERVER_URL || 'ws://localhost:8787';
 const NUM_CLIENTS = 100; // จำลอง 100 clients (50 ห้อง)
 const TEST_DURATION_MS = 10000; // ทดสอบ 10 วินาที
 
