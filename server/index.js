@@ -107,10 +107,31 @@ function getEvaEnv() {
   return env;
 }
 
-const server = createServer((req, res) => {
+const server = createServer(async (req, res) => {
   if (req.url === "/health") {
     res.writeHead(200, { "content-type": "application/json" });
     res.end(JSON.stringify({ ok: true, rooms: rooms.size }));
+    return;
+  }
+
+  if (req.url === "/roadmap") {
+    try {
+      const content = await readFile(join(COVIBE_ROOT, "covibe_roadmap.html"), "utf-8");
+      res.writeHead(200, { 
+        "content-type": "text/html",
+        "Content-Security-Policy": "default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' ws: wss:;"
+      });
+      res.end(content);
+    } catch (err) {
+      res.writeHead(500);
+      res.end("Error loading roadmap file.");
+    }
+    return;
+  }
+
+  if (req.url === "/") {
+    res.writeHead(302, { Location: "/roadmap" });
+    res.end();
     return;
   }
 
@@ -323,6 +344,7 @@ if (!room) {
       // Record log in room history for dashboard sync
       appendLog(room, { type: "agent_log", taskId, stream: "system", text: `Starting agent execution: "${agent}" for task: "${taskText}"` });
 
+      console.log(`[agent] Spawning "${agent}" for task: "${taskText}"`);
       let cp;
       if (agent === "eva") {
         cp = spawn(
@@ -335,7 +357,7 @@ if (!room) {
         );
         cp.stdin.write(`${taskText}\n`);
       } else if (agent === "gemini") {
-        cp = spawn("powershell.exe", ["-NoProfile", "-Command", `gemini "${taskText.replace(/"/g, '`"')}"`], {
+        cp = spawn("powershell.exe", ["-NoProfile", "-Command", `gemini --prompt "${taskText.replace(/"/g, '`"')}" --approval-mode auto_edit --raw-output`], {
           cwd: "g:/covibe",
           env: { ...process.env, FORCE_COLOR: "1" }
         });
