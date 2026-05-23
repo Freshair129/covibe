@@ -108,19 +108,19 @@ function getEvaEnv() {
 }
 
 const server = createServer(async (req, res) => {
-  if (req.url === "/health") {
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const pathname = url.pathname;
+
+  if (pathname === "/health") {
     res.writeHead(200, { "content-type": "application/json" });
     res.end(JSON.stringify({ ok: true, rooms: rooms.size }));
     return;
   }
 
-  if (req.url === "/roadmap") {
+  if (pathname === "/roadmap" || pathname === "/roadmap/") {
     try {
       const content = await readFile(join(COVIBE_ROOT, "covibe_roadmap.html"), "utf-8");
-      res.writeHead(200, { 
-        "content-type": "text/html",
-        "Content-Security-Policy": "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; connect-src * ws: wss:;"
-      });
+      res.writeHead(200, { "content-type": "text/html" });
       res.end(content);
     } catch (err) {
       res.writeHead(500);
@@ -129,14 +129,34 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  if (req.url === "/") {
+  if (pathname === "/") {
     res.writeHead(302, { Location: "/roadmap" });
     res.end();
     return;
   }
 
+  // Try to serve from public directory
+  const publicFile = join(COVIBE_ROOT, "public", pathname);
+  if (existsSync(publicFile)) {
+    try {
+      const content = await readFile(publicFile);
+      const ext = pathname.split(".").pop();
+      const mime = {
+        js: "application/javascript",
+        css: "text/css",
+        svg: "image/svg+xml",
+        json: "application/json",
+        webmanifest: "application/manifest+json"
+      }[ext] || "text/plain";
+      
+      res.writeHead(200, { "content-type": mime });
+      res.end(content);
+      return;
+    } catch (e) {}
+  }
+
   res.writeHead(404, { "content-type": "application/json" });
-  res.end(JSON.stringify({ error: "not_found" }));
+  res.end(JSON.stringify({ error: "not_found", path: pathname }));
 });
 
 const wss = new WebSocketServer({ server });
@@ -323,11 +343,7 @@ wss.on("connection", (ws) => {
 
     if (data.type === "run_agent_task") {
       const { agent, taskId, taskText } = data;
-      const room = requireRoom(ws, client.roomId);
-if (!room) {
-  send(ws, { type: "error", message: "Cannot start agent task without joining a room." });
-  return;
-}
+      const room = client.roomId ? rooms.get(client.roomId) : null;
       if (activeTasks.has(taskId)) {
         try {
           activeTasks.get(taskId).kill("SIGKILL");
@@ -342,7 +358,9 @@ if (!room) {
         text: `Starting agent execution: "${agent}" for task: "${taskText}"`
       });
       // Record log in room history for dashboard sync
-      appendLog(room, { type: "agent_log", taskId, stream: "system", text: `Starting agent execution: "${agent}" for task: "${taskText}"` });
+      if (room) {
+        appendLog(room, { type: "agent_log", taskId, stream: "system", text: `Starting agent execution: "${agent}" for task: "${taskText}"` });
+      }
 
       console.log(`[agent] Spawning "${agent}" for task: "${taskText}"`);
       let cp;
@@ -446,24 +464,28 @@ if (!room) {
 
       cp.stderr.on("data", (chunk) => {
         send(ws, {
-        type: "agent_log",
-        taskId,
-        stream: "stderr",
-        text: chunk.toString()
-      });
-      // Record stderr log
-      appendLog(room, { type: "agent_log", taskId, stream: "stderr", text: chunk.toString() });
+          type: "agent_log",
+          taskId,
+          stream: "stderr",
+          text: chunk.toString()
+        });
+        // Record stderr log
+        if (room) {
+          appendLog(room, { type: "agent_log", taskId, stream: "stderr", text: chunk.toString() });
+        }
       });
 
       cp.on("error", (err) => {
         send(ws, {
-        type: "agent_log",
-        taskId,
-        stream: "stderr",
-        text: `Failed to spawn process: ${err.message}`
-      });
-      // Record error log
-      appendLog(room, { type: "agent_log", taskId, stream: "stderr", text: `Failed to spawn process: ${err.message}` });
+          type: "agent_log",
+          taskId,
+          stream: "stderr",
+          text: `Failed to spawn process: ${err.message}`
+        });
+        // Record error log
+        if (room) {
+          appendLog(room, { type: "agent_log", taskId, stream: "stderr", text: `Failed to spawn process: ${err.message}` });
+        }
       });
 
       cp.on("close", (code) => {
@@ -482,12 +504,7 @@ if (!room) {
 
     if (data.type === "cancel_agent_task") {
       const { taskId } = data;
-      // Retrieve the room for logging; ensure the client is in a room
-      const room = requireRoom(ws, client.roomId);
-      if (!room) {
-        send(ws, { type: "error", message: "Cannot cancel task without joining a room." });
-        return;
-      }
+      const room = client.roomId ? rooms.get(client.roomId) : null;
       if (activeTasks.has(taskId)) {
         const cp = activeTasks.get(taskId);
         try { cp.kill("SIGKILL"); } catch (e) {}
@@ -499,7 +516,9 @@ if (!room) {
           text: `Canceled task: "${taskId}"`
         });
         // Record cancellation log using the valid room reference
-        appendLog(room, { type: "agent_log", taskId, stream: "system", text: `Canceled task: "${taskId}"` });
+        if (room) {
+          appendLog(room, { type: "agent_log", taskId, stream: "system", text: `Canceled task: "${taskId}"` });
+        }
         send(ws, { type: "agent_status", taskId, status: "canceled" });
         // Broadcast updated telemetry after cancel
         setTimeout(() => broadcastTelemetry(), 500);
@@ -549,6 +568,30 @@ if (!room) {
     if (data.type === "remove_track") {
       room.queue = room.queue.filter((track) => track.id !== data.trackId);
       appendLog(room, { type: "queue_remove", actorId, trackId: data.trackId });
+      broadcastState(room.roomId);
+      return;
+    }
+
+    if (data.type === "reorder_queue") {
+      const { trackIds } = data;
+      if (!Array.isArray(trackIds)) return;
+
+      // Reconstruct queue based on provided ID order, ensuring only existing tracks remain
+      const newQueue = [];
+      for (const id of trackIds) {
+        const track = room.queue.find((t) => t.id === id);
+        if (track) newQueue.push(track);
+      }
+
+      // Add any tracks that might have been missing from the trackIds list (safety fallback)
+      for (const track of room.queue) {
+        if (!newQueue.find((t) => t.id === track.id)) {
+          newQueue.push(track);
+        }
+      }
+
+      room.queue = newQueue;
+      appendLog(room, { type: "queue_reorder", actorId });
       broadcastState(room.roomId);
       return;
     }

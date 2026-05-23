@@ -24,7 +24,9 @@ import {
   Users,
   Video,
   Volume2,
-  Wifi
+  Wifi,
+  ChevronUp,
+  ChevronDown
 } from "lucide-react";
 
 import { youtubeIdFromInput, thumbnailFor } from "./utils/youtube";
@@ -338,6 +340,20 @@ function YouTubeDeck({
   const [ready, setReady] = useState(false);
   const [needsUnlock, setNeedsUnlock] = useState(true);
   const [playerState, setPlayerState] = useState("idle");
+  const [isSlowNetwork, setIsSlowNetwork] = useState(false);
+
+  useEffect(() => {
+    if (playerState === "buffering") {
+      const timer = window.setTimeout(() => {
+        setIsSlowNetwork(true);
+      }, 5000);
+      return () => {
+        window.clearTimeout(timer);
+      };
+    } else {
+      setIsSlowNetwork(false);
+    }
+  }, [playerState]);
 
   useEffect(() => {
     let cancelled = false;
@@ -459,6 +475,16 @@ function YouTubeDeck({
             <Headphones aria-hidden="true" />
             <span>{room?.currentTrack ? "แตะเพื่อเปิดเสียงบนเครื่องนี้" : "รอเพลงแรก"}</span>
           </button>
+        )}
+        {playerState === "buffering" && (
+          <div className={`buffer-layer ${isSlowNetwork ? "slow-network" : ""}`} aria-hidden="true">
+            <RotateCw className="spin" />
+            <span>
+              {isSlowNetwork
+                ? "สัญญาณอินเทอร์เน็ตอ่อน... กำลังพยายามเชื่อมต่อใหม่"
+                : "กำลังโหลดเพลง..."}
+            </span>
+          </div>
         )}
       </div>
       <div className="player-status">
@@ -848,6 +874,22 @@ function App() {
     setTrackTitle("");
   }
 
+  function moveTrack(index: number, direction: "up" | "down") {
+    if (!room) return;
+    const newQueue = [...room.queue];
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= newQueue.length) return;
+
+    const temp = newQueue[index];
+    newQueue[index] = newQueue[targetIndex];
+    newQueue[targetIndex] = temp;
+
+    send({
+      type: "reorder_queue",
+      trackIds: newQueue.map((t) => t.id)
+    });
+  }
+
   function playPause() {
     if (!room?.currentTrack) return;
     if (room.playback.isPlaying) {
@@ -860,6 +902,14 @@ function App() {
   function leaveRoom() {
     localStorage.removeItem(ROOM_KEY);
     location.href = "/";
+  }
+
+  function copyInvite() {
+    navigator.clipboard.writeText(joinUrl).then(() => {
+      alert("คัดลอกลิงก์เชิญแล้ว!");
+    }).catch(() => {
+      alert("ไม่สามารถคัดลอกลิงก์ได้");
+    });
   }
 
   if (saver) {
@@ -1127,17 +1177,36 @@ function App() {
                 <p className="muted">ยังไม่มีเพลงถัดไป</p>
               ) : (
                 <ol className="queue-list">
-                  {room.queue.map((track) => (
+                  {room.queue.map((track, index) => (
                     <li key={track.id}>
                       <img src={track.thumbnailUrl} alt="" />
                       <span>{track.title}</span>
-                      <button
-                        type="button"
-                        aria-label="ลบเพลงออกจากคิว"
-                        onClick={() => send({ type: "remove_track", trackId: track.id })}
-                      >
-                        <Trash2 aria-hidden="true" />
-                      </button>
+                      <div className="item-actions">
+                        <button
+                          type="button"
+                          aria-label="ย้ายขึ้น"
+                          disabled={index === 0}
+                          onClick={() => moveTrack(index, "up")}
+                        >
+                          <ChevronUp aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="ย้ายลง"
+                          disabled={index === room.queue.length - 1}
+                          onClick={() => moveTrack(index, "down")}
+                        >
+                          <ChevronDown aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          className="remove-btn"
+                          aria-label="ลบเพลงออกจากคิว"
+                          onClick={() => send({ type: "remove_track", trackId: track.id })}
+                        >
+                          <Trash2 aria-hidden="true" />
+                        </button>
+                      </div>
                     </li>
                   ))}
                 </ol>
