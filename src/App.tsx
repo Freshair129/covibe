@@ -27,6 +27,9 @@ import {
   Wifi
 } from "lucide-react";
 
+import { youtubeIdFromInput, thumbnailFor } from "./utils/youtube";
+import { calculateSyncAction } from "./utils/sync";
+
 type Role = "rider" | "passenger";
 
 type Participant = {
@@ -159,34 +162,6 @@ function makeParticipantId() {
   return id;
 }
 
-function youtubeIdFromInput(input: string) {
-  const value = input.trim();
-  if (/^[a-zA-Z0-9_-]{11}$/.test(value)) return value;
-
-  try {
-    const url = new URL(value);
-    if (url.hostname.includes("youtu.be")) {
-      return url.pathname.replace("/", "").slice(0, 11);
-    }
-    if (url.hostname.includes("youtube.com")) {
-      const id = url.searchParams.get("v");
-      if (id) return id.slice(0, 11);
-      const shorts = url.pathname.match(/\/shorts\/([a-zA-Z0-9_-]{11})/);
-      if (shorts?.[1]) return shorts[1];
-      const embed = url.pathname.match(/\/embed\/([a-zA-Z0-9_-]{11})/);
-      if (embed?.[1]) return embed[1];
-    }
-  } catch {
-    return null;
-  }
-
-  return null;
-}
-
-function thumbnailFor(sourceId: string) {
-  return `https://img.youtube.com/vi/${sourceId}/hqdefault.jpg`;
-}
-
 function formatTime(ms: number) {
   const safe = Math.max(0, Math.floor(ms / 1000));
   const minutes = Math.floor(safe / 60);
@@ -210,6 +185,8 @@ function loadYouTubeApi() {
   });
 }
 
+const ROOM_KEY = "covibe.roomId";
+
 function useRealtime() {
   const wsRef = useRef<WebSocket | null>(null);
   const [status, setStatus] = useState<"connecting" | "open" | "closed">("connecting");
@@ -217,27 +194,64 @@ function useRealtime() {
   const [participantId, setParticipantId] = useState(makeParticipantId);
   const [error, setError] = useState("");
   const [voiceSignal, setVoiceSignal] = useState<VoiceSignal | null>(null);
+  const reconnectCountRef = useRef(0);
+  const reconnectTimerRef = useRef<number | null>(null);
 
-  useEffect(() => {
+  const connect = useCallback(() => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) return;
+
     const ws = new WebSocket(WS_URL);
     wsRef.current = ws;
     setStatus("connecting");
 
-    ws.addEventListener("open", () => setStatus("open"));
-    ws.addEventListener("close", () => setStatus("closed"));
+    ws.addEventListener("open", () => {
+      setStatus("open");
+      reconnectCountRef.current = 0;
+      if (reconnectTimerRef.current) {
+        window.clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
+      
+      // Auto-rejoin if we have a saved roomId
+      const savedRoomId = localStorage.getItem(ROOM_KEY);
+      const savedName = localStorage.getItem(NAME_KEY);
+      if (savedRoomId) {
+        ws.send(JSON.stringify({
+          type: "join_room",
+          roomId: savedRoomId,
+          participantId: makeParticipantId(),
+          displayName: savedName || "กำลังกลับมา...",
+          role: "passenger" // Default to passenger on reconnect, will be updated by server state
+        }));
+      }
+    });
+
+    ws.addEventListener("close", () => {
+      setStatus("closed");
+      // Exponential backoff: 1s, 2s, 4s, 8s, max 30s
+      const delay = Math.min(30000, Math.pow(2, reconnectCountRef.current) * 1000);
+      reconnectCountRef.current++;
+      reconnectTimerRef.current = window.setTimeout(connect, delay);
+    });
+
     ws.addEventListener("error", () => {
       setStatus("closed");
-      setError("เชื่อมต่อ realtime server ไม่สำเร็จ");
+      setError("การเชื่อมต่อขัดข้อง กำลังลองใหม่...");
     });
+
     ws.addEventListener("message", (event) => {
       const message = JSON.parse(event.data) as ServerMessage;
       if (message.type === "room_created" || message.type === "room_joined") {
         setRoom(message.room);
         setParticipantId(message.participantId);
         localStorage.setItem(PARTICIPANT_KEY, message.participantId);
+        localStorage.setItem(ROOM_KEY, message.room.roomId);
         window.history.replaceState(null, "", `/?room=${message.room.roomId}`);
       }
-      if (message.type === "room_state") setRoom(message.room);
+      if (message.type === "room_state") {
+        setRoom(message.room);
+        localStorage.setItem(ROOM_KEY, message.room.roomId);
+      }
       if (message.type === "chat_message") {
         setRoom((current) => {
           if (!current || current.roomId !== message.message.roomId) return current;
@@ -264,20 +278,42 @@ function useRealtime() {
       if (message.type === "voice_signal") {
         setVoiceSignal({ fromId: message.fromId, signal: message.signal });
       }
-      if (message.type === "error") setError(message.message);
+      if (message.type === "error") {
+        if (message.message.includes("ไม่พบห้อง")) {
+          localStorage.removeItem(ROOM_KEY);
+          setRoom(null);
+        }
+        setError(message.message);
+      }
     });
-
-    return () => ws.close();
   }, []);
+
+  useEffect(() => {
+    connect();
+    
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        connect();
+      }
+    };
+    
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      if (wsRef.current) wsRef.current.close();
+      if (reconnectTimerRef.current) window.clearTimeout(reconnectTimerRef.current);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [connect]);
 
   const send = useCallback((message: ClientMessage) => {
     setError("");
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      setError("ยังไม่เชื่อมต่อ realtime server");
+      // If closed, attempt immediate reconnect when trying to send
+      connect();
       return;
     }
     wsRef.current.send(JSON.stringify({ participantId, roomId: room?.roomId, ...message }));
-  }, [participantId, room?.roomId]);
+  }, [participantId, room?.roomId, connect]);
 
   return { status, room, participantId, error, setError, send, voiceSignal };
 }
@@ -358,11 +394,12 @@ function YouTubeDeck({
     }
 
     const actualSeconds = player.getCurrentTime?.() || 0;
-    const driftSeconds = actualSeconds - expectedSeconds;
-    if (Math.abs(driftSeconds) > 0.8) {
-      player.seekTo(expectedSeconds, true);
-    } else if (Math.abs(driftSeconds) > 0.25 && room.playback.isPlaying) {
-      player.setPlaybackRate(driftSeconds > 0 ? 0.95 : 1.05);
+    const action = calculateSyncAction(actualSeconds, expectedSeconds);
+
+    if (action.type === "seek") {
+      player.seekTo(action.positionSeconds, true);
+    } else if (action.type === "adjust_rate" && room.playback.isPlaying) {
+      player.setPlaybackRate(action.rate);
       window.setTimeout(() => player.setPlaybackRate(1), 1200);
     }
 
@@ -820,8 +857,9 @@ function App() {
     }
   }
 
-  function copyInvite() {
-    navigator.clipboard.writeText(joinUrl);
+  function leaveRoom() {
+    localStorage.removeItem(ROOM_KEY);
+    location.href = "/";
   }
 
   if (saver) {
@@ -933,6 +971,7 @@ function App() {
             <div className="room-strip">
               <span>ห้อง {room.roomId}</span>
               <span>{self?.role === "rider" ? "Rider" : "Passenger"}</span>
+              <button className="leave-pill" onClick={leaveRoom}>ออกจากทริป</button>
             </div>
 
             <YouTubeDeck

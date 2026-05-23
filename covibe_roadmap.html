@@ -767,6 +767,220 @@
       color: var(--color-text-tertiary);
       margin-top: 1.5rem;
     }
+
+    /* ============================================================
+       MSP Telemetry Dashboard
+    ============================================================ */
+    .telemetry-panel {
+      background: var(--color-card-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-xl);
+      padding: 1.5rem;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .telemetry-panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, #6366f1, #818cf8, var(--color-accent), #34d399);
+      background-size: 200% 100%;
+      animation: shimmer 3s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .telemetry-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.25rem;
+    }
+
+    .telemetry-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(129, 140, 248, 0.1));
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: var(--border-radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: #818cf8;
+      flex-shrink: 0;
+    }
+
+    .telemetry-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      letter-spacing: -0.01em;
+      flex: 1;
+    }
+
+    .telemetry-live-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--color-accent);
+      background: var(--color-accent-dim);
+      border: 1px solid rgba(120, 244, 191, 0.2);
+      padding: 3px 8px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .live-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      box-shadow: 0 0 0 0 rgba(120, 244, 191, 0.7);
+      animation: pulse 1.6s infinite;
+    }
+
+    /* KPI row */
+    .telemetry-kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .kpi-card {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--border-radius-lg);
+      padding: 0.875rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: var(--transition-smooth);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card:hover {
+      border-color: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .kpi-icon {
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .kpi-value {
+      font-size: 1.3rem;
+      font-weight: 800;
+      font-family: 'Inter', monospace;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .kpi-label {
+      font-size: 0.7rem;
+      color: var(--color-text-tertiary);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .kpi-card.kpi-cost .kpi-value { color: #34d399; }
+    .kpi-card.kpi-calls .kpi-value { color: #818cf8; }
+    .kpi-card.kpi-input .kpi-value { color: #60a5fa; }
+    .kpi-card.kpi-output .kpi-value { color: #f472b6; }
+    .kpi-card.kpi-days .kpi-value { color: var(--color-text-secondary); }
+
+    /* Tier breakdown */
+    .telemetry-divider {
+      height: 1px;
+      background: var(--color-border);
+      margin: 1rem 0;
+    }
+
+    .telemetry-tiers-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--color-text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .tier-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .tier-row {
+      display: grid;
+      grid-template-columns: 52px 1fr auto auto auto;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .tier-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 99px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .tier-badge.t1 { background: rgba(52, 211, 153, 0.1); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.2); }
+    .tier-badge.t2 { background: rgba(129, 140, 248, 0.1); color: #818cf8; border: 1px solid rgba(129, 140, 248, 0.2); }
+    .tier-badge.t3 { background: rgba(251, 146, 60, 0.1); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.2); }
+
+    .tier-bar-wrap {
+      height: 5px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .tier-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tier-bar-fill.t1 { background: linear-gradient(90deg, #34d399, #6ee7b7); }
+    .tier-bar-fill.t2 { background: linear-gradient(90deg, #6366f1, #818cf8); }
+    .tier-bar-fill.t3 { background: linear-gradient(90deg, #f97316, #fb923c); }
+
+    .tier-stat {
+      font-size: 0.7rem;
+      font-family: 'Inter', monospace;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .telemetry-updated {
+      font-size: 0.65rem;
+      color: var(--color-text-tertiary);
+      text-align: right;
+      margin-top: 0.75rem;
+    }
   </style>
 </head>
 <body>
@@ -817,7 +1031,77 @@
   </header>
 
   <h2 class="sr-only">CoVibe product roadmap แบ่งเป็น 4 phases และ tasks ย่อย</h2>
-  
+
+  <!-- MSP Telemetry Dashboard -->
+  <section class="telemetry-panel" aria-label="MSP Telemetry Dashboard">
+    <div class="telemetry-header">
+      <div class="telemetry-icon"><i class="ti ti-chart-dots"></i></div>
+      <span class="telemetry-title">MSP Agent Telemetry Dashboard</span>
+      <span class="telemetry-live-badge"><span class="live-dot"></span>Realtime</span>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="telemetry-kpi-row">
+      <div class="kpi-card kpi-cost">
+        <i class="ti ti-currency-dollar kpi-icon" style="color:#34d399;"></i>
+        <span class="kpi-value" id="tele-cost">$0.0000</span>
+        <span class="kpi-label">Total Spend (USD)</span>
+      </div>
+      <div class="kpi-card kpi-calls">
+        <i class="ti ti-cpu kpi-icon" style="color:#818cf8;"></i>
+        <span class="kpi-value" id="tele-calls">0</span>
+        <span class="kpi-label">Total LLM Calls</span>
+      </div>
+      <div class="kpi-card kpi-input">
+        <i class="ti ti-arrow-bar-right kpi-icon" style="color:#60a5fa;"></i>
+        <span class="kpi-value" id="tele-input">0</span>
+        <span class="kpi-label">Input Tokens</span>
+      </div>
+      <div class="kpi-card kpi-output">
+        <i class="ti ti-arrow-bar-left kpi-icon" style="color:#f472b6;"></i>
+        <span class="kpi-value" id="tele-output">0</span>
+        <span class="kpi-label">Output Tokens</span>
+      </div>
+      <div class="kpi-card kpi-days">
+        <i class="ti ti-calendar-stats kpi-icon" style="color:var(--color-text-secondary);"></i>
+        <span class="kpi-value" id="tele-days">0</span>
+        <span class="kpi-label">Days Tracked</span>
+      </div>
+    </div>
+
+    <div class="telemetry-divider"></div>
+
+    <!-- Tier Breakdown -->
+    <div class="telemetry-tiers-label">
+      <i class="ti ti-layout-rows"></i> Tier Breakdown
+    </div>
+    <div class="tier-rows">
+      <div class="tier-row" id="tier-row-T1">
+        <span class="tier-badge t1">T1</span>
+        <div class="tier-bar-wrap"><div class="tier-bar-fill t1" id="tier-bar-T1"></div></div>
+        <span class="tier-stat" id="tier-calls-T1">0 calls</span>
+        <span class="tier-stat" id="tier-tokens-T1">0 tok</span>
+        <span class="tier-stat" id="tier-cost-T1">$0.0000</span>
+      </div>
+      <div class="tier-row" id="tier-row-T2">
+        <span class="tier-badge t2">T2</span>
+        <div class="tier-bar-wrap"><div class="tier-bar-fill t2" id="tier-bar-T2"></div></div>
+        <span class="tier-stat" id="tier-calls-T2">0 calls</span>
+        <span class="tier-stat" id="tier-tokens-T2">0 tok</span>
+        <span class="tier-stat" id="tier-cost-T2">$0.0000</span>
+      </div>
+      <div class="tier-row" id="tier-row-T3">
+        <span class="tier-badge t3">T3</span>
+        <div class="tier-bar-wrap"><div class="tier-bar-fill t3" id="tier-bar-T3"></div></div>
+        <span class="tier-stat" id="tier-calls-T3">0 calls</span>
+        <span class="tier-stat" id="tier-tokens-T3">0 tok</span>
+        <span class="tier-stat" id="tier-cost-T3">$0.0000</span>
+      </div>
+    </div>
+
+    <div class="telemetry-updated" id="tele-updated">— ยังไม่มีข้อมูล —</div>
+  </section>
+
   <div class="roadmap">
 
     <!-- PHASE 0 -->
@@ -866,12 +1150,12 @@
                 <span class="task-text"><i class="ti ti-clock"></i>วัด drift จริงระหว่าง 2 เครื่อง</span>
                 <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
               </div>
-              <div class="task-item" data-task-id="p0-s0-5" data-state="todo">
+              <div class="task-item" data-task-id="p0-s0-5" data-state="done">
                 <span class="checkmark"><i class="ti ti-check"></i></span>
                 <span class="task-text"><i class="ti ti-device-iphone"></i>ทดสอบบน iOS Safari + Android Chrome</span>
                 <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
               </div>
-              <div class="task-item" data-task-id="p0-s0-6" data-state="todo">
+              <div class="task-item" data-task-id="p0-s0-6" data-state="done">
                 <span class="checkmark"><i class="ti ti-check"></i></span>
                 <span class="task-text"><i class="ti ti-alert-triangle"></i>ระบุข้อจำกัด autoplay / background playback / wake lock</span>
                 <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
@@ -1056,7 +1340,7 @@
                 <span class="task-text"><i class="ti ti-antenna"></i>Latency ping ทุก 3 วินาที + clock sync กับ server</span>
                 <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
               </div>
-              <div class="task-item" data-task-id="p2-s2a-3" data-state="todo">
+              <div class="task-item" data-task-id="p2-s2a-3" data-state="done">
                 <span class="checkmark"><i class="ti ti-check"></i></span>
                 <span class="task-text"><i class="ti ti-plug-connected"></i>Reconnect อัตโนมัติหลังเน็ตหลุด + resync position</span>
                 <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
@@ -1123,7 +1407,7 @@
                 <span class="task-text"><i class="ti ti-chart-bar"></i>Analytics events ขั้นพื้นฐาน (กิจกรรมห้อง, อัตราดริฟต์เฉลี่ย)</span>
                 <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
               </div>
-              <div class="task-item" data-task-id="p2-s2b-6" data-state="todo">
+              <div class="task-item" data-task-id="p2-s2b-6" data-state="done">
                 <span class="checkmark"><i class="ti ti-check"></i></span>
                 <span class="task-text"><i class="ti ti-bug"></i>Error tracking integration (ติดตั้งระบบรายงาน crash)</span>
                 <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
@@ -1354,7 +1638,7 @@
   // ค่าสถานะทางการอ้างอิงตรงจาก Git Branch
   const OFFICIAL_STATE = {
     // Phase 0
-    "p0-s0-1": "done", "p0-s0-2": "done", "p0-s0-3": "done", "p0-s0-4": "done", "p0-s0-5": "todo", "p0-s0-6": "todo",
+    "p0-s0-1": "done", "p0-s0-2": "done", "p0-s0-3": "done", "p0-s0-4": "done", "p0-s0-5": "done", "p0-s0-6": "done",
     // Phase 1
     "p1-s1a-1": "done", "p1-s1a-2": "done", "p1-s1a-3": "done", "p1-s1a-4": "done", "p1-s1a-5": "done", "p1-s1a-6": "done", "p1-s1a-7": "done",
     "p1-s1b-1": "done", "p1-s1b-2": "todo", "p1-s1b-3": "done", "p1-s1b-4": "done", "p1-s1b-5": "done", "p1-s1b-6": "done",
@@ -1529,6 +1813,12 @@
         clearInterval(reconnectTimer);
         reconnectTimer = null;
       }
+      // Request initial telemetry data
+      setTimeout(() => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({ type: 'get_telemetry' }));
+        }
+      }, 200);
     };
 
     socket.onclose = () => {
@@ -1581,6 +1871,56 @@
             taskItem.setAttribute('data-state', 'todo');
             saveStateToStorage();
             updateProgress();
+          }
+        } else if (data.type === 'telemetry_update') {
+          const t = data.telemetry;
+          if (t) {
+            // Update KPIs
+            document.getElementById('tele-cost').textContent = '$' + Number(t.total_cost_usd || 0).toFixed(4);
+            document.getElementById('tele-calls').textContent = Number(t.total_calls || 0).toLocaleString();
+            document.getElementById('tele-input').textContent = Number(t.total_input_tokens || 0).toLocaleString();
+            document.getElementById('tele-output').textContent = Number(t.total_output_tokens || 0).toLocaleString();
+            document.getElementById('tele-days').textContent = Number(t.days_covered || 0);
+
+            // Update Tier Breakdowns
+            const maxCalls = Math.max(
+              t.by_tier?.T1?.count || 0,
+              t.by_tier?.T2?.count || 0,
+              t.by_tier?.T3?.count || 0,
+              1
+            );
+            
+            ['T1', 'T2', 'T3'].forEach(tier => {
+              const b = t.by_tier?.[tier] || { count: 0, cost_usd: 0, input_tokens: 0, output_tokens: 0 };
+              const calls = b.count || 0;
+              const cost = b.cost_usd || 0;
+              const inputTok = b.input_tokens || 0;
+              const outputTok = b.output_tokens || 0;
+              const totalTok = inputTok + outputTok;
+
+              // Progress bar fill width
+              const bar = document.getElementById(`tier-bar-${tier}`);
+              if (bar) {
+                const pct = Math.min(100, Math.max(0, (calls / maxCalls) * 100));
+                bar.style.width = pct + '%';
+              }
+
+              // Text stats
+              const callsEl = document.getElementById(`tier-calls-${tier}`);
+              const tokensEl = document.getElementById(`tier-tokens-${tier}`);
+              const costEl = document.getElementById(`tier-cost-${tier}`);
+
+              if (callsEl) callsEl.textContent = calls.toLocaleString() + ' calls';
+              if (tokensEl) tokensEl.textContent = totalTok.toLocaleString() + ' tok';
+              if (costEl) costEl.textContent = '$' + cost.toFixed(4);
+            });
+
+            // Last updated timestamp
+            const updatedEl = document.getElementById('tele-updated');
+            if (updatedEl) {
+              const d = new Date(t.updated_at || Date.now());
+              updatedEl.textContent = `Last update: ${d.toLocaleTimeString()} (${d.toLocaleDateString()})`;
+            }
           }
         }
       } catch (err) {

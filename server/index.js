@@ -1,13 +1,87 @@
+import "./instrument.js";
 import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 import { WebSocketServer } from "ws";
 import { spawn } from "node:child_process";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { readFile } from "node:fs/promises";
 
-const PORT = Number(process.env.COVIBE_SERVER_PORT || 8787);
+const PORT = Number(process.env.COVIBE_SERVER_PORT || 8800);
+const COVIBE_ROOT = resolve("g:/covibe");
 const rooms = new Map();
 const clients = new Map();
 const activeTasks = new Map();
+
+// ---------------------------------------------------------------------------
+// MSP Telemetry Aggregation
+// ---------------------------------------------------------------------------
+
+const SUMMARY_START = "<!-- USAGE-SUMMARY-START -->";
+const SUMMARY_END = "<!-- USAGE-SUMMARY-END -->";
+
+function parseDailySummary(content) {
+  const s = content.indexOf(SUMMARY_START);
+  const e = content.indexOf(SUMMARY_END);
+  if (s === -1 || e === -1 || e < s) return null;
+  const block = content.slice(s + SUMMARY_START.length, e);
+  const m = block.match(/```json\s*([\s\S]*?)\s*```/);
+  if (!m) return null;
+  try { return JSON.parse(m[1]); } catch { return null; }
+}
+
+async function getTelemetryData() {
+  const usageDir = resolve(COVIBE_ROOT, "gks", "usage");
+  const out = {
+    total_cost_usd: 0,
+    total_input_tokens: 0,
+    total_output_tokens: 0,
+    total_calls: 0,
+    days_covered: 0,
+    by_tier: { T1: { count: 0, cost_usd: 0, input_tokens: 0, output_tokens: 0 },
+               T2: { count: 0, cost_usd: 0, input_tokens: 0, output_tokens: 0 },
+               T3: { count: 0, cost_usd: 0, input_tokens: 0, output_tokens: 0 } },
+    updated_at: new Date().toISOString()
+  };
+  let files;
+  try {
+    files = readdirSync(usageDir).filter(f => f.startsWith("USAGE--DAILY-") && f.endsWith(".md"));
+  } catch { return out; }
+  for (const file of files) {
+    try {
+      const content = await readFile(join(usageDir, file), "utf-8");
+      const summary = parseDailySummary(content);
+      if (!summary) continue;
+      out.days_covered++;
+      if (typeof summary.total_cost_usd === "number") out.total_cost_usd += summary.total_cost_usd;
+      if (typeof summary.total_input_tokens === "number") out.total_input_tokens += summary.total_input_tokens;
+      if (typeof summary.total_output_tokens === "number") out.total_output_tokens += summary.total_output_tokens;
+      if (typeof summary.call_count === "number") out.total_calls += summary.call_count;
+      if (summary.by_tier) {
+        for (const tier of ["T1", "T2", "T3"]) {
+          const b = summary.by_tier[tier];
+          if (!b) continue;
+          if (typeof b.count === "number") out.by_tier[tier].count += b.count;
+          if (typeof b.cost_usd === "number") out.by_tier[tier].cost_usd += b.cost_usd;
+          if (typeof b.input_tokens === "number") out.by_tier[tier].input_tokens += b.input_tokens;
+          if (typeof b.output_tokens === "number") out.by_tier[tier].output_tokens += b.output_tokens;
+        }
+      }
+    } catch { /* skip bad files */ }
+  }
+  return out;
+}
+
+async function broadcastTelemetry() {
+  try {
+    const telemetry = await getTelemetryData();
+    for (const [, client] of clients.entries()) {
+      send(client.ws, { type: "telemetry_update", telemetry });
+    }
+  } catch (err) {
+    console.error("[telemetry] broadcast failed:", err.message);
+  }
+}
 
 function getEvaEnv() {
   const env = { ...process.env, EVA_NO_TUI: "1" };
@@ -179,6 +253,8 @@ wss.on("connection", (ws) => {
   const clientId = randomUUID();
   clients.set(clientId, { ws, roomId: null, participantId: clientId });
   send(ws, { type: "hello", clientId, serverTime: Date.now() });
+  // Push telemetry snapshot immediately on connect
+  getTelemetryData().then(telemetry => send(ws, { type: "telemetry_update", telemetry })).catch(() => {});
 
   ws.on("message", (raw) => {
     let data;
@@ -226,6 +302,11 @@ wss.on("connection", (ws) => {
 
     if (data.type === "run_agent_task") {
       const { agent, taskId, taskText } = data;
+      const room = requireRoom(ws, client.roomId);
+if (!room) {
+  send(ws, { type: "error", message: "Cannot start agent task without joining a room." });
+  return;
+}
       if (activeTasks.has(taskId)) {
         try {
           activeTasks.get(taskId).kill("SIGKILL");
@@ -239,6 +320,8 @@ wss.on("connection", (ws) => {
         stream: "system",
         text: `Starting agent execution: "${agent}" for task: "${taskText}"`
       });
+      // Record log in room history for dashboard sync
+      appendLog(room, { type: "agent_log", taskId, stream: "system", text: `Starting agent execution: "${agent}" for task: "${taskText}"` });
 
       let cp;
       if (agent === "eva") {
@@ -302,6 +385,9 @@ wss.on("connection", (ws) => {
               activeTasks.delete(taskId);
             }
 
+            // 3. Broadcast updated telemetry after agent task completes
+            setTimeout(() => broadcastTelemetry(), 1000);
+
             send(ws, {
               type: "agent_log",
               taskId,
@@ -328,20 +414,24 @@ wss.on("connection", (ws) => {
 
       cp.stderr.on("data", (chunk) => {
         send(ws, {
-          type: "agent_log",
-          taskId,
-          stream: "stderr",
-          text: chunk.toString()
-        });
+        type: "agent_log",
+        taskId,
+        stream: "stderr",
+        text: chunk.toString()
+      });
+      // Record stderr log
+      appendLog(room, { type: "agent_log", taskId, stream: "stderr", text: chunk.toString() });
       });
 
       cp.on("error", (err) => {
         send(ws, {
-          type: "agent_log",
-          taskId,
-          stream: "stderr",
-          text: `Failed to spawn process: ${err.message}`
-        });
+        type: "agent_log",
+        taskId,
+        stream: "stderr",
+        text: `Failed to spawn process: ${err.message}`
+      });
+      // Record error log
+      appendLog(room, { type: "agent_log", taskId, stream: "stderr", text: `Failed to spawn process: ${err.message}` });
       });
 
       cp.on("close", (code) => {
@@ -360,11 +450,15 @@ wss.on("connection", (ws) => {
 
     if (data.type === "cancel_agent_task") {
       const { taskId } = data;
+      // Retrieve the room for logging; ensure the client is in a room
+      const room = requireRoom(ws, client.roomId);
+      if (!room) {
+        send(ws, { type: "error", message: "Cannot cancel task without joining a room." });
+        return;
+      }
       if (activeTasks.has(taskId)) {
         const cp = activeTasks.get(taskId);
-        try {
-          cp.kill("SIGKILL");
-        } catch (e) {}
+        try { cp.kill("SIGKILL"); } catch (e) {}
         activeTasks.delete(taskId);
         send(ws, {
           type: "agent_log",
@@ -372,12 +466,17 @@ wss.on("connection", (ws) => {
           stream: "system",
           text: `Canceled task: "${taskId}"`
         });
-        send(ws, {
-          type: "agent_status",
-          taskId,
-          status: "canceled"
-        });
+        // Record cancellation log using the valid room reference
+        appendLog(room, { type: "agent_log", taskId, stream: "system", text: `Canceled task: "${taskId}"` });
+        send(ws, { type: "agent_status", taskId, status: "canceled" });
+        // Broadcast updated telemetry after cancel
+        setTimeout(() => broadcastTelemetry(), 500);
       }
+      return;
+    }
+
+    if (data.type === "get_telemetry") {
+      getTelemetryData().then(telemetry => send(ws, { type: "telemetry_update", telemetry })).catch(() => {});
       return;
     }
 
@@ -552,6 +651,26 @@ setInterval(() => {
   }
 }, 1000 * 60 * 10);
 
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`CoVibe realtime server listening on http://localhost:${PORT}`);
+// Start the HTTP/WebSocket server with fallback port handling
+function startServer(port) {
+  server.listen(port, "0.0.0.0", () => {
+    console.log(`CoVibe realtime server listening on http://localhost:${port}`);
+  });
+}
+
+// Handle address-in-use errors and fallback before starting server
+server.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    const fallbackPort = PORT + 1;
+    console.warn(`Port ${PORT} in use – switching to fallback port ${fallbackPort}`);
+    // Remove this listener to avoid recursion
+    server.removeAllListeners("error");
+    startServer(fallbackPort);
+  } else {
+    console.error("[server] Unhandled error:", err);
+    process.exit(1);
+  }
 });
+
+// Attempt primary port
+startServer(PORT);
