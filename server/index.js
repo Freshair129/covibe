@@ -334,6 +334,11 @@ if (!room) {
           }
         );
         cp.stdin.write(`${taskText}\n`);
+      } else if (agent === "gemini") {
+        cp = spawn("powershell.exe", ["-NoProfile", "-Command", `gemini "${taskText.replace(/"/g, '`"')}"`], {
+          cwd: "g:/covibe",
+          env: { ...process.env, FORCE_COLOR: "1" }
+        });
       } else if (agent === "qwen") {
         cp = spawn("python", ["g:/qwen-cli/qwen.py", taskText], {
           cwd: "g:/covibe"
