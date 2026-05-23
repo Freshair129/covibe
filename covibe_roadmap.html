@@ -1618,6 +1618,7 @@
         <label for="agent-select" style="color: var(--color-text-secondary); font-size: 11px; font-family: var(--font-sans);">เอเจนต์:</label>
         <select id="agent-select" style="background: rgba(255,255,255,0.04); color: var(--color-text-primary); border: 1px solid var(--color-border); border-radius: 4px; padding: 2px 8px; font-size: 11px; font-family: var(--font-sans); cursor: pointer; outline: none; transition: border-color 0.2s;">
           <option value="gemini" style="background: #12131a; color: var(--color-text-primary);">Gemini CLI (Official)</option>
+          <option value="system" style="background: #12131a; color: var(--color-text-primary);">System Shell (Raw Command)</option>
           <option value="eva" style="background: #12131a; color: var(--color-text-primary);">EVA Agent (eva-cli)</option>
           <option value="qwen" style="background: #12131a; color: var(--color-text-primary);">Qwen Coder (qwen-cli)</option>
         </select>
@@ -1626,6 +1627,10 @@
     </div>
     <div class="terminal-body" id="terminal-body">
       <!-- Logs printed dynamically -->
+    </div>
+    <div class="terminal-footer" style="padding: 8px 12px; background: rgba(0,0,0,0.2); border-top: 1px solid var(--color-border); display: flex; gap: 8px;">
+      <span style="color: var(--color-accent); font-weight: bold; font-family: var(--font-mono);">$</span>
+      <input type="text" id="terminal-input" placeholder="พิมพ์คำสั่งที่นี่ (เช่น npm run test)..." style="flex: 1; background: transparent; border: none; color: var(--color-text-primary); font-family: var(--font-mono); font-size: 11px; outline: none;">
     </div>
   </section>
 
@@ -2030,6 +2035,34 @@
 
     // แสดงผลภาพรวมความคืบหน้าครั้งแรก
     updateProgress();
+
+    // ระบบสั่งงานผ่าน Command Input
+    const terminalInput = document.getElementById('terminal-input');
+    terminalInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const cmd = terminalInput.value.trim();
+        if (!cmd) return;
+
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+          logToTerminal('SYSTEM', `<span style="color: #ff5f56; font-weight: bold;">ERROR:</span> Cannot execute command. Server offline.`);
+          return;
+        }
+
+        const selectedAgent = document.getElementById('agent-select').value;
+        const taskId = 'manual-' + Date.now();
+        
+        logToTerminal('REQUEST', `Manual Command: "${cmd}" (Agent: ${selectedAgent})`);
+        
+        socket.send(JSON.stringify({
+          type: 'run_agent_task',
+          agent: selectedAgent,
+          taskId,
+          taskText: cmd
+        }));
+
+        terminalInput.value = '';
+      }
+    });
   });
 </script>
 </body>

@@ -339,6 +339,11 @@ if (!room) {
           cwd: "g:/covibe",
           env: { ...process.env, FORCE_COLOR: "1" }
         });
+      } else if (agent === "system") {
+        cp = spawn("powershell.exe", ["-NoProfile", "-Command", taskText], {
+          cwd: "g:/covibe",
+          env: { ...process.env, FORCE_COLOR: "1" }
+        });
       } else if (agent === "qwen") {
         cp = spawn("python", ["g:/qwen-cli/qwen.py", taskText], {
           cwd: "g:/covibe"
