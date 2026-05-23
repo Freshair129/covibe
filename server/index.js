@@ -7,7 +7,7 @@ import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { readFile } from "node:fs/promises";
 
-const PORT = Number(process.env.COVIBE_SERVER_PORT || 8787);
+const PORT = Number(process.env.COVIBE_SERVER_PORT || 8989);
 const COVIBE_ROOT = resolve("g:/covibe");
 const rooms = new Map();
 const clients = new Map();

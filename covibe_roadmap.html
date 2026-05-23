@@ -1806,7 +1806,7 @@
 
   function connectWebSocket() {
     const statusEl = document.getElementById('connection-status');
-    const wsUrl = `ws://${window.location.hostname || 'localhost'}:8787`;
+    const wsUrl = `ws://${window.location.hostname || 'localhost'}:8989`;
     socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
