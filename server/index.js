@@ -119,7 +119,7 @@ const server = createServer(async (req, res) => {
       const content = await readFile(join(COVIBE_ROOT, "covibe_roadmap.html"), "utf-8");
       res.writeHead(200, { 
         "content-type": "text/html",
-        "Content-Security-Policy": "default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' ws: wss:;"
+        "Content-Security-Policy": "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; connect-src * ws: wss:;"
       });
       res.end(content);
     } catch (err) {
