@@ -21,4 +21,24 @@ describe('Sync Logic Utility', () => {
     expect(calculateSyncAction(11.0, 10.0)).toEqual({ type: 'seek', positionSeconds: 10.0 });
     expect(calculateSyncAction(9.0, 10.0)).toEqual({ type: 'seek', positionSeconds: 10.0 });
   });
+
+  describe('Boundary & Edge Cases (from Local Qwen)', () => {
+    it('should ignore exactly 0.25s drift', () => {
+      // 0.25 is not > 0.25, so ignore
+      expect(calculateSyncAction(10.25, 10.0)).toEqual({ type: 'ignore' });
+    });
+
+    it('should adjust rate at slightly above 0.25s', () => {
+      expect(calculateSyncAction(10.26, 10.0)).toEqual({ type: 'adjust_rate', rate: 0.95 });
+      expect(calculateSyncAction(9.74, 10.0)).toEqual({ type: 'adjust_rate', rate: 1.05 });
+    });
+
+    it('should seek at exactly 0.81s drift', () => {
+      expect(calculateSyncAction(10.81, 10.0)).toEqual({ type: 'seek', positionSeconds: 10.0 });
+    });
+
+    it('should return ignore for perfect sync', () => {
+      expect(calculateSyncAction(10.0, 10.0)).toEqual({ type: 'ignore' });
+    });
+  });
 });
