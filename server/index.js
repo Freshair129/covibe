@@ -120,7 +120,10 @@ const server = createServer(async (req, res) => {
   if (pathname === "/roadmap" || pathname === "/roadmap/") {
     try {
       const content = await readFile(join(COVIBE_ROOT, "covibe_roadmap.html"), "utf-8");
-      res.writeHead(200, { "content-type": "text/html" });
+      res.writeHead(200, { 
+        "content-type": "text/html",
+        "Content-Security-Policy": "default-src * 'unsafe-inline' data: blob:; script-src * 'unsafe-inline' data: blob:; style-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; connect-src * ws: wss:;"
+      });
       res.end(content);
     } catch (err) {
       res.writeHead(500);

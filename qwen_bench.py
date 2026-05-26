@@ -4,23 +4,21 @@ import requests
 import time
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL = "qwen2.5-coder:14b-instruct-q4_K_M"
 
-def run_bench(prompt, num_ctx=8192):
+def run_bench(model, prompt, num_ctx=8192):
     payload = {
-        "model": MODEL,
+        "model": model,
         "prompt": prompt,
         "options": {"temperature": 0.1, "num_ctx": num_ctx},
         "stream": True
     }
     
-    print(f"--- Running Benchmark (Context: {num_ctx}) ---")
-    print(f"Model: {MODEL}\n")
+    print(f"--- Running Benchmark ---")
+    print(f"Model: {model}")
+    print(f"Context: {num_ctx}\n")
     
     try:
-        response_text = ""
         stats = {}
-        
         with requests.post(OLLAMA_URL, json=payload, stream=True, timeout=120) as r:
             r.raise_for_status()
             for line in r.iter_lines():
@@ -28,7 +26,6 @@ def run_bench(prompt, num_ctx=8192):
                     chunk = json.loads(line)
                     content = chunk.get("response", "")
                     print(content, end="", flush=True)
-                    response_text += content
                     if chunk.get("done"):
                         stats = chunk
                         break
@@ -37,36 +34,27 @@ def run_bench(prompt, num_ctx=8192):
         print("📊 PERFORMANCE METRICS")
         print("="*40)
         
-        # Nanoseconds to Seconds
         total_sec = stats.get("total_duration", 0) / 1e9
-        load_sec = stats.get("load_duration", 0) / 1e9
-        prompt_eval_sec = stats.get("prompt_eval_duration", 0) / 1e9
-        eval_sec = stats.get("eval_duration", 0) / 1e9
+        eval_sec = stats.get("eval_duration", 1) / 1e9
+        eval_count = stats.get("eval_count", 0)
+        tps = eval_count / eval_sec if eval_sec > 0 else 0
         
-        prompt_tokens = stats.get("prompt_eval_count", 0)
-        output_tokens = stats.get("eval_count", 0)
-        
-        tps = output_tokens / eval_sec if eval_sec > 0 else 0
-        input_tps = prompt_tokens / prompt_eval_sec if prompt_eval_sec > 0 else 0
-        
-        print(f"Input (Tokens):      {prompt_tokens} tokens")
-        print(f"Output (Tokens):     {output_tokens} tokens")
-        print(f"Processing Speed:    {input_tps:.2f} tokens/sec (Pre-fill)")
-        print(f"Generation Speed:    {tps:.2f} tokens/sec (Decoding)")
-        print(f"Total Time:          {total_sec:.2f}s")
-        print(f"Model Load Time:     {load_sec:.2f}s")
+        print(f"Input Tokens:    {stats.get('prompt_eval_count', 0)} t")
+        print(f"Output Tokens:   {eval_count} t")
+        print(f"Output Speed:    {tps:.2f} tokens/sec")
+        print(f"Total Time:      {total_sec:.2f}s")
         print("="*40)
         
     except Exception as e:
         print(f"\n❌ Error: {e}")
 
 if __name__ == "__main__":
-    test_prompt = "Write a comprehensive summary of React 19's new features with code examples for each."
-    if len(sys.argv) > 1:
-        test_prompt = sys.argv[1]
+    if len(sys.argv) < 3:
+        print("Usage: python qwen_bench.py <model_name> <prompt> [num_ctx]")
+        sys.exit(1)
     
-    ctx_to_test = 8192
-    if len(sys.argv) > 2:
-        ctx_to_test = int(sys.argv[2])
-        
-    run_bench(test_prompt, ctx_to_test)
+    model_name = sys.argv[1]
+    prompt_text = sys.argv[2]
+    ctx_window = int(sys.argv[3]) if len(sys.argv) > 3 else 8192
+    
+    run_bench(model_name, prompt_text, ctx_window)

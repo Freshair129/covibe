@@ -14,7 +14,7 @@ import json
 import requests
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
-DEFAULT_MODEL = "qwen2.5-coder:14b"
+DEFAULT_MODEL = "qwen3:14b"
 
 SYSTEM_PROMPTS = {
     "code": "You are an expert software engineer. Output code only, no explanation unless asked. Be concise and precise.",

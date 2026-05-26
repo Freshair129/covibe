@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'IBM Plex Sans Thai', 'Prompt', ui-sans-serif, system-ui, sans-serif;
+  --color-cyan-500: #E8820C;
+  --color-cyan-400: #F09420;
+  --color-indigo-500: #B86A08;
+  --color-slate-950: #1A1710;
+  --color-slate-900: #2A2520;
+  --color-slate-800: #3A3530;
+}

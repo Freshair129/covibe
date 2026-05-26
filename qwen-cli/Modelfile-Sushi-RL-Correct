@@ -1,0 +1,9 @@
+FROM C:\Users\freshair\.ollama\models\blobs\sha256-ab7493b9fa7c21441044e2e5755faddfe8cf13064ce319d5fcaa2213e2e4cec8
+TEMPLATE """{{ if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}{{ if .Prompt }}<|im_start|>user
+{{ .Prompt }}<|im_end|>
+{{ end }}<|im_start|>assistant
+{{ .Response }}<|im_end|>"""
+PARAMETER stop "<|im_start|>"
+PARAMETER stop "<|im_end|>"

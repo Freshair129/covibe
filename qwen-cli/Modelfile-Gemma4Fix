@@ -1,0 +1,20 @@
+# Modelfile for Gemma-4-E4B-Uncensored-HauhauCS-Aggressive
+# Optimized for Ollama v0.24.0+
+
+FROM C:\Users\freshair\.ollama\models\blobs\sha256-559e43668ae5331cb8e6767e702eb71ba20834a5b88698ae
+
+# Gemma 4 Specific Chat Template
+TEMPLATE """<start_of_turn>user
+{{ .Prompt }}<end_of_turn>
+<start_of_turn>model
+{{ .Response }}<end_of_turn>"""
+
+# Recommended Sampling Parameters for Aggressive Mode
+PARAMETER temperature 1.0
+PARAMETER top_p 0.95
+PARAMETER top_k 64
+PARAMETER stop "<end_of_turn>"
+PARAMETER stop "<start_of_turn>"
+
+# Hardware Safety Limit for 12GB VRAM
+PARAMETER num_ctx 8192
