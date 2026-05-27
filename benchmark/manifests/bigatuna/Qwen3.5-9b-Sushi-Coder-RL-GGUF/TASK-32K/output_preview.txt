@@ -1,0 +1,6 @@
+<think>
+Let me analyze this request carefully:
+
+1. The user wants a Circuit Breaker implementation in TypeScript
+2. It needs three states: CLOSED, OPEN, HALF_OPEN
+3. Strict rules: output ONLY the core...

@@ -1,0 +1,7 @@
+```typescript
+class CircuitBreaker {
+    private state = 'CLOSED';
+    private threshold = 250;
+
+    public calculateSyncAction(clientTime: number, serverTime: number, drift: number): string {
+       ...

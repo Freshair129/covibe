@@ -1,70 +1,68 @@
 import { useState } from "react";
-import { Search, Plus, Music2, RotateCw } from "lucide-react";
+import { Search, Plus, Music2, RotateCw, AlertTriangle } from "lucide-react";
 import { Track } from "../types";
 
 interface SearchPanelProps {
   onAddTrack: (track: Partial<Track>) => void;
 }
 
-const MOCK_RESULTS: Partial<Track>[] = [
-  {
-    source: "youtube",
-    sourceId: "dQw4w9WgXcQ",
-    title: "Rick Astley - Never Gonna Give You Up (Official Music Video)",
-    thumbnailUrl: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
-    durationMs: 212000,
-  },
-  {
-    source: "youtube",
-    sourceId: "kJQP7kiw5Fk",
-    title: "Luis Fonsi - Despacito ft. Daddy Yankee",
-    thumbnailUrl: "https://i.ytimg.com/vi/kJQP7kiw5Fk/hqdefault.jpg",
-    durationMs: 282000,
-  },
-  {
-    source: "youtube",
-    sourceId: "9bZkp7q19f0",
-    title: "PSY - GANGNAM STYLE(강남스타일) M/V",
-    thumbnailUrl: "https://i.ytimg.com/vi/9bZkp7q19f0/hqdefault.jpg",
-    durationMs: 252000,
-  },
-  {
-    source: "youtube",
-    sourceId: "y6120QOlsfU",
-    title: "Darude - Sandstorm",
-    thumbnailUrl: "https://i.ytimg.com/vi/y6120QOlsfU/hqdefault.jpg",
-    durationMs: 232000,
-  },
-  {
-    source: "youtube",
-    sourceId: "fJ9rUzIMcZQ",
-    title: "Queen – Bohemian Rhapsody (Official Video Remastered)",
-    thumbnailUrl: "https://i.ytimg.com/vi/fJ9rUzIMcZQ/hqdefault.jpg",
-    durationMs: 359000,
-  }
-];
+function formatDurationMs(ms: number) {
+  if (!ms) return "";
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}
 
 export function SearchPanel({ onAddTrack }: SearchPanelProps) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<Partial<Track>[]>([]);
+  const [results, setResults] = useState<Partial<Track & { channelTitle?: string }>[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [searchError, setSearchError] = useState("");
+  const [noApiKey, setNoApiKey] = useState(false);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
 
     setIsSearching(true);
     setHasSearched(true);
-    
-    // Simulate API delay
-    setTimeout(() => {
-      const filtered = MOCK_RESULTS.filter(r => 
-        r.title?.toLowerCase().includes(query.toLowerCase())
-      );
-      setResults(filtered);
+    setSearchError("");
+    setNoApiKey(false);
+
+    try {
+      // Determine server base URL (same origin as WS, but HTTP)
+      const wsUrl = import.meta.env.VITE_COVIBE_WS_URL || "";
+      let serverBase: string;
+      if (wsUrl) {
+        serverBase = wsUrl.replace(/^ws/, "http").replace(/:\d+$/, "");
+      } else {
+        serverBase = `${location.protocol}//${location.hostname}:8787`;
+      }
+
+      const res = await fetch(`${serverBase}/api/youtube-search?q=${encodeURIComponent(query.trim())}`);
+      const data = await res.json();
+
+      if (data.error) {
+        setSearchError(data.message || data.error);
+        setResults([]);
+        return;
+      }
+
+      if (data.source === "fallback") {
+        setNoApiKey(true);
+        setResults([]);
+        return;
+      }
+
+      setResults(data.results || []);
+    } catch (err) {
+      setSearchError("ไม่สามารถค้นหาได้ — ตรวจสอบว่า server ทำงานอยู่");
+      setResults([]);
+    } finally {
       setIsSearching(false);
-    }, 600);
+    }
   };
 
   return (
@@ -80,7 +78,7 @@ export function SearchPanel({ onAddTrack }: SearchPanelProps) {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="ลองพิมพ์ 'Rick' หรือ 'Queen'..."
+            placeholder="ค้นหาเพลง..."
           />
         </div>
         <button type="submit" disabled={isSearching} aria-label="ค้นหา">
@@ -88,8 +86,23 @@ export function SearchPanel({ onAddTrack }: SearchPanelProps) {
         </button>
       </form>
 
-      <div className="search-results-container" style={{ marginTop: '16px', maxHeight: '320px', overflowY: 'auto' }}>
-        {results.length === 0 && !isSearching && hasSearched && (
+      <div className="search-results-container" style={{ marginTop: '16px', maxHeight: '360px', overflowY: 'auto' }}>
+        {searchError && (
+          <div className="search-error-msg">
+            <AlertTriangle size={16} />
+            <span>{searchError}</span>
+          </div>
+        )}
+
+        {noApiKey && (
+          <div className="search-no-api">
+            <AlertTriangle size={18} />
+            <p>YouTube API key ยังไม่ได้ตั้งค่า</p>
+            <small className="muted">ใช้ช่อง "เพิ่มเพลง" ด้านล่างพร้อมวาง YouTube URL แทนได้เลย</small>
+          </div>
+        )}
+
+        {results.length === 0 && !isSearching && hasSearched && !searchError && !noApiKey && (
           <p className="muted" style={{ textAlign: 'center', padding: '20px' }}>
             ไม่พบผลลัพธ์ที่ตรงกัน
           </p>
@@ -98,9 +111,15 @@ export function SearchPanel({ onAddTrack }: SearchPanelProps) {
         {results.length > 0 && (
           <ul className="queue-list">
             {results.map((track) => (
-              <li key={track.sourceId} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '8px 0' }}>
+              <li key={track.sourceId} className="search-result-item">
                 <img src={track.thumbnailUrl} alt={track.title} />
-                <span title={track.title} style={{ fontWeight: 500 }}>{track.title}</span>
+                <div className="search-result-info">
+                  <span className="search-result-title" title={track.title}>{track.title}</span>
+                  <small className="search-result-meta">
+                    {(track as { channelTitle?: string }).channelTitle || ""}
+                    {track.durationMs ? ` · ${formatDurationMs(track.durationMs)}` : ""}
+                  </small>
+                </div>
                 <div className="item-actions">
                   <button 
                     type="button"
@@ -140,6 +159,47 @@ export function SearchPanel({ onAddTrack }: SearchPanelProps) {
         }
         .spin {
           animation: spin-loader 1.2s linear infinite;
+        }
+        .search-result-item {
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          padding: 8px 0;
+        }
+        .search-result-info {
+          display: grid;
+          gap: 2px;
+          min-width: 0;
+        }
+        .search-result-title {
+          font-weight: 500;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .search-result-meta {
+          color: #a8b6b0;
+          font-size: 0.8rem;
+        }
+        .search-error-msg {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px;
+          border-radius: 8px;
+          background: rgba(239, 68, 68, 0.1);
+          color: #ffaaa3;
+          font-size: 0.88rem;
+        }
+        .search-no-api {
+          display: grid;
+          place-items: center;
+          gap: 8px;
+          padding: 20px 16px;
+          text-align: center;
+          color: #f5ca78;
+        }
+        .search-no-api p {
+          font-weight: 700;
+          margin: 0;
         }
       `}</style>
     </div>

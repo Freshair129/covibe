@@ -1,0 +1,19 @@
+{
+    "context_length": 8192,
+    "tokens_per_second": 103.06,
+    "input_tokens": 20,
+    "output_tokens": 20,
+    "total_tokens": 20,
+    "start_time": "2026-05-27T00:46:53.739Z",
+    "end_time": "2026-05-27T00:47:37.064Z",
+    "total_time": 43.32,
+    "quality_metrics": "PASS",
+    "quality_score": 0.54321,
+    "benchmark": {
+        "framework_version": "1.32.0",
+        "model": "gemma4-rust-coder-latest",
+        "provider": "https://huggingface.co/MassivDash/Gemma-4-Rust-Coder",
+        "dataset": "TASK-8K",
+        "task": "TASK-8K"
+    }
+}

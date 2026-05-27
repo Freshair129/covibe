@@ -820,3 +820,165 @@ input:focus {
     transform: rotate(360deg);
   }
 }
+
+/* Host Handoff Notification */
+.host-notification {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(245, 202, 120, 0.4);
+  border-radius: 8px;
+  background: rgba(245, 202, 120, 0.12);
+  color: #f5ca78;
+  font-weight: 800;
+  font-size: 0.95rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Trip Summary Page */
+.trip-summary {
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 12px;
+  background: rgba(15, 20, 22, 0.86);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(14px);
+  padding: 28px 24px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.trip-summary-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.trip-summary-header h2 {
+  font-size: 1.4rem;
+  flex: 1;
+}
+
+.trip-summary-header svg {
+  width: 24px;
+  height: 24px;
+  color: #78f4bf;
+}
+
+.trip-room-badge {
+  padding: 4px 12px;
+  border: 1px solid rgba(120, 244, 191, 0.3);
+  border-radius: 999px;
+  background: rgba(120, 244, 191, 0.08);
+  color: #78f4bf;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.trip-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.trip-stat-card {
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  padding: 18px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  text-align: center;
+}
+
+.trip-stat-card svg {
+  width: 22px;
+  height: 22px;
+  color: #78f4bf;
+}
+
+.trip-stat-value {
+  font-size: 1.6rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.trip-stat-label {
+  font-size: 0.82rem;
+  color: #a8b6b0;
+  font-weight: 600;
+}
+
+.trip-participants {
+  margin-bottom: 24px;
+}
+
+.trip-participants h3 {
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+  color: #dce6df;
+}
+
+.trip-participant-list {
+  display: grid;
+  gap: 10px;
+}
+
+.trip-participant {
+  display: grid;
+  grid-template-columns: 10px auto 1fr;
+  gap: 8px 10px;
+  align-items: center;
+}
+
+.trip-participant small {
+  text-align: right;
+  color: #a8b6b0;
+  font-size: 0.82rem;
+}
+
+.trip-summary-loading,
+.trip-summary-error {
+  display: grid;
+  place-items: center;
+  gap: 12px;
+  min-height: 200px;
+  text-align: center;
+}
+
+.trip-summary-loading svg {
+  width: 32px;
+  height: 32px;
+  color: #78f4bf;
+}
+
+@media (max-width: 560px) {
+  .trip-summary {
+    padding: 20px 16px;
+  }
+
+  .trip-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .trip-stat-value {
+    font-size: 1.3rem;
+  }
+}

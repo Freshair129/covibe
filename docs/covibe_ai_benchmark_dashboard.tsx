@@ -19,7 +19,8 @@ import {
 
 export default function App() {
   // state สำหรับจำลองการทำงานของ Inference Simulator
-  const [selectedModel, setSelectedModel] = useState('sushi');
+  type ModelKey = keyof typeof models;
+  const [selectedModel, setSelectedModel] = useState<ModelKey>('sushi');
   const [selectedTask, setSelectedTask] = useState('react-hook');
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulatedOutput, setSimulatedOutput] = useState('');
@@ -27,7 +28,7 @@ export default function App() {
   const [simulatedGpuTemp, setSimulatedGpuTemp] = useState(48);
   const [simulatedGpuLoad, setSimulatedGpuLoad] = useState(0);
   const [activeTab, setActiveTab] = useState('overview'); // overview, simulator, gap-analysis
-  const [showRcaId, setShowRcaId] = useState(null);
+  const [showRcaId, setShowRcaId] = useState<string | null>(null);
 
   // ข้อมูลของโมเดลผู้ชนะ (Champions)
   const models = {
@@ -186,7 +187,7 @@ const AudioPlayer = () => {
 
   // การจำลองพิมพ์โค้ด (Inference Code Generation Emulator)
   useEffect(() => {
-    let interval;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (isSimulating) {
       const selectedModelData = models[selectedModel];
       const code = selectedModelData.sampleCode;

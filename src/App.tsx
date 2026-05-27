@@ -31,12 +31,14 @@ import { YouTubeDeck } from "./components/YouTubeDeck";
 import { VoicePanel } from "./components/VoicePanel";
 import { ChatPanel } from "./components/ChatPanel";
 import { SearchPanel } from "./components/SearchPanel";
+import { TripSummary } from "./components/TripSummary";
 import { formatTime } from "./utils/time";
+import { trackEvent } from "./utils/analytics";
 import { Role } from "./types";
 import { NAME_KEY, ROOM_KEY } from "./constants";
 
 export default function App() {
-  const { status, room, participantId, error, setError, send, voiceSignal } = useRealtime();
+  const { status, room, participantId, error, setError, send, voiceSignal, hostNotification } = useRealtime();
   const roomFromUrl = new URLSearchParams(location.search).get("room") || "";
   const [role, setRole] = useState<Role>(roomFromUrl ? "passenger" : "rider");
   const [displayName, setDisplayName] = useState(
@@ -49,6 +51,8 @@ export default function App() {
   const [durationMs, setDurationMs] = useState(0);
   const [saver, setSaver] = useState(false);
   const [mediaMode, setMediaMode] = useState<"music" | "video">("music");
+  const [showTripSummary, setShowTripSummary] = useState(false);
+  const [tripRoomId, setTripRoomId] = useState("");
   const autoJoinedRef = useRef(false);
 
   const self = room?.participants.find((participant) => participant.id === participantId);
@@ -84,6 +88,7 @@ export default function App() {
   function createRoom() {
     setRole("rider");
     send({ type: "create_room", displayName });
+    trackEvent(send, "room_create");
   }
 
   function joinRoom() {
@@ -98,6 +103,7 @@ export default function App() {
       displayName,
       role: "passenger"
     });
+    trackEvent(send, "room_join", { roomCode: roomCode.trim().toUpperCase() });
   }
 
   function addTrack() {
@@ -114,6 +120,7 @@ export default function App() {
         thumbnailUrl: thumbnailFor(sourceId)
       }
     });
+    trackEvent(send, "track_add", { sourceId });
     setTrackInput("");
     setTrackTitle("");
   }
@@ -138,12 +145,28 @@ export default function App() {
     if (!room?.currentTrack) return;
     if (room.playback.isPlaying) {
       send({ type: "pause", positionMs: currentPosition });
+      trackEvent(send, "playback_pause");
     } else {
       send({ type: "play", positionMs: currentPosition });
+      trackEvent(send, "playback_play");
     }
   }
 
   function leaveRoom() {
+    trackEvent(send, "leave_room", { roomId: room?.roomId });
+    // Show trip summary instead of immediately leaving
+    if (room) {
+      setTripRoomId(room.roomId);
+      setShowTripSummary(true);
+    } else {
+      localStorage.removeItem(ROOM_KEY);
+      location.href = "/";
+    }
+  }
+
+  function closeTripSummary() {
+    setShowTripSummary(false);
+    setTripRoomId("");
     localStorage.removeItem(ROOM_KEY);
     location.href = "/";
   }
@@ -154,6 +177,33 @@ export default function App() {
     }).catch(() => {
       alert("ไม่สามารถคัดลอกลิงก์ได้");
     });
+  }
+
+  if (showTripSummary && tripRoomId) {
+    // Determine server base URL
+    const wsUrl = import.meta.env.VITE_COVIBE_WS_URL || "";
+    let serverBase: string;
+    if (wsUrl) {
+      serverBase = wsUrl.replace(/^ws/, "http").replace(/:\d+$/, "");
+    } else {
+      serverBase = `${location.protocol}//${location.hostname}:8787`;
+    }
+    return (
+      <main className="app-shell">
+        <header className="topbar">
+          <div className="brand-lockup">
+            <div className="brand-mark">
+              <Bluetooth aria-hidden="true" />
+            </div>
+            <div>
+              <h1>CoVibe</h1>
+              <p>ฟังเพลงเดียวกันบนมอไซค์</p>
+            </div>
+          </div>
+        </header>
+        <TripSummary roomId={tripRoomId} serverBase={serverBase} onClose={closeTripSummary} />
+      </main>
+    );
   }
 
   if (saver) {
@@ -186,6 +236,12 @@ export default function App() {
           {connectionLabel}
         </div>
       </header>
+
+      {hostNotification && (
+        <div className="host-notification">
+          {hostNotification}
+        </div>
+      )}
 
       {!room ? (
         <section className="start-grid">
@@ -333,7 +389,10 @@ export default function App() {
                 <SkipForward aria-hidden="true" />
                 ข้าม
               </button>
-              <button className="control-button" type="button" onClick={() => setSaver(true)}>
+              <button className="control-button" type="button" onClick={() => {
+                setSaver(true);
+                trackEvent(send, "saver_toggle", { enabled: true });
+              }}>
                 <Moon aria-hidden="true" />
                 จอดำ
               </button>

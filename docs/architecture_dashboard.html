@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoVibe Architecture Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #38bdf8;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .layer-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .layer-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 30px -10px rgba(56, 189, 248, 0.3);
+        }
+
+        .layer-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .layer-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 0.75rem;
+            color: var(--accent-color);
+        }
+
+        .layer-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .file-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+        }
+
+        .file-item {
+            font-size: 0.85rem;
+            padding: 0.4rem 0;
+            display: flex;
+            align-items: center;
+            color: var(--text-primary);
+        }
+
+        .file-item::before {
+            content: '📄';
+            margin-right: 8px;
+            opacity: 0.6;
+        }
+
+        .badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-color);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            border: 1px solid var(--accent-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            border: 1px solid var(--accent-color);
+        }
+
+        .close-btn {
+            float: right;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>CoVibe Docs Interactive</h1>
+    <p style="color: var(--text-secondary)">Agent-to-Agent Architecture Visualization</p>
+</header>
+
+<div class="dashboard-grid">
+    <!-- Context Layer -->
+    <div class="layer-card" onclick="showModal('Context Layer', 'Focuses on knowledge injection and baseline understanding for agents and humans.')">
+        <div class="badge">A2A Core</div>
+        <div class="layer-icon">🗺️</div>
+        <div class="layer-title">Context Layer</div>
+        <div class="layer-desc">Knowledge injection for discovery and baseline project understanding.</div>
+        <ul class="file-list">
+            <li class="file-item">system_prompt.md</li>
+            <li class="file-item">architectural_decisions.md</li>
+            <li class="file-item">domain_vocabulary.md</li>
+            <li class="file-item">logic_constraints_pwa.md</li>
+        </ul>
+    </div>
+
+    <!-- Capabilities Layer -->
+    <div class="layer-card" onclick="showModal('Capabilities Layer', 'Defines the functional scope and technical interfaces of the project.')">
+        <div class="layer-icon">🛠️</div>
+        <div class="layer-title">Capabilities Layer</div>
+        <div class="layer-desc">Inventory of features, API specifications, and integration methods.</div>
+        <ul class="file-list">
+            <li class="file-item">api_specifications.md</li>
+            <li class="file-item">feature_manifests.md</li>
+            <li class="file-item">integration_protocols.md</li>
+        </ul>
+    </div>
+
+    <!-- Protocol Layer -->
+    <div class="layer-card" onclick="showModal('Protocol Layer', 'Defines rules for interaction, security, and error management.')">
+        <div class="layer-icon">📜</div>
+        <div class="layer-title">Protocol Layer</div>
+        <div class="layer-desc">Governance for multi-agent interaction and system security.</div>
+        <ul class="file-list">
+            <li class="file-item">multi_agent_protocol.md</li>
+            <li class="file-item">error_taxonomy.md</li>
+            <li class="file-item">security_model.md</li>
+        </ul>
+    </div>
+
+    <!-- Evaluation Layer -->
+    <div class="layer-card" onclick="showModal('Evaluation Layer', 'Strict standards for benchmarking and quality validation.')">
+        <div class="layer-icon">🧪</div>
+        <div class="layer-title">Evaluation Layer</div>
+        <div class="layer-desc">Benchmark standards (EABS-01) and regression test scenarios.</div>
+        <ul class="file-list">
+            <li class="file-item">benchmark_standards.md</li>
+            <li class="file-item">test_scenarios.md</li>
+            <li class="file-item">regression_intelligence.md</li>
+        </ul>
+    </div>
+</div>
+
+<div id="modal" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h2 id="modal-title" style="color: var(--accent-color)"></h2>
+        <p id="modal-body" style="line-height: 1.6"></p>
+        <div style="margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-secondary)">
+            * Documentation paths are proposed in EAC-01 Candidate.
+        </div>
+    </div>
+</div>
+
+<script>
+    function showModal(title, body) {
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-body').innerText = body;
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>

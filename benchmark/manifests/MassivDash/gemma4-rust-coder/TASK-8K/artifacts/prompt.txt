@@ -1,0 +1,3 @@
+Implement a high-performance AsyncRetry utility in Rust using Tokio.
+Follow CoVibe's strict naming conventions.
+Include a simple usage example with a mock falling task.

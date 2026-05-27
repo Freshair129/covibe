@@ -10,6 +10,7 @@ export function useRealtime() {
   const [participantId, setParticipantId] = useState(makeParticipantId);
   const [error, setError] = useState("");
   const [voiceSignal, setVoiceSignal] = useState<VoiceSignal | null>(null);
+  const [hostNotification, setHostNotification] = useState("");
   const reconnectCountRef = useRef(0);
   const reconnectTimerRef = useRef<number | null>(null);
 
@@ -101,6 +102,11 @@ export function useRealtime() {
         }
         setError(message.message);
       }
+      if (message.type === "host_changed") {
+        setHostNotification(`🔄 ${message.newHostName} เป็นผู้ควบคุมเพลงแล้ว`);
+        // Auto-clear notification after 6 seconds
+        setTimeout(() => setHostNotification(""), 6000);
+      }
     });
   }, []);
 
@@ -131,5 +137,5 @@ export function useRealtime() {
     wsRef.current.send(JSON.stringify({ participantId, roomId: room?.roomId, ...message }));
   }, [participantId, room?.roomId, connect]);
 
-  return { status, room, participantId, error, setError, send, voiceSignal };
+  return { status, room, participantId, error, setError, send, voiceSignal, hostNotification };
 }

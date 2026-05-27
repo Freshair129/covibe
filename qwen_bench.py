@@ -9,7 +9,12 @@ def run_bench(model, prompt, num_ctx=8192):
     payload = {
         "model": model,
         "prompt": prompt,
-        "options": {"temperature": 0.1, "num_ctx": num_ctx},
+        "options": {
+            "temperature": 0.1, 
+            "num_ctx": num_ctx,
+            "num_predict": 2500, # ตัดจบที่ 2500 tokens เพื่อกัน Loop นรก
+            "stop": ["<|im_end|>", "### END", "```\n\n"] # เพิ่ม Stop sequence
+        },
         "stream": True
     }
     

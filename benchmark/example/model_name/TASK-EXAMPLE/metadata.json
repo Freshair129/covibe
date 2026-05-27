@@ -1,0 +1,22 @@
+{
+  "benchmark_id": "bench_20260527_EXAMPLE",
+  "model": {
+    "name": "example-model-9b",
+    "format": "GGUF",
+    "quantization": "Q4_K_M",
+    "context_length": 8192
+  },
+  "runtime": {
+    "runtime": "ollama",
+    "version": "0.24.0"
+  },
+  "hardware": {
+    "cpu": "i7-8700K",
+    "gpu": "RTX 3060 12GB",
+    "ram_gb": 32
+  },
+  "software": {
+    "os": "Windows 11",
+    "driver": "552.22"
+  }
+}

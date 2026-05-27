@@ -690,5 +690,31 @@ NOT by peak TPS alone.
 
 ---
 
+# 17. Real-Time Telemetry & Execution Protocol (RTTEP)
+
+The platform supports live-interactive benchmarking triggered from the dashboard and streamed in real-time.
+
+## 17.1 WebSocket Streaming Channel
+- **Protocol:** WebSockets (WS/WSS)
+- **Port:** Enforced default `8990` (binds to localhost for security).
+- **Update Frequency:** Hardware metrics MUST be collected and emitted at `1000ms` intervals.
+
+## 17.2 Standard Event Schema
+- `start_benchmark_run`: Triggered from UI with configurations (`provider`, `model_id`, `prompt`).
+- `abort_benchmark_run`: Halts spawned child processes instantly via SIGKILL.
+- `benchmark_status`: Notifies state changes (`running`, `completed`, `failed`, `idle`).
+- `benchmark_log`: Streams live process stdout/stderr logs.
+- `live_hardware_sample`: Pushes per-second system metrics directly to dashboard variables for live rendering.
+
+## 17.3 Thermal Safety Guard Integration
+- In addition to standard OS throttles, the telemetry server MUST parse real-time HML readings.
+- If a sample shows `GPU_Temp >= 71°C`, the server MUST emit a critical warning log and suspend the active run.
+
+## 17.4 Post-Run Cooldown Monitoring
+- Telemetry streams MUST continue to emit metrics for at least `10 seconds` after the runner process exits.
+- This captures the thermal cooldown slope of the GPU/CPU for analysis.
+
+---
+
 **END OF DOCUMENT**
 

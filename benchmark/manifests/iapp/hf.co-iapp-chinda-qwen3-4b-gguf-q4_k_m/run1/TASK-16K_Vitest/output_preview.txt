@@ -1,0 +1,7 @@
+Vitest test for calculateSyncAction function:
+
+```ts
+import { calculateSyncAction } from './path/to/your/file';
+
+describe('calculateSyncAction', () => {
+  it('should return "ignore" when drift is less...

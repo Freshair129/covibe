@@ -1,0 +1,6 @@
+```typescript
+class CircuitBreaker {
+    private state: 'closed' | 'open' | 'half-open' = 'closed';
+    private failureThreshold: number;
+    private failureCount: number;
+    private resetTimeout: nu...

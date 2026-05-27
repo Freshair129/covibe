@@ -1,0 +1,7 @@
+```typescript
+/**
+ * Calculates the action based on the time difference.
+ * @param timeDifference The difference in time.
+ * @returns The calculated action ('wait', 'fast_forward', 'stop').
+ */
+functi...

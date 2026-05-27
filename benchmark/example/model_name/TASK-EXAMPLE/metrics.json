@@ -1,0 +1,19 @@
+{
+  "benchmark_id": "bench_20260527_EXAMPLE",
+  "status": "completed",
+  "task": "L1_Standard",
+  "duration_seconds": 32.29,
+  "throughput": {
+    "avg_tps": 42.35,
+    "p95_tps": 45.12
+  },
+  "gpu": {
+    "max_temp_c": 58,
+    "max_vram_mb": 8600,
+    "max_power_w": 118
+  },
+  "quality": {
+    "passed": true,
+    "score": 1.0
+  }
+}

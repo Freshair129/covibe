@@ -71,7 +71,9 @@ export type ServerMessage =
       serverTime: number;
     }
   | { type: "error"; message: string }
-  | { type: "pong"; clientSentAt: number; serverTime: number };
+  | { type: "pong"; clientSentAt: number; serverTime: number }
+  | { type: "host_changed"; newHostId: string; newHostName: string; reason: string }
+  | { type: "telemetry_update"; telemetry: Record<string, unknown> };
 
 export type ClientMessage = Record<string, unknown>;
 
