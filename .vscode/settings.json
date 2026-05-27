@@ -1,0 +1,12 @@
+{
+  "liveServer.settings.ignoreFiles": [
+    "**/*.log",
+    "**/*.csv",
+    "**/*.hml",
+    "**/HardwareMonitoring.hml",
+    "**/latest_hw_log.csv",
+    "**/.brain/**",
+    "**/.git/**",
+    "**/node_modules/**"
+  ]
+}

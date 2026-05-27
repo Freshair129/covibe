@@ -58,6 +58,7 @@ To ensure modularity, tasks are separated from the orchestrator logic. Agents mu
 - **L2_LOGIC:** Algorithmic and architectural challenges.
 - **L3_DOMAIN:** Project-specific CoVibe logic (Vitest, YouTube API).
 - **L4_STRESS:** Maximum context and reasoning pressure tests.
+- **L5_INCIDENTS:** Real-world RCA scenarios based on actual project failures (e.g., CSP blocks, Encoding crashes). Used to test the "Seniority" and "Debugging" capabilities of an agent.
 
 ### 4.2 Testkit Assembly Protocol
 When creating a new benchmark run, the agent must:

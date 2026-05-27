@@ -14,10 +14,12 @@ Evaluate the model's ability to handle standard software engineering patterns an
 ### 1. Task Assignment
 - **Task A (L1):** `tasks/L1_BASE/async_retry_ts.txt`
 - **Task B (L2):** `tasks/L2_LOGIC/circuit_breaker_ts.txt`
+- **Task C (L5):** `tasks/L5_INCIDENTS/regex_think_collision.txt` (NEW: RCA Verification)
 
 ### 2. Context Ammunition (Payloads)
 - **Primary Window:** 8,192 Tokens (`payloads/payload_8k.txt`)
 - **Stress Window:** 16,384 Tokens (`payloads/payload_16k.txt`)
+- **RCA Context:** `docs/artifacts/incident_report_sushirl.md` (Optional reference)
 
 ---
 
