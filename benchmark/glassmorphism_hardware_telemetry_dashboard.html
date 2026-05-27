@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>X-Telemetry Reactor: Advanced Hardware Analytics</title>
+    <!-- Favicon to resolve browser 404 console error -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><rect width='128' height='128' rx='24' fill='%2303010c'/><path d='M38 38h24a26 26 0 0 1 0 52H38V38Z' fill='none' stroke='%2306b6d4' stroke-width='10' stroke-linejoin='round'/><path d='M64 38h26a26 26 0 0 1 0 52H64' fill='none' stroke='%23d946ef' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'/><circle cx='38' cy='64' r='8' fill='%23f3f7f4'/></svg>">
+    <!-- Suppress cdn.tailwindcss.com production warning -->
+    <script>
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+            if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
+                return;
+            }
+            originalWarn.apply(console, args);
+        };
+    </script>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->

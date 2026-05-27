@@ -50,7 +50,16 @@ benchmark/<model_id>/<task_id>/
 
 ---
 
-## 5. Automation Tools (เครื่องมือที่ได้รับอนุญาต)
+## 5. Naming & Storage Convention (MANDATORY)
+เพื่อให้ระบบค้นหาและประกอบร่าง Testkit ได้ง่าย คุณต้องปฏิบัติตามกฎนี้เสมอ:
+
+- **ตำแหน่ง:** ไฟล์แผนการทดสอบต้องเก็บไว้ใน `G:\covibe\benchmark\benchmark-kits\<Kit-Name>\`
+- **ชื่อไฟล์:** ต้องขึ้นต้นด้วย Prefix **`BENCHMARK--`** เสมอ (เช่น `benchmark-kits/Standard-Logic-Test/BENCHMARK--Standard-Logic-Test.md`)
+- **เนื้อหา:** ต้องระบุ Task Mapping และกระสุน Payloads ที่ใช้ให้ชัดเจนตามมาตรฐาน EABS-01
+
+---
+
+## 6. Automation Tools (เครื่องมือที่ได้รับอนุญาต)
 - **Orchestrator:** `scripts/great_orchestrator.py` (ระบบรันขนาน Local/Cloud)
 - **Slicer:** `scripts/slice_hw_logs.py` (ระบบตัดแบ่งข้อมูล Hardware)
 - **Organizer:** `scripts/organize_results.py` (ระบบจัดโครงสร้างโฟลเดอร์)

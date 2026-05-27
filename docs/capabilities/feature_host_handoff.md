@@ -31,3 +31,8 @@ When the rider (host) disconnects from the WebSocket, playback control becomes o
 - `src/hooks/useRealtime.ts`: `hostNotification` state and handler
 - `src/App.tsx`: Toast display for `hostNotification`
 - `src/styles.css`: `.host-notification` styles with `@keyframes slideDown`
+
+## 🛠️ Source Implementation
+- **Server Orchestration:** [server/index.js](../../server/index.js)
+- **Room Management Logic:** [server/__tests__/room-management.test.ts](../../server/__tests__/room-management.test.ts)
+

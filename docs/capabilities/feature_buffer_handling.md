@@ -36,3 +36,8 @@ A `.buffer-layer` overlay is added to the `.video-frame`. It is only visible whe
 ### Files Modified
 - `src/components/YouTubeDeck.tsx`: `isSlowNetwork` state, buffer detection `useEffect`, overlay JSX
 - `src/styles.css`: `.buffer-layer`, `.slow-network`, `@keyframes spin-loader`
+
+## 🛠️ Source Implementation
+- **Sync Logic:** [src/utils/sync.ts](../../src/utils/sync.ts)
+- **Realtime Hook:** [src/hooks/useRealtime.ts](../../src/hooks/useRealtime.ts)
+

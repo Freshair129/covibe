@@ -45,6 +45,14 @@ Raw telemetry is the source of truth.
 
 All benchmark executions MUST follow the structure below.
 
+### 1.1 Benchmark Kits (Test Configuration)
+```text
+benchmark-kits/
+└── <kit_name>/
+    └── BENCHMARK--<test_name>.md  # Full Test Specification & Payload Mapping
+```
+
+### 1.2 Benchmark Run (Result Output)
 ```text
 benchmark-run/
 ├── metadata.json

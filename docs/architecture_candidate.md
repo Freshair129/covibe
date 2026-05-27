@@ -61,4 +61,79 @@ Every documentation root MUST contain a `ROUTER.md` that maps intents to file pa
 3. **Archiving:** Deprecated docs move to `/archive/` with a tombstone entry in `ROUTER.md`.
 
 ---
+
+## 5. Implementation Status (Mapped Structure)
+This represents how the existing documentation in `G:\covibe\docs` maps to the proposed A2A structure.
+
+```text
+G:\covibe\docs\
+├── context\
+│   ├── logic_constraints_pwa.md
+│   └── scope_priority_framework.md
+├── capabilities\
+│   ├── feature_analytics_events.md
+│   ├── feature_buffer_handling.md
+│   ├── feature_host_handoff.md
+│   ├── feature_passenger_search.md
+│   ├── feature_queue_management.md
+│   └── feature_trip_summary.md
+├── protocols\
+│   └── (To be populated with API and Protocol specs)
+├── evaluation\
+│   ├── benchmark_report.md
+│   ├── compatibility_report.md
+│   └── sushirl_unit_tests.md
+├── artifacts\
+│   ├── incident_report_sushirl.md
+│   ├── job_report_sushirl.md
+│   └── INC--CSP-EVAL-BLOCKED.md
+├── prototypes\
+│   └── prototype_youtube_sync.md
+└── designs\
+    ├── AmberCitrus-Design.html
+    ├── covibe_ai_benchmark_dashboard.tsx
+    └── covibe_ai_benchmark_fulldashboard.html
+```
+
+---
+
+## 6. Documentation DAG (Directed Acyclic Graph)
+This graph represents the logical flow and dependencies of the documentation system. Agents should follow this path for full system assimilation.
+
+```mermaid
+graph TD
+    R[ROUTER.md] --> C[Context Layer]
+    C --> Cap[Capabilities Layer]
+    C --> P[Protocol Layer]
+    Cap --> E[Evaluation Layer]
+    P --> E
+    E --> A[Artifacts Layer]
+    
+    subgraph "Foundation"
+        C
+    end
+    
+    subgraph "Implementation"
+        Cap
+        P
+    end
+    
+    subgraph "Validation"
+        E
+        A
+    end
+```
+
+---
+
+## 7. Code-Documentation Interoperability
+To ensure the code remains consistent with the architecture, physical Junction Links are established within the documentation root.
+
+- `/docs/src_link/` -> Maps to core React application logic.
+- `/docs/server_link/` -> Maps to WebSocket and Telemetry server.
+- `/docs/scripts_link/` -> Maps to benchmarking and monitoring scripts.
+
+AI Agents are encouraged to use these links to verify implementation against the described standards in the Capabilities Layer.
+
+---
 **END OF CANDIDATE DOCUMENT**

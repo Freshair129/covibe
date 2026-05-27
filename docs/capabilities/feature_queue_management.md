@@ -80,3 +80,8 @@ interface Track {
 
 ## 6. RCA (Root Cause Analysis) for Known Issues
 *None currently identified. The feature is being formally documented to move from `missing` to `stable` documentation state.*
+
+## 🛠️ Source Implementation
+- **Queue UI:** [src/components/YouTubeDeck.tsx](../../src/components/YouTubeDeck.tsx)
+- **Server Utility:** [server/lib.js](../../server/lib.js)
+

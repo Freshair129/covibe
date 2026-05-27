@@ -33,3 +33,8 @@ Track key user interactions to understand usage patterns and system performance.
 - `src/utils/analytics.ts`: New utility module
 - `server/index.js`: `analytics_event` handler + `/api/analytics/:roomId` endpoint
 - `src/App.tsx`: `trackEvent()` calls at key interaction points
+
+## 🛠️ Source Implementation
+- **Frontend Logic:** [src/utils/analytics.ts](../../src/utils/analytics.ts)
+- **Unit Tests:** [src/__tests__/analytics.test.ts](../../src/__tests__/analytics.test.ts)
+

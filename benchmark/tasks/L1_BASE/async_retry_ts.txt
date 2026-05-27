@@ -1,0 +1,4 @@
+Implement a generic AsyncRetry utility in TypeScript. 
+- Must support maxRetries, delay (ms), and an optional onRetry callback. 
+- Ensure strict type safety using Generics. 
+- Follow CoVibe's strict naming conventions.

@@ -26,3 +26,8 @@ Passengers need to search for YouTube songs and add them to the shared queue wit
 
 ## 4. Configuration
 Set environment variable `YOUTUBE_API_KEY` with a valid YouTube Data API v3 key to enable search functionality.
+
+## 🛠️ Source Implementation
+- **UI Component:** [src/components/SearchPanel.tsx](../../src/components/SearchPanel.tsx)
+- **YouTube API Integration:** [src/utils/youtube-api.ts](../../src/utils/youtube-api.ts)
+

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="th">
 
 <head>
@@ -1739,7 +1739,397 @@
       line-height: 1.4;
       font-family: var(--font-sans);
     }
-  </style>
+
+    /* Custom Mermaid CSS Styles for Dark/Glassmorphic Theme */
+    .mermaid svg {
+      background: transparent !important;
+      font-family: var(--font-sans) !important;
+    }
+    
+    .mermaid .cluster rect, .mermaid .subgraph rect, .mermaid rect.subgraph-node {
+      fill: rgba(20, 26, 32, 0.45) !important;
+      stroke: rgba(255, 255, 255, 0.08) !important;
+      stroke-width: 1.5px !important;
+      rx: var(--border-radius-md) !important;
+    }
+    
+    .mermaid .cluster-label, .mermaid .subgraph-title {
+      fill: var(--color-accent) !important;
+      font-weight: 700 !important;
+      font-family: var(--font-sans) !important;
+      letter-spacing: -0.01em;
+    }
+    
+    .mermaid .node rect, 
+    .mermaid .node circle, 
+    .mermaid .node ellipse, 
+    .mermaid .node polygon, 
+    .mermaid .node path {
+      fill: var(--color-bg-tertiary) !important;
+      stroke: rgba(120, 244, 191, 0.25) !important;
+      stroke-width: 1.5px !important;
+      transition: var(--transition-smooth);
+    }
+    
+    .mermaid .node:hover rect, 
+    .mermaid .node:hover circle, 
+    .mermaid .node:hover ellipse, 
+    .mermaid .node:hover polygon, 
+    .mermaid .node:hover path {
+      stroke: var(--color-accent) !important;
+      fill: var(--color-bg-secondary) !important;
+      filter: drop-shadow(0 0 6px var(--color-accent-glow)) !important;
+    }
+    
+    .mermaid .edgePath .path {
+      stroke: var(--color-text-tertiary) !important;
+      stroke-width: 1.5px !important;
+    }
+    
+    .mermaid .edgePath .path:hover {
+      stroke: var(--color-accent) !important;
+    }
+    
+    .mermaid .marker {
+      fill: var(--color-text-tertiary) !important;
+      stroke: none !important;
+    }
+    
+    .mermaid .edgeLabel rect {
+      fill: var(--color-bg-primary) !important;
+      rx: 4px !important;
+    }
+    
+    .mermaid .edgeLabel span, .mermaid .edgeLabel {
+      color: var(--color-text-secondary) !important;
+      font-family: var(--font-sans) !important;
+      font-size: 0.75rem !important;
+      font-weight: 500 !important;
+    }
+    
+    .mermaid .node .label {
+      color: var(--color-text-primary) !important;
+      font-family: var(--font-sans) !important;
+      font-weight: 500 !important;
+    }
+
+    /* Diagram Interactive wrapper, viewport & stage layout */
+    .diagram-wrapper {
+      position: relative;
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-lg);
+      background: var(--color-bg-secondary);
+      overflow: hidden;
+      margin-top: 1rem;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition-smooth);
+    }
+    
+    .diagram-wrapper:hover {
+      border-color: var(--color-border-hover);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .diagram-toolbar {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 100;
+      background: rgba(16, 20, 24, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius-md);
+      padding: 4px;
+      box-shadow: var(--shadow-md);
+    }
+    
+    .diagram-toolbar .tool-btn {
+      background: transparent;
+      border: none;
+      color: var(--color-text-secondary);
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: var(--transition-smooth);
+    }
+    
+    .diagram-toolbar .tool-btn:hover {
+      background: var(--color-accent-dim);
+      color: var(--color-accent);
+    }
+    
+    .diagram-toolbar .tool-btn.active {
+      background: var(--color-accent-dim);
+      color: var(--color-accent);
+      border: 1px solid rgba(120, 244, 191, 0.2);
+    }
+    
+    .diagram-viewport {
+      width: 100%;
+      height: 480px;
+      overflow: hidden;
+      position: relative;
+      cursor: grab;
+    }
+    
+    .diagram-viewport.grabbing {
+      cursor: grabbing;
+    }
+    
+    .diagram-stage {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-origin: center center;
+      transition: transform 0.15s cubic-bezier(0.1, 0.8, 0.2, 1);
+    }
+
+    .diagram-stage.dragging {
+      transition: none; /* No transition while dragging for performance */
+    }
+
+    .depth-selector {
+      display: flex;
+      align-items: center;
+      background: rgba(10, 13, 16, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--border-radius-md);
+      padding: 2px;
+      margin-right: 4px;
+    }
+    
+    .depth-btn {
+      background: transparent;
+      border: none;
+      color: var(--color-text-secondary);
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+    
+    .depth-btn:hover {
+      color: var(--color-text-primary);
+    }
+    
+    .depth-btn.active {
+      background: var(--color-accent-dim);
+      color: var(--color-accent);
+      border: 1px solid rgba(120, 244, 191, 0.15);
+    }
+  
+    /* Custom Mermaid CSS Styles for Dark/Glassmorphic Theme */
+    .mermaid svg {
+      background: transparent !important;
+      font-family: var(--font-sans) !important;
+    }
+    
+    .mermaid .cluster rect, .mermaid .subgraph rect, .mermaid rect.subgraph-node {
+      fill: rgba(20, 26, 32, 0.45) !important;
+      stroke: rgba(255, 255, 255, 0.08) !important;
+      stroke-width: 1.5px !important;
+      rx: var(--border-radius-md) !important;
+    }
+    
+    .mermaid .cluster-label, .mermaid .subgraph-title {
+      fill: var(--color-accent) !important;
+      font-weight: 700 !important;
+      font-family: var(--font-sans) !important;
+      letter-spacing: -0.01em;
+    }
+    
+    .mermaid .node rect, 
+    .mermaid .node circle, 
+    .mermaid .node ellipse, 
+    .mermaid .node polygon, 
+    .mermaid .node path {
+      fill: var(--color-bg-tertiary) !important;
+      stroke: rgba(120, 244, 191, 0.25) !important;
+      stroke-width: 1.5px !important;
+      transition: var(--transition-smooth);
+    }
+    
+    .mermaid .node:hover rect, 
+    .mermaid .node:hover circle, 
+    .mermaid .node:hover ellipse, 
+    .mermaid .node:hover polygon, 
+    .mermaid .node:hover path {
+      stroke: var(--color-accent) !important;
+      fill: var(--color-bg-secondary) !important;
+      filter: drop-shadow(0 0 6px var(--color-accent-glow)) !important;
+    }
+    
+    .mermaid .edgePath .path {
+      stroke: var(--color-text-tertiary) !important;
+      stroke-width: 1.5px !important;
+    }
+    
+    .mermaid .edgePath .path:hover {
+      stroke: var(--color-accent) !important;
+    }
+    
+    .mermaid .marker {
+      fill: var(--color-text-tertiary) !important;
+      stroke: none !important;
+    }
+    
+    .mermaid .edgeLabel rect {
+      fill: var(--color-bg-primary) !important;
+      rx: 4px !important;
+    }
+    
+    .mermaid .edgeLabel span, .mermaid .edgeLabel {
+      color: var(--color-text-secondary) !important;
+      font-family: var(--font-sans) !important;
+      font-size: 0.75rem !important;
+      font-weight: 500 !important;
+    }
+    
+    .mermaid .node .label {
+      color: var(--color-text-primary) !important;
+      font-family: var(--font-sans) !important;
+      font-weight: 500 !important;
+    }
+
+    /* Diagram Interactive wrapper, viewport & stage layout */
+    .diagram-wrapper {
+      position: relative;
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-lg);
+      background: var(--color-bg-secondary);
+      overflow: hidden;
+      margin-top: 1rem;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition-smooth);
+    }
+    
+    .diagram-wrapper:hover {
+      border-color: var(--color-border-hover);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .diagram-toolbar {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 100;
+      background: rgba(16, 20, 24, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius-md);
+      padding: 4px;
+      box-shadow: var(--shadow-md);
+    }
+    
+    .diagram-toolbar .tool-btn {
+      background: transparent;
+      border: none;
+      color: var(--color-text-secondary);
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: var(--transition-smooth);
+    }
+    
+    .diagram-toolbar .tool-btn:hover {
+      background: var(--color-accent-dim);
+      color: var(--color-accent);
+    }
+    
+    .diagram-toolbar .tool-btn.active {
+      background: var(--color-accent-dim);
+      color: var(--color-accent);
+      border: 1px solid rgba(120, 244, 191, 0.2);
+    }
+    
+    .diagram-viewport {
+      width: 100%;
+      height: 480px;
+      overflow: hidden;
+      position: relative;
+      cursor: grab;
+    }
+    
+    .diagram-viewport.grabbing {
+      cursor: grabbing;
+    }
+    
+    .diagram-stage {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-origin: center center;
+      transition: transform 0.15s cubic-bezier(0.1, 0.8, 0.2, 1);
+    }
+
+    .diagram-stage.dragging {
+      transition: none; /* No transition while dragging for performance */
+    }
+
+    .depth-selector {
+      display: flex;
+      align-items: center;
+      background: rgba(10, 13, 16, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--border-radius-md);
+      padding: 2px;
+      margin-right: 4px;
+    }
+    
+    .depth-btn {
+      background: transparent;
+      border: none;
+      color: var(--color-text-secondary);
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+    
+    .depth-btn:hover {
+      color: var(--color-text-primary);
+    }
+    
+    .depth-btn.active {
+      background: var(--color-accent-dim);
+      color: var(--color-accent);
+      border: 1px solid rgba(120, 244, 191, 0.15);
+    }
+</style>
 </head>
 
 <body>
@@ -1751,17 +2141,17 @@
       <div class="brand-section">
         <div class="brand-info">
           <h1>CoVibe Development Roadmap</h1>
-          <p>แผนการพัฒนาและติดตามผลความคืบหน้าของฟีเจอร์แบบสัปดาห์ต่อสัปดาห์</p>
+          <p>à¹à¸œà¸™à¸à¸²à¸£à¸žà¸±à¸’à¸™à¸²à¹à¸¥à¸°à¸•à¸´à¸”à¸•à¸²à¸¡à¸œà¸¥à¸„à¸§à¸²à¸¡à¸„à¸·à¸šà¸«à¸™à¹‰à¸²à¸‚à¸­à¸‡à¸Ÿà¸µà¹€à¸ˆà¸­à¸£à¹Œà¹à¸šà¸šà¸ªà¸±à¸›à¸”à¸²à¸«à¹Œà¸•à¹ˆà¸­à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ</p>
         </div>
-        <button class="reset-btn" id="reset-btn" title="กู้คืนข้อมูลความคืบหน้าของโปรเจกต์ที่เป็นทางการจาก Git">
+        <button class="reset-btn" id="reset-btn" title="à¸à¸¹à¹‰à¸„à¸·à¸™à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸„à¸§à¸²à¸¡à¸„à¸·à¸šà¸«à¸™à¹‰à¸²à¸‚à¸­à¸‡à¹‚à¸›à¸£à¹€à¸ˆà¸à¸•à¹Œà¸—à¸µà¹ˆà¹€à¸›à¹‡à¸™à¸—à¸²à¸‡à¸à¸²à¸£à¸ˆà¸²à¸ Git">
           <i class="ti ti-rotate"></i>
-          รีเซ็ตค่าอย่างเป็นทางการ
+          à¸£à¸µà¹€à¸‹à¹‡à¸•à¸„à¹ˆà¸²à¸­à¸¢à¹ˆà¸²à¸‡à¹€à¸›à¹‡à¸™à¸—à¸²à¸‡à¸à¸²à¸£
         </button>
       </div>
 
       <div class="global-progress-section">
         <div class="progress-label-row">
-          <span class="progress-title">ความคืบหน้ารวมโครงการ</span>
+          <span class="progress-title">à¸„à¸§à¸²à¸¡à¸„à¸·à¸šà¸«à¸™à¹‰à¸²à¸£à¸§à¸¡à¹‚à¸„à¸£à¸‡à¸à¸²à¸£</span>
           <span class="progress-percent" id="global-percent">0%</span>
         </div>
         <div class="progress-bar-track">
@@ -1772,24 +2162,24 @@
       <div class="stats-grid">
         <div class="stat-card">
           <span class="stat-val" id="stat-total">0</span>
-          <span class="stat-lbl">งานทั้งหมด</span>
+          <span class="stat-lbl">à¸‡à¸²à¸™à¸—à¸±à¹‰à¸‡à¸«à¸¡à¸”</span>
         </div>
         <div class="stat-card">
           <span class="stat-val" id="stat-done" style="color: var(--color-accent)">0</span>
-          <span class="stat-lbl">ทำเสร็จแล้ว</span>
+          <span class="stat-lbl">à¸—à¸³à¹€à¸ªà¸£à¹‡à¸ˆà¹à¸¥à¹‰à¸§</span>
         </div>
         <div class="stat-card">
           <span class="stat-val" id="stat-pending">0</span>
-          <span class="stat-lbl">รอดำเนินการ (Pending)</span>
+          <span class="stat-lbl">à¸£à¸­à¸”à¸³à¹€à¸™à¸´à¸™à¸à¸²à¸£ (Pending)</span>
         </div>
         <div class="stat-card">
           <span class="stat-val" id="stat-phases">5</span>
-          <span class="stat-lbl">จำนวน Phase</span>
+          <span class="stat-lbl">à¸ˆà¸³à¸™à¸§à¸™ Phase</span>
         </div>
       </div>
     </header>
 
-    <h2 class="sr-only">CoVibe product roadmap แบ่งเป็น 4 phases และ tasks ย่อย</h2>
+    <h2 class="sr-only">CoVibe product roadmap à¹à¸šà¹ˆà¸‡à¹€à¸›à¹‡à¸™ 4 phases à¹à¸¥à¸° tasks à¸¢à¹ˆà¸­à¸¢</h2>
 
     <!-- MSP Telemetry Dashboard -->
     <section class="telemetry-panel" aria-label="MSP Telemetry Dashboard">
@@ -1864,7 +2254,7 @@
         </div>
       </div>
 
-      <div class="telemetry-updated" id="tele-updated">— ยังไม่มีข้อมูล —</div>
+      <div class="telemetry-updated" id="tele-updated">â€” à¸¢à¸±à¸‡à¹„à¸¡à¹ˆà¸¡à¸µà¸‚à¹‰à¸­à¸¡à¸¹à¸¥ â€”</div>
     </section>
 
     <!-- MSP Telemetry Heatmap -->
@@ -1873,7 +2263,7 @@
         <div class="telemetry-icon"
           style="color: #a855f7; border-color: rgba(168, 85, 247, 0.3); background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(129, 140, 248, 0.1));">
           <i class="ti ti-calendar-event"></i></div>
-        <span class="telemetry-title">MSP Agent Activity Heatmap (ประวัติย้อนหลัง 63 วัน)</span>
+        <span class="telemetry-title">MSP Agent Activity Heatmap (à¸›à¸£à¸°à¸§à¸±à¸•à¸´à¸¢à¹‰à¸­à¸™à¸«à¸¥à¸±à¸‡ 63 à¸§à¸±à¸™)</span>
         <div class="heatmap-metric-selector">
           <button class="metric-btn active" id="metric-btn-cost" onclick="setHeatmapMetric('cost')">Cost (USD)</button>
           <button class="metric-btn" id="metric-btn-calls" onclick="setHeatmapMetric('calls')">LLM Calls</button>
@@ -1883,12 +2273,12 @@
 
       <!-- Sub-metrics for Coding Activity -->
       <div class="heatmap-sub-selector" id="heatmap-sub-selector">
-        <button class="sub-metric-btn active" data-sub-metric="all" onclick="setHeatmapSubMetric('all')">ทั้งหมด</button>
-        <button class="sub-metric-btn" data-sub-metric="create" onclick="setHeatmapSubMetric('create')">สร้างโค้ด (Create)</button>
-        <button class="sub-metric-btn" data-sub-metric="fix" onclick="setHeatmapSubMetric('fix')">แก้ไข (Fix)</button>
-        <button class="sub-metric-btn" data-sub-metric="update" onclick="setHeatmapSubMetric('update')">อัพเดท (Update)</button>
-        <button class="sub-metric-btn" data-sub-metric="delete" onclick="setHeatmapSubMetric('delete')">ลบ (Delete)</button>
-        <button class="sub-metric-btn" data-sub-metric="move" onclick="setHeatmapSubMetric('move')">ย้าย (Move)</button>
+        <button class="sub-metric-btn active" data-sub-metric="all" onclick="setHeatmapSubMetric('all')">à¸—à¸±à¹‰à¸‡à¸«à¸¡à¸”</button>
+        <button class="sub-metric-btn" data-sub-metric="create" onclick="setHeatmapSubMetric('create')">à¸ªà¸£à¹‰à¸²à¸‡à¹‚à¸„à¹‰à¸” (Create)</button>
+        <button class="sub-metric-btn" data-sub-metric="fix" onclick="setHeatmapSubMetric('fix')">à¹à¸à¹‰à¹„à¸‚ (Fix)</button>
+        <button class="sub-metric-btn" data-sub-metric="update" onclick="setHeatmapSubMetric('update')">à¸­à¸±à¸žà¹€à¸”à¸— (Update)</button>
+        <button class="sub-metric-btn" data-sub-metric="delete" onclick="setHeatmapSubMetric('delete')">à¸¥à¸š (Delete)</button>
+        <button class="sub-metric-btn" data-sub-metric="move" onclick="setHeatmapSubMetric('move')">à¸¢à¹‰à¸²à¸¢ (Move)</button>
       </div>
 
       <!-- Heatmap Grid -->
@@ -1900,15 +2290,15 @@
 
       <!-- Heatmap Legend -->
       <div class="heatmap-footer">
-        <span class="heatmap-legend-label">ใช้งานน้อย</span>
+        <span class="heatmap-legend-label">à¹ƒà¸Šà¹‰à¸‡à¸²à¸™à¸™à¹‰à¸­à¸¢</span>
         <div class="heatmap-legend-cells">
-          <div class="heatmap-cell lvl-0" title="ไม่มีการใช้งาน"></div>
-          <div class="heatmap-cell lvl-1" title="ระดับ 1"></div>
-          <div class="heatmap-cell lvl-2" title="ระดับ 2"></div>
-          <div class="heatmap-cell lvl-3" title="ระดับ 3"></div>
-          <div class="heatmap-cell lvl-4" title="ระดับ 4"></div>
+          <div class="heatmap-cell lvl-0" title="à¹„à¸¡à¹ˆà¸¡à¸µà¸à¸²à¸£à¹ƒà¸Šà¹‰à¸‡à¸²à¸™"></div>
+          <div class="heatmap-cell lvl-1" title="à¸£à¸°à¸”à¸±à¸š 1"></div>
+          <div class="heatmap-cell lvl-2" title="à¸£à¸°à¸”à¸±à¸š 2"></div>
+          <div class="heatmap-cell lvl-3" title="à¸£à¸°à¸”à¸±à¸š 3"></div>
+          <div class="heatmap-cell lvl-4" title="à¸£à¸°à¸”à¸±à¸š 4"></div>
         </div>
-        <span class="heatmap-legend-label">ใช้งานมาก</span>
+        <span class="heatmap-legend-label">à¹ƒà¸Šà¹‰à¸‡à¸²à¸™à¸¡à¸²à¸</span>
       </div>
     </section>
 
@@ -1918,7 +2308,7 @@
       <div class="phase" id="p0">
         <div class="phase-header" onclick="togglePhase('p0')">
           <span class="phase-badge p0-badge">Phase 0</span>
-          <span class="phase-title">Feasibility Spike — พิสูจน์ความเสถียร</span>
+          <span class="phase-title">Feasibility Spike â€” à¸žà¸´à¸ªà¸¹à¸ˆà¸™à¹Œà¸„à¸§à¸²à¸¡à¹€à¸ªà¸–à¸µà¸¢à¸£</span>
           <div class="phase-header-progress">
             <div class="phase-mini-bar">
               <div class="phase-mini-fill" id="p0-mini-fill"></div>
@@ -1928,8 +2318,8 @@
           <i class="ti ti-chevron-down phase-chevron open" id="p0-ch"></i>
         </div>
         <div class="phase-body open" id="p0-body">
-          <p class="phase-desc">ก่อนเริ่ม Sprint จริง ต้องพิสูจน์ให้ได้ว่าระบบ YouTube IFrame API ทำงานร่วมกับ WebSocket
-            sync ในการดึงพิกัดเวลาของเพลงได้เสถียรบนมือถือ 2 เครื่อง และหาข้อจำกัดระบบ</p>
+          <p class="phase-desc">à¸à¹ˆà¸­à¸™à¹€à¸£à¸´à¹ˆà¸¡ Sprint à¸ˆà¸£à¸´à¸‡ à¸•à¹‰à¸­à¸‡à¸žà¸´à¸ªà¸¹à¸ˆà¸™à¹Œà¹ƒà¸«à¹‰à¹„à¸”à¹‰à¸§à¹ˆà¸²à¸£à¸°à¸šà¸š YouTube IFrame API à¸—à¸³à¸‡à¸²à¸™à¸£à¹ˆà¸§à¸¡à¸à¸±à¸š WebSocket
+            sync à¹ƒà¸™à¸à¸²à¸£à¸”à¸¶à¸‡à¸žà¸´à¸à¸±à¸”à¹€à¸§à¸¥à¸²à¸‚à¸­à¸‡à¹€à¸žà¸¥à¸‡à¹„à¸”à¹‰à¹€à¸ªà¸–à¸µà¸¢à¸£à¸šà¸™à¸¡à¸·à¸­à¸–à¸·à¸­ 2 à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡ à¹à¸¥à¸°à¸«à¸²à¸‚à¹‰à¸­à¸ˆà¸³à¸à¸±à¸”à¸£à¸°à¸šà¸š</p>
           <div class="sprint-grid">
             <div class="sprint">
               <div class="sprint-header">
@@ -1939,75 +2329,75 @@
                 </div>
                 <div class="sprint-meta">
                   <span class="sprint-percent" id="p0-s0-percent">0%</span>
-                  <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 3–5 วัน</span>
+                  <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 3â€“5 à¸§à¸±à¸™</span>
                 </div>
               </div>
               <div class="tasks" data-sprint="p0-s0">
                 <div class="task-item" data-priority="P0" data-task-id="p0-s0-1" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-device-mobile"></i>Prototype YouTube IFrame Player บน 2
-                    clients พร้อมกัน <a href="file:///g:/covibe/src/components/YouTubeDeck.tsx" class="symlink"
+                  <span class="task-text"><i class="ti ti-device-mobile"></i>Prototype YouTube IFrame Player à¸šà¸™ 2
+                    clients à¸žà¸£à¹‰à¸­à¸¡à¸à¸±à¸™ <a href="file:///g:/covibe/src/components/YouTubeDeck.tsx" class="symlink"
                       data-code-state="stable" title="g:/covibe/src/components/YouTubeDeck.tsx"><i
                         class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/prototype_youtube_sync.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/prototypes/prototype_youtube_sync.md" class="doc-badge"
                     title="g:/covibe/docs/prototype_youtube_sync.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P0" data-task-id="p0-s0-2" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-wifi"></i>WebSocket room ขั้นต่ำ: สร้างห้อง / join / broadcast
+                  <span class="task-text"><i class="ti ti-wifi"></i>WebSocket room à¸‚à¸±à¹‰à¸™à¸•à¹ˆà¸³: à¸ªà¸£à¹‰à¸²à¸‡à¸«à¹‰à¸­à¸‡ / join / broadcast
                     event <a href="file:///g:/covibe/server/index.js" class="symlink" data-code-state="stable"
                       title="g:/covibe/server/index.js"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/prototype_youtube_sync.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/prototypes/prototype_youtube_sync.md" class="doc-badge"
                     title="g:/covibe/docs/prototype_youtube_sync.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P0" data-task-id="p0-s0-3" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-player-play"></i>Play / Pause / Seek sync เบื้องต้น <a
+                  <span class="task-text"><i class="ti ti-player-play"></i>Play / Pause / Seek sync à¹€à¸šà¸·à¹‰à¸­à¸‡à¸•à¹‰à¸™ <a
                       href="file:///g:/covibe/src/hooks/useRealtime.ts" class="symlink" data-code-state="stable"
                       title="g:/covibe/src/hooks/useRealtime.ts"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/prototype_youtube_sync.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/prototypes/prototype_youtube_sync.md" class="doc-badge"
                     title="g:/covibe/docs/prototype_youtube_sync.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P0" data-task-id="p0-s0-4" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-clock"></i>วัด drift จริงระหว่าง 2 เครื่อง <a
+                  <span class="task-text"><i class="ti ti-clock"></i>à¸§à¸±à¸” drift à¸ˆà¸£à¸´à¸‡à¸£à¸°à¸«à¸§à¹ˆà¸²à¸‡ 2 à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡ <a
                       href="file:///g:/covibe/src/hooks/useRealtime.ts" class="symlink" data-code-state="stable"
                       title="g:/covibe/src/hooks/useRealtime.ts"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/prototype_youtube_sync.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/prototypes/prototype_youtube_sync.md" class="doc-badge"
                     title="g:/covibe/docs/prototype_youtube_sync.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P0" data-task-id="p0-s0-5" data-state="done"
                   data-test-state="untested" data-doc-state="stable">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-device-iphone"></i>ทดสอบบน iOS Safari + Android Chrome <a
-                      href="file:///g:/covibe/docs/compatibility_report.md" class="symlink" data-code-state="stable"
+                  <span class="task-text"><i class="ti ti-device-iphone"></i>à¸—à¸”à¸ªà¸­à¸šà¸šà¸™ iOS Safari + Android Chrome <a
+                      href="file:///g:/covibe/docs/evaluation/compatibility_report.md" class="symlink" data-code-state="stable"
                       title="g:/covibe/docs/compatibility_report.md"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/compatibility_report.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/evaluation/compatibility_report.md" class="doc-badge"
                     title="g:/covibe/docs/compatibility_report.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P0" data-task-id="p0-s0-6" data-state="done"
                   data-test-state="untested" data-doc-state="stable">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-alert-triangle"></i>ระบุข้อจำกัด autoplay / background
-                    playback / wake lock <a href="file:///g:/covibe/docs/compatibility_report.md" class="symlink"
+                  <span class="task-text"><i class="ti ti-alert-triangle"></i>à¸£à¸°à¸šà¸¸à¸‚à¹‰à¸­à¸ˆà¸³à¸à¸±à¸” autoplay / background
+                    playback / wake lock <a href="file:///g:/covibe/docs/evaluation/compatibility_report.md" class="symlink"
                       data-code-state="stable" title="g:/covibe/docs/compatibility_report.md"><i class="ti ti-code"></i>
                       CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/compatibility_report.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/evaluation/compatibility_report.md" class="doc-badge"
                     title="g:/covibe/docs/compatibility_report.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2015,10 +2405,10 @@
               <div class="exit">
                 <div class="exit-label"><i class="ti ti-door-exit"></i> Exit criteria</div>
                 <div class="exit-items">
-                  <div class="exit-item"><i class="ti ti-check"></i>มือถือ 2 เครื่องเล่นเพลงเดียวกัน drift เฉลี่ย &lt;
+                  <div class="exit-item"><i class="ti ti-check"></i>à¸¡à¸·à¸­à¸–à¸·à¸­ 2 à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡à¹€à¸¥à¹ˆà¸™à¹€à¸žà¸¥à¸‡à¹€à¸”à¸µà¸¢à¸§à¸à¸±à¸™ drift à¹€à¸‰à¸¥à¸µà¹ˆà¸¢ &lt;
                     500ms</div>
-                  <div class="exit-item"><i class="ti ti-check"></i>Join ด้วย room link ได้</div>
-                  <div class="exit-item"><i class="ti ti-check"></i>มี document สรุปข้อจำกัดของแต่ละแพลตฟอร์ม</div>
+                  <div class="exit-item"><i class="ti ti-check"></i>Join à¸”à¹‰à¸§à¸¢ room link à¹„à¸”à¹‰</div>
+                  <div class="exit-item"><i class="ti ti-check"></i>à¸¡à¸µ document à¸ªà¸£à¸¸à¸›à¸‚à¹‰à¸­à¸ˆà¸³à¸à¸±à¸”à¸‚à¸­à¸‡à¹à¸•à¹ˆà¸¥à¸°à¹à¸žà¸¥à¸•à¸Ÿà¸­à¸£à¹Œà¸¡</div>
                 </div>
               </div>
             </div>
@@ -2030,7 +2420,7 @@
       <div class="phase" id="p1">
         <div class="phase-header" onclick="togglePhase('p1')">
           <span class="phase-badge p1-badge">Phase 1</span>
-          <span class="phase-title">MVP Core — ฟังก์ชันห้องและการแชร์เพลง</span>
+          <span class="phase-title">MVP Core â€” à¸Ÿà¸±à¸‡à¸à¹Œà¸Šà¸±à¸™à¸«à¹‰à¸­à¸‡à¹à¸¥à¸°à¸à¸²à¸£à¹à¸Šà¸£à¹Œà¹€à¸žà¸¥à¸‡</span>
           <div class="phase-header-progress">
             <div class="phase-mini-bar">
               <div class="phase-mini-fill" id="p1-mini-fill"></div>
@@ -2040,8 +2430,8 @@
           <i class="ti ti-chevron-down phase-chevron open" id="p1-ch"></i>
         </div>
         <div class="phase-body open" id="p1-body">
-          <p class="phase-desc">วางรากฐานโครงสร้างระบบ Client และ Server ให้ Rider สามารถเปิดห้องและส่งต่อลิงก์ห้องให้
-            Passenger ร่วมใช้งานได้จริงบนระบบ Production</p>
+          <p class="phase-desc">à¸§à¸²à¸‡à¸£à¸²à¸à¸à¸²à¸™à¹‚à¸„à¸£à¸‡à¸ªà¸£à¹‰à¸²à¸‡à¸£à¸°à¸šà¸š Client à¹à¸¥à¸° Server à¹ƒà¸«à¹‰ Rider à¸ªà¸²à¸¡à¸²à¸£à¸–à¹€à¸›à¸´à¸”à¸«à¹‰à¸­à¸‡à¹à¸¥à¸°à¸ªà¹ˆà¸‡à¸•à¹ˆà¸­à¸¥à¸´à¸‡à¸à¹Œà¸«à¹‰à¸­à¸‡à¹ƒà¸«à¹‰
+            Passenger à¸£à¹ˆà¸§à¸¡à¹ƒà¸Šà¹‰à¸‡à¸²à¸™à¹„à¸”à¹‰à¸ˆà¸£à¸´à¸‡à¸šà¸™à¸£à¸°à¸šà¸š Production</p>
           <div class="sprint-grid">
 
             <!-- Sprint 1A -->
@@ -2053,18 +2443,18 @@
                 </div>
                 <div class="sprint-meta">
                   <span class="sprint-percent" id="p1-s1a-percent">0%</span>
-                  <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 สัปดาห์</span>
+                  <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ</span>
                 </div>
               </div>
               <div class="tasks" data-sprint="p1-s1a">
                 <div class="task-item" data-priority="P0" data-task-id="p1-s1a-1" data-state="done"
                   data-test-state="untested" data-doc-state="outdated">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-brand-react"></i>ตั้งโปรเจกต์ React + Vite (PWA manifest,
+                  <span class="task-text"><i class="ti ti-brand-react"></i>à¸•à¸±à¹‰à¸‡à¹‚à¸›à¸£à¹€à¸ˆà¸à¸•à¹Œ React + Vite (PWA manifest,
                     service worker shell) <a href="file:///g:/covibe/package.json" class="symlink"
                       data-code-state="stable" title="g:/covibe/package.json"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2072,22 +2462,22 @@
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
                   <span class="task-text"><i class="ti ti-server"></i>Backend Node.js + TypeScript + WebSocket room
-                    state ในเมมโมรี่ <a href="file:///g:/covibe/server/index.js" class="symlink"
+                    state à¹ƒà¸™à¹€à¸¡à¸¡à¹‚à¸¡à¸£à¸µà¹ˆ <a href="file:///g:/covibe/server/index.js" class="symlink"
                       data-code-state="stable" title="g:/covibe/server/index.js"><i class="ti ti-code"></i>
                       CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P0" data-task-id="p1-s1a-3" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-plus"></i>Rider: สร้างห้อง → รับ roomId → แสดง QR code <a
+                  <span class="task-text"><i class="ti ti-plus"></i>Rider: à¸ªà¸£à¹‰à¸²à¸‡à¸«à¹‰à¸­à¸‡ â†’ à¸£à¸±à¸š roomId â†’ à¹à¸ªà¸”à¸‡ QR code <a
                       href="file:///g:/covibe/src/App.tsx" class="symlink" data-code-state="stable"
                       title="g:/covibe/src/App.tsx"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2098,18 +2488,18 @@
                       href="file:///g:/covibe/src/App.tsx" class="symlink" data-code-state="stable"
                       title="g:/covibe/src/App.tsx"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P0" data-task-id="p1-s1a-5" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-users"></i>Passenger: สแกน QR → ใส่ชื่อ → join ห้อง <a
+                  <span class="task-text"><i class="ti ti-users"></i>Passenger: à¸ªà¹à¸à¸™ QR â†’ à¹ƒà¸ªà¹ˆà¸Šà¸·à¹ˆà¸­ â†’ join à¸«à¹‰à¸­à¸‡ <a
                       href="file:///g:/covibe/src/App.tsx" class="symlink" data-code-state="stable"
                       title="g:/covibe/src/App.tsx"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2120,18 +2510,18 @@
                       href="file:///g:/covibe/server/index.js" class="symlink" data-code-state="stable"
                       title="g:/covibe/server/index.js"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P0" data-task-id="p1-s1a-7" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-language"></i>Thai UI ขั้นพื้นฐาน, dark mode, mobile-first
+                  <span class="task-text"><i class="ti ti-language"></i>Thai UI à¸‚à¸±à¹‰à¸™à¸žà¸·à¹‰à¸™à¸à¸²à¸™, dark mode, mobile-first
                     layout <a href="file:///g:/covibe/src/styles.css" class="symlink" data-code-state="stable"
                       title="g:/covibe/src/styles.css"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2139,8 +2529,8 @@
               <div class="exit">
                 <div class="exit-label"><i class="ti ti-door-exit"></i> Exit criteria</div>
                 <div class="exit-items">
-                  <div class="exit-item"><i class="ti ti-check"></i>Rider เปิดห้องและ Passenger join ได้บน production
-                    URL จริง</div>
+                  <div class="exit-item"><i class="ti ti-check"></i>Rider à¹€à¸›à¸´à¸”à¸«à¹‰à¸­à¸‡à¹à¸¥à¸° Passenger join à¹„à¸”à¹‰à¸šà¸™ production
+                    URL à¸ˆà¸£à¸´à¸‡</div>
                 </div>
               </div>
             </div>
@@ -2154,7 +2544,7 @@
                 </div>
                 <div class="sprint-meta">
                   <span class="sprint-percent" id="p1-s1b-percent">0%</span>
-                  <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 สัปดาห์</span>
+                  <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ</span>
                 </div>
               </div>
               <div class="tasks" data-sprint="p1-s1b">
@@ -2166,63 +2556,63 @@
                       data-code-state="stable" title="g:/covibe/src/utils/youtube.ts"><i class="ti ti-code"></i>
                       CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/feature_queue_management.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/capabilities/feature_.md" class="doc-badge"
                     title="g:/covibe/docs/feature_queue_management.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P0" data-task-id="p1-s1b-2" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-list"></i>Queue เพลง: add / remove / reorder <a
+                  <span class="task-text"><i class="ti ti-list"></i>Queue à¹€à¸žà¸¥à¸‡: add / remove / reorder <a
                       href="file:///g:/covibe/src/App.tsx" class="symlink" data-code-state="stable"
                       title="g:/covibe/src/App.tsx"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/feature_queue_management.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/capabilities/feature_.md" class="doc-badge"
                     title="g:/covibe/docs/feature_queue_management.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P0" data-task-id="p1-s1b-3" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-music"></i>Current track state บน server (trackId, positionMs,
+                  <span class="task-text"><i class="ti ti-music"></i>Current track state à¸šà¸™ server (trackId, positionMs,
                     serverStartedAt) <a href="file:///g:/covibe/server/index.js" class="symlink"
                       data-code-state="stable" title="g:/covibe/server/index.js"><i class="ti ti-code"></i>
                       CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/feature_queue_management.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/capabilities/feature_.md" class="doc-badge"
                     title="g:/covibe/docs/feature_queue_management.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P0" data-task-id="p1-s1b-4" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-player-play"></i>Play / Pause / Skip / Seek ซิงค์ผ่าน
+                  <span class="task-text"><i class="ti ti-player-play"></i>Play / Pause / Skip / Seek à¸‹à¸´à¸‡à¸„à¹Œà¸œà¹ˆà¸²à¸™
                     WebSocket <a href="file:///g:/covibe/src/App.tsx" class="symlink" data-code-state="stable"
                       title="g:/covibe/src/App.tsx"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/feature_queue_management.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/capabilities/feature_.md" class="doc-badge"
                     title="g:/covibe/docs/feature_queue_management.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P0" data-task-id="p1-s1b-5" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-arrows-right"></i>Auto-next เมื่อเพลงจบ <a
+                  <span class="task-text"><i class="ti ti-arrows-right"></i>Auto-next à¹€à¸¡à¸·à¹ˆà¸­à¹€à¸žà¸¥à¸‡à¸ˆà¸š <a
                       href="file:///g:/covibe/src/components/YouTubeDeck.tsx" class="symlink" data-code-state="stable"
                       title="g:/covibe/src/components/YouTubeDeck.tsx"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/feature_queue_management.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/capabilities/feature_.md" class="doc-badge"
                     title="g:/covibe/docs/feature_queue_management.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P0" data-task-id="p1-s1b-6" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-volume"></i>Volume control แยกแต่ละ device <a
+                  <span class="task-text"><i class="ti ti-volume"></i>Volume control à¹à¸¢à¸à¹à¸•à¹ˆà¸¥à¸° device <a
                       href="file:///g:/covibe/src/App.tsx" class="symlink" data-code-state="stable"
                       title="g:/covibe/src/App.tsx"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/feature_queue_management.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/capabilities/feature_.md" class="doc-badge"
                     title="g:/covibe/docs/feature_queue_management.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2230,8 +2620,8 @@
               <div class="exit">
                 <div class="exit-label"><i class="ti ti-door-exit"></i> Exit criteria</div>
                 <div class="exit-items">
-                  <div class="exit-item"><i class="ti ti-check"></i>เล่นเพลงต่อคิว 5 เพลงขึ้นไปโดยไม่ต้อง refresh
-                    หน้าเว็บ</div>
+                  <div class="exit-item"><i class="ti ti-check"></i>à¹€à¸¥à¹ˆà¸™à¹€à¸žà¸¥à¸‡à¸•à¹ˆà¸­à¸„à¸´à¸§ 5 à¹€à¸žà¸¥à¸‡à¸‚à¸¶à¹‰à¸™à¹„à¸›à¹‚à¸”à¸¢à¹„à¸¡à¹ˆà¸•à¹‰à¸­à¸‡ refresh
+                    à¸«à¸™à¹‰à¸²à¹€à¸§à¹‡à¸š</div>
                 </div>
               </div>
             </div>
@@ -2244,7 +2634,7 @@
       <div class="phase" id="p2">
         <div class="phase-header" onclick="togglePhase('p2')">
           <span class="phase-badge p2-badge">Phase 2</span>
-          <span class="phase-title">Hardening + Rider UX — ความเสถียร & ขับขี่จริง</span>
+          <span class="phase-title">Hardening + Rider UX â€” à¸„à¸§à¸²à¸¡à¹€à¸ªà¸–à¸µà¸¢à¸£ & à¸‚à¸±à¸šà¸‚à¸µà¹ˆà¸ˆà¸£à¸´à¸‡</span>
           <div class="phase-header-progress">
             <div class="phase-mini-bar">
               <div class="phase-mini-fill" id="p2-mini-fill"></div>
@@ -2254,8 +2644,8 @@
           <i class="ti ti-chevron-down phase-chevron open" id="p2-ch"></i>
         </div>
         <div class="phase-body open" id="p2-body">
-          <p class="phase-desc">ปรับปรุง Algorithm การซิงค์นาฬิกา และสร้าง UI สำหรับผู้ขับขี่ (Rider)
-            เพื่อความสะดวกปลอดภัยเวลาใช้งานจริงขณะขี่มอเตอร์ไซค์</p>
+          <p class="phase-desc">à¸›à¸£à¸±à¸šà¸›à¸£à¸¸à¸‡ Algorithm à¸à¸²à¸£à¸‹à¸´à¸‡à¸„à¹Œà¸™à¸²à¸¬à¸´à¸à¸² à¹à¸¥à¸°à¸ªà¸£à¹‰à¸²à¸‡ UI à¸ªà¸³à¸«à¸£à¸±à¸šà¸œà¸¹à¹‰à¸‚à¸±à¸šà¸‚à¸µà¹ˆ (Rider)
+            à¹€à¸žà¸·à¹ˆà¸­à¸„à¸§à¸²à¸¡à¸ªà¸°à¸”à¸§à¸à¸›à¸¥à¸­à¸”à¸ à¸±à¸¢à¹€à¸§à¸¥à¸²à¹ƒà¸Šà¹‰à¸‡à¸²à¸™à¸ˆà¸£à¸´à¸‡à¸‚à¸“à¸°à¸‚à¸µà¹ˆà¸¡à¸­à¹€à¸•à¸­à¸£à¹Œà¹„à¸‹à¸„à¹Œ</p>
           <div class="sprint-grid">
 
             <!-- Sprint 2A -->
@@ -2267,42 +2657,42 @@
                 </div>
                 <div class="sprint-meta">
                   <span class="sprint-percent" id="p2-s2a-percent">0%</span>
-                  <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 สัปดาห์</span>
+                  <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ</span>
                 </div>
               </div>
               <div class="tasks" data-sprint="p2-s2a">
                 <div class="task-item" data-priority="P1" data-task-id="p2-s2a-1" data-state="done"
                   data-test-state="passed" data-doc-state="outdated">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-adjustments"></i>Drift correction algorithm (&lt;250ms ปล่อย /
-                    250-800ms ปรับ rate / &gt;800ms seek) <a href="file:///g:/covibe/src/hooks/useRealtime.ts"
+                  <span class="task-text"><i class="ti ti-adjustments"></i>Drift correction algorithm (&lt;250ms à¸›à¸¥à¹ˆà¸­à¸¢ /
+                    250-800ms à¸›à¸£à¸±à¸š rate / &gt;800ms seek) <a href="file:///g:/covibe/src/hooks/useRealtime.ts"
                       class="symlink" data-code-state="stable" title="g:/covibe/src/hooks/useRealtime.ts"><i
                         class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/feature_buffer_handling.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/capabilities/feature_.md" class="doc-badge"
                     title="g:/covibe/docs/feature_buffer_handling.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P1" data-task-id="p2-s2a-2" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-antenna"></i>Latency ping ทุก 3 วินาที + clock sync กับ server
+                  <span class="task-text"><i class="ti ti-antenna"></i>Latency ping à¸—à¸¸à¸ 3 à¸§à¸´à¸™à¸²à¸—à¸µ + clock sync à¸à¸±à¸š server
                     <a href="file:///g:/covibe/src/hooks/useRealtime.ts" class="symlink" data-code-state="stable"
                       title="g:/covibe/src/hooks/useRealtime.ts"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/feature_buffer_handling.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/capabilities/feature_.md" class="doc-badge"
                     title="g:/covibe/docs/feature_buffer_handling.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P1" data-task-id="p2-s2a-3" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-plug-connected"></i>Reconnect อัตโนมัติหลังเน็ตหลุด + resync
+                  <span class="task-text"><i class="ti ti-plug-connected"></i>Reconnect à¸­à¸±à¸•à¹‚à¸™à¸¡à¸±à¸•à¸´à¸«à¸¥à¸±à¸‡à¹€à¸™à¹‡à¸•à¸«à¸¥à¸¸à¸” + resync
                     position <a href="file:///g:/covibe/src/hooks/useRealtime.ts" class="symlink"
                       data-code-state="stable" title="g:/covibe/src/hooks/useRealtime.ts"><i class="ti ti-code"></i>
                       CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/feature_buffer_handling.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/capabilities/feature_.md" class="doc-badge"
                     title="g:/covibe/docs/feature_buffer_handling.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2310,11 +2700,11 @@
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
                   <span class="task-text"><i class="ti ti-loader"></i>Buffer state handling +
-                    แจ้งเตือนผู้ใช้เมื่อเน็ตช้า <a href="file:///g:/covibe/src/components/YouTubeDeck.tsx"
+                    à¹à¸ˆà¹‰à¸‡à¹€à¸•à¸·à¸­à¸™à¸œà¸¹à¹‰à¹ƒà¸Šà¹‰à¹€à¸¡à¸·à¹ˆà¸­à¹€à¸™à¹‡à¸•à¸Šà¹‰à¸² <a href="file:///g:/covibe/src/components/YouTubeDeck.tsx"
                       class="symlink" data-code-state="warning" title="g:/covibe/src/components/YouTubeDeck.tsx"><i
                         class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/feature_buffer_handling.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/capabilities/feature_.md" class="doc-badge"
                     title="g:/covibe/docs/feature_buffer_handling.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2322,23 +2712,23 @@
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
                   <span class="task-text"><i class="ti ti-transfer"></i>Host handoff fallback
-                    เมื่อผู้เปิดห้องตัดการเชื่อมต่อ <a href="file:///g:/covibe/server/index.js" class="symlink"
+                    à¹€à¸¡à¸·à¹ˆà¸­à¸œà¸¹à¹‰à¹€à¸›à¸´à¸”à¸«à¹‰à¸­à¸‡à¸•à¸±à¸”à¸à¸²à¸£à¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­ <a href="file:///g:/covibe/server/index.js" class="symlink"
                       data-code-state="stable" title="g:/covibe/server/index.js"><i class="ti ti-code"></i>
                       CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/feature_host_handoff.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/capabilities/feature_.md" class="doc-badge"
                     title="g:/covibe/docs/feature_host_handoff.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P1" data-task-id="p2-s2a-6" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-chart-line"></i>Drift metric logging เพื่อใช้ในการ debug
-                    พฤติกรรมการซิงค์ <a href="file:///g:/covibe/server/index.js" class="symlink"
+                  <span class="task-text"><i class="ti ti-chart-line"></i>Drift metric logging à¹€à¸žà¸·à¹ˆà¸­à¹ƒà¸Šà¹‰à¹ƒà¸™à¸à¸²à¸£ debug
+                    à¸žà¸¤à¸•à¸´à¸à¸£à¸£à¸¡à¸à¸²à¸£à¸‹à¸´à¸‡à¸„à¹Œ <a href="file:///g:/covibe/server/index.js" class="symlink"
                       data-code-state="stable" title="g:/covibe/server/index.js"><i class="ti ti-code"></i>
                       CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/feature_buffer_handling.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/capabilities/feature_.md" class="doc-badge"
                     title="g:/covibe/docs/feature_buffer_handling.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2346,8 +2736,8 @@
               <div class="exit">
                 <div class="exit-label"><i class="ti ti-door-exit"></i> Exit criteria</div>
                 <div class="exit-items">
-                  <div class="exit-item"><i class="ti ti-check"></i>เน็ตหลุดกลับมาแล้วซิงค์ดนตรี drift &lt; 500ms ภายใน
-                    5 วินาที</div>
+                  <div class="exit-item"><i class="ti ti-check"></i>à¹€à¸™à¹‡à¸•à¸«à¸¥à¸¸à¸”à¸à¸¥à¸±à¸šà¸¡à¸²à¹à¸¥à¹‰à¸§à¸‹à¸´à¸‡à¸„à¹Œà¸”à¸™à¸•à¸£à¸µ drift &lt; 500ms à¸ à¸²à¸¢à¹ƒà¸™
+                    5 à¸§à¸´à¸™à¸²à¸—à¸µ</div>
                 </div>
               </div>
             </div>
@@ -2361,18 +2751,18 @@
                 </div>
                 <div class="sprint-meta">
                   <span class="sprint-percent" id="p2-s2b-percent">0%</span>
-                  <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 สัปดาห์</span>
+                  <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ</span>
                 </div>
               </div>
               <div class="tasks" data-sprint="p2-s2b">
                 <div class="task-item" data-priority="P1" data-task-id="p2-s2b-1" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-layout"></i>Rider dashboard ปุ่มใหญ่ (Play/Pause/Skip)
-                    อ่านง่ายกลางแสงแดด <a href="file:///g:/covibe/src/App.tsx" class="symlink" data-code-state="stable"
+                  <span class="task-text"><i class="ti ti-layout"></i>Rider dashboard à¸›à¸¸à¹ˆà¸¡à¹ƒà¸«à¸à¹ˆ (Play/Pause/Skip)
+                    à¸­à¹ˆà¸²à¸™à¸‡à¹ˆà¸²à¸¢à¸à¸¥à¸²à¸‡à¹à¸ªà¸‡à¹à¸”à¸” <a href="file:///g:/covibe/src/App.tsx" class="symlink" data-code-state="stable"
                       title="g:/covibe/src/App.tsx"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/logic_constraints_pwa.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/logic_constraints_pwa.md" class="doc-badge"
                     title="g:/covibe/docs/logic_constraints_pwa.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2380,55 +2770,55 @@
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
                   <span class="task-text"><i class="ti ti-moon"></i>OLED Saver / Black Screen mode
-                    ประหยัดพลังงานขณะขับขี่ <a href="file:///g:/covibe/src/App.tsx" class="symlink"
+                    à¸›à¸£à¸°à¸«à¸¢à¸±à¸”à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸‚à¸“à¸°à¸‚à¸±à¸šà¸‚à¸µà¹ˆ <a href="file:///g:/covibe/src/App.tsx" class="symlink"
                       data-code-state="stable" title="g:/covibe/src/App.tsx"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/logic_constraints_pwa.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/logic_constraints_pwa.md" class="doc-badge"
                     title="g:/covibe/docs/logic_constraints_pwa.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P1" data-task-id="p2-s2b-3" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-search"></i>Passenger remote: ค้นหา YouTube + เพิ่มเพลงเข้าคิว
+                  <span class="task-text"><i class="ti ti-search"></i>Passenger remote: à¸„à¹‰à¸™à¸«à¸² YouTube + à¹€à¸žà¸´à¹ˆà¸¡à¹€à¸žà¸¥à¸‡à¹€à¸‚à¹‰à¸²à¸„à¸´à¸§
                     <a href="file:///g:/covibe/src/components/SearchPanel.tsx" class="symlink" data-code-state="stable"
                       title="g:/covibe/src/components/SearchPanel.tsx"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/feature_trip_summary.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/capabilities/feature_.md" class="doc-badge"
                     title="g:/covibe/docs/feature_trip_summary.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P1" data-task-id="p2-s2b-4" data-state="done"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-report"></i>Trip summary หน้าสรุปรายละเอียดการเดินทางและดนตรี
+                  <span class="task-text"><i class="ti ti-report"></i>Trip summary à¸«à¸™à¹‰à¸²à¸ªà¸£à¸¸à¸›à¸£à¸²à¸¢à¸¥à¸°à¹€à¸­à¸µà¸¢à¸”à¸à¸²à¸£à¹€à¸”à¸´à¸™à¸—à¸²à¸‡à¹à¸¥à¸°à¸”à¸™à¸•à¸£à¸µ
                     <a href="file:///g:/covibe/src/components/TripSummary.tsx" class="symlink" data-code-state="stable"
                       title="g:/covibe/src/components/TripSummary.tsx"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/feature_passenger_search.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/capabilities/feature_.md" class="doc-badge"
                     title="g:/covibe/docs/feature_passenger_search.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P1" data-task-id="p2-s2b-5" data-state="done"
                   data-test-state="passed" data-doc-state="outdated">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-chart-bar"></i>Analytics events ขั้นพื้นฐาน (กิจกรรมห้อง,
-                    อัตราดริฟต์เฉลี่ย) <a href="file:///g:/covibe/src/utils/analytics.ts" class="symlink"
+                  <span class="task-text"><i class="ti ti-chart-bar"></i>Analytics events à¸‚à¸±à¹‰à¸™à¸žà¸·à¹‰à¸™à¸à¸²à¸™ (à¸à¸´à¸ˆà¸à¸£à¸£à¸¡à¸«à¹‰à¸­à¸‡,
+                    à¸­à¸±à¸•à¸£à¸²à¸”à¸£à¸´à¸Ÿà¸•à¹Œà¹€à¸‰à¸¥à¸µà¹ˆà¸¢) <a href="file:///g:/covibe/src/utils/analytics.ts" class="symlink"
                       data-code-state="stable" title="g:/covibe/src/utils/analytics.ts"><i class="ti ti-code"></i>
                       CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/logic_constraints_pwa.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/logic_constraints_pwa.md" class="doc-badge"
                     title="g:/covibe/docs/logic_constraints_pwa.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P1" data-task-id="p2-s2b-6" data-state="done"
                   data-test-state="untested" data-doc-state="outdated">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-bug"></i>Error tracking integration (ติดตั้งระบบรายงาน crash)
+                  <span class="task-text"><i class="ti ti-bug"></i>Error tracking integration (à¸•à¸´à¸”à¸•à¸±à¹‰à¸‡à¸£à¸°à¸šà¸šà¸£à¸²à¸¢à¸‡à¸²à¸™ crash)
                     <a href="file:///g:/covibe/src/instrument.ts" class="symlink" data-code-state="stable"
                       title="g:/covibe/src/instrument.ts"><i class="ti ti-code"></i> CODE</a></span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/sushirl_unit_tests.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/evaluation/sushirl_unit_tests.md" class="doc-badge"
                     title="g:/covibe/docs/sushirl_unit_tests.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2436,8 +2826,8 @@
               <div class="exit">
                 <div class="exit-label"><i class="ti ti-door-exit"></i> Exit criteria</div>
                 <div class="exit-items">
-                  <div class="exit-item"><i class="ti ti-check"></i>กลุ่มทดสอบ Beta สามารถใช้งานระบบเองได้โดยไม่มี
-                    Developer คอยช่วย</div>
+                  <div class="exit-item"><i class="ti ti-check"></i>à¸à¸¥à¸¸à¹ˆà¸¡à¸—à¸”à¸ªà¸­à¸š Beta à¸ªà¸²à¸¡à¸²à¸£à¸–à¹ƒà¸Šà¹‰à¸‡à¸²à¸™à¸£à¸°à¸šà¸šà¹€à¸­à¸‡à¹„à¸”à¹‰à¹‚à¸”à¸¢à¹„à¸¡à¹ˆà¸¡à¸µ
+                    Developer à¸„à¸­à¸¢à¸Šà¹ˆà¸§à¸¢</div>
                 </div>
               </div>
             </div>
@@ -2450,7 +2840,7 @@
       <div class="phase" id="p3">
         <div class="phase-header" onclick="togglePhase('p3')">
           <span class="phase-badge p3-badge">Phase 3</span>
-          <span class="phase-title">Private Beta — เริ่มการทดสอบกลุ่มย่อย</span>
+          <span class="phase-title">Private Beta â€” à¹€à¸£à¸´à¹ˆà¸¡à¸à¸²à¸£à¸—à¸”à¸ªà¸­à¸šà¸à¸¥à¸¸à¹ˆà¸¡à¸¢à¹ˆà¸­à¸¢</span>
           <div class="phase-header-progress">
             <div class="phase-mini-bar">
               <div class="phase-mini-fill" id="p3-mini-fill"></div>
@@ -2460,8 +2850,8 @@
           <i class="ti ti-chevron-down phase-chevron" id="p3-ch"></i>
         </div>
         <div class="phase-body" id="p3-body">
-          <p class="phase-desc">เริ่มเชิญกลุ่มผู้ใช้รถมอเตอร์ไซค์จำนวน 20–50 คู่
-            ทำการทดสอบเดินทางในชีวิตประจำวันเพื่อรวบรวมข้อเสนอแนะและบั๊กที่แฝงอยู่</p>
+          <p class="phase-desc">à¹€à¸£à¸´à¹ˆà¸¡à¹€à¸Šà¸´à¸à¸à¸¥à¸¸à¹ˆà¸¡à¸œà¸¹à¹‰à¹ƒà¸Šà¹‰à¸£à¸–à¸¡à¸­à¹€à¸•à¸­à¸£à¹Œà¹„à¸‹à¸„à¹Œà¸ˆà¸³à¸™à¸§à¸™ 20â€“50 à¸„à¸¹à¹ˆ
+            à¸—à¸³à¸à¸²à¸£à¸—à¸”à¸ªà¸­à¸šà¹€à¸”à¸´à¸™à¸—à¸²à¸‡à¹ƒà¸™à¸Šà¸µà¸§à¸´à¸•à¸›à¸£à¸°à¸ˆà¸³à¸§à¸±à¸™à¹€à¸žà¸·à¹ˆà¸­à¸£à¸§à¸šà¸£à¸§à¸¡à¸‚à¹‰à¸­à¹€à¸ªà¸™à¸­à¹à¸™à¸°à¹à¸¥à¸°à¸šà¸±à¹Šà¸à¸—à¸µà¹ˆà¹à¸à¸‡à¸­à¸¢à¸¹à¹ˆ</p>
           <div class="sprint-grid">
 
             <!-- Sprint 3A -->
@@ -2473,18 +2863,18 @@
                 </div>
                 <div class="sprint-meta">
                   <span class="sprint-percent" id="p3-s3a-percent">0%</span>
-                  <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 สัปดาห์</span>
+                  <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ</span>
                 </div>
               </div>
               <div class="tasks" data-sprint="p3-s3a">
                 <div class="task-item" data-priority="P2" data-task-id="p3-s3a-1" data-state="todo"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-door-enter"></i>Beta onboarding flow อธิบาย autoplay +
-                    วิธีเชื่อมต่อ</span>
+                  <span class="task-text"><i class="ti ti-door-enter"></i>Beta onboarding flow à¸­à¸˜à¸´à¸šà¸²à¸¢ autoplay +
+                    à¸§à¸´à¸˜à¸µà¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P2</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2492,43 +2882,43 @@
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
                   <span class="task-text"><i class="ti ti-message-circle"></i>In-app feedback form + rating
-                    ประเมินหลังการเดินทาง</span>
+                    à¸›à¸£à¸°à¹€à¸¡à¸´à¸™à¸«à¸¥à¸±à¸‡à¸à¸²à¸£à¹€à¸”à¸´à¸™à¸—à¸²à¸‡</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P2</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P2" data-task-id="p3-s3a-3" data-state="todo"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-users"></i>รับสมัครกลุ่มผู้ขี่มอเตอร์ไซค์ 20-50
-                    คู่มาร่วมทดสอบ</span>
+                  <span class="task-text"><i class="ti ti-users"></i>à¸£à¸±à¸šà¸ªà¸¡à¸±à¸„à¸£à¸à¸¥à¸¸à¹ˆà¸¡à¸œà¸¹à¹‰à¸‚à¸µà¹ˆà¸¡à¸­à¹€à¸•à¸­à¸£à¹Œà¹„à¸‹à¸„à¹Œ 20-50
+                    à¸„à¸¹à¹ˆà¸¡à¸²à¸£à¹ˆà¸§à¸¡à¸—à¸”à¸ªà¸­à¸š</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P2</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P2" data-task-id="p3-s3a-4" data-state="todo"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-brand-tiktok"></i>ทำสื่อคลิปสั้นอธิบายระบบลง
+                  <span class="task-text"><i class="ti ti-brand-tiktok"></i>à¸—à¸³à¸ªà¸·à¹ˆà¸­à¸„à¸¥à¸´à¸›à¸ªà¸±à¹‰à¸™à¸­à¸˜à¸´à¸šà¸²à¸¢à¸£à¸°à¸šà¸šà¸¥à¸‡
                     Reels/TikTok</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P2</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P2" data-task-id="p3-s3a-5" data-state="todo"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-qrcode"></i>ผลิตสื่อ QR Code
-                    ประชาสัมพันธ์ติดร้านอุปกรณ์บิ๊กไบค์</span>
+                  <span class="task-text"><i class="ti ti-qrcode"></i>à¸œà¸¥à¸´à¸•à¸ªà¸·à¹ˆà¸­ QR Code
+                    à¸›à¸£à¸°à¸Šà¸²à¸ªà¸±à¸¡à¸žà¸±à¸™à¸˜à¹Œà¸•à¸´à¸”à¸£à¹‰à¸²à¸™à¸­à¸¸à¸›à¸à¸£à¸“à¹Œà¸šà¸´à¹Šà¸à¹„à¸šà¸„à¹Œ</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P2</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2544,7 +2934,7 @@
                 </div>
                 <div class="sprint-meta">
                   <span class="sprint-percent" id="p3-s3b-percent">0%</span>
-                  <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1–2 สัปดาห์</span>
+                  <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1â€“2 à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ</span>
                 </div>
               </div>
               <div class="tasks" data-sprint="p3-s3b">
@@ -2552,10 +2942,10 @@
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
                   <span class="task-text"><i class="ti ti-dashboard"></i>Usage Dashboard:
-                    ตรวจสอบความถี่และชั่วโมงการเปิดซิงค์เพลง</span>
+                    à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸šà¸„à¸§à¸²à¸¡à¸–à¸µà¹ˆà¹à¸¥à¸°à¸Šà¸±à¹ˆà¸§à¹‚à¸¡à¸‡à¸à¸²à¸£à¹€à¸›à¸´à¸”à¸‹à¸´à¸‡à¸„à¹Œà¹€à¸žà¸¥à¸‡</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P2</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2563,43 +2953,43 @@
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
                   <span class="task-text"><i class="ti ti-trending-up"></i>Retention tracking:
-                    อัตราการกลับมาเปิดเล่นซ้ำใน 7 วัน</span>
+                    à¸­à¸±à¸•à¸£à¸²à¸à¸²à¸£à¸à¸¥à¸±à¸šà¸¡à¸²à¹€à¸›à¸´à¸”à¹€à¸¥à¹ˆà¸™à¸‹à¹‰à¸³à¹ƒà¸™ 7 à¸§à¸±à¸™</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P2</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P2" data-task-id="p3-s3b-3" data-state="todo"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-list-check"></i>รวบรวม Bugs ยอดฮิต 5
-                    อันดับแรกเพื่อจัดคิวแก้ไข</span>
+                  <span class="task-text"><i class="ti ti-list-check"></i>à¸£à¸§à¸šà¸£à¸§à¸¡ Bugs à¸¢à¸­à¸”à¸®à¸´à¸• 5
+                    à¸­à¸±à¸™à¸”à¸±à¸šà¹à¸£à¸à¹€à¸žà¸·à¹ˆà¸­à¸ˆà¸±à¸”à¸„à¸´à¸§à¹à¸à¹‰à¹„à¸‚</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P2</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P2" data-task-id="p3-s3b-4" data-state="todo"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-user-search"></i>สรุป Persona
-                    ผู้ใช้ที่ชอบฟีเจอร์นี้มากที่สุด</span>
+                  <span class="task-text"><i class="ti ti-user-search"></i>à¸ªà¸£à¸¸à¸› Persona
+                    à¸œà¸¹à¹‰à¹ƒà¸Šà¹‰à¸—à¸µà¹ˆà¸Šà¸­à¸šà¸Ÿà¸µà¹€à¸ˆà¸­à¸£à¹Œà¸™à¸µà¹‰à¸¡à¸²à¸à¸—à¸µà¹ˆà¸ªà¸¸à¸”</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P2</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P2" data-task-id="p3-s3b-5" data-state="todo"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-refresh"></i>เปิดอัปเดต Quick-fix
-                    แก้ปัญหาเร่งด่วนตามเสียงตอบรับ</span>
+                  <span class="task-text"><i class="ti ti-refresh"></i>à¹€à¸›à¸´à¸”à¸­à¸±à¸›à¹€à¸”à¸• Quick-fix
+                    à¹à¸à¹‰à¸›à¸±à¸à¸«à¸²à¹€à¸£à¹ˆà¸‡à¸”à¹ˆà¸§à¸™à¸•à¸²à¸¡à¹€à¸ªà¸µà¸¢à¸‡à¸•à¸­à¸šà¸£à¸±à¸š</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P2</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2607,10 +2997,10 @@
               <div class="exit">
                 <div class="exit-label"><i class="ti ti-door-exit"></i> Exit criteria</div>
                 <div class="exit-items">
-                  <div class="exit-item"><i class="ti ti-check"></i>สะสมทริปเดินทางที่มีการใช้งานเกิน 15 นาที
-                    ได้อย่างน้อย 20 ทริป</div>
-                  <div class="exit-item"><i class="ti ti-check"></i>ค้นหาจุดบกพร่องยอดนิยม 5
-                    อันดับแรกเพื่อวางคิวพัฒนาเฟสถัดไป</div>
+                  <div class="exit-item"><i class="ti ti-check"></i>à¸ªà¸°à¸ªà¸¡à¸—à¸£à¸´à¸›à¹€à¸”à¸´à¸™à¸—à¸²à¸‡à¸—à¸µà¹ˆà¸¡à¸µà¸à¸²à¸£à¹ƒà¸Šà¹‰à¸‡à¸²à¸™à¹€à¸à¸´à¸™ 15 à¸™à¸²à¸—à¸µ
+                    à¹„à¸”à¹‰à¸­à¸¢à¹ˆà¸²à¸‡à¸™à¹‰à¸­à¸¢ 20 à¸—à¸£à¸´à¸›</div>
+                  <div class="exit-item"><i class="ti ti-check"></i>à¸„à¹‰à¸™à¸«à¸²à¸ˆà¸¸à¸”à¸šà¸à¸žà¸£à¹ˆà¸­à¸‡à¸¢à¸­à¸”à¸™à¸´à¸¢à¸¡ 5
+                    à¸­à¸±à¸™à¸”à¸±à¸šà¹à¸£à¸à¹€à¸žà¸·à¹ˆà¸­à¸§à¸²à¸‡à¸„à¸´à¸§à¸žà¸±à¸’à¸™à¸²à¹€à¸Ÿà¸ªà¸–à¸±à¸”à¹„à¸›</div>
                 </div>
               </div>
             </div>
@@ -2623,7 +3013,7 @@
       <div class="phase" id="p4">
         <div class="phase-header" onclick="togglePhase('p4')">
           <span class="phase-badge nsm">Future</span>
-          <span class="phase-title">Post-Beta Expansion — แผนขยายฟีเจอร์หลัง MVP</span>
+          <span class="phase-title">Post-Beta Expansion â€” à¹à¸œà¸™à¸‚à¸¢à¸²à¸¢à¸Ÿà¸µà¹€à¸ˆà¸­à¸£à¹Œà¸«à¸¥à¸±à¸‡ MVP</span>
           <div class="phase-header-progress">
             <div class="phase-mini-bar">
               <div class="phase-mini-fill" id="p4-mini-fill"></div>
@@ -2633,14 +3023,14 @@
           <i class="ti ti-chevron-down phase-chevron" id="p4-ch"></i>
         </div>
         <div class="phase-body" id="p4-body">
-          <p class="phase-desc">แนวคิดฟีเจอร์ในอนาคตที่อยู่นอกขอบเขตของระบบ MVP
-            โดยมีข้อจำกัดและต้องการความพร้อมด้านเทคนิคเพิ่มเติม</p>
+          <p class="phase-desc">à¹à¸™à¸§à¸„à¸´à¸”à¸Ÿà¸µà¹€à¸ˆà¸­à¸£à¹Œà¹ƒà¸™à¸­à¸™à¸²à¸„à¸•à¸—à¸µà¹ˆà¸­à¸¢à¸¹à¹ˆà¸™à¸­à¸à¸‚à¸­à¸šà¹€à¸‚à¸•à¸‚à¸­à¸‡à¸£à¸°à¸šà¸š MVP
+            à¹‚à¸”à¸¢à¸¡à¸µà¸‚à¹‰à¸­à¸ˆà¸³à¸à¸±à¸”à¹à¸¥à¸°à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸„à¸§à¸²à¸¡à¸žà¸£à¹‰à¸­à¸¡à¸”à¹‰à¸²à¸™à¹€à¸—à¸„à¸™à¸´à¸„à¹€à¸žà¸´à¹ˆà¸¡à¹€à¸•à¸´à¸¡</p>
           <div class="sprint-grid">
             <div class="sprint">
               <div class="sprint-header">
                 <div class="sprint-identity">
                   <span class="sprint-tag nsm">Backlog</span>
-                  <span class="sprint-name">รอการประเมิน Demand และความเป็นไปได้</span>
+                  <span class="sprint-name">à¸£à¸­à¸à¸²à¸£à¸›à¸£à¸°à¹€à¸¡à¸´à¸™ Demand à¹à¸¥à¸°à¸„à¸§à¸²à¸¡à¹€à¸›à¹‡à¸™à¹„à¸›à¹„à¸”à¹‰</span>
                 </div>
                 <div class="sprint-meta">
                   <span class="sprint-percent" id="p4-backlog-percent">0%</span>
@@ -2652,10 +3042,10 @@
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
                   <span class="task-text"><i class="ti ti-wifi-off"></i>Hotspot / Local WebSocket mode
-                    (ซิงค์ตรงโดยไม่พึ่งเน็ตอินเทอร์เน็ต)</span>
+                    (à¸‹à¸´à¸‡à¸„à¹Œà¸•à¸£à¸‡à¹‚à¸”à¸¢à¹„à¸¡à¹ˆà¸žà¸¶à¹ˆà¸‡à¹€à¸™à¹‡à¸•à¸­à¸´à¸™à¹€à¸—à¸­à¸£à¹Œà¹€à¸™à¹‡à¸•)</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P3</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2663,10 +3053,10 @@
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
                   <span class="task-text"><i class="ti ti-microphone"></i>Intercom voice chat
-                    สนทนาเสียงแบบสายตรงในแอป</span>
+                    à¸ªà¸™à¸—à¸™à¸²à¹€à¸ªà¸µà¸¢à¸‡à¹à¸šà¸šà¸ªà¸²à¸¢à¸•à¸£à¸‡à¹ƒà¸™à¹à¸­à¸›</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P3</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2674,10 +3064,10 @@
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
                   <span class="task-text"><i class="ti ti-map-pin"></i>Convoy GPS tracking
-                    ติดตามแผนที่ของเพื่อนร่วมคาราวาน</span>
+                    à¸•à¸´à¸”à¸•à¸²à¸¡à¹à¸œà¸™à¸—à¸µà¹ˆà¸‚à¸­à¸‡à¹€à¸žà¸·à¹ˆà¸­à¸™à¸£à¹ˆà¸§à¸¡à¸„à¸²à¸£à¸²à¸§à¸²à¸™</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P3</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2685,30 +3075,30 @@
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
                   <span class="task-text"><i class="ti ti-microphone-2"></i>Voice command
-                    สั่งงานระบบคิวเพลงด้วยเสียง</span>
+                    à¸ªà¸±à¹ˆà¸‡à¸‡à¸²à¸™à¸£à¸°à¸šà¸šà¸„à¸´à¸§à¹€à¸žà¸¥à¸‡à¸”à¹‰à¸§à¸¢à¹€à¸ªà¸µà¸¢à¸‡</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P3</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P3" data-task-id="p4-task-5" data-state="todo"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-credit-card"></i>ระบบจ่ายเงินสมาชิกร่วมหรือทิปคนขับ</span>
+                  <span class="task-text"><i class="ti ti-credit-card"></i>à¸£à¸°à¸šà¸šà¸ˆà¹ˆà¸²à¸¢à¹€à¸‡à¸´à¸™à¸ªà¸¡à¸²à¸Šà¸´à¸à¸£à¹ˆà¸§à¸¡à¸«à¸£à¸·à¸­à¸—à¸´à¸›à¸„à¸™à¸‚à¸±à¸š</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P3</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P3" data-task-id="p4-task-6" data-state="todo"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-download"></i>ดาวน์โหลดเพลง YouTube มาใช้แบบออฟไลน์</span>
+                  <span class="task-text"><i class="ti ti-download"></i>à¸”à¸²à¸§à¸™à¹Œà¹‚à¸«à¸¥à¸”à¹€à¸žà¸¥à¸‡ YouTube à¸¡à¸²à¹ƒà¸Šà¹‰à¹à¸šà¸šà¸­à¸­à¸Ÿà¹„à¸¥à¸™à¹Œ</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P3</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2716,20 +3106,20 @@
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
                   <span class="task-text"><i class="ti ti-device-mobile"></i>Native App (iOS/Android)
-                    เพื่อความสะดวกในการรัน Background</span>
+                    à¹€à¸žà¸·à¹ˆà¸­à¸„à¸§à¸²à¸¡à¸ªà¸°à¸”à¸§à¸à¹ƒà¸™à¸à¸²à¸£à¸£à¸±à¸™ Background</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P3</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
                 <div class="task-item" data-priority="P3" data-task-id="p4-task-8" data-state="todo"
                   data-test-state="untested" data-doc-state="missing">
                   <span class="checkmark"><i class="ti ti-check"></i></span>
-                  <span class="task-text"><i class="ti ti-music"></i>เชื่อมต่อคลังเพลง Spotify / Apple Music</span>
+                  <span class="task-text"><i class="ti ti-music"></i>à¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­à¸„à¸¥à¸±à¸‡à¹€à¸žà¸¥à¸‡ Spotify / Apple Music</span>
                   <span class="priority-badge"><i class="ti ti-flag-3"></i> P3</span>
                   <span class="test-badge"><i class="ti ti-test-pipe"></i> TEST</span>
-                  <a href="file:///g:/covibe/docs/scope_priority_framework.md" class="doc-badge"
+                  <a href="file:///g:/covibe/docs/context/scope_priority_framework.md" class="doc-badge"
                     title="g:/covibe/docs/scope_priority_framework.md"><i class="ti ti-file-text"></i> DOC</a>
                   <span class="status-badge status-pending"><span class="pulse-dot"></span>Waiting for Agent...</span>
                 </div>
@@ -2758,8 +3148,8 @@
           <i class="ti ti-chevron-down phase-chevron open" id="test-cases-uat-ch"></i>
         </div>
         <div class="phase-body open" id="test-cases-uat-body">
-          <p class="phase-desc">ชุดทดสอบระดับมาตรฐานวิศวกรรมซอฟต์แวร์ (SWE Standard) ประกอบด้วย Unit Test และการทดสอบ
-            UAT บนอุปกรณ์เคลื่อนที่จริง</p>
+          <p class="phase-desc">à¸Šà¸¸à¸”à¸—à¸”à¸ªà¸­à¸šà¸£à¸°à¸”à¸±à¸šà¸¡à¸²à¸•à¸£à¸à¸²à¸™à¸§à¸´à¸¨à¸§à¸à¸£à¸£à¸¡à¸‹à¸­à¸Ÿà¸•à¹Œà¹à¸§à¸£à¹Œ (SWE Standard) à¸›à¸£à¸°à¸à¸­à¸šà¸”à¹‰à¸§à¸¢ Unit Test à¹à¸¥à¸°à¸à¸²à¸£à¸—à¸”à¸ªà¸­à¸š
+            UAT à¸šà¸™à¸­à¸¸à¸›à¸à¸£à¸“à¹Œà¹€à¸„à¸¥à¸·à¹ˆà¸­à¸™à¸—à¸µà¹ˆà¸ˆà¸£à¸´à¸‡</p>
 
           <div class="test-cases-grid">
             <!-- AUTOMATED UNIT TESTS -->
@@ -2779,8 +3169,8 @@
                         title="g:/covibe/src/__tests__/time.test.ts" onclick="event.stopPropagation()"><i
                           class="ti ti-code"></i> CODE</a>
                     </div>
-                    <span class="test-case-desc">ทดสอบฟังก์ชัน formatTime ด้วยค่าเวลามาตรฐานในหน่วยมิลลิวินาที</span>
-                    <span class="test-case-expected">Expected: 125000 ms แปลงเป็น "2:05" และ 45000 ms แปลงเป็น
+                    <span class="test-case-desc">à¸—à¸”à¸ªà¸­à¸šà¸Ÿà¸±à¸‡à¸à¹Œà¸Šà¸±à¸™ formatTime à¸”à¹‰à¸§à¸¢à¸„à¹ˆà¸²à¹€à¸§à¸¥à¸²à¸¡à¸²à¸•à¸£à¸à¸²à¸™à¹ƒà¸™à¸«à¸™à¹ˆà¸§à¸¢à¸¡à¸´à¸¥à¸¥à¸´à¸§à¸´à¸™à¸²à¸—à¸µ</span>
+                    <span class="test-case-expected">Expected: 125000 ms à¹à¸›à¸¥à¸‡à¹€à¸›à¹‡à¸™ "2:05" à¹à¸¥à¸° 45000 ms à¹à¸›à¸¥à¸‡à¹€à¸›à¹‡à¸™
                       "0:45"</span>
                   </div>
                 </div>
@@ -2794,8 +3184,8 @@
                         title="g:/covibe/src/__tests__/time.test.ts" onclick="event.stopPropagation()"><i
                           class="ti ti-code"></i> CODE</a>
                     </div>
-                    <span class="test-case-desc">ทดสอบ formatTime ด้วยกรณี Edge cases เช่น ค่าศูนย์ หรือ ค่าติดลบ</span>
-                    <span class="test-case-expected">Expected: 0 หรือ -1000 แปลงเป็น "0:00" โดยไม่แครช</span>
+                    <span class="test-case-desc">à¸—à¸”à¸ªà¸­à¸š formatTime à¸”à¹‰à¸§à¸¢à¸à¸£à¸“à¸µ Edge cases à¹€à¸Šà¹ˆà¸™ à¸„à¹ˆà¸²à¸¨à¸¹à¸™à¸¢à¹Œ à¸«à¸£à¸·à¸­ à¸„à¹ˆà¸²à¸•à¸´à¸”à¸¥à¸š</span>
+                    <span class="test-case-expected">Expected: 0 à¸«à¸£à¸·à¸­ -1000 à¹à¸›à¸¥à¸‡à¹€à¸›à¹‡à¸™ "0:00" à¹‚à¸”à¸¢à¹„à¸¡à¹ˆà¹à¸„à¸£à¸Š</span>
                   </div>
                 </div>
                 <div class="test-case-item" data-test-id="UT-PART-01" data-test-state="todo"
@@ -2808,9 +3198,9 @@
                         data-code-state="stable" title="g:/covibe/src/__tests__/participant.test.ts"
                         onclick="event.stopPropagation()"><i class="ti ti-code"></i> CODE</a>
                     </div>
-                    <span class="test-case-desc">ทดสอบการสร้าง ID ผู้เข้าร่วมใหม่เมื่อไม่พบข้อมูลเดิมใน
+                    <span class="test-case-desc">à¸—à¸”à¸ªà¸­à¸šà¸à¸²à¸£à¸ªà¸£à¹‰à¸²à¸‡ ID à¸œà¸¹à¹‰à¹€à¸‚à¹‰à¸²à¸£à¹ˆà¸§à¸¡à¹ƒà¸«à¸¡à¹ˆà¹€à¸¡à¸·à¹ˆà¸­à¹„à¸¡à¹ˆà¸žà¸šà¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹€à¸”à¸´à¸¡à¹ƒà¸™
                       localStorage</span>
-                    <span class="test-case-expected">Expected: สร้าง UUID สำเร็จและทำการบันทึกลง localStorage</span>
+                    <span class="test-case-expected">Expected: à¸ªà¸£à¹‰à¸²à¸‡ UUID à¸ªà¸³à¹€à¸£à¹‡à¸ˆà¹à¸¥à¸°à¸—à¸³à¸à¸²à¸£à¸šà¸±à¸™à¸—à¸¶à¸à¸¥à¸‡ localStorage</span>
                   </div>
                 </div>
                 <div class="test-case-item" data-test-id="UT-PART-02" data-test-state="todo"
@@ -2823,8 +3213,8 @@
                         data-code-state="stable" title="g:/covibe/src/__tests__/participant.test.ts"
                         onclick="event.stopPropagation()"><i class="ti ti-code"></i> CODE</a>
                     </div>
-                    <span class="test-case-desc">ทดสอบการดึง ID เดิมเมื่อมีข้อมูลผู้ใช้ใน localStorage อยู่แล้ว</span>
-                    <span class="test-case-expected">Expected: ส่งกลับ ID เดิมโดยไม่สร้าง UUID ใหม่ทดแทน</span>
+                    <span class="test-case-desc">à¸—à¸”à¸ªà¸­à¸šà¸à¸²à¸£à¸”à¸¶à¸‡ ID à¹€à¸”à¸´à¸¡à¹€à¸¡à¸·à¹ˆà¸­à¸¡à¸µà¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸œà¸¹à¹‰à¹ƒà¸Šà¹‰à¹ƒà¸™ localStorage à¸­à¸¢à¸¹à¹ˆà¹à¸¥à¹‰à¸§</span>
+                    <span class="test-case-expected">Expected: à¸ªà¹ˆà¸‡à¸à¸¥à¸±à¸š ID à¹€à¸”à¸´à¸¡à¹‚à¸”à¸¢à¹„à¸¡à¹ˆà¸ªà¸£à¹‰à¸²à¸‡ UUID à¹ƒà¸«à¸¡à¹ˆà¸—à¸”à¹à¸—à¸™</span>
                   </div>
                 </div>
                 <div class="test-case-item" data-test-id="UT-ANLY-01" data-test-state="todo"
@@ -2837,8 +3227,8 @@
                         data-code-state="stable" title="g:/covibe/src/__tests__/analytics.test.ts"
                         onclick="event.stopPropagation()"><i class="ti ti-code"></i> CODE</a>
                     </div>
-                    <span class="test-case-desc">ตรวจสอบโครงสร้างของ Payload ในการส่ง Event ของ Analytics</span>
-                    <span class="test-case-expected">Expected: Payload ประกอบด้วย timestamp และ userAgent ครบถ้วน</span>
+                    <span class="test-case-desc">à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸šà¹‚à¸„à¸£à¸‡à¸ªà¸£à¹‰à¸²à¸‡à¸‚à¸­à¸‡ Payload à¹ƒà¸™à¸à¸²à¸£à¸ªà¹ˆà¸‡ Event à¸‚à¸­à¸‡ Analytics</span>
+                    <span class="test-case-expected">Expected: Payload à¸›à¸£à¸°à¸à¸­à¸šà¸”à¹‰à¸§à¸¢ timestamp à¹à¸¥à¸° userAgent à¸„à¸£à¸šà¸–à¹‰à¸§à¸™</span>
                   </div>
                 </div>
                 <div class="test-case-item" data-test-id="UT-ANLY-02" data-test-state="todo"
@@ -2851,9 +3241,9 @@
                         data-code-state="stable" title="g:/covibe/src/__tests__/analytics.test.ts"
                         onclick="event.stopPropagation()"><i class="ti ti-code"></i> CODE</a>
                     </div>
-                    <span class="test-case-desc">ทดสอบ Error Handling เมื่อตัวส่ง analytics ปลายทางทำงานล้มเหลว</span>
-                    <span class="test-case-expected">Expected: ฟังก์ชันดักจับ error ได้เงียบๆ
-                      โดยไม่ทำลายการทำงานหลัก</span>
+                    <span class="test-case-desc">à¸—à¸”à¸ªà¸­à¸š Error Handling à¹€à¸¡à¸·à¹ˆà¸­à¸•à¸±à¸§à¸ªà¹ˆà¸‡ analytics à¸›à¸¥à¸²à¸¢à¸—à¸²à¸‡à¸—à¸³à¸‡à¸²à¸™à¸¥à¹‰à¸¡à¹€à¸«à¸¥à¸§</span>
+                    <span class="test-case-expected">Expected: à¸Ÿà¸±à¸‡à¸à¹Œà¸Šà¸±à¸™à¸”à¸±à¸à¸ˆà¸±à¸š error à¹„à¸”à¹‰à¹€à¸‡à¸µà¸¢à¸šà¹†
+                      à¹‚à¸”à¸¢à¹„à¸¡à¹ˆà¸—à¸³à¸¥à¸²à¸¢à¸à¸²à¸£à¸—à¸³à¸‡à¸²à¸™à¸«à¸¥à¸±à¸</span>
                   </div>
                 </div>
                 <div class="test-case-item" data-test-id="UT-YT-01" data-test-state="todo"
@@ -2866,8 +3256,8 @@
                         data-code-state="stable" title="g:/covibe/src/__tests__/youtube-api.test.ts"
                         onclick="event.stopPropagation()"><i class="ti ti-code"></i> CODE</a>
                     </div>
-                    <span class="test-case-desc">ตรวจสอบการโหลด API ทันทีหากตรวจพบว่า YouTube SDK โหลดเสร็จแล้ว</span>
-                    <span class="test-case-expected">Expected: Resolve Promise ทันทีโดยไม่โหลดสคริปต์ซ้ำ</span>
+                    <span class="test-case-desc">à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸šà¸à¸²à¸£à¹‚à¸«à¸¥à¸” API à¸—à¸±à¸™à¸—à¸µà¸«à¸²à¸à¸•à¸£à¸§à¸ˆà¸žà¸šà¸§à¹ˆà¸² YouTube SDK à¹‚à¸«à¸¥à¸”à¹€à¸ªà¸£à¹‡à¸ˆà¹à¸¥à¹‰à¸§</span>
+                    <span class="test-case-expected">Expected: Resolve Promise à¸—à¸±à¸™à¸—à¸µà¹‚à¸”à¸¢à¹„à¸¡à¹ˆà¹‚à¸«à¸¥à¸”à¸ªà¸„à¸£à¸´à¸›à¸•à¹Œà¸‹à¹‰à¸³</span>
                   </div>
                 </div>
                 <div class="test-case-item" data-test-id="UT-YT-02" data-test-state="todo"
@@ -2880,9 +3270,9 @@
                         data-code-state="stable" title="g:/covibe/src/__tests__/youtube-api.test.ts"
                         onclick="event.stopPropagation()"><i class="ti ti-code"></i> CODE</a>
                     </div>
-                    <span class="test-case-desc">ตรวจสอบการสร้าง script element เมื่อเปิดหน้าเว็บและยังไม่มี SDK</span>
-                    <span class="test-case-expected">Expected: สร้าง script ชี้ไปยัง iframe_api ของ YouTube
-                      สำเร็จ</span>
+                    <span class="test-case-desc">à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸šà¸à¸²à¸£à¸ªà¸£à¹‰à¸²à¸‡ script element à¹€à¸¡à¸·à¹ˆà¸­à¹€à¸›à¸´à¸”à¸«à¸™à¹‰à¸²à¹€à¸§à¹‡à¸šà¹à¸¥à¸°à¸¢à¸±à¸‡à¹„à¸¡à¹ˆà¸¡à¸µ SDK</span>
+                    <span class="test-case-expected">Expected: à¸ªà¸£à¹‰à¸²à¸‡ script à¸Šà¸µà¹‰à¹„à¸›à¸¢à¸±à¸‡ iframe_api à¸‚à¸­à¸‡ YouTube
+                      à¸ªà¸³à¹€à¸£à¹‡à¸ˆ</span>
                   </div>
                 </div>
               </div>
@@ -2902,14 +3292,14 @@
                   <div class="test-case-text">
                     <div class="test-case-code-title">
                       <span class="test-case-code">TC-MOB-01</span>
-                      <a href="file:///g:/covibe/docs/compatibility_report.md" class="doc-badge"
+                      <a href="file:///g:/covibe/docs/evaluation/compatibility_report.md" class="doc-badge"
                         title="g:/covibe/docs/compatibility_report.md" onclick="event.stopPropagation()"><i
                           class="ti ti-file-text"></i> DOC</a>
                     </div>
-                    <span class="test-case-desc"><strong>Autoplay Block:</strong> โฮสต์เริ่มเล่นเพลง สมาชิกเข้าร่วมผ่าน
-                      QR Code บน iOS Safari / Android Chrome</span>
-                    <span class="test-case-expected">Expected: สมาชิกเห็นป๊อปอัปบังคับคลิก "Tap to Sync"
-                      เมื่อคลิกแล้วเพลงจะเล่นตามโฮสต์ทันที</span>
+                    <span class="test-case-desc"><strong>Autoplay Block:</strong> à¹‚à¸®à¸ªà¸•à¹Œà¹€à¸£à¸´à¹ˆà¸¡à¹€à¸¥à¹ˆà¸™à¹€à¸žà¸¥à¸‡ à¸ªà¸¡à¸²à¸Šà¸´à¸à¹€à¸‚à¹‰à¸²à¸£à¹ˆà¸§à¸¡à¸œà¹ˆà¸²à¸™
+                      QR Code à¸šà¸™ iOS Safari / Android Chrome</span>
+                    <span class="test-case-expected">Expected: à¸ªà¸¡à¸²à¸Šà¸´à¸à¹€à¸«à¹‡à¸™à¸›à¹Šà¸­à¸›à¸­à¸±à¸›à¸šà¸±à¸‡à¸„à¸±à¸šà¸„à¸¥à¸´à¸ "Tap to Sync"
+                      à¹€à¸¡à¸·à¹ˆà¸­à¸„à¸¥à¸´à¸à¹à¸¥à¹‰à¸§à¹€à¸žà¸¥à¸‡à¸ˆà¸°à¹€à¸¥à¹ˆà¸™à¸•à¸²à¸¡à¹‚à¸®à¸ªà¸•à¹Œà¸—à¸±à¸™à¸—à¸µ</span>
                   </div>
                 </div>
                 <div class="test-case-item" data-test-id="TC-MOB-02" data-test-state="todo"
@@ -2918,14 +3308,14 @@
                   <div class="test-case-text">
                     <div class="test-case-code-title">
                       <span class="test-case-code">TC-MOB-02</span>
-                      <a href="file:///g:/covibe/docs/compatibility_report.md" class="doc-badge"
+                      <a href="file:///g:/covibe/docs/evaluation/compatibility_report.md" class="doc-badge"
                         title="g:/covibe/docs/compatibility_report.md" onclick="event.stopPropagation()"><i
                           class="ti ti-file-text"></i> DOC</a>
                     </div>
-                    <span class="test-case-desc"><strong>Drift Sync:</strong> วางมือถือ iOS Safari และ Android Chrome
-                      เทียบเคียงกันขณะเล่นเพลงเป็นเวลา 3 นาที</span>
-                    <span class="test-case-expected">Expected: อุปกรณ์ทั้งสองเล่นเพลงซิงค์ตรงกันอย่างราบรื่น
-                      ความคลาดเคลื่อน (Drift) เฉลี่ย &lt; 250-500ms</span>
+                    <span class="test-case-desc"><strong>Drift Sync:</strong> à¸§à¸²à¸‡à¸¡à¸·à¸­à¸–à¸·à¸­ iOS Safari à¹à¸¥à¸° Android Chrome
+                      à¹€à¸—à¸µà¸¢à¸šà¹€à¸„à¸µà¸¢à¸‡à¸à¸±à¸™à¸‚à¸“à¸°à¹€à¸¥à¹ˆà¸™à¹€à¸žà¸¥à¸‡à¹€à¸›à¹‡à¸™à¹€à¸§à¸¥à¸² 3 à¸™à¸²à¸—à¸µ</span>
+                    <span class="test-case-expected">Expected: à¸­à¸¸à¸›à¸à¸£à¸“à¹Œà¸—à¸±à¹‰à¸‡à¸ªà¸­à¸‡à¹€à¸¥à¹ˆà¸™à¹€à¸žà¸¥à¸‡à¸‹à¸´à¸‡à¸„à¹Œà¸•à¸£à¸‡à¸à¸±à¸™à¸­à¸¢à¹ˆà¸²à¸‡à¸£à¸²à¸šà¸£à¸·à¹ˆà¸™
+                      à¸„à¸§à¸²à¸¡à¸„à¸¥à¸²à¸”à¹€à¸„à¸¥à¸·à¹ˆà¸­à¸™ (Drift) à¹€à¸‰à¸¥à¸µà¹ˆà¸¢ &lt; 250-500ms</span>
                   </div>
                 </div>
                 <div class="test-case-item" data-test-id="TC-MOB-03" data-test-state="todo"
@@ -2934,14 +3324,14 @@
                   <div class="test-case-text">
                     <div class="test-case-code-title">
                       <span class="test-case-code">TC-MOB-03</span>
-                      <a href="file:///g:/covibe/docs/compatibility_report.md" class="doc-badge"
+                      <a href="file:///g:/covibe/docs/evaluation/compatibility_report.md" class="doc-badge"
                         title="g:/covibe/docs/compatibility_report.md" onclick="event.stopPropagation()"><i
                           class="ti ti-file-text"></i> DOC</a>
                     </div>
-                    <span class="test-case-desc"><strong>Play/Pause Sync:</strong> โฮสต์กดหยุด/เล่น จากพีซี
-                      หรือสมาชิกกดจากอุปกรณ์เคลื่อนที่</span>
-                    <span class="test-case-expected">Expected: อุปกรณ์ปลายทางทั้งหมดเปลี่ยนสถานะการหยุด/เล่น ตามกันภายใน
-                      1 วินาที</span>
+                    <span class="test-case-desc"><strong>Play/Pause Sync:</strong> à¹‚à¸®à¸ªà¸•à¹Œà¸à¸”à¸«à¸¢à¸¸à¸”/à¹€à¸¥à¹ˆà¸™ à¸ˆà¸²à¸à¸žà¸µà¸‹à¸µ
+                      à¸«à¸£à¸·à¸­à¸ªà¸¡à¸²à¸Šà¸´à¸à¸à¸”à¸ˆà¸²à¸à¸­à¸¸à¸›à¸à¸£à¸“à¹Œà¹€à¸„à¸¥à¸·à¹ˆà¸­à¸™à¸—à¸µà¹ˆ</span>
+                    <span class="test-case-expected">Expected: à¸­à¸¸à¸›à¸à¸£à¸“à¹Œà¸›à¸¥à¸²à¸¢à¸—à¸²à¸‡à¸—à¸±à¹‰à¸‡à¸«à¸¡à¸”à¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¸ªà¸–à¸²à¸™à¸°à¸à¸²à¸£à¸«à¸¢à¸¸à¸”/à¹€à¸¥à¹ˆà¸™ à¸•à¸²à¸¡à¸à¸±à¸™à¸ à¸²à¸¢à¹ƒà¸™
+                      1 à¸§à¸´à¸™à¸²à¸—à¸µ</span>
                   </div>
                 </div>
                 <div class="test-case-item" data-test-id="TC-MOB-04" data-test-state="todo"
@@ -2950,14 +3340,14 @@
                   <div class="test-case-text">
                     <div class="test-case-code-title">
                       <span class="test-case-code">TC-MOB-04</span>
-                      <a href="file:///g:/covibe/docs/compatibility_report.md" class="doc-badge"
+                      <a href="file:///g:/covibe/docs/evaluation/compatibility_report.md" class="doc-badge"
                         title="g:/covibe/docs/compatibility_report.md" onclick="event.stopPropagation()"><i
                           class="ti ti-file-text"></i> DOC</a>
                     </div>
-                    <span class="test-case-desc"><strong>Wake Lock Status:</strong> เปิดหน้าเว็บ CoVibe
-                      และปล่อยทิ้งไว้โดยไม่สัมผัสหน้าจอ 5 นาที</span>
-                    <span class="test-case-expected">Expected: หน้าจอมือถือไม่ล็อกหรือหรี่แสงลง
-                      ทำงานต่อเนื่องไม่มีหยุด</span>
+                    <span class="test-case-desc"><strong>Wake Lock Status:</strong> à¹€à¸›à¸´à¸”à¸«à¸™à¹‰à¸²à¹€à¸§à¹‡à¸š CoVibe
+                      à¹à¸¥à¸°à¸›à¸¥à¹ˆà¸­à¸¢à¸—à¸´à¹‰à¸‡à¹„à¸§à¹‰à¹‚à¸”à¸¢à¹„à¸¡à¹ˆà¸ªà¸±à¸¡à¸œà¸±à¸ªà¸«à¸™à¹‰à¸²à¸ˆà¸­ 5 à¸™à¸²à¸—à¸µ</span>
+                    <span class="test-case-expected">Expected: à¸«à¸™à¹‰à¸²à¸ˆà¸­à¸¡à¸·à¸­à¸–à¸·à¸­à¹„à¸¡à¹ˆà¸¥à¹‡à¸­à¸à¸«à¸£à¸·à¸­à¸«à¸£à¸µà¹ˆà¹à¸ªà¸‡à¸¥à¸‡
+                      à¸—à¸³à¸‡à¸²à¸™à¸•à¹ˆà¸­à¹€à¸™à¸·à¹ˆà¸­à¸‡à¹„à¸¡à¹ˆà¸¡à¸µà¸«à¸¢à¸¸à¸”</span>
                   </div>
                 </div>
                 <div class="test-case-item" data-test-id="TC-MOB-05" data-test-state="todo"
@@ -2966,14 +3356,14 @@
                   <div class="test-case-text">
                     <div class="test-case-code-title">
                       <span class="test-case-code">TC-MOB-05</span>
-                      <a href="file:///g:/covibe/docs/compatibility_report.md" class="doc-badge"
+                      <a href="file:///g:/covibe/docs/evaluation/compatibility_report.md" class="doc-badge"
                         title="g:/covibe/docs/compatibility_report.md" onclick="event.stopPropagation()"><i
                           class="ti ti-file-text"></i> DOC</a>
                     </div>
-                    <span class="test-case-desc"><strong>Tab Backgrounding:</strong> ย่อเบราว์เซอร์หรือล็อกหน้าจอ 30
-                      วินาที แล้วสลับกลับมาใช้งานใหม่</span>
-                    <span class="test-case-expected">Expected: เมื่อแท็บกลับมา Active หน้าเว็บจะประมวลผล Visibility API
-                      ดึงพิกัดเวลามารวมซิงค์ใหม่ทันที</span>
+                    <span class="test-case-desc"><strong>Tab Backgrounding:</strong> à¸¢à¹ˆà¸­à¹€à¸šà¸£à¸²à¸§à¹Œà¹€à¸‹à¸­à¸£à¹Œà¸«à¸£à¸·à¸­à¸¥à¹‡à¸­à¸à¸«à¸™à¹‰à¸²à¸ˆà¸­ 30
+                      à¸§à¸´à¸™à¸²à¸—à¸µ à¹à¸¥à¹‰à¸§à¸ªà¸¥à¸±à¸šà¸à¸¥à¸±à¸šà¸¡à¸²à¹ƒà¸Šà¹‰à¸‡à¸²à¸™à¹ƒà¸«à¸¡à¹ˆ</span>
+                    <span class="test-case-expected">Expected: à¹€à¸¡à¸·à¹ˆà¸­à¹à¸—à¹‡à¸šà¸à¸¥à¸±à¸šà¸¡à¸² Active à¸«à¸™à¹‰à¸²à¹€à¸§à¹‡à¸šà¸ˆà¸°à¸›à¸£à¸°à¸¡à¸§à¸¥à¸œà¸¥ Visibility API
+                      à¸”à¸¶à¸‡à¸žà¸´à¸à¸±à¸”à¹€à¸§à¸¥à¸²à¸¡à¸²à¸£à¸§à¸¡à¸‹à¸´à¸‡à¸„à¹Œà¹ƒà¸«à¸¡à¹ˆà¸—à¸±à¸™à¸—à¸µ</span>
                   </div>
                 </div>
               </div>
@@ -2992,7 +3382,7 @@
           <i class="ti ti-chevron-down phase-chevron open" id="arch-graphs-ch"></i>
         </div>
         <div class="phase-body open" id="arch-graphs-body">
-          <p class="phase-desc">แสดงโครงสร้างตามกฎ DAG Processing Framework (AST, ERD, Dependency Map)</p>
+          <p class="phase-desc">à¹à¸ªà¸”à¸‡à¹‚à¸„à¸£à¸‡à¸ªà¸£à¹‰à¸²à¸‡à¸•à¸²à¸¡à¸à¸Ž DAG Processing Framework (AST, ERD, Dependency Map)</p>
 
           <div class="sprint-grid">
             <div class="sprint">
@@ -3236,142 +3626,142 @@
               </div>
               <div class="arch-graph-container">
                 <div class="mermaid">
-                  graph LR
 %%{init: {"theme":"base","flowchart":{"useMaxWidth":false},"zoom":{"enabled":true}}}%%
-                      subgraph Users [User Devices]
-                          RiderDevice[Rider Mobile Device]
-                          PassDevice[Passenger Mobile Device]
+graph LR
+                      subgraph Users["User Devices"]
+                          RiderDevice["Rider Mobile Device"]
+                          PassDevice["Passenger Mobile Device"]
                       end
 
-                      subgraph Hosting [Cloud / Deployment Environment]
-                          subgraph CDN [Static Web Hosting - e.g. Vercel / Nginx]
-                              StaticFiles[PWA Build: HTML, JS, CSS, Manifest]
+                      subgraph Hosting["Cloud / Deployment Environment"]
+                          subgraph CDN["Static Web Hosting - e.g. Vercel / Nginx"]
+                              StaticFiles["PWA Build: HTML, JS, CSS, Manifest"]
                           end
                           
-                          subgraph AppService [Backend Host - VPS / Render]
-                              WSServer[Node.js WebSocket Server - Port 8989]
+                          subgraph AppService["Backend Host - VPS / Render"]
+                              WSServer["Node.js WebSocket Server - Port 8990"]
                           end
                       end
 
-                      subgraph ThirdParty [Third Party Services]
-                          GoogleCDN[YouTube Video CDN]
-                          GoogleAPI[YouTube Data API]
+                      subgraph ThirdParty["Third Party Services"]
+                          GoogleCDN["YouTube Video CDN"]
+                          GoogleAPI["YouTube Data API"]
                       end
 
-                      RiderDevice -->|1. HTTP / GET Static Assets| StaticFiles
-                      PassDevice -->|1. HTTP / GET Static Assets| StaticFiles
-                      RiderDevice -->|2. WSS / Secure WebSockets Sync| WSServer
-                      PassDevice -->|2. WSS / Secure WebSockets Sync| WSServer
-                      RiderDevice -->|3. WebRTC Peer Connection (Voice)| PassDevice
-                      RiderDevice -->|4. Load Video Assets| GoogleCDN
-                      PassDevice -->|4. Load Video Assets| GoogleCDN
-                      WSServer -->|5. HTTP / Search Proxy API| GoogleAPI
+                      RiderDevice -->|"1. HTTP / GET Static Assets"| StaticFiles
+                      PassDevice -->|"1. HTTP / GET Static Assets"| StaticFiles
+                      RiderDevice -->|"2. WSS / Secure WebSockets Sync"| WSServer
+                      PassDevice -->|"2. WSS / Secure WebSockets Sync"| WSServer
+                      RiderDevice -->|"3. WebRTC Peer Connection (Voice)"| PassDevice
+                      RiderDevice -->|"4. Load Video Assets"| GoogleCDN
+                      PassDevice -->|"4. Load Video Assets"| GoogleCDN
+                      WSServer -->|"5. HTTP / Search Proxy API"| GoogleAPI
                                  </div>
                </div>
              </div>
 
-             <div class="sprint">
+                          <div class="sprint" id="sprint-dfd">
                <div class="sprint-header">
-                 <div class="sprint-identity"><span class="sprint-name">9. Data Flow Diagram – Level 1</span></div>
+                 <div class="sprint-identity"><span class="sprint-name">9. Data Flow Diagram</span></div>
                </div>
-               <div class="arch-graph-container">
-                 <div class="mermaid">
-                   flowchart LR
-                     Rider["Rider (Host)"]
-                     Passenger["Passenger (Follower)"]
-                     YouTube["YouTube Video CDN & IFrame API"]
-                     YouTubeAPI["YouTube Data API"]
-                     CloudCDN["Static Asset CDN (Vercel / Nginx)"]
-                     
-                     subgraph MobilePWA["CoVibe Mobile PWA (React/Vite)"]
-                       UI["UI Layer"]
-                       SyncHook["useRealtime Hook (WebSocket client)"]
-                     end
-                     
-                     subgraph Backend["CoVibe Backend (Node.js)"]
-                       WS["WebSocket Server"]
-                       SearchProxy["Search Proxy (calls YouTube Data API)"]
-                       Telemetry["Telemetry Service"]
-                     end
-                     
-                     Rider -->|HTTP GET Assets| CloudCDN
-                     Passenger -->|HTTP GET Assets| CloudCDN
-                     Rider -->|WebSocket messages| WS
-                     Passenger -->|WebSocket messages| WS
-                     UI -->|User actions (create/join room, add track, chat, voice)| SyncHook
-                     SyncHook -->|JSON messages| WS
-                     WS -->|Room state updates| UI
-                     WS -->|Search requests| SearchProxy
-                     SearchProxy -->|Search results| UI
-                     WS -->|Telemetry events| Telemetry
-                     WS -->|Video control commands| YouTube
-                     YouTube -->|Video stream| UI
+               <div class="arch-graph-container" data-diagram-type="level-toggle">
+                 <!-- Level 1 DFD -->
+                 <div class="mermaid-level" data-level="1">
+                   <div class="mermaid">
+                    flowchart LR
+                      Rider["Rider (Host)"]
+                      Passenger["Passenger (Follower)"]
+                      YouTube["YouTube Video CDN & IFrame API"]
+                      YouTubeAPI["YouTube Data API"]
+                      CloudCDN["Static Asset CDN (Vercel / Nginx)"]
+                      
+                      subgraph MobilePWA["CoVibe Mobile PWA (React/Vite)"]
+                        UI["UI Layer"]
+                        SyncHook["useRealtime Hook (WebSocket client)"]
+                      end
+                      
+                      subgraph Backend["CoVibe Backend (Node.js)"]
+                        WS["WebSocket Server"]
+                        SearchProxy["Search Proxy (calls YouTube Data API)"]
+                        Telemetry["Telemetry Service"]
+                      end
+                      
+                      Rider -->|"HTTP GET Assets"| CloudCDN
+                      Passenger -->|"HTTP GET Assets"| CloudCDN
+                      Rider -->|"WebSocket messages"| WS
+                      Passenger -->|"WebSocket messages"| WS
+                      UI -->|"User actions (create/join room, add track, chat, voice)"| SyncHook
+                      SyncHook -->|"JSON messages"| WS
+                      WS -->|"Room state updates"| UI
+                      WS -->|"Search requests"| SearchProxy
+                      SearchProxy -->|"Search results"| UI
+                      WS -->|"Telemetry events"| Telemetry
+                      WS -->|"Video control commands"| YouTube
+                      YouTube -->|"Video stream"| UI
+                  </div>
+                 </div>
+                 
+                 <!-- Level 2 DFD -->
+                 <div class="mermaid-level" data-level="2" style="display: none;">
+                   <div class="mermaid">
+                    flowchart TD
+                      subgraph DataStore["In-Memory Store"]
+                        RoomState["RoomState (rooms map)"]
+                      end
+                      
+                      YouTubeAPI["YouTube Data API"]
+                      YouTubeCDN["YouTube Video CDN"]
+                      
+                      RiderUI["Rider UI"]
+                      PassengerUI["Passenger UI"]
+                      Hook["useRealtime Hook"]
+                      
+                      WS["WebSocket Server"]
+                      Search["Search Proxy"]
+                      Voice["WebRTC Signalling"]
+                      
+                      RiderUI -->|"create_room / join_room"| Hook
+                      Hook -->|"ws.send {type: create/join}"| WS
+                      WS -->|"room_created / room_state"| RiderUI
+                      
+                      RiderUI -->|"add_track"| Hook
+                      Hook -->|"ws.send {type: add_track}"| WS
+                      WS -->|"broadcast updated queue"| RiderUI
+                      WS -->|"broadcast updated queue"| PassengerUI
+                      
+                      PassengerUI -->|"join_room"| Hook
+                      Hook -->|"ws.send {type: join}"| WS
+                      WS -->|"room_joined"| PassengerUI
+                      WS -->|"room_state (playback)"| PassengerUI
+                      
+                      PassengerUI -->|"play / pause / seek"| Hook
+                      Hook -->|"ws.send playback command"| WS
+                      WS -->|"room_state (playback)"| PassengerUI
+                      
+                      PassengerUI -->|"ping (clientSentAt)"| Hook
+                      Hook -->|"ws.send ping"| WS
+                      WS -->|"pong (serverSentAt)"| Hook
+                      Hook -->|"calculate drift"| PassengerUI
+                      PassengerUI -->|"seek / rate adjust"| YouTubeCDN
+                      
+                      RiderUI -->|"search query"| Hook
+                      Hook -->|"ws.send search"| WS
+                      WS -->|"forward to Search"| Search
+                      Search -->|"HTTP request"| YouTubeAPI
+                      YouTubeAPI -->|"search results"| Search
+                      Search -->|"search results"| WS
+                      WS -->|"search results"| RiderUI
+                      
+                      RiderUI -->|"voice stream"| Voice
+                      Voice -->|"signal via WS"| WS
+                      WS -->|"relay signal"| PassengerUI
+                      PassengerUI -->|"voice playback"| Voice
+                      
+                      WS -->|"log events"| Telemetry
+                  </div>
                  </div>
                </div>
              </div>
-
-             <div class="sprint">
-               <div class="sprint-header">
-                 <div class="sprint-identity"><span class="sprint-name">10. Data Flow Diagram – Level 2</span></div>
-               </div>
-               <div class="arch-graph-container">
-                 <div class="mermaid">
-                   flowchart TD
-                     subgraph DataStore["In-Memory Store"]
-                       RoomState["RoomState (rooms map)"]
-                     end
-                     
-                     YouTubeAPI["YouTube Data API"]
-                     YouTubeCDN["YouTube Video CDN"]
-                     
-                     RiderUI["Rider UI"]
-                     PassengerUI["Passenger UI"]
-                     Hook["useRealtime Hook"]
-                     
-                     WS["WebSocket Server"]
-                     Search["Search Proxy"]
-                     Voice["WebRTC Signalling"]
-                     
-                     RiderUI -->|create_room / join_room| Hook
-                     Hook -->|ws.send {type: create/join}| WS
-                     WS -->|room_created / room_state| RiderUI
-                     
-                     RiderUI -->|add_track| Hook
-                     Hook -->|ws.send {type: add_track}| WS
-                     WS -->|broadcast updated queue| RiderUI
-                     WS -->|broadcast updated queue| PassengerUI
-                     
-                     PassengerUI -->|join_room| Hook
-                     Hook -->|ws.send {type: join}| WS
-                     WS -->|room_joined| PassengerUI
-                     WS -->|room_state (playback)| PassengerUI
-                     
-                     PassengerUI -->|play / pause / seek| Hook
-                     Hook -->|ws.send playback command| WS
-                     WS -->|room_state (playback)| PassengerUI
-                     
-                     PassengerUI -->|ping (clientSentAt)| Hook
-                     Hook -->|ws.send ping| WS
-                     WS -->|pong (serverSentAt)| Hook
-                     Hook -->|calculate drift| PassengerUI
-                     PassengerUI -->|seek / rate adjust| YouTubeCDN
-                     
-                     RiderUI -->|search query| Hook
-                     Hook -->|ws.send search| WS
-                     WS -->|forward to Search| Search
-                     Search -->|HTTP request| YouTubeAPI
-                     YouTubeAPI -->|search results| Search
-                     Search -->|search results| WS
-                     WS -->|search results| RiderUI
-                     
-                     RiderUI -->|voice stream| Voice
-                     Voice -->|signal via WS| WS
-                     WS -->|relay signal| PassengerUI
-                     PassengerUI -->|voice playback| Voice
-                     
-                     WS -->|log events| Telemetry
-                 </div>
-               </div>
              </div>
               </div>
             </div>
@@ -3388,39 +3778,39 @@
                       classDef server fill:#101418,stroke:#818cf8,color:#818cf8,stroke-width:2px;
 
                       subgraph SrcRoot [src/]
-                          main_tsx["main.tsx\n───\n✦ render()"]:::main
-                          App_tsx["App.tsx\n───\n✦ App()\n✦ createRoom()\n✦ joinRoom()\n✦ addTrack()\n✦ moveTrack()\n✦ playPause()\n✦ leaveRoom()"]:::main
-                          styles_css["styles.css\n───\n✦ Design Tokens"]
-                          constants_ts["constants.ts\n───\n✦ WS_URL\n✦ ROOM_KEY\n✦ NAME_KEY\n✦ PARTICIPANT_KEY"]
+                          main_tsx["main.tsx\nâ”€â”€â”€\nâœ¦ render()"]:::main
+                          App_tsx["App.tsx\nâ”€â”€â”€\nâœ¦ App()\nâœ¦ createRoom()\nâœ¦ joinRoom()\nâœ¦ addTrack()\nâœ¦ moveTrack()\nâœ¦ playPause()\nâœ¦ leaveRoom()"]:::main
+                          styles_css["styles.css\nâ”€â”€â”€\nâœ¦ Design Tokens"]
+                          constants_ts["constants.ts\nâ”€â”€â”€\nâœ¦ WS_URL\nâœ¦ ROOM_KEY\nâœ¦ NAME_KEY\nâœ¦ PARTICIPANT_KEY"]
                       end
 
                       subgraph SrcComponents [src/components/]
-                          YTDeck_tsx["YouTubeDeck.tsx\n───\n✦ YouTubeDeck()\n✦ onPlayerReady()\n✦ onPlayerStateChange()\n✦ checkDrift()"]
-                          VoiceP_tsx["VoicePanel.tsx\n───\n✦ VoicePanel()\n✦ initWebRTC()\n✦ handleSignal()"]
-                          SearchP_tsx["SearchPanel.tsx\n───\n✦ SearchPanel()\n✦ handleSearch()"]
-                          ChatP_tsx["ChatPanel.tsx\n───\n✦ ChatPanel()\n✦ handleSend()"]
-                          TripS_tsx["TripSummary.tsx\n───\n✦ TripSummary()\n✦ fetchSummary()"]
+                          YTDeck_tsx["YouTubeDeck.tsx\nâ”€â”€â”€\nâœ¦ YouTubeDeck()\nâœ¦ onPlayerReady()\nâœ¦ onPlayerStateChange()\nâœ¦ checkDrift()"]
+                          VoiceP_tsx["VoicePanel.tsx\nâ”€â”€â”€\nâœ¦ VoicePanel()\nâœ¦ initWebRTC()\nâœ¦ handleSignal()"]
+                          SearchP_tsx["SearchPanel.tsx\nâ”€â”€â”€\nâœ¦ SearchPanel()\nâœ¦ handleSearch()"]
+                          ChatP_tsx["ChatPanel.tsx\nâ”€â”€â”€\nâœ¦ ChatPanel()\nâœ¦ handleSend()"]
+                          TripS_tsx["TripSummary.tsx\nâ”€â”€â”€\nâœ¦ TripSummary()\nâœ¦ fetchSummary()"]
                       end
 
                       subgraph SrcHooks [src/hooks/]
-                          useRealtime_ts["useRealtime.ts\n───\n✦ useRealtime()\n✦ connect()\n✦ send()"]
+                          useRealtime_ts["useRealtime.ts\nâ”€â”€â”€\nâœ¦ useRealtime()\nâœ¦ connect()\nâœ¦ send()"]
                       end
 
                       subgraph SrcTypes [src/types/]
-                          types_ts["index.ts\n───\n✦ Role\n✦ Participant\n✦ Track\n✦ RoomState\n✦ ServerMessage"]
+                          types_ts["index.ts\nâ”€â”€â”€\nâœ¦ Role\nâœ¦ Participant\nâœ¦ Track\nâœ¦ RoomState\nâœ¦ ServerMessage"]
                       end
 
                       subgraph SrcUtils [src/utils/]
-                          util_yt["youtube.ts\n───\n✦ youtubeIdFromInput()\n✦ thumbnailFor()"]
-                          util_yt_api["youtube-api.ts\n───\n✦ loadYouTubeAPI()"]
-                          util_time["time.ts\n───\n✦ formatTime()\n✦ formatDuration()"]
-                          util_audio["audio.ts\n───\n✦ getLocalAudioStream()"]
-                          util_part["participant.ts\n───\n✦ makeParticipantId()"]
-                          util_anly["analytics.ts\n───\n✦ trackEvent()"]
+                          util_yt["youtube.ts\nâ”€â”€â”€\nâœ¦ youtubeIdFromInput()\nâœ¦ thumbnailFor()"]
+                          util_yt_api["youtube-api.ts\nâ”€â”€â”€\nâœ¦ loadYouTubeAPI()"]
+                          util_time["time.ts\nâ”€â”€â”€\nâœ¦ formatTime()\nâœ¦ formatDuration()"]
+                          util_audio["audio.ts\nâ”€â”€â”€\nâœ¦ getLocalAudioStream()"]
+                          util_part["participant.ts\nâ”€â”€â”€\nâœ¦ makeParticipantId()"]
+                          util_anly["analytics.ts\nâ”€â”€â”€\nâœ¦ trackEvent()"]
                       end
 
                       subgraph ServerRoot [server/]
-                          server_js["index.js\n───\n✦ makeRoom()\n✦ upsertParticipant()\n✦ promoteNextHost()\n✦ getTelemetryData()\n✦ getGitActivity()"]:::server
+                          server_js["index.js\nâ”€â”€â”€\nâœ¦ makeRoom()\nâœ¦ upsertParticipant()\nâœ¦ promoteNextHost()\nâœ¦ getTelemetryData()\nâœ¦ getGitActivity()"]:::server
                           instrument_js["instrument.js"]
                       end
 
@@ -3542,7 +3932,7 @@
     </div>
 
     <!-- Simulated Agent Terminal Console -->
-    <section class="terminal-panel" aria-label="จำลองประวัติคำสั่งเอเจนต์">
+    <section class="terminal-panel" aria-label="à¸ˆà¸³à¸¥à¸­à¸‡à¸›à¸£à¸°à¸§à¸±à¸•à¸´à¸„à¸³à¸ªà¸±à¹ˆà¸‡à¹€à¸­à¹€à¸ˆà¸™à¸•à¹Œ">
       <div class="terminal-header" style="display: flex; align-items: center; cursor: pointer; user-select: none;" onclick="toggleTerminalCollapse(event)">
         <span class="terminal-dot red"></span>
         <span class="terminal-dot yellow"></span>
@@ -3551,7 +3941,7 @@
         <i class="ti ti-chevron-down" id="terminal-collapse-icon" style="font-size: 0.8rem; color: var(--color-text-secondary); margin-left: 4px; transition: transform 0.3s;"></i>
         <div class="agent-selector-container" style="margin-left: auto; display: flex; align-items: center; gap: 8px;" onclick="event.stopPropagation()">
           <label for="agent-select"
-            style="color: var(--color-text-secondary); font-size: 11px; font-family: var(--font-sans);">เอเจนต์:</label>
+            style="color: var(--color-text-secondary); font-size: 11px; font-family: var(--font-sans);">à¹€à¸­à¹€à¸ˆà¸™à¸•à¹Œ:</label>
           <select id="agent-select"
             style="background: rgba(255,255,255,0.04); color: var(--color-text-primary); border: 1px solid var(--color-border); border-radius: 4px; padding: 2px 8px; font-size: 11px; font-family: var(--font-sans); cursor: pointer; outline: none; transition: border-color 0.2s;">
             <option value="gemini" style="background: #12131a; color: var(--color-text-primary);">Gemini CLI (Official)</option>
@@ -3560,7 +3950,7 @@
             <option value="eva-single" style="background: #12131a; color: var(--color-text-primary);">EVA Agent (Single-Shot)</option>
             <option value="qwen" style="background: #12131a; color: var(--color-text-primary);">Qwen Coder (qwen-cli)</option>
           </select>
-          <div style="display: flex; align-items: center; gap: 4px; cursor: pointer; margin-left: 4px; background: rgba(255,255,255,0.02); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--color-border);" onclick="toggleConnection(event)" title="คลิกเพื่อเชื่อมต่อ/ยกเลิกการเชื่อมต่อ">
+          <div style="display: flex; align-items: center; gap: 4px; cursor: pointer; margin-left: 4px; background: rgba(255,255,255,0.02); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--color-border);" onclick="toggleConnection(event)" title="à¸„à¸¥à¸´à¸à¹€à¸žà¸·à¹ˆà¸­à¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­/à¸¢à¸à¹€à¸¥à¸´à¸à¸à¸²à¸£à¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­">
             <span id="connection-status"
               style="width: 8px; height: 8px; border-radius: 50%; background: #ef4444; transition: background 0.3s; display: inline-block;"></span>
             <span id="connection-text" style="color: var(--color-text-secondary); font-size: 10px; font-family: var(--font-sans);">Offline</span>
@@ -3573,19 +3963,19 @@
       <form class="terminal-footer" onsubmit="event.preventDefault(); return false;"
         style="padding: 8px 12px; background: rgba(0,0,0,0.2); border-top: 1px solid var(--color-border); display: flex; gap: 8px; margin: 0;">
         <span style="color: var(--color-accent); font-weight: bold; font-family: var(--font-mono);">$</span>
-        <input type="text" id="terminal-input" placeholder="พิมพ์คำสั่งที่นี่ (เช่น npm run test)..."
+        <input type="text" id="terminal-input" placeholder="à¸žà¸´à¸¡à¸žà¹Œà¸„à¸³à¸ªà¸±à¹ˆà¸‡à¸—à¸µà¹ˆà¸™à¸µà¹ˆ (à¹€à¸Šà¹ˆà¸™ npm run test)..."
           style="flex: 1; background: transparent; border: none; color: var(--color-text-primary); font-family: var(--font-mono); font-size: 11px; outline: none;">
       </form>
     </section>
 
     <footer class="footer-desc">
-      <p>© 2026 CoVibe. สัญลักษณ์ไอคอนและข้อมูลความคืบหน้าประมวลผลอัตโนมัติจาก Git Codebase</p>
+      <p>Â© 2026 CoVibe. à¸ªà¸±à¸à¸¥à¸±à¸à¸©à¸“à¹Œà¹„à¸­à¸„à¸­à¸™à¹à¸¥à¸°à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸„à¸§à¸²à¸¡à¸„à¸·à¸šà¸«à¸™à¹‰à¸²à¸›à¸£à¸°à¸¡à¸§à¸¥à¸œà¸¥à¸­à¸±à¸•à¹‚à¸™à¸¡à¸±à¸•à¸´à¸ˆà¸²à¸ Git Codebase</p>
     </footer>
 
   </div>
 
   <script>
-    // ค่าสถานะทางการอ้างอิงตรงจาก Git Branch
+    // à¸„à¹ˆà¸²à¸ªà¸–à¸²à¸™à¸°à¸—à¸²à¸‡à¸à¸²à¸£à¸­à¹‰à¸²à¸‡à¸­à¸´à¸‡à¸•à¸£à¸‡à¸ˆà¸²à¸ Git Branch
     const OFFICIAL_STATE = {
       // Phase 0
       "p0-s0-1": "done", "p0-s0-2": "done", "p0-s0-3": "done", "p0-s0-4": "done", "p0-s0-5": "done", "p0-s0-6": "done",
@@ -3602,7 +3992,7 @@
       "p4-task-1": "todo", "p4-task-2": "todo", "p4-task-3": "todo", "p4-task-4": "todo", "p4-task-5": "todo", "p4-task-6": "todo", "p4-task-7": "todo", "p4-task-8": "todo"
     };
 
-    // ดึง/บันทึกสถานะผ่าน LocalStorage เพื่อรักษาคิวการสั่งงานของผู้ใช้
+    // à¸”à¸¶à¸‡/à¸šà¸±à¸™à¸—à¸¶à¸à¸ªà¸–à¸²à¸™à¸°à¸œà¹ˆà¸²à¸™ LocalStorage à¹€à¸žà¸·à¹ˆà¸­à¸£à¸±à¸à¸©à¸²à¸„à¸´à¸§à¸à¸²à¸£à¸ªà¸±à¹ˆà¸‡à¸‡à¸²à¸™à¸‚à¸­à¸‡à¸œà¸¹à¹‰à¹ƒà¸Šà¹‰
     function saveStateToStorage() {
       const currentState = {};
       document.querySelectorAll('.task-item').forEach(taskItem => {
@@ -3625,7 +4015,7 @@
       return OFFICIAL_STATE;
     }
 
-    // พิมพ์ Log ลงใน Agent Terminal Console
+    // à¸žà¸´à¸¡à¸žà¹Œ Log à¸¥à¸‡à¹ƒà¸™ Agent Terminal Console
     function logToTerminal(tag, message) {
       const body = document.getElementById('terminal-body');
       if (!body) return;
@@ -3643,11 +4033,11 @@
       line.innerHTML = `<span class="log-time">[${time}]</span> ${tagSpan} ${message}`;
       body.appendChild(line);
 
-      // เลื่อน Log ลงล่างสุดเสมอ
+      // à¹€à¸¥à¸·à¹ˆà¸­à¸™ Log à¸¥à¸‡à¸¥à¹ˆà¸²à¸‡à¸ªà¸¸à¸”à¹€à¸ªà¸¡à¸­
       body.scrollTop = body.scrollHeight;
     }
 
-    // อัปเดตและคำนวณ Progress Bars ทั้งหมด
+    // à¸­à¸±à¸›à¹€à¸”à¸•à¹à¸¥à¸°à¸„à¸³à¸™à¸§à¸“ Progress Bars à¸—à¸±à¹‰à¸‡à¸«à¸¡à¸”
 
     // === Test Cases & UAT System ===
     const OFFICIAL_TEST_STATES = {
@@ -3769,17 +4159,17 @@
         else if (state === 'pending') pendingTasks++;
       });
 
-      // อัปเดตตัวเลขแผงสถิติด้านบน
+      // à¸­à¸±à¸›à¹€à¸”à¸•à¸•à¸±à¸§à¹€à¸¥à¸‚à¹à¸œà¸‡à¸ªà¸–à¸´à¸•à¸´à¸”à¹‰à¸²à¸™à¸šà¸™
       document.getElementById('stat-total').textContent = totalTasks;
       document.getElementById('stat-done').textContent = doneTasks;
       document.getElementById('stat-pending').textContent = pendingTasks;
 
-      // คำนวณความคืบหน้ารวมโครงการ
+      // à¸„à¸³à¸™à¸§à¸“à¸„à¸§à¸²à¸¡à¸„à¸·à¸šà¸«à¸™à¹‰à¸²à¸£à¸§à¸¡à¹‚à¸„à¸£à¸‡à¸à¸²à¸£
       let globalPercentage = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
       document.getElementById('global-percent').textContent = globalPercentage + '%';
       document.getElementById('global-bar-fill').style.width = globalPercentage + '%';
 
-      // วนลูปคำนวณตาม Phase
+      // à¸§à¸™à¸¥à¸¹à¸›à¸„à¸³à¸™à¸§à¸“à¸•à¸²à¸¡ Phase
       const phases = ['p0', 'p1', 'p2', 'p3', 'p4'];
       phases.forEach(phaseId => {
         const phaseEl = document.getElementById(phaseId);
@@ -3795,13 +4185,13 @@
 
         let pPercentage = pTotal > 0 ? Math.round((pDone / pTotal) * 100) : 0;
 
-        // อัปเดต Mini-bar และข้อความแสดง % ท้ายแถบหัวข้อ Phase
+        // à¸­à¸±à¸›à¹€à¸”à¸• Mini-bar à¹à¸¥à¸°à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¹à¸ªà¸”à¸‡ % à¸—à¹‰à¸²à¸¢à¹à¸–à¸šà¸«à¸±à¸§à¸‚à¹‰à¸­ Phase
         const miniFill = document.getElementById(phaseId + '-mini-fill');
         const progressLbl = document.getElementById(phaseId + '-progress-lbl');
         if (miniFill) miniFill.style.width = pPercentage + '%';
         if (progressLbl) progressLbl.textContent = pPercentage + '%';
 
-        // อัปเดตย่อยระดับ Sprint ภายใต้ Phase
+        // à¸­à¸±à¸›à¹€à¸”à¸•à¸¢à¹ˆà¸­à¸¢à¸£à¸°à¸”à¸±à¸š Sprint à¸ à¸²à¸¢à¹ƒà¸•à¹‰ Phase
         const sprints = phaseEl.querySelectorAll('.sprint');
         sprints.forEach(sprintEl => {
           const sprintTasksContainer = sprintEl.querySelector('.tasks');
@@ -3817,12 +4207,12 @@
 
           let sPercentage = sTotal > 0 ? Math.round((sDone / sTotal) * 100) : 0;
 
-          // อัปเดต text เปอร์เซ็นต์ในหัวข้อ Sprint
+          // à¸­à¸±à¸›à¹€à¸”à¸• text à¹€à¸›à¸­à¸£à¹Œà¹€à¸‹à¹‡à¸™à¸•à¹Œà¹ƒà¸™à¸«à¸±à¸§à¸‚à¹‰à¸­ Sprint
           const sprintPercentEl = sprintEl.querySelector('.sprint-percent');
           if (sprintPercentEl) {
             sprintPercentEl.textContent = `${sDone}/${sTotal} - ${sPercentage}%`;
 
-            // ปรับเปลี่ยนสีกล่องแสดงผลความคืบหน้าของแต่ละ Sprint
+            // à¸›à¸£à¸±à¸šà¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¸ªà¸µà¸à¸¥à¹ˆà¸­à¸‡à¹à¸ªà¸”à¸‡à¸œà¸¥à¸„à¸§à¸²à¸¡à¸„à¸·à¸šà¸«à¸™à¹‰à¸²à¸‚à¸­à¸‡à¹à¸•à¹ˆà¸¥à¸° Sprint
             if (sPercentage === 100) {
               sprintPercentEl.style.color = '#34d399';
               sprintPercentEl.style.borderColor = 'rgba(52, 211, 153, 0.2)';
@@ -3841,7 +4231,7 @@
       });
     }
 
-    // ระบบเปิด/ปิด Accordion พับเก็บ Phase
+    // à¸£à¸°à¸šà¸šà¹€à¸›à¸´à¸”/à¸›à¸´à¸” Accordion à¸žà¸±à¸šà¹€à¸à¹‡à¸š Phase
     function togglePhase(id) {
       const body = document.getElementById(id + '-body');
       const ch = document.getElementById(id + '-ch');
@@ -3853,7 +4243,7 @@
     }
 
 
-    // ระบบจัดการ Heatmap
+    // à¸£à¸°à¸šà¸šà¸ˆà¸±à¸”à¸à¸²à¸£ Heatmap
     let currentHeatmapMetric = 'cost';
     let currentHeatmapSubMetric = 'all';
     let telemetryData = null;
@@ -3981,40 +4371,40 @@
             if (gitItem) {
               const act = gitItem.activity || { create: 0, fix: 0, update: 0, delete: 0, move: 0, other: 0 };
               content += `
-                <div style="margin-bottom:6px;"><strong>จำนวน Commit:</strong> ${gitItem.commits} ครั้ง (แก้ไฟล์ทั้งหมด ${gitItem.files_changed} ไฟล์)</div>
+                <div style="margin-bottom:6px;"><strong>à¸ˆà¸³à¸™à¸§à¸™ Commit:</strong> ${gitItem.commits} à¸„à¸£à¸±à¹‰à¸‡ (à¹à¸à¹‰à¹„à¸Ÿà¸¥à¹Œà¸—à¸±à¹‰à¸‡à¸«à¸¡à¸” ${gitItem.files_changed} à¹„à¸Ÿà¸¥à¹Œ)</div>
                 <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 6px; display: flex; flex-direction: column; gap: 3px;">
                   <div style="display:flex; justify-content:space-between; gap:12px; ${currentHeatmapSubMetric === 'create' ? 'color:#a855f7; font-weight:bold;' : ''}">
-                    <span>สร้างโค้ด (Create):</span> <span>${act.create} ไฟล์</span>
+                    <span>à¸ªà¸£à¹‰à¸²à¸‡à¹‚à¸„à¹‰à¸” (Create):</span> <span>${act.create} à¹„à¸Ÿà¸¥à¹Œ</span>
                   </div>
                   <div style="display:flex; justify-content:space-between; gap:12px; ${currentHeatmapSubMetric === 'fix' ? 'color:#a855f7; font-weight:bold;' : ''}">
-                    <span>แก้ไข (Fix):</span> <span>${act.fix} ไฟล์</span>
+                    <span>à¹à¸à¹‰à¹„à¸‚ (Fix):</span> <span>${act.fix} à¹„à¸Ÿà¸¥à¹Œ</span>
                   </div>
                   <div style="display:flex; justify-content:space-between; gap:12px; ${currentHeatmapSubMetric === 'update' ? 'color:#a855f7; font-weight:bold;' : ''}">
-                    <span>อัพเดท (Update):</span> <span>${act.update} ไฟล์</span>
+                    <span>à¸­à¸±à¸žà¹€à¸”à¸— (Update):</span> <span>${act.update} à¹„à¸Ÿà¸¥à¹Œ</span>
                   </div>
                   <div style="display:flex; justify-content:space-between; gap:12px; ${currentHeatmapSubMetric === 'delete' ? 'color:#a855f7; font-weight:bold;' : ''}">
-                    <span>ลบ (Delete):</span> <span>${act.delete} ไฟล์</span>
+                    <span>à¸¥à¸š (Delete):</span> <span>${act.delete} à¹„à¸Ÿà¸¥à¹Œ</span>
                   </div>
                   <div style="display:flex; justify-content:space-between; gap:12px; ${currentHeatmapSubMetric === 'move' ? 'color:#a855f7; font-weight:bold;' : ''}">
-                    <span>ย้าย (Move):</span> <span>${act.move} ไฟล์</span>
+                    <span>à¸¢à¹‰à¸²à¸¢ (Move):</span> <span>${act.move} à¹„à¸Ÿà¸¥à¹Œ</span>
                   </div>
                 </div>
                 <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 6px; margin-top:4px; font-size:0.7rem; color:var(--color-text-secondary);">
-                  <strong>บรรทัดที่เปลี่ยน:</strong> <span style="color:#34d399;">+${gitItem.additions.toLocaleString()}</span> / <span style="color:#ff5f56;">-${gitItem.deletions.toLocaleString()}</span> บรรทัด
+                  <strong>à¸šà¸£à¸£à¸—à¸±à¸”à¸—à¸µà¹ˆà¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™:</strong> <span style="color:#34d399;">+${gitItem.additions.toLocaleString()}</span> / <span style="color:#ff5f56;">-${gitItem.deletions.toLocaleString()}</span> à¸šà¸£à¸£à¸—à¸±à¸”
                 </div>
               `;
             } else {
-              content += `<div style="color:var(--color-text-tertiary);">ไม่มีประวัติการส่งโค้ด (Git Commit)</div>`;
+              content += `<div style="color:var(--color-text-tertiary);">à¹„à¸¡à¹ˆà¸¡à¸µà¸›à¸£à¸°à¸§à¸±à¸•à¸´à¸à¸²à¸£à¸ªà¹ˆà¸‡à¹‚à¸„à¹‰à¸” (Git Commit)</div>`;
             }
           } else {
             if (item) {
               content += `
-                <div><strong>ค่าใช้จ่าย:</strong> $${Number(item.cost_usd).toFixed(6)} USD</div>
-                <div><strong>เรียกใช้ LLM:</strong> ${Number(item.calls).toLocaleString()} ครั้ง</div>
+                <div><strong>à¸„à¹ˆà¸²à¹ƒà¸Šà¹‰à¸ˆà¹ˆà¸²à¸¢:</strong> $${Number(item.cost_usd).toFixed(6)} USD</div>
+                <div><strong>à¹€à¸£à¸µà¸¢à¸à¹ƒà¸Šà¹‰ LLM:</strong> ${Number(item.calls).toLocaleString()} à¸„à¸£à¸±à¹‰à¸‡</div>
                 <div><strong>Tokens:</strong> ${Number(item.input_tokens).toLocaleString()} in / ${Number(item.output_tokens).toLocaleString()} out</div>
               `;
             } else {
-              content += `<div style="color:var(--color-text-tertiary);">ไม่มีประวัติการเรียกใช้</div>`;
+              content += `<div style="color:var(--color-text-tertiary);">à¹„à¸¡à¹ˆà¸¡à¸µà¸›à¸£à¸°à¸§à¸±à¸•à¸´à¸à¸²à¸£à¹€à¸£à¸µà¸¢à¸à¹ƒà¸Šà¹‰</div>`;
             }
           }
 
@@ -4041,7 +4431,7 @@
       });
     }
 
-    // ระบบเชื่อมต่อและจัดการงานผ่านเอเจนต์จริง
+    // à¸£à¸°à¸šà¸šà¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­à¹à¸¥à¸°à¸ˆà¸±à¸”à¸à¸²à¸£à¸‡à¸²à¸™à¸œà¹ˆà¸²à¸™à¹€à¸­à¹€à¸ˆà¸™à¸•à¹Œà¸ˆà¸£à¸´à¸‡
     let socket = null;
     let reconnectTimer = null;
     let manualDisconnect = false;
@@ -4059,7 +4449,7 @@
       }
     }
 
-    // ระบบย่อ-ขยาย Terminal
+    // à¸£à¸°à¸šà¸šà¸¢à¹ˆà¸­-à¸‚à¸¢à¸²à¸¢ Terminal
     window.toggleTerminalCollapse = function (event) {
       const panel = document.querySelector('.terminal-panel');
       if (!panel) return;
@@ -4068,7 +4458,7 @@
       localStorage.setItem('terminal_collapsed', isCollapsed ? 'true' : 'false');
     };
 
-    // ระบบจัดการเปิด/ปิดการเชื่อมต่อ Server
+    // à¸£à¸°à¸šà¸šà¸ˆà¸±à¸”à¸à¸²à¸£à¹€à¸›à¸´à¸”/à¸›à¸´à¸”à¸à¸²à¸£à¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­ Server
     window.toggleConnection = function (event) {
       if (event) event.stopPropagation();
       
@@ -4088,7 +4478,7 @@
     };
 
     function connectWebSocket() {
-      const wsUrl = `ws://${window.location.hostname || 'localhost'}:8989`;
+      const wsUrl = `ws://${window.location.hostname || 'localhost'}:8990`;
       socket = new WebSocket(wsUrl);
 
       socket.onopen = () => {
@@ -4214,21 +4604,21 @@
       };
     }
 
-    // เริ่มทำงานเมื่อโหลดเสร็จ
+    // à¹€à¸£à¸´à¹ˆà¸¡à¸—à¸³à¸‡à¸²à¸™à¹€à¸¡à¸·à¹ˆà¸­à¹‚à¸«à¸¥à¸”à¹€à¸ªà¸£à¹‡à¸ˆ
     document.addEventListener('DOMContentLoaded', () => {
       const state = loadState();
 
-      // โหลดสถานะการย่อ-ขยาย Terminal
+      // à¹‚à¸«à¸¥à¸”à¸ªà¸–à¸²à¸™à¸°à¸à¸²à¸£à¸¢à¹ˆà¸­-à¸‚à¸¢à¸²à¸¢ Terminal
       const isCollapsed = localStorage.getItem('terminal_collapsed') === 'true';
       const panel = document.querySelector('.terminal-panel');
       if (panel && isCollapsed) {
         panel.classList.add('collapsed');
       }
 
-      // เริ่มการเชื่อมต่อ WebSocket
+      // à¹€à¸£à¸´à¹ˆà¸¡à¸à¸²à¸£à¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­ WebSocket
       connectWebSocket();
 
-      // บันทึก Log ต้อนรับ
+      // à¸šà¸±à¸™à¸—à¸¶à¸ Log à¸•à¹‰à¸­à¸™à¸£à¸±à¸š
       logToTerminal('SYSTEM', 'CoVibe Developer Agent Core initialized successfully.');
       logToTerminal('SYSTEM', 'Ready for incoming feature requests.');
 
@@ -4263,21 +4653,21 @@
 
         if (text.includes("websocket") || text.includes("backend") || text.includes("server")) return "Backend";
         if (text.includes("drift") || text.includes("sync") || text.includes("ping") || text.includes("reconnect")) return "Sync Engine";
-        if (text.includes("youtube") || text.includes("เล่นเพลง") || text.includes("คิวเพลง")) return "YouTube Deck";
+        if (text.includes("youtube") || text.includes("à¹€à¸¥à¹ˆà¸™à¹€à¸žà¸¥à¸‡") || text.includes("à¸„à¸´à¸§à¹€à¸žà¸¥à¸‡")) return "YouTube Deck";
         if (text.includes("analytics") || text.includes("telemetry") || text.includes("log")) return "Telemetry";
-        if (text.includes("ui") || text.includes("หน้าเว็บ") || text.includes("rider mode") || text.includes("oled") || text.includes("layout")) return "Frontend";
-        if (text.includes("document") || text.includes("คู่มือ") || text.includes("วิเคราะห์")) return "Documentation";
+        if (text.includes("ui") || text.includes("à¸«à¸™à¹‰à¸²à¹€à¸§à¹‡à¸š") || text.includes("rider mode") || text.includes("oled") || text.includes("layout")) return "Frontend";
+        if (text.includes("document") || text.includes("à¸„à¸¹à¹ˆà¸¡à¸·à¸­") || text.includes("à¸§à¸´à¹€à¸„à¸£à¸²à¸°à¸«à¹Œ")) return "Documentation";
 
         return "General";
       }
 
-      // กำหนดสถานะและผูกอีเวนต์การคลิกงาน
+      // à¸à¸³à¸«à¸™à¸”à¸ªà¸–à¸²à¸™à¸°à¹à¸¥à¸°à¸œà¸¹à¸à¸­à¸µà¹€à¸§à¸™à¸•à¹Œà¸à¸²à¸£à¸„à¸¥à¸´à¸à¸‡à¸²à¸™
       document.querySelectorAll('.task-item').forEach(taskItem => {
         const taskId = taskItem.getAttribute('data-task-id');
         const priority = taskItem.getAttribute('data-priority') || 'P3';
         const testState = taskItem.getAttribute('data-test-state') || 'untested';
 
-        // ดึงสถานะปัจจุบันมาจัดแจง Element
+        // à¸”à¸¶à¸‡à¸ªà¸–à¸²à¸™à¸°à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™à¸¡à¸²à¸ˆà¸±à¸”à¹à¸ˆà¸‡ Element
         if (state[taskId] !== undefined) {
           taskItem.setAttribute('data-state', state[taskId]);
         }
@@ -4377,17 +4767,17 @@
         domainBadgeEl.innerHTML = `<i class="ti ${domIcon}"></i> ${domain}`;
 
         const domainDescMap = {
-          'Frontend': 'Frontend (ส่วนผู้ใช้และการแสดงผล)',
-          'Backend': 'Backend (เซิร์ฟเวอร์และ WebSocket)',
-          'Sync Engine': 'Sync Engine (ระบบซิงค์เวลาและป้องกัน Drift)',
-          'YouTube Deck': 'YouTube Deck (ระบบเครื่องเล่น YouTube)',
-          'Telemetry': 'Telemetry (ระบบวัดผลประสิทธิภาพเอเจนต์)',
-          'Documentation': 'Documentation (เอกสารและสเปกระบบ)',
-          'Infrastructure': 'Infrastructure (โครงสร้างระบบและสคริปต์)',
-          'General': 'General (งานทั่วไป)'
+          'Frontend': 'Frontend (à¸ªà¹ˆà¸§à¸™à¸œà¸¹à¹‰à¹ƒà¸Šà¹‰à¹à¸¥à¸°à¸à¸²à¸£à¹à¸ªà¸”à¸‡à¸œà¸¥)',
+          'Backend': 'Backend (à¹€à¸‹à¸´à¸£à¹Œà¸Ÿà¹€à¸§à¸­à¸£à¹Œà¹à¸¥à¸° WebSocket)',
+          'Sync Engine': 'Sync Engine (à¸£à¸°à¸šà¸šà¸‹à¸´à¸‡à¸„à¹Œà¹€à¸§à¸¥à¸²à¹à¸¥à¸°à¸›à¹‰à¸­à¸‡à¸à¸±à¸™ Drift)',
+          'YouTube Deck': 'YouTube Deck (à¸£à¸°à¸šà¸šà¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡à¹€à¸¥à¹ˆà¸™ YouTube)',
+          'Telemetry': 'Telemetry (à¸£à¸°à¸šà¸šà¸§à¸±à¸”à¸œà¸¥à¸›à¸£à¸°à¸ªà¸´à¸—à¸˜à¸´à¸ à¸²à¸žà¹€à¸­à¹€à¸ˆà¸™à¸•à¹Œ)',
+          'Documentation': 'Documentation (à¹€à¸­à¸à¸ªà¸²à¸£à¹à¸¥à¸°à¸ªà¹€à¸›à¸à¸£à¸°à¸šà¸š)',
+          'Infrastructure': 'Infrastructure (à¹‚à¸„à¸£à¸‡à¸ªà¸£à¹‰à¸²à¸‡à¸£à¸°à¸šà¸šà¹à¸¥à¸°à¸ªà¸„à¸£à¸´à¸›à¸•à¹Œ)',
+          'General': 'General (à¸‡à¸²à¸™à¸—à¸±à¹ˆà¸§à¹„à¸›)'
         };
         const domDesc = domainDescMap[domain] || domain;
-        domainBadgeEl.setAttribute('title', `ขอบเขตงาน: ${domDesc}`);
+        domainBadgeEl.setAttribute('title', `à¸‚à¸­à¸šà¹€à¸‚à¸•à¸‡à¸²à¸™: ${domDesc}`);
 
         // Insert Domain Badge right after CODE badge or Priority badge
         if (codeLinkEl) {
@@ -4400,11 +4790,11 @@
 
         // Priority Label Mapping
         const priorityTextMap = {
-          'P0': '🔴 P0 (Critical / Blocker)',
-          'P1': '🟠 P1 (High Priority)',
-          'P2': '🟡 P2 (Medium Priority)',
-          'P3': '🔵 P3 (Low Priority)',
-          'P4': '⚪ P4 (Lowest Priority)'
+          'P0': 'ðŸ”´ P0 (Critical / Blocker)',
+          'P1': 'ðŸŸ  P1 (High Priority)',
+          'P2': 'ðŸŸ¡ P2 (Medium Priority)',
+          'P3': 'ðŸ”µ P3 (Low Priority)',
+          'P4': 'âšª P4 (Lowest Priority)'
         };
         const priorityLabel = priorityTextMap[priority] || priority;
 
@@ -4413,52 +4803,52 @@
         // 1. Priority Tooltip
         if (priorityBadgeEl) {
           const priorityDescMap = {
-            'P0': 'Blocker / วิกฤตสูงสุด (P0)',
-            'P1': 'ความสำคัญสูง (P1)',
-            'P2': 'ความสำคัญปานกลาง (P2)',
-            'P3': 'ความสำคัญต่ำ (P3)',
-            'P4': 'ความสำคัญต่ำสุด (P4)'
+            'P0': 'Blocker / à¸§à¸´à¸à¸¤à¸•à¸ªà¸¹à¸‡à¸ªà¸¸à¸” (P0)',
+            'P1': 'à¸„à¸§à¸²à¸¡à¸ªà¸³à¸„à¸±à¸à¸ªà¸¹à¸‡ (P1)',
+            'P2': 'à¸„à¸§à¸²à¸¡à¸ªà¸³à¸„à¸±à¸à¸›à¸²à¸™à¸à¸¥à¸²à¸‡ (P2)',
+            'P3': 'à¸„à¸§à¸²à¸¡à¸ªà¸³à¸„à¸±à¸à¸•à¹ˆà¸³ (P3)',
+            'P4': 'à¸„à¸§à¸²à¸¡à¸ªà¸³à¸„à¸±à¸à¸•à¹ˆà¸³à¸ªà¸¸à¸” (P4)'
           };
           const desc = priorityDescMap[priority] || priority;
-          priorityBadgeEl.setAttribute('title', `ระดับความสำคัญ: ${desc}`);
+          priorityBadgeEl.setAttribute('title', `à¸£à¸°à¸”à¸±à¸šà¸„à¸§à¸²à¸¡à¸ªà¸³à¸„à¸±à¸: ${desc}`);
         }
 
         // 2. Code Tooltip
         if (codeLinkEl) {
           const codeState = codeLinkEl.getAttribute('data-code-state') || 'stub';
           const codeDescMap = {
-            'stable': 'โค้ดเสถียร (พร้อมใช้งาน)',
-            'warning': 'มีโค้ดแล้ว (พบข้อผิดพลาดเล็กน้อย)',
-            'bug-fail': 'มีโค้ดแล้ว แต่ทำงานล้มเหลว (Warning/Bug)',
-            'critical-fail': 'โค้ดมีปัญหาวิกฤต (รันไม่ผ่าน)',
-            'stub': 'ยังไม่มีโค้ดจริง (เป็น Stub/Mock)'
+            'stable': 'à¹‚à¸„à¹‰à¸”à¹€à¸ªà¸–à¸µà¸¢à¸£ (à¸žà¸£à¹‰à¸­à¸¡à¹ƒà¸Šà¹‰à¸‡à¸²à¸™)',
+            'warning': 'à¸¡à¸µà¹‚à¸„à¹‰à¸”à¹à¸¥à¹‰à¸§ (à¸žà¸šà¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”à¹€à¸¥à¹‡à¸à¸™à¹‰à¸­à¸¢)',
+            'bug-fail': 'à¸¡à¸µà¹‚à¸„à¹‰à¸”à¹à¸¥à¹‰à¸§ à¹à¸•à¹ˆà¸—à¸³à¸‡à¸²à¸™à¸¥à¹‰à¸¡à¹€à¸«à¸¥à¸§ (Warning/Bug)',
+            'critical-fail': 'à¹‚à¸„à¹‰à¸”à¸¡à¸µà¸›à¸±à¸à¸«à¸²à¸§à¸´à¸à¸¤à¸• (à¸£à¸±à¸™à¹„à¸¡à¹ˆà¸œà¹ˆà¸²à¸™)',
+            'stub': 'à¸¢à¸±à¸‡à¹„à¸¡à¹ˆà¸¡à¸µà¹‚à¸„à¹‰à¸”à¸ˆà¸£à¸´à¸‡ (à¹€à¸›à¹‡à¸™ Stub/Mock)'
           };
           const desc = codeDescMap[codeState] || codeState;
-          codeLinkEl.setAttribute('title', `สถานะโค้ด: ${desc}\n(ไฟล์: ${codePath})`);
+          codeLinkEl.setAttribute('title', `à¸ªà¸–à¸²à¸™à¸°à¹‚à¸„à¹‰à¸”: ${desc}\n(à¹„à¸Ÿà¸¥à¹Œ: ${codePath})`);
         }
 
         // 3. Doc Tooltip
         if (docLinkEl) {
           const docState = taskItem.getAttribute('data-doc-state') || 'missing';
           const docDescMap = {
-            'stable': 'เอกสารเป็นปัจจุบัน (Stable)',
-            'outdated': 'เอกสารล้าสมัย (ต้องการอัปเดต)',
-            'missing': 'ยังไม่ได้เขียนเอกสาร / หาไม่พบ'
+            'stable': 'à¹€à¸­à¸à¸ªà¸²à¸£à¹€à¸›à¹‡à¸™à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™ (Stable)',
+            'outdated': 'à¹€à¸­à¸à¸ªà¸²à¸£à¸¥à¹‰à¸²à¸ªà¸¡à¸±à¸¢ (à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸­à¸±à¸›à¹€à¸”à¸•)',
+            'missing': 'à¸¢à¸±à¸‡à¹„à¸¡à¹ˆà¹„à¸”à¹‰à¹€à¸‚à¸µà¸¢à¸™à¹€à¸­à¸à¸ªà¸²à¸£ / à¸«à¸²à¹„à¸¡à¹ˆà¸žà¸š'
           };
           const desc = docDescMap[docState] || docState;
-          docLinkEl.setAttribute('title', `สถานะเอกสาร: ${desc}\n(เอกสาร: ${docPath})`);
+          docLinkEl.setAttribute('title', `à¸ªà¸–à¸²à¸™à¸°à¹€à¸­à¸à¸ªà¸²à¸£: ${desc}\n(à¹€à¸­à¸à¸ªà¸²à¸£: ${docPath})`);
         }
 
         // 4. Test Tooltip
         const testBadgeEl = taskRow.querySelector('.test-badge');
         if (testBadgeEl) {
           const testDescMap = {
-            'passed': 'ผ่านการทดสอบเรียบร้อย (Passed)',
-            'untested': 'ยังไม่ได้ทดสอบ / ไม่มี Unit Test',
-            'failed': 'การทดสอบล้มเหลว (Failed)'
+            'passed': 'à¸œà¹ˆà¸²à¸™à¸à¸²à¸£à¸—à¸”à¸ªà¸­à¸šà¹€à¸£à¸µà¸¢à¸šà¸£à¹‰à¸­à¸¢ (Passed)',
+            'untested': 'à¸¢à¸±à¸‡à¹„à¸¡à¹ˆà¹„à¸”à¹‰à¸—à¸”à¸ªà¸­à¸š / à¹„à¸¡à¹ˆà¸¡à¸µ Unit Test',
+            'failed': 'à¸à¸²à¸£à¸—à¸”à¸ªà¸­à¸šà¸¥à¹‰à¸¡à¹€à¸«à¸¥à¸§ (Failed)'
           };
           const desc = testDescMap[testState] || testState;
-          testBadgeEl.setAttribute('title', `สถานะการทดสอบ: ${desc}\n(ไฟล์ทดสอบ: ${testFile})`);
+          testBadgeEl.setAttribute('title', `à¸ªà¸–à¸²à¸™à¸°à¸à¸²à¸£à¸—à¸”à¸ªà¸­à¸š: ${desc}\n(à¹„à¸Ÿà¸¥à¹Œà¸—à¸”à¸ªà¸­à¸š: ${testFile})`);
         }
 
         // Create details panel
@@ -4510,11 +4900,11 @@
             if (currentVal === 'todo') {
               if (!socket || socket.readyState !== WebSocket.OPEN) {
                 logToTerminal('SYSTEM', `<span style="color: #ff5f56; font-weight: bold;">ERROR:</span> Cannot execute agent. Local CoVibe Server is offline. Please run "npm run dev:server" first.`);
-                alert('ไม่สามารถส่งงานให้เอเจนต์ได้เนื่องจากเชื่อมต่อกับระบบหลังบ้านไม่ได้ กรุณาตรวจสอบว่ารันเซิร์ฟเวอร์ด้วยคำสั่ง "npm run dev" หรือ "npm run dev:server" อยู่หรือไม่ครับ');
+                alert('à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¸ªà¹ˆà¸‡à¸‡à¸²à¸™à¹ƒà¸«à¹‰à¹€à¸­à¹€à¸ˆà¸™à¸•à¹Œà¹„à¸”à¹‰à¹€à¸™à¸·à¹ˆà¸­à¸‡à¸ˆà¸²à¸à¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­à¸à¸±à¸šà¸£à¸°à¸šà¸šà¸«à¸¥à¸±à¸‡à¸šà¹‰à¸²à¸™à¹„à¸¡à¹ˆà¹„à¸”à¹‰ à¸à¸£à¸¸à¸“à¸²à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸šà¸§à¹ˆà¸²à¸£à¸±à¸™à¹€à¸‹à¸´à¸£à¹Œà¸Ÿà¹€à¸§à¸­à¸£à¹Œà¸”à¹‰à¸§à¸¢à¸„à¸³à¸ªà¸±à¹ˆà¸‡ "npm run dev" à¸«à¸£à¸·à¸­ "npm run dev:server" à¸­à¸¢à¸¹à¹ˆà¸«à¸£à¸·à¸­à¹„à¸¡à¹ˆà¸„à¸£à¸±à¸š');
                 return;
               }
 
-              // ปรับเป็น Pending (Waiting for Agent)
+              // à¸›à¸£à¸±à¸šà¹€à¸›à¹‡à¸™ Pending (Waiting for Agent)
               taskItem.setAttribute('data-state', 'pending');
               saveStateToStorage();
               updateProgress();
@@ -4530,7 +4920,7 @@
               }));
 
             } else if (currentVal === 'pending') {
-              // หากอยู่ในระหว่างรอดำเนินการ ให้ยกเลิกคิวงาน
+              // à¸«à¸²à¸à¸­à¸¢à¸¹à¹ˆà¹ƒà¸™à¸£à¸°à¸«à¸§à¹ˆà¸²à¸‡à¸£à¸­à¸”à¸³à¹€à¸™à¸´à¸™à¸à¸²à¸£ à¹ƒà¸«à¹‰à¸¢à¸à¹€à¸¥à¸´à¸à¸„à¸´à¸§à¸‡à¸²à¸™
               taskItem.setAttribute('data-state', 'todo');
               saveStateToStorage();
               updateProgress();
@@ -4544,8 +4934,8 @@
               }
 
             } else if (currentVal === 'done') {
-              // หากเสร็จแล้ว ต้องการย้อนกลับไปทำใหม่เพื่อการทดสอบ (ขึ้น pop-up เฉพาะกดที่ checkbox)
-              if (confirm(`คุณต้องการเปลี่ยนสถานะของงาน "${taskText}" กลับไปเป็น TODO เพื่อทำใหม่อีกครั้งใช่หรือไม่?`)) {
+              // à¸«à¸²à¸à¹€à¸ªà¸£à¹‡à¸ˆà¹à¸¥à¹‰à¸§ à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸¢à¹‰à¸­à¸™à¸à¸¥à¸±à¸šà¹„à¸›à¸—à¸³à¹ƒà¸«à¸¡à¹ˆà¹€à¸žà¸·à¹ˆà¸­à¸à¸²à¸£à¸—à¸”à¸ªà¸­à¸š (à¸‚à¸¶à¹‰à¸™ pop-up à¹€à¸‰à¸žà¸²à¸°à¸à¸”à¸—à¸µà¹ˆ checkbox)
+              if (confirm(`à¸„à¸¸à¸“à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¸ªà¸–à¸²à¸™à¸°à¸‚à¸­à¸‡à¸‡à¸²à¸™ "${taskText}" à¸à¸¥à¸±à¸šà¹„à¸›à¹€à¸›à¹‡à¸™ TODO à¹€à¸žà¸·à¹ˆà¸­à¸—à¸³à¹ƒà¸«à¸¡à¹ˆà¸­à¸µà¸à¸„à¸£à¸±à¹‰à¸‡à¹ƒà¸Šà¹ˆà¸«à¸£à¸·à¸­à¹„à¸¡à¹ˆ?`)) {
                 taskItem.setAttribute('data-state', 'todo');
                 saveStateToStorage();
                 updateProgress();
@@ -4573,10 +4963,10 @@
         });
       });
 
-      // ปุ่ม Reset เพื่อกู้คืนสถานะทางการ
+      // à¸›à¸¸à¹ˆà¸¡ Reset à¹€à¸žà¸·à¹ˆà¸­à¸à¸¹à¹‰à¸„à¸·à¸™à¸ªà¸–à¸²à¸™à¸°à¸—à¸²à¸‡à¸à¸²à¸£
       document.getElementById('reset-btn').addEventListener('click', () => {
-        if (confirm('คุณต้องการรีเซ็ตคิวงานกลับไปยังประวัติสถานะทางการตามกิ่งก้าน Git Codebase หรือไม่? (รายการรอดำเนินการที่กดเลือกไว้จะหายไป)')) {
-          // เคลียร์งานที่ค้างอยู่
+        if (confirm('à¸„à¸¸à¸“à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸£à¸µà¹€à¸‹à¹‡à¸•à¸„à¸´à¸§à¸‡à¸²à¸™à¸à¸¥à¸±à¸šà¹„à¸›à¸¢à¸±à¸‡à¸›à¸£à¸°à¸§à¸±à¸•à¸´à¸ªà¸–à¸²à¸™à¸°à¸—à¸²à¸‡à¸à¸²à¸£à¸•à¸²à¸¡à¸à¸´à¹ˆà¸‡à¸à¹‰à¸²à¸™ Git Codebase à¸«à¸£à¸·à¸­à¹„à¸¡à¹ˆ? (à¸£à¸²à¸¢à¸à¸²à¸£à¸£à¸­à¸”à¸³à¹€à¸™à¸´à¸™à¸à¸²à¸£à¸—à¸µà¹ˆà¸à¸”à¹€à¸¥à¸·à¸­à¸à¹„à¸§à¹‰à¸ˆà¸°à¸«à¸²à¸¢à¹„à¸›)')) {
+          // à¹€à¸„à¸¥à¸µà¸¢à¸£à¹Œà¸‡à¸²à¸™à¸—à¸µà¹ˆà¸„à¹‰à¸²à¸‡à¸­à¸¢à¸¹à¹ˆ
           document.querySelectorAll('.task-item[data-state="pending"]').forEach(taskItem => {
             const taskId = taskItem.getAttribute('data-task-id');
             if (socket && socket.readyState === WebSocket.OPEN) {
@@ -4611,10 +5001,10 @@
       });
       updateTestProgress();
 
-      // แสดงผลภาพรวมความคืบหน้าครั้งแรก
+      // à¹à¸ªà¸”à¸‡à¸œà¸¥à¸ à¸²à¸žà¸£à¸§à¸¡à¸„à¸§à¸²à¸¡à¸„à¸·à¸šà¸«à¸™à¹‰à¸²à¸„à¸£à¸±à¹‰à¸‡à¹à¸£à¸
       updateProgress();
 
-      // ระบบสั่งงานผ่าน Command Input
+      // à¸£à¸°à¸šà¸šà¸ªà¸±à¹ˆà¸‡à¸‡à¸²à¸™à¸œà¹ˆà¸²à¸™ Command Input
       const terminalInput = document.getElementById('terminal-input');
       terminalInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
@@ -4653,8 +5043,8 @@
   </div>
   <div class="arch-graph-container">
     <div class="mermaid">
-      flowchart LR
       %%{init: {"theme":"base","flowchart":{"useMaxWidth":false},"zoom":{"enabled":true}}}%%
+      flowchart LR
       subgraph Client["Mobile PWA (React/Vite)"]
         UI["UI Layer (App.tsx)"]
         Hook["useRealtime Hook"]
@@ -4676,17 +5066,238 @@
       UI --> Deck
       UI --> Voice
       UI --> Search
-      Hook -->|WebSocket messages| WS
-      WS -->|Broadcast room state| UI
-      WS -->|Search queries| Proxy
-      Proxy -->|Calls| YT_Data
-      Deck -->|Controls video| YT_IFrame
-      Voice -->|WebRTC signalling via WS| WS
-      UI -->|Load static assets| CDN
-      CDN -->|Serves| UI
-    </div>
+      Hook -->|"WebSocket messages"| WS
+      WS -->|"Broadcast room state"| UI
+      WS -->|"Search queries"| Proxy
+      Proxy -->|"Calls"| YT_Data
+      Deck -->|"Controls video"| YT_IFrame
+      Voice -->|"WebRTC signalling via WS"| WS
+      UI -->|"Load static assets"| CDN
+      CDN -->|"Serves"| UI
+                  </div>
   </div>
 </div>
+
+  <script>
+    class DiagramController {
+      constructor(container) {
+        this.container = container;
+        this.wrapper = null;
+        this.viewport = null;
+        this.stage = null;
+        this.svg = null;
+        
+        this.zoom = 1.0;
+        this.panX = 0;
+        this.panY = 0;
+        this.isDragging = false;
+        this.startX = 0;
+        this.startY = 0;
+        this.isLocked = false;
+        
+        this.init();
+      }
+      
+      init() {
+        // 1. Create Wrapper
+        this.wrapper = document.createElement('div');
+        this.wrapper.className = 'diagram-wrapper';
+        
+        // Insert wrapper before container in DOM
+        this.container.parentNode.insertBefore(this.wrapper, this.container);
+        
+        // 2. Create Viewport & Stage
+        this.viewport = document.createElement('div');
+        this.viewport.className = 'diagram-viewport';
+        
+        this.stage = document.createElement('div');
+        this.stage.className = 'diagram-stage';
+        
+        // Move container inside stage
+        this.stage.appendChild(this.container);
+        this.viewport.appendChild(this.stage);
+        this.wrapper.appendChild(this.viewport);
+        
+        // 3. Create Toolbar
+        this.createToolbar();
+        
+        // 4. Setup Pan & Zoom listeners on viewport
+        this.setupListeners();
+        
+        // 5. Look for SVG after Mermaid renders it
+        this.waitForSVG();
+      }
+      
+      createToolbar() {
+        const toolbar = document.createElement('div');
+        toolbar.className = 'diagram-toolbar';
+        
+        // Check if container has multiple levels
+        if (this.container.getAttribute('data-diagram-type') === 'level-toggle') {
+          const depthSelector = document.createElement('div');
+          depthSelector.className = 'depth-selector';
+          
+          const btn1 = document.createElement('button');
+          btn1.className = 'depth-btn active';
+          btn1.textContent = 'Level 1';
+          btn1.addEventListener('click', () => this.setLevel(1));
+          
+          const btn2 = document.createElement('button');
+          btn2.className = 'depth-btn';
+          btn2.textContent = 'Level 2';
+          btn2.addEventListener('click', () => this.setLevel(2));
+          
+          depthSelector.appendChild(btn1);
+          depthSelector.appendChild(btn2);
+          toolbar.appendChild(depthSelector);
+          
+          this.depthBtns = [btn1, btn2];
+        }
+        
+        // Zoom In
+        const btnIn = document.createElement('button');
+        btnIn.className = 'tool-btn';
+        btnIn.title = 'Zoom In';
+        btnIn.innerHTML = '<i class="ti ti-plus"></i>';
+        btnIn.addEventListener('click', () => this.zoomIn());
+        
+        // Zoom Out
+        const btnOut = document.createElement('button');
+        btnOut.className = 'tool-btn';
+        btnOut.title = 'Zoom Out';
+        btnOut.innerHTML = '<i class="ti ti-minus"></i>';
+        btnOut.addEventListener('click', () => this.zoomOut());
+        
+        // Reset (100%)
+        const btnReset = document.createElement('button');
+        btnReset.className = 'tool-btn';
+        btnReset.title = 'Reset to 100%';
+        btnReset.textContent = '100%';
+        btnReset.addEventListener('click', () => this.reset());
+        
+        // Lock/Unlock
+        const btnLock = document.createElement('button');
+        btnLock.className = 'tool-btn';
+        btnLock.title = 'Lock/Unlock Pan & Zoom';
+        btnLock.innerHTML = '<i class="ti ti-lock-open"></i>';
+        btnLock.addEventListener('click', () => {
+          this.isLocked = !this.isLocked;
+          btnLock.classList.toggle('active', this.isLocked);
+          btnLock.innerHTML = this.isLocked ? '<i class="ti ti-lock"></i>' : '<i class="ti ti-lock-open"></i>';
+          this.viewport.style.cursor = this.isLocked ? 'default' : 'grab';
+        });
+        
+        toolbar.appendChild(btnIn);
+        toolbar.appendChild(btnOut);
+        toolbar.appendChild(btnReset);
+        toolbar.appendChild(btnLock);
+        
+        this.wrapper.appendChild(toolbar);
+      }
+      
+      setLevel(level) {
+        const levels = this.container.querySelectorAll('.mermaid-level');
+        levels.forEach(el => {
+          const lvl = parseInt(el.getAttribute('data-level'));
+          el.style.display = (lvl === level) ? 'block' : 'none';
+        });
+        
+        this.depthBtns.forEach((btn, idx) => {
+          btn.classList.toggle('active', idx + 1 === level);
+        });
+        
+        // Reset transforms
+        this.zoom = 1.0;
+        this.panX = 0;
+        this.panY = 0;
+        this.updateTransform();
+        this.waitForSVG();
+      }
+      
+      waitForSVG() {
+        this.svg = null;
+        const interval = setInterval(() => {
+          const visibleLevel = Array.from(this.container.querySelectorAll('.mermaid-level')).find(el => el.style.display !== 'none');
+          const containerToSearch = visibleLevel || this.container;
+          const svg = containerToSearch.querySelector('svg');
+          if (svg) {
+            clearInterval(interval);
+            this.svg = svg;
+            this.svg.style.maxWidth = 'none';
+            this.svg.style.height = 'auto';
+            this.svg.style.display = 'block';
+          }
+        }, 100);
+      }
+      
+      setupListeners() {
+        this.viewport.addEventListener('mousedown', (e) => {
+          if (this.isLocked) return;
+          this.isDragging = true;
+          this.stage.classList.add('dragging');
+          this.viewport.classList.add('grabbing');
+          this.startX = e.clientX - this.panX;
+          this.startY = e.clientY - this.panY;
+          e.preventDefault();
+        });
+        
+        window.addEventListener('mousemove', (e) => {
+          if (!this.isDragging || this.isLocked) return;
+          this.panX = e.clientX - this.startX;
+          this.panY = e.clientY - this.startY;
+          this.updateTransform();
+        });
+        
+        window.addEventListener('mouseup', () => {
+          this.isDragging = false;
+          this.stage.classList.remove('dragging');
+          this.viewport.classList.remove('grabbing');
+        });
+        
+        this.viewport.addEventListener('wheel', (e) => {
+          if (this.isLocked) return;
+          e.preventDefault();
+          const zoomFactor = 0.05;
+          if (e.deltaY < 0) {
+            this.zoom = Math.min(3.0, this.zoom + zoomFactor);
+          } else {
+            this.zoom = Math.max(0.3, this.zoom - zoomFactor);
+          }
+          this.updateTransform();
+        }, { passive: false });
+      }
+      
+      updateTransform() {
+        this.stage.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.zoom})`;
+      }
+      
+      zoomIn() {
+        this.zoom = Math.min(3.0, this.zoom + 0.15);
+        this.updateTransform();
+      }
+      
+      zoomOut() {
+        this.zoom = Math.max(0.3, this.zoom - 0.15);
+        this.updateTransform();
+      }
+      
+      reset() {
+        this.zoom = 1.0;
+        this.panX = 0;
+        this.panY = 0;
+        this.updateTransform();
+      }
+    }
+
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.querySelectorAll('.arch-graph-container').forEach(container => {
+          new DiagramController(container);
+        });
+      }, 800);
+    });
+  </script>
 </body>
+
 
 </html>

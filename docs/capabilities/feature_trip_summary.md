@@ -32,3 +32,8 @@ After a trip ends, users should see a summary of their shared listening experien
 - `src/components/TripSummary.tsx`: New component
 - `src/App.tsx`: Leave flow integration with `showTripSummary`/`tripRoomId` state
 - `src/styles.css`: `.trip-summary`, `.trip-stats-grid`, `.trip-stat-card`, etc.
+
+## 🛠️ Source Implementation
+- **UI Component:** [src/components/TripSummary.tsx](../../src/components/TripSummary.tsx)
+- **Time Utilities:** [src/utils/time.ts](../../src/utils/time.ts)
+

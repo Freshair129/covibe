@@ -1,0 +1,6 @@
+Design a robust Circuit Breaker pattern in TypeScript. 
+- States: CLOSED, OPEN, HALF_OPEN. 
+- Support failureThreshold and resetTimeout. 
+- Implement an Event Emitter for state transitions. 
+- Output ONLY the core class logic and one simple usage. 
+- End your response with '### END'.

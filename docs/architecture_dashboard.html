@@ -208,6 +208,64 @@
     </div>
 </div>
 
+<div style="max-width: 1200px; width: 100%; margin: 3rem auto; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem;">
+    <h2 style="color: var(--accent-color); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">Mapped Directory Structure</h2>
+    <pre style="color: var(--text-secondary); font-family: monospace; font-size: 0.9rem; overflow-x: auto; line-height: 1.5;">
+G:\covibe\docs\
+├── context\
+│   ├── logic_constraints_pwa.md
+│   └── scope_priority_framework.md
+├── capabilities\
+│   ├── feature_analytics_events.md
+│   ├── feature_buffer_handling.md
+│   ├── feature_host_handoff.md
+│   ├── feature_passenger_search.md
+│   ├── feature_queue_management.md
+│   └── feature_trip_summary.md
+├── protocols\
+│   └── (To be populated with API and Protocol specs)
+├── evaluation\
+│   ├── benchmark_report.md
+│   ├── compatibility_report.md
+│   └── sushirl_unit_tests.md
+├── artifacts\
+│   ├── incident_report_sushirl.md
+│   ├── job_report_sushirl.md
+│   └── INC--CSP-EVAL-BLOCKED.md
+├── prototypes\
+│   └── prototype_youtube_sync.md
+└── designs\
+    ├── AmberCitrus-Design.html
+    ├── covibe_ai_benchmark_dashboard.tsx
+    └── covibe_ai_benchmark_fulldashboard.html
+    </pre>
+</div>
+
+<div style="max-width: 1200px; width: 100%; margin: 3rem auto; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem;">
+    <h2 style="color: var(--accent-color); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">Documentation DAG (Dependency Flow)</h2>
+    <div class="mermaid" style="display: flex; justify-content: center; background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 8px;">
+graph TD
+    R[ROUTER.md] --> C[Context Layer]
+    C --> Cap[Capabilities Layer]
+    C --> P[Protocol Layer]
+    Cap --> E[Evaluation Layer]
+    P --> E
+    E --> A[Artifacts Layer]
+    
+    style R fill:#38bdf8,stroke:#38bdf8,color:#000
+    style C fill:#1e293b,stroke:#38bdf8,color:#fff
+    style Cap fill:#1e293b,stroke:#38bdf8,color:#fff
+    style P fill:#1e293b,stroke:#38bdf8,color:#fff
+    style E fill:#1e293b,stroke:#38bdf8,color:#fff
+    style A fill:#1e293b,stroke:#38bdf8,color:#fff
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+    mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+</script>
+
 <div id="modal" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <span class="close-btn" onclick="closeModal()">&times;</span>
