@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoVibe AI Ultimate Dashboard v18.0 - Glassmorphism</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><rect width='128' height='128' rx='24' fill='%23101418'/><path d='M38 38h24a26 26 0 0 1 0 52H38V38Z' fill='none' stroke='%2378f4bf' stroke-width='10' stroke-linejoin='round'/><path d='M64 38h26a26 26 0 0 1 0 52H64' fill='none' stroke='%23f5ca78' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'/><circle cx='38' cy='64' r='8' fill='%23f3f7f4'/></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Fira+Code:wght@400;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            cyan: '#06b6d4',
+                            magenta: '#d946ef',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e',
+                            glassBg: 'rgba(11, 15, 25, 0.4)',
+                            glassBorder: 'rgba(255, 255, 255, 0.08)'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root { --primary: #3b82f6; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --bg: #03010c; --text: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Thai', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+        
+        .glass-card { 
+            background: var(--cyber-glassBg); 
+            backdrop-filter: blur(16px); 
+            border: 1px solid var(--cyber-glassBorder); 
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+            border-radius: 2.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            background: rgba(11, 15, 25, 0.55);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .glow-spot-blue { background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, rgba(0,0,0,0) 70%); }
+        .glow-spot-magenta { background: radial-gradient(circle, rgba(217, 70, 239, 0.1) 0%, rgba(0,0,0,0) 70%); }
+        
+        .tab-active { color: var(--primary); border-bottom: 2px solid var(--primary); }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        
+        .gauge-container { position: relative; width: 100%; height: 110px; overflow: hidden; display: flex; justify-content: center; }
+        .gauge-arc { position: absolute; top: 0; width: 140px; height: 140px; border-radius: 50%; border: 12px solid #1f2937; border-bottom-color: transparent !important; border-left-color: transparent !important; transform: rotate(-45deg); transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        input[type="range"] { accent-color: var(--primary); }
+    </style>
+</head>
+
+<body class="selection:bg-blue-500 selection:text-white min-h-screen pb-20">
+
+    <!-- Ambient Background Engine -->
+    <div class="fixed inset-0 -z-20 overflow-hidden pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full glow-spot-blue opacity-80 animate-pulse" style="animation-duration: 8s"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] rounded-full glow-spot-magenta opacity-80 animate-pulse" style="animation-duration: 12s"></div>
+    </div>
+
+    <div class="container mx-auto max-w-7xl px-6 pt-10">
+        <header class="flex justify-between items-center mb-12 border-b border-white/5 pb-8">
+            <div class="flex items-center gap-4">
+                <div class="bg-blue-600 p-3 rounded-2xl shadow-blue-500/20 shadow-xl text-white"><i data-lucide="zap" class="w-8 h-8"></i></div>
+                <div>
+                    <h1 class="text-3xl font-black tracking-tighter uppercase italic">CoVibe Master Board</h1>
+                    <p class="text-slate-500 text-sm font-medium uppercase tracking-widest text-blue-400">Glassmorphism Evolution v18.0</p>
+                </div>
+            </div>
+            <div class="glass-card px-6 py-3 rounded-2xl border border-white/5 text-right">
+                <div class="text-[10px] font-black uppercase text-slate-500 mb-1">System Health</div>
+                <div class="text-xs font-mono text-emerald-400 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    RTX 3060 12GB Stable
+                </div>
+            </div>
+        </header>
+
+        <nav class="flex gap-8 border-b border-white/5 mb-10 overflow-x-auto scrollbar-hide">
+            <button onclick="switchTab('simulator')" id="tab-btn-simulator" class="pb-4 font-bold text-sm transition tab-active uppercase">Simulator</button>
+            <button onclick="switchTab('backlog')" id="tab-btn-backlog" class="pb-4 font-bold text-sm transition text-slate-500 uppercase">Battle Matrix</button>
+            <button onclick="switchTab('champions')" id="tab-btn-champions" class="pb-4 font-bold text-sm transition text-slate-500 uppercase">The Champions</button>
+            <button onclick="switchTab('telemetry')" id="tab-btn-telemetry" class="pb-4 font-bold text-sm transition text-slate-500 uppercase">Global Sensors</button>
+        </nav>
+
+        <!-- SECTIONS -->
+        <div id="section-simulator" class="space-y-8 animate-in fade-in duration-500">
+             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1 space-y-4 glass-card p-6 rounded-[2.5rem]">
+                    <h4 class="text-[10px] font-black uppercase text-blue-400 tracking-widest mb-4">Select Agent</h4>
+                    <div id="model-buttons-container" class="space-y-3"></div>
+                </div>
+                <div class="lg:col-span-2 glass-card p-8 rounded-[2.5rem] flex flex-col min-h-[500px]">
+                    <div class="flex justify-between items-start mb-8">
+                        <div><h3 id="active-engine-title" class="text-2xl font-extrabold text-white uppercase italic">Select Model</h3><p class="text-[10px] font-bold text-slate-500 mt-1 uppercase">Status: <span id="experiment-status-text" class="text-blue-400">STANDBY</span></p></div>
+                        <button id="playback-btn" onclick="toggleAudioPlayback()" class="bg-blue-600 hover:bg-blue-500 px-8 py-3 rounded-2xl font-black text-xs text-white shadow-xl">ACTIVATE LAB</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
+                        <div class="space-y-6">
+                            <div class="bg-black/80 p-4 rounded-3xl border border-white/5 relative h-40 overflow-hidden"><canvas id="oscilloscope-canvas"></canvas></div>
+                            <div class="p-6 bg-white/[0.02] rounded-3xl border border-white/5">
+                                <div class="flex justify-between mb-4 text-[10px] font-black uppercase tracking-widest text-slate-500"><span>Performance Sensors</span><span id="vram-capacity-text">0.0 GB</span></div>
+                                <div class="grid grid-cols-2 gap-6">
+                                    <div class="space-y-2"><div class="flex justify-between text-[10px] font-bold"><span>HEAT INDEX</span><span id="gpu-temp-text" class="text-emerald-400">38°C</span></div><div class="h-1 bg-slate-900 rounded-full overflow-hidden"><div id="temp-bar" class="h-full bg-emerald-400" style="width: 35%"></div></div></div>
+                                    <div class="space-y-2"><div class="flex justify-between text-[10px] font-bold"><span>VRAM LOAD</span><span id="vram-load-text" class="text-cyan-400">0%</span></div><div class="h-1 bg-slate-900 rounded-full overflow-hidden"><div id="vram-load-bar" class="h-full bg-cyan-400 transition-all duration-500" style="width: 0%"></div></div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-black/40 rounded-3xl border border-white/5 p-6 flex flex-col max-h-[300px]"><pre id="code-display-block" class="text-[10px] text-blue-300 leading-relaxed h-full overflow-y-auto scrollbar-hide">// Waiting for battle data...</pre></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-backlog" class="hidden space-y-10 animate-in slide-in-from-bottom duration-700">
+            <div class="glass-card p-10 rounded-[3rem]">
+                <h2 class="text-2xl font-black text-white uppercase italic mb-8">The Parallel Battle Matrix</h2>
+                <div class="overflow-x-auto"><table class="w-full text-left border-separate border-spacing-y-4"><thead><tr class="text-[10px] font-black text-slate-500 uppercase tracking-widest"><th class="px-8 pb-2">Task Level</th><th class="px-8 pb-2">Agent Roster</th><th class="px-8 pb-2 text-center">Context</th><th class="px-8 pb-2">Speed (t/s)</th><th class="px-8 pb-2 text-right">Arena Status</th></tr></thead><tbody id="backlog-table-body"></tbody></table></div>
+            </div>
+        </div>
+
+        <div id="section-champions" class="hidden space-y-10">
+            <div id="champion-cards-container"></div>
+        </div>
+
+        <div id="section-telemetry" class="hidden space-y-8">
+            <div class="glass-card p-10 rounded-[4rem]">
+                <h2 class="text-xl font-black text-white flex items-center gap-4 mb-12 uppercase italic"><span class="w-2 h-10 bg-blue-600 rounded-full"></span> Full Matrix Real-time Data</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div class="bg-white/5 p-8 rounded-3xl h-[280px] flex flex-col border border-white/5"><span class="text-[10px] font-black text-rose-500 uppercase mb-4 tracking-widest">TEMPERATURE</span><canvas id="tempChart"></canvas></div>
+                    <div class="bg-white/5 p-8 rounded-3xl h-[280px] flex flex-col border border-white/5"><span class="text-[10px] font-black text-indigo-500 uppercase mb-4 tracking-widest">VRAM ALLOCATION</span><canvas id="vramChart"></canvas></div>
+                    <div class="bg-white/5 p-8 rounded-3xl h-[280px] flex flex-col border border-white/5"><span class="text-[10px] font-black text-cyan-500 uppercase mb-4 tracking-widest">FAN VELOCITY</span><canvas id="fanChart"></canvas></div>
+                    <div class="bg-white/5 p-8 rounded-3xl h-[280px] flex flex-col border border-white/5"><span class="text-[10px] font-black text-amber-500 uppercase mb-4 tracking-widest">POWER DRAW (W)</span><canvas id="voltChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="codeModal" class="hidden fixed inset-0 z-[2000] bg-black/98 flex items-center justify-center p-8 backdrop-blur-3xl">
+        <div class="w-full max-w-6xl h-[90vh] glass-card border border-white/10 flex flex-col">
+            <div class="p-12 border-b border-white/5 flex justify-between items-center"><h2 id="modalTitle" class="text-3xl font-black text-white uppercase italic tracking-tighter">Inference Result</h2><button onclick="closeCode()" class="bg-slate-900 p-5 rounded-full text-slate-400 hover:text-white transition-all transform active:scale-90"><i data-lucide="x" class="w-8 h-8"></i></button></div>
+            <div class="flex-1 overflow-y-auto p-16 scrollbar-hide"><pre id="modalContent" class="text-blue-300 text-sm font-mono leading-relaxed whitespace-pre-wrap"></pre></div>
+        </div>
+    </div>
+
+    <script>
+        const realHwData = {"temp": [37, 36, 36, 36, 45, 55, 62, 68, 71, 70, 68, 65, 62, 58, 56, 55, 54, 54, 54, 54], "vram": [1.3, 1.3, 1.3, 8.4, 9.2, 10.5, 11.2, 11.5, 11.9, 11.2, 10.8, 10.5, 9.2, 8.4, 7.6, 5.1, 4.2, 1.3, 1.3, 1.3], "fan": [20, 20, 45, 55, 65, 75, 85, 95, 100, 90, 85, 75, 65, 55, 45, 40, 40, 40, 40, 40], "power": [11, 11, 45, 105, 118, 142, 151, 152, 152, 151, 140, 120, 105, 95, 80, 45, 20, 11, 11, 11], "cpu": [[40,42,44,45,39,42,38,42,48,39,39,45,39,41,46,42,39,38,38,39],[40,46,44,45,48,42,40,45,48,47,45,45,46,42,48,48,45,43,45,45],[22,17,11,14,15,22,20,15,19,16,18,18,8,13,11,16,11,15,9,11],[6,6,6,4,11,12,8,4,10,3,25,24,4,4,11,10,16,10,6,10],[16,14,8,13,14,18,15,17,17,13,25,20,11,8,14,17,13,17,9,12],[11,9,8,6,8,11,15,6,14,5,13,5,4,2,6,11,6,9,3,9],[17,16,7,7,9,14,16,9,13,7,17,12,10,4,8,13,10,22,11,9],[8,18,12,6,9,12,11,9,9,8,12,15,12,8,5,6,11,21,8,5],[11,8,7,10,10,17,19,10,16,10,21,13,10,10,9,12,13,19,4,7],[11,8,6,6,3,9,9,5,7,4,11,10,9,3,5,9,8,22,4,7],[16,17,9,20,19,13,21,18,16,14,23,17,6,9,12,15,10,13,10,12],[10,7,5,4,5,11,7,4,11,6,10,8,3,5,5,7,9,4,6,8]], "ram": [14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14]};
+
+        const models = {
+            "sushi": { "name": "Sushi RL (9B)", "rank": "🥇 MASTER CODER", "color": "#10b981", "bc": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", "arch": "RL-Tuned / 32K Native", "id": "sushi", "results": { "audio-player": { "16k": { "tps": 25.52, "time": 50.26, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "32k": { "tps": 4.6, "time": 56.58, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "4k": { "tps": 21.61, "time": 38.34, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "8k": { "tps": 26.09, "time": 27.0, "vram": "0.0 GB", "acc": 95, "stab": 100 } }, "state-machine": { "16k": { "tps": 31.3, "time": 97.76, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "32k": { "tps": 27.67, "time": 125.82, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "4k": { "tps": 33.79, "time": 79.72, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "8k": { "tps": 33.43, "time": 84.5, "vram": "0.0 GB", "acc": 95, "stab": 100 } }, "rca-debug": { "16k": { "tps": 11.54, "time": 27.38, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "32k": { "tps": 6.14, "time": 53.15, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "4k": { "tps": 23.38, "time": 9.46, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "8k": { "tps": 16.99, "time": 15.35, "vram": "0.0 GB", "acc": 95, "stab": 100 } }, "stress": { "16k": { "tps": 23.23, "time": 38.91, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "32k": { "tps": 12.55, "time": 59.06, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "4k": { "tps": 33.44, "time": 35.01, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "8k": { "tps": 25.2, "time": 21.26, "vram": "0.0 GB", "acc": 95, "stab": 100 } }, "rca-inc": { "16k": { "tps": 23.75, "time": 40.47, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "32k": { "tps": 14.44, "time": 61.59, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "4k": { "tps": 30.36, "time": 17.03, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "8k": { "tps": 26.35, "time": 22.97, "vram": "0.0 GB", "acc": 95, "stab": 100 } } }, "sample": "// Sushi RL Final Output verified..." },
+            "qwopus": { "name": "Qwopus 3.5 (9B)", "rank": "🆕 CHALLENGER", "color": "#8b5cf6", "bc": "bg-violet-500/10 text-violet-400 border-violet-500/20", "arch": "High-Precision Coder", "id": "qwopus", "results": { "audio-player": { "16k": { "tps": 0.0, "time": 0.47, "vram": "0.0 GB", "acc": 0, "stab": 100 }, "32k": { "tps": 0.0, "time": 0.48, "vram": "0.0 GB", "acc": 0, "stab": 100 }, "4k": { "tps": 0.0, "time": 0.53, "vram": "0.0 GB", "acc": 0, "stab": 100 }, "8k": { "tps": 0.0, "time": 0.47, "vram": "0.0 GB", "acc": 0, "stab": 100 } } }, "sample": "// Qwopus 3.5 Results..." },
+            "qwen3": { "name": "Qwen 3 (14B)", "rank": "💎 ARCHITECT", "color": "#f59e0b", "bc": "bg-amber-500/10 text-amber-400 border-amber-500/20", "arch": "Heavy Senior / 8K Limit", "id": "qwen3", "results": { "audio-player": { "4k": { "tps": 24.77, "time": 46.54, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "8k": { "tps": 22.07, "time": 42.17, "vram": "0.0 GB", "acc": 95, "stab": 100 } }, "state-machine": { "4k": { "tps": 24.44, "time": 76.51, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "8k": { "tps": 22.03, "time": 82.5, "vram": "0.0 GB", "acc": 95, "stab": 100 } }, "rca-debug": { "4k": { "tps": 24.4, "time": 25.86, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "8k": { "tps": 21.97, "time": 19.5, "vram": "0.0 GB", "acc": 95, "stab": 100 } }, "stress": { "4k": { "tps": 24.45, "time": 35.79, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "8k": { "tps": 22.0, "time": 30.6, "vram": "0.0 GB", "acc": 95, "stab": 100 } }, "rca-inc": { "4k": { "tps": 24.36, "time": 25.56, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "8k": { "tps": 21.99, "time": 17.5, "vram": "0.0 GB", "acc": 95, "stab": 100 } } }, "sample": "// Qwen 3 (14B) Senior logic..." },
+            "chinda": { "name": "Chinda 4B", "rank": "🇹🇭 THAI EXPERT", "color": "#ec4899", "bc": "bg-pink-500/10 text-pink-400 border-pink-500/20", "arch": "iApp Thai Optimized", "id": "chinda", "results": { "audio-player": { "16k": { "tps": 36.31, "time": 34.61, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "32k": { "tps": 33.58, "time": 56.52, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "4k": { "tps": 64.61, "time": 35.0, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "64k": { "tps": 29.88, "time": 33.81, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "8k": { "tps": 60.76, "time": 33.34, "vram": "0.0 GB", "acc": 95, "stab": 100 } } }, "sample": "// Chinda 4B Thai Expert logic..." },
+            "qwen35": { "name": "Qwen 3.5 (4B)", "rank": "🚀 SPEED KING", "color": "#3b82f6", "bc": "bg-blue-500/10 text-blue-400 border-blue-500/20", "arch": "Ultralight / 16K Native", "id": "qwen35", "results": { "audio-player": { "16k": { "tps": 20.13, "time": 14.5, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "32k": { "tps": 13.21, "time": 12.5, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "4k": { "tps": 34.35, "time": 15.6, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "64k": { "tps": 5.87, "time": 16.2, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "8k": { "tps": 27.99, "time": 13.8, "vram": "0.0 GB", "acc": 95, "stab": 100 } } }, "sample": "// Qwen 3.5 (4B) Speed King logic..." },
+            "gemma4": { "name": "Gemma 4 Rust", "rank": "🦀 RUST CODER", "color": "#f97316", "bc": "bg-orange-500/10 text-orange-400 border-orange-500/20", "arch": "Rust & System Expert", "id": "gemma4", "results": { "audio-player": { "16k": { "tps": 23.3, "time": 30.5, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "32k": { "tps": 22.3, "time": 35.8, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "4k": { "tps": 30.6, "time": 25.4, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "64k": { "tps": 18.5, "time": 40.2, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "8k": { "tps": 28.3, "time": 28.5, "vram": "0.0 GB", "acc": 95, "stab": 100 } } }, "sample": "// Gemma 4 Rust Specialist logic..." },
+            "llama32": { "name": "Llama 3.2 1B", "rank": "🐜 MICRO AGENT", "color": "#10b981", "bc": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", "arch": "Edge Device Optimized", "id": "llama32", "results": { "audio-player": { "16k": { "tps": 127.24, "time": 30.5, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "32k": { "tps": 97.92, "time": 35.8, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "4k": { "tps": 151.39, "time": 25.4, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "64k": { "tps": 74.72, "time": 40.2, "vram": "0.0 GB", "acc": 95, "stab": 100 }, "8k": { "tps": 138.4, "time": 28.5, "vram": "0.0 GB", "acc": 95, "stab": 100 } } }, "sample": "// Llama 3.2 1B Micro Agent result..." }
+        };
+
+        const backlogTasks = [
+            { l: 'L1: Base', n: 'Context Sweep 4k', m: 'Llama 3.2 1B', c: '4K', t: 151.39, s: 'done' },
+            { l: 'L1: Base', n: 'Context Sweep 8k', m: 'Llama 3.2 1B', c: '8K', t: 138.4, s: 'done' },
+            { l: 'L2: Logic', n: 'Context Sweep 32k', m: 'Sushi RL (9B)', c: '32K', t: 27.67, s: 'done' },
+            { l: 'L3: Domain', n: 'Context Sweep 16k', m: 'Gemma 4 Rust', c: '16K', t: 23.3, s: 'done' },
+            { l: 'L4: Stress', n: 'Context Sweep 64k', m: 'Llama 3.2 1B', c: '64K', t: 74.72, s: 'done' },
+            { l: 'L5: Incidents', n: 'Context Sweep 8k', m: 'Qwen 3 (14B)', c: '8K', t: 22.0, s: 'done' }
+        ];
+
+        let selId = 'sushi', selTask = 'audio-player', selCtx = '8k', expandedId = null, isPlay = false, audioCtx, hCharts = {}, playInt = null, playIdx = 19;
+        let reactorAngle = 0;
+
+        function switchTab(id) {
+            ['simulator', 'backlog', 'champions', 'telemetry'].forEach(t => { 
+                const btn = document.getElementById('tab-btn-'+t); if(btn) btn.className = 'pb-4 font-bold text-sm transition text-slate-500 hover:text-slate-300 uppercase';
+                const sec = document.getElementById('section-'+id); if(sec) sec.classList.add('hidden');
+            });
+            const target = document.getElementById('section-'+id);
+            if(target) target.classList.remove('hidden');
+            const targetBtn = document.getElementById('tab-btn-'+id);
+            if(targetBtn) targetBtn.className = 'pb-4 font-bold text-sm transition tab-active uppercase text-blue-400';
+            if(id === 'telemetry') renderGlobalTele();
+            if(id === 'backlog') renderBacklog();
+            if(id === 'champions') { expandedId = null; renderCards(); }
+        }
+
+        function getRes(id) { const m = models[id]; if(!m || !m.results) return {tps:0,vram:'0 GB',acc:0}; const tk = m.results[selTask] ? selTask : Object.keys(m.results)[0]; if(!tk) return {tps:0,vram:'0 GB',acc:0}; const ctx = m.results[tk][selCtx] ? selCtx : Object.keys(m.results[tk])[0]; return m.results[tk][ctx] || {tps:0,vram:'0 GB',acc:0}; }
+
+        function renderAll() { renderButtons(); renderCards(); renderBacklog(); }
+
+        function renderBacklog() {
+            const body = document.getElementById('backlog-table-body'); if(!body) return; body.innerHTML = '';
+            backlogTasks.forEach(item => {
+                body.insertAdjacentHTML('beforeend', `<tr class="bg-white/[0.03] border border-white/5 rounded-2xl overflow-hidden hover:bg-white/[0.06] transition"><td class="px-8 py-5"><div class="text-[9px] font-black text-slate-500 uppercase">${item.l}</div><div class="text-xs font-bold text-white uppercase tracking-wider">${item.n}</div></td><td class="px-8 py-5 font-mono text-xs text-blue-300">${item.m}</td><td class="px-8 py-5 text-center font-mono text-xs text-slate-400">${item.c}</td><td class="px-8 py-5 text-center font-mono text-xs text-blue-400 font-bold">${item.t}</td><td class="px-8 py-5 text-right font-mono text-[10px] text-emerald-400 uppercase font-black italic tracking-widest">VERIFIED</td></tr>`);
+            });
+        }
+
+        function renderButtons() {
+            const c = document.getElementById('model-buttons-container'); if(!c) return; c.innerHTML = '';
+            Object.values(models).forEach(m => {
+                const r = getRes(m.id); const a = m.id === selId;
+                c.insertAdjacentHTML('beforeend', `<button onclick="selectModel('${m.id}')" class="w-full text-left p-5 rounded-[2rem] border transition-all ${a ? 'bg-blue-500/10 border-blue-500 shadow-xl shadow-blue-500/10' : 'bg-white/[0.02] border-white/5 hover:border-white/10'}"><div class="flex justify-between items-center mb-1"><span class="text-xs font-black ${a ? 'text-white' : 'text-slate-400'} uppercase">${m.name}</span><span class="text-[9px] font-mono bg-black/40 px-2 py-0.5 rounded text-blue-400 font-bold">${r.tps} t/s</span></div></button>`);
+            });
+        }
+
+        function selectModel(id) { selId=id; renderAll(); updateUI(); }
+        function updateUI() { const m=models[selId], r=getRes(selId); document.getElementById('active-engine-title').innerText=m.name; document.getElementById('vram-capacity-text').innerText=`VRAM: ${r.vram}`; document.getElementById('code-display-block').textContent=m.sample; document.getElementById('experiment-status-text').innerText=isPlay?'RUNNING':'STANDBY'; }
+
+        function renderCards() {
+            const container = document.getElementById('champion-cards-container'); if(!container) return; 
+            if (expandedId) { renderXDashboardDetail(expandedId); return; }
+            container.innerHTML = ''; container.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in duration-500";
+            Object.values(models).forEach(m => {
+                const r = getRes(m.id);
+                container.insertAdjacentHTML('beforeend', `
+                    <div onclick="expandedId='${m.id}'; renderCards();" class="glass-card hover:border-blue-500/50 hover:shadow-blue-500/10 cursor-pointer group flex flex-col h-full p-10">
+                        <div class="flex justify-between items-start mb-6"><div class="flex flex-col"><span class="badge ${m.bc} mb-2 inline-block self-start px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">${m.rank}</span><h3 class="text-xl font-black text-white group-hover:text-blue-400 transition uppercase italic tracking-tighter">${m.name}</h3></div><i data-lucide="shield-check" class="w-5 h-5 text-emerald-500"></i></div>
+                        <div class="flex-1 space-y-6">
+                            <div class="flex justify-between items-end border-b border-white/5 pb-4"><div class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Arena Performance</div><div class="text-4xl font-black text-white">${r.tps} <small class="text-[11px] text-slate-600 uppercase">t/s</small></div></div>
+                            <div class="space-y-3 pt-2"><div class="flex justify-between text-[10px] font-bold text-slate-500 uppercase"><span>Reasoning</span><span>${r.acc}%</span></div><div class="h-1 bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width: ${r.acc}%"></div></div></div>
+                        </div>
+                    </div>
+                `);
+            });
+            lucide.createIcons();
+        }
+
+        function renderXDashboardDetail(id) {
+            const m = models[id], container = document.getElementById('champion-cards-container');
+            container.className = "space-y-8 animate-in fade-in slide-in-from-right duration-500";
+            if (!m.results[selTask]) selTask = Object.keys(m.results)[0];
+            if (!m.results[selTask][selCtx]) selCtx = Object.keys(m.results[selTask])[0];
+            const r = m.results[selTask][selCtx];
+
+            container.innerHTML = `
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6 border-b border-white/5 pb-8">
+                    <div class="flex items-center gap-4"><button onclick="expandedId=null; renderCards();" class="p-4 glass-card rounded-2xl hover:bg-rose-500/10 hover:text-rose-400 transition"><i data-lucide="chevron-left" class="w-6 h-6"></i></button><div><h2 class="text-3xl font-black text-white italic tracking-tighter uppercase">${m.name}</h2><p class="text-xs text-blue-400 uppercase tracking-widest font-black mt-1 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span> Telemetry Replay Active</p></div></div>
+                    <div class="flex bg-black/50 p-1.5 rounded-2xl border border-white/5">
+                        ${Object.keys(m.results[selTask]).map(cx => `<button onclick="selCtx='${cx}'; renderCards();" class="px-8 py-2.5 rounded-xl text-[10px] font-black transition-all ${selCtx === cx ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:text-white'}">${cx.toUpperCase()}</button>`).join('')}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="glass-card p-8 flex flex-col items-center justify-center relative overflow-hidden">
+                        <canvas id="reactor-canvas" width="220" height="220" class="mb-6"></canvas>
+                        <p class="text-[10px] text-slate-500 text-center uppercase tracking-widest">Core Power: <span id="reactor-pwr-text">0W</span></p>
+                    </div>
+
+                    <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="glass-card p-6 relative overflow-hidden"><span class="text-xs font-black text-slate-400 uppercase">GPU Temp</span><div class="gauge-container mt-2"><div class="gauge-arc" id="detail-temp-gauge" style="border-color: #ef4444;"></div><div class="absolute bottom-0 text-center"><span class="text-4xl font-mono font-black text-white" id="live-temp">0</span>°C</div></div></div>
+                        <div class="glass-card p-6 relative overflow-hidden"><span class="text-xs font-black text-slate-400 uppercase">VRAM USED</span><div class="gauge-container mt-2"><div class="gauge-arc" id="detail-vram-gauge" style="border-color: #3b82f6;"></div><div class="absolute bottom-0 text-center"><span class="text-4xl font-mono font-black text-white" id="live-vram">0</span>GB</div></div></div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 flex flex-col md:flex-row items-center gap-8">
+                    <button onclick="toggleHistoryPlay()" id="play-btn" class="p-4 bg-blue-600 rounded-2xl text-white shadow-xl"><i data-lucide="play" id="play-icon" class="w-8 h-8"></i></button>
+                    <div class="flex-1 w-full"><input type="range" id="history-scrobber" min="0" max="19" value="19" class="w-full" oninput="manualScrob(this.value)"></div>
+                    <div class="bg-black/40 px-6 py-3 rounded-2xl border border-white/5"><span class="text-2xl font-black text-blue-400">${r.tps} t/s</span></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    <div class="lg:col-span-1 space-y-2">
+                        ${Object.keys(m.results).map(tk => `<button onclick="selTask='${tk}'; renderCards();" class="w-full text-left p-5 rounded-3xl border transition-all ${selTask === tk ? 'bg-blue-600 border-blue-500 text-white' : 'bg-white/[0.03] border-white/5 text-slate-500'}"><div class="text-[10px] font-black uppercase">${tk.replace('-', ' ')}</div></button>`).join('')}
+                    </div>
+                    <div class="lg:col-span-3"><div class="glass-card p-10 h-[400px]"><canvas id="detailTrendChart"></canvas></div></div>
+                </div>
+            `;
+            lucide.createIcons(); playIdx = 19;
+            setTimeout(() => { initReactor(); updateLiveHw(19); renderXDetailCharts(id, r); }, 50);
+        }
+
+        function updateLiveHw(idx) {
+            const h = realHwData;
+            document.getElementById('live-temp').innerText = h.temp[idx];
+            document.getElementById('live-vram').innerText = h.vram[idx].toFixed(1);
+            document.getElementById('reactor-pwr-text').innerText = h.power[idx].toFixed(1) + "W";
+            document.getElementById('detail-temp-gauge').style.transform = `rotate(${Math.min((h.temp[idx]/100)*180, 180) - 45}deg)`;
+            document.getElementById('detail-vram-gauge').style.transform = `rotate(${Math.min((h.vram[idx]/12)*180, 180) - 45}deg)`;
+        }
+
+        function toggleHistoryPlay() {
+            const icon = document.getElementById('play-icon');
+            if(playInt) { clearInterval(playInt); playInt = null; } else {
+                playIdx = 0; playInt = setInterval(() => { playIdx++; if(playIdx >= 20) playIdx = 0; document.getElementById('history-scrobber').value = playIdx; updateLiveHw(playIdx); }, 150);
+            }
+            lucide.createIcons();
+        }
+
+        function manualScrob(val) { if(playInt) toggleHistoryPlay(); updateLiveHw(parseInt(val)); }
+
+        function initReactor() {
+            const canv = document.getElementById('reactor-canvas'); if(!canv) return;
+            const cx = canv.getContext('2d');
+            function anim() {
+                if(!expandedId) return; cx.clearRect(0,0,220,220); const mid = 110, h = realHwData;
+                const load = h.cpu[0][playIdx] / 100; reactorAngle += 0.02 + (load * 0.1);
+                let col = h.temp[playIdx] > 65 ? "rgba(244, 63, 94, " : "rgba(59, 130, 246, ";
+                cx.strokeStyle = col + "0.15)"; cx.lineWidth = 1; cx.beginPath(); cx.arc(mid, mid, 80, 0, Math.PI*2); cx.stroke();
+                for(let i=0; i<4; i++) {
+                    const ang = reactorAngle + (Math.PI*2/4)*i;
+                    cx.fillStyle = col + "1.0)"; cx.beginPath(); cx.arc(mid + Math.cos(ang)*80, mid + Math.sin(ang)*80, 5, 0, Math.PI*2); cx.fill();
+                }
+                requestAnimationFrame(anim);
+            }
+            anim();
+        }
+
+        function renderXDetailCharts(id, r) {
+            const ctx = document.getElementById('detailTrendChart').getContext('2d');
+            new Chart(ctx, { type: 'line', data: { labels: realHwData.temp.map(()=>''), datasets: [{ label: 'Temp (°C)', data: realHwData.temp, borderColor: '#ef4444', tension: 0.4, fill: true, backgroundColor: 'rgba(239,68,68,0.05)' }, { label: 'Power (W)', data: realHwData.power, borderColor: '#f59e0b', tension: 0.4 }]}, options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } } });
+        }
+
+        function renderGlobalTele() {
+            const common = { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{display:true,grid:{display:false}},x:{display:false}} };
+            [{id:'tempChart', l:'T', d:realHwData.temp, c:'#ef4444'}, {id:'vramChart', l:'V', d:realHwData.vram, c:'#6366f1'}, {id:'fanChart', l:'F', d:realHwData.fan, c:'#38bdf8'}, {id:'voltChart', l:'P', d:realHwData.power, c:'#f59e0b'}].forEach(conf => {
+                const canvas = document.getElementById(conf.id); if(!canvas) return;
+                if(hCharts[conf.id]) hCharts[conf.id].destroy();
+                hCharts[conf.id] = new Chart(canvas.getContext('2d'), { type:'line', data:{ labels: realHwData.temp.map(()=>''), datasets:[{label:conf.l, data:conf.d, borderColor:conf.c, tension:0.4, fill:true, backgroundColor:conf.c+'15'}] }, options:common });
+            });
+        }
+
+        function toggleAudioPlayback() { isPlay = !isPlay; updateUI(); }
+        function switchTab(id) {
+            ['simulator', 'backlog', 'champions', 'telemetry'].forEach(t => { 
+                document.getElementById('tab-btn-'+t).className = 'pb-4 font-bold text-sm transition text-slate-500 uppercase';
+                document.getElementById('section-'+t).classList.add('hidden');
+            });
+            document.getElementById('section-'+id).classList.remove('hidden');
+            document.getElementById('tab-btn-'+id).className = 'pb-4 font-bold text-sm transition tab-active uppercase text-blue-400';
+            if(id === 'telemetry') renderGlobalTele();
+            if(id === 'backlog') renderBacklog();
+            if(id === 'champions') { expandedId = null; renderCards(); }
+        }
+
+        window.onload = () => { renderAll(); updateUI(); lucide.createIcons(); };
+    </script>
+</body>
+</html>

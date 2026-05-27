@@ -36,6 +36,8 @@ def generate_payload(name, target_tokens):
     
     print(f"Generated {file_path} (~{target_tokens} tokens)")
 
+generate_payload("4k", 4096)
 generate_payload("8k", 8192)
 generate_payload("16k", 16384)
 generate_payload("32k", 32768)
+generate_payload("64k", 65536)

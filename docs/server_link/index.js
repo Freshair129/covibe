@@ -1142,11 +1142,11 @@ wss.on("connection", (ws) => {
 
       let cp;
       if (provider === "thaillm" || provider === "gemini") {
-        cp = spawn("python", ["cloud_bench.py", provider, model_id, prompt], {
+        cp = spawn("python", ["benchmark/scripts/cloud_bench.py", provider, model_id, prompt], {
           cwd: COVIBE_ROOT
         });
       } else if (provider === "qwen") {
-        cp = spawn("python", ["qwen_bench.py", model_id, prompt], {
+        cp = spawn("python", ["benchmark/scripts/qwen_bench.py", model_id, prompt], {
           cwd: COVIBE_ROOT
         });
       } else {

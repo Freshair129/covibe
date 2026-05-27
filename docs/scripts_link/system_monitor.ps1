@@ -1,4 +1,4 @@
-$logFile = "full_system_telemetry.csv"
+$logFile = Join-Path $PSScriptRoot "../benchmark/telemetry_logs/full_system_telemetry.csv"
 # Header ใหม่แบบอลังการ
 $header = "Timestamp,GPU_Temp,GPU_Fan,VRAM_Used,GPU_Power,GPU_Core_Clock,GPU_Mem_Clock,CPU_Total_Usage,CPU_Core1,CPU_Core2,CPU_Core3,CPU_Core4,CPU_Core5,CPU_Core6,RAM_Used,Commit_Charge,Disk_Read_MB,Disk_Write_MB"
 $header | Out-File $logFile -Encoding utf8

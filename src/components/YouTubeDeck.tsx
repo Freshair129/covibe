@@ -23,6 +23,13 @@ export function YouTubeDeck({
   const playerARef = useRef<YTPlayer | null>(null);
   const playerBRef = useRef<YTPlayer | null>(null);
   const [activeDeck, setActiveDeck] = useState<"A" | "B">("A");
+  const activeDeckRef = useRef<"A" | "B">("A");
+  
+  // Sync ref with state
+  useEffect(() => {
+    activeDeckRef.current = activeDeck;
+  }, [activeDeck]);
+
   const activeTrackRef = useRef<string | null>(null);
   const [readyA, setReadyA] = useState(false);
   const [readyB, setReadyB] = useState(false);
@@ -30,6 +37,7 @@ export function YouTubeDeck({
   const [playerStateA, setPlayerStateA] = useState("idle");
   const [playerStateB, setPlayerStateB] = useState("idle");
   const [isSlowNetwork, setIsSlowNetwork] = useState(false);
+  const [bufferedNextTrackId, setBufferedNextTrackId] = useState<string | null>(null);
   const [crossfadeState, setCrossfadeState] = useState<{
     inProgress: boolean;
     fadingTo: string | null;
@@ -38,11 +46,22 @@ export function YouTubeDeck({
   const activePlayer = activeDeck === "A" ? playerARef.current : playerBRef.current;
   const idlePlayer = activeDeck === "A" ? playerBRef.current : playerARef.current;
   const activePlayerState = activeDeck === "A" ? playerStateA : playerStateB;
+  const idleReady = activeDeck === "A" ? readyB : readyA;
   const ready = activeDeck === "A" ? readyA : readyB;
 
   // Audio Ducking Logic
   const isDucking = checkIsDucking(room?.participants);
   const effectiveVolume = calculateEffectiveVolume(volume, isDucking);
+
+  // Anticipatory Buffering Hook
+  useEffect(() => {
+    const nextTrack = room?.queue[0];
+    if (!idleReady || !idlePlayer || !nextTrack || bufferedNextTrackId === nextTrack.id) return;
+
+    console.log(`[Anticipatory] Pre-buffering next track: ${nextTrack.title} on idle deck`);
+    idlePlayer.cueVideoById(nextTrack.sourceId, 0);
+    setBufferedNextTrackId(nextTrack.id);
+  }, [room?.queue[0]?.id, idleReady, idlePlayer, bufferedNextTrackId]);
 
   // Slow network detection
   useEffect(() => {
@@ -75,11 +94,13 @@ export function YouTubeDeck({
           onStateChange: (event) => {
             const states = window.YT?.PlayerState;
             if (!states) return;
-            if (activeDeck === "A") {
+            // Always update states regardless of which deck is active to maintain telemetry
+            if (event.data === states.PLAYING) setPlayerStateA("playing");
+            if (event.data === states.PAUSED) setPlayerStateA("paused");
+            if (event.data === states.BUFFERING) setPlayerStateA("buffering");
+            
+            if (activeDeckRef.current === "A") {
               if (event.data === states.ENDED && role === "rider") send({ type: "skip" });
-              if (event.data === states.PLAYING) setPlayerStateA("playing");
-              if (event.data === states.PAUSED) setPlayerStateA("paused");
-              if (event.data === states.BUFFERING) setPlayerStateA("buffering");
             }
           }
         }
@@ -92,11 +113,12 @@ export function YouTubeDeck({
           onStateChange: (event) => {
             const states = window.YT?.PlayerState;
             if (!states) return;
-            if (activeDeck === "B") {
+            if (event.data === states.PLAYING) setPlayerStateB("playing");
+            if (event.data === states.PAUSED) setPlayerStateB("paused");
+            if (event.data === states.BUFFERING) setPlayerStateB("buffering");
+            
+            if (activeDeckRef.current === "B") {
               if (event.data === states.ENDED && role === "rider") send({ type: "skip" });
-              if (event.data === states.PLAYING) setPlayerStateB("playing");
-              if (event.data === states.PAUSED) setPlayerStateB("paused");
-              if (event.data === states.BUFFERING) setPlayerStateB("buffering");
             }
           }
         }
@@ -108,7 +130,7 @@ export function YouTubeDeck({
       playerARef.current?.destroy();
       playerBRef.current?.destroy();
     };
-  }, [role, send, activeDeck]); // Re-bind events when activeDeck changes
+  }, [role, send]); // Removed activeDeck to prevent unnecessary re-binds
 
   // Global Volume & Mute for Idle
   useEffect(() => {
@@ -123,11 +145,22 @@ export function YouTubeDeck({
 
     const expectedSeconds = Math.max(0, room.playback.positionMs / 1000);
     
-    // Track Change
+    // Track Change with Anticipatory Support
     if (activeTrackRef.current !== track.id) {
       activeTrackRef.current = track.id;
       setCrossfadeState({ inProgress: false, fadingTo: null });
       
+      // OPTIMIZATION: If the new track was already buffered in the idle player, SWAP DECKS
+      if (track.id === bufferedNextTrackId && idlePlayer) {
+        console.log(`[Sync] Instant skip detected! Switching to already buffered deck.`);
+        setActiveDeck(activeDeck === "A" ? "B" : "A");
+        setBufferedNextTrackId(null);
+        // Position will be sync'd in the next effect run or immediately here
+        idlePlayer.playVideo(); 
+        return;
+      }
+
+      // Fallback: Standard load if not buffered
       if (room.playback.isPlaying) {
         activePlayer.loadVideoById(track.sourceId, expectedSeconds);
       } else {
@@ -160,7 +193,7 @@ export function YouTubeDeck({
     if (!room.playback.isPlaying && states && activePlayer.getPlayerState() === states.PLAYING) {
       activePlayer.pauseVideo();
     }
-  }, [ready, room?.currentTrack?.id, room?.playback.isPlaying, room?.playback.positionMs, activeDeck]);
+  }, [ready, room?.currentTrack?.id, room?.playback.isPlaying, room?.playback.positionMs, activeDeck, bufferedNextTrackId, idlePlayer]);
 
   // Crossfade Trigger Logic
   useEffect(() => {
@@ -173,11 +206,10 @@ export function YouTubeDeck({
       const duration = activePlayer.getDuration();
       
       if (duration > 0 && duration - currentTime <= 10) {
-        // Start Crossfade
+        console.log(`[Crossfade] Starting fade to: ${nextTrack.title}`);
         setCrossfadeState({ inProgress: true, fadingTo: nextTrack.id });
         
-        // Prepare idle player
-        idlePlayer.loadVideoById(nextTrack.sourceId, 0);
+        // Prepare idle player (It's likely already cued, so just play)
         idlePlayer.setVolume(0);
         idlePlayer.playVideo();
 
@@ -185,7 +217,7 @@ export function YouTubeDeck({
         let step = 0;
         const fadeInterval = window.setInterval(() => {
           step++;
-          const progress = step / 100; // 100 steps over 5-10 seconds? No, let's do 10 steps.
+          const progress = step / 100;
           
           const fadeOutVol = Math.max(0, effectiveVolume * (1 - progress));
           const fadeInVol = Math.min(effectiveVolume, effectiveVolume * progress);
@@ -196,18 +228,19 @@ export function YouTubeDeck({
           if (step >= 100) {
             window.clearInterval(fadeInterval);
           }
-        }, 100); // 10 seconds = 100 steps of 100ms
+        }, 100); 
         
-        // After 10s, switch decks
+        // After 10s, switch decks and inform server
         window.setTimeout(() => {
           setActiveDeck(activeDeck === "A" ? "B" : "A");
+          setBufferedNextTrackId(null);
           if (role === "rider") send({ type: "skip" });
         }, 10000);
       }
     }, 1000);
 
     return () => window.clearInterval(interval);
-  }, [room?.currentTrack?.id, room?.queue?.length, crossfadeState.inProgress, activeDeck, effectiveVolume]);
+  }, [room?.currentTrack?.id, room?.queue?.length, crossfadeState.inProgress, activeDeck, effectiveVolume, idlePlayer, activePlayer, role, send]);
 
   // Sync Reporting
   useEffect(() => {
