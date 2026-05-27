@@ -1,0 +1,26 @@
+{
+  "benchmark_id": "bench_20260527_0001",
+  "generated_at": "2026-05-27T00:47:37.064Z",
+  "model": {
+    "name": "gemma4-rust-coder-latest",
+    "family": "Gemma",
+    "variant": "Rust-Coder",
+    "format": "GGUF",
+    "quantization": "Q4_K_M",
+    "context_length": 8192
+  },
+  "runtime": {
+    "runtime": "ollama",
+    "version": "0.24.0",
+    "backend": "llama.cpp"
+  },
+  "hardware": {
+    "cpu": "Intel Core i7-8700K",
+    "gpu": "NVIDIA GeForce RTX 3060 12GB",
+    "ram": "32GB DDR4"
+  },
+  "software": {
+    "os": "Windows 11",
+    "driver_version": "552.22"
+  }
+}

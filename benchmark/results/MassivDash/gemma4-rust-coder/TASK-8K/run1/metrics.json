@@ -1,0 +1,41 @@
+{
+  "$schema_version": "1.1.0",
+  "benchmark": {
+    "id": "bench_20260527_0001",
+    "task": "TASK-8K",
+    "status": "completed",
+    "duration_seconds": 43.32
+  },
+  "token_metrics": {
+    "input_tokens": 20,
+    "output_tokens": 1250,
+    "tokens_per_second": 103.06,
+    "throughput": {
+      "avg_tps": 103.06,
+      "p95_tps": 112.02
+    }
+  },
+  "hardware": {
+    "cpu": {
+      "usage": { "avg_percent": 22.3, "max_percent": 45.0 },
+      "temperature": { "max_c": 62.0, "avg_c": 48.2 }
+    },
+    "gpu": {
+      "temperature": { "max_c": 58.0, "avg_c": 47.1 },
+      "memory_usage": { "max_mb": 5120, "avg_mb": 4200 },
+      "power": { "max_w": 118, "avg_w": 85 },
+      "fan_speed": { "max_rpm": 1800, "avg_rpm": 1120 }
+    }
+  },
+  "energy": {
+    "estimated_total_energy_wh": 1.24
+  },
+  "quality": {
+    "passed": true,
+    "score": 0.95,
+    "metrics": {
+      "syntax_correctness": 1.0,
+      "compilation_success": 1.0
+    }
+  }
+}

@@ -174,23 +174,6 @@ Every measurable metric MUST support:
 
 ```json
 {
-  "min": 0,
-  "max": 0,
-  "avg": 0,
-  "p50": 0,
-  "p90": 0,
-  "p95": 0,
-  "p99": 0,
-  "stddev": 0
-}
-```
-
----
-
-## Example metrics.json
-
-```json
-{
   "benchmark_id": "bench_20260527_001",
 
   "status": "completed",
@@ -198,7 +181,8 @@ Every measurable metric MUST support:
   "task_id": "task_001",
   "question_category": "coding",
   "context_length": 8192,
-
+  "started_at": "2026-05-27T00:46:53.739Z",
+  "ended_at": "2026-05-27T00:47:37.064Z",
   "duration_seconds": 43.32,
 
   "tokens": {
@@ -249,6 +233,7 @@ Every measurable metric MUST support:
 ```
 
 ---
+
 
 ## 2.3 samples.jsonl (Raw Telemetry)
 
