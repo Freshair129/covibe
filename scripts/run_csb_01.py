@@ -4,6 +4,7 @@ import time
 import requests
 import os
 import sys
+import uuid
 from datetime import datetime
 
 # Force UTF-8 for Windows
@@ -13,18 +14,24 @@ if sys.platform == "win32":
     sys.stderr = codecs.getwriter("utf-8")(sys.stderr.detach())
 
 # --- CONFIGURATION (EABS-01 v2.0 Compliant) ---
-# Ordered by size: 1B -> 4B -> 4B -> 9B -> 9B -> 9B -> 14B
+MODEL_METADATA = {
+    "llama3.2:1b": {"size": "1B", "url": "https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct", "family": "Llama", "quant": "Q4_K_M"},
+    "hf.co/iapp/chinda-qwen3-4b-gguf:Q4_K_M": {"size": "4B", "url": "https://huggingface.co/iapp/chinda-qwen3-4b-gguf", "family": "Qwen", "quant": "Q4_K_M"},
+    "qwen3.5:4b": {"size": "4B", "url": "https://huggingface.co/Qwen/Qwen2.5-Coder-3B-Instruct", "family": "Qwen", "quant": "Default"}, 
+    "gemma4-rust-coder:latest": {"size": "9B", "url": "https://huggingface.co/MassivDash/Gemma-4-Rust-Coder", "family": "Gemma", "quant": "Q4_K_M"},
+    "sushirl:latest": {"size": "9B", "url": "https://huggingface.co/sushirl/sushi-rl-v1", "family": "Qwen-RL", "quant": "Default"},
+    "qwen3:latest": {"size": "14B", "url": "https://huggingface.co/Qwen/Qwen2.5-Coder-14B-Instruct", "family": "Qwen", "quant": "Default"}
+}
+
 LOCAL_ROSTER = [
     {"name": "llama3.2:1b", "size": "1B"},
     {"name": "hf.co/iapp/chinda-qwen3-4b-gguf:Q4_K_M", "size": "4B"},
     {"name": "qwen3.5:4b", "size": "4B"},
     {"name": "gemma4-rust-coder:latest", "size": "9B"},
     {"name": "sushirl:latest", "size": "9B"},
-    {"name": "hf.co/Jackrong/Qwopus3.5-9B-Coder-GGUF:Q4_K_M", "size": "9B"},
     {"name": "qwen3:latest", "size": "14B"}
 ]
 
-# CSB-01 Task List
 TASK_LIST = [
     {"level": "L1", "name": "DeepMerge", "path": "L1_BASE/utility_deep_merge.txt", "ctx": "8K"},
     {"level": "L2", "name": "PriorityQueue", "path": "L2_LOGIC/algorithm_priority_queue.txt", "ctx": "8K"},
@@ -36,9 +43,14 @@ TASK_LIST = [
 OLLAMA_URL = "http://localhost:11434/api/generate"
 BASE_TASK_DIR = "G:/covibe/benchmark/tasks"
 PAYLOAD_DIR = "G:/covibe/payloads"
-RESULT_DIR = "G:/covibe/benchmark/results/CSB-01"
+RESULT_ROOT = "G:/covibe/benchmark"
+TEMPLATE_DIR = "G:/covibe/benchmark/template"
 
-os.makedirs(RESULT_DIR, exist_ok=True)
+def load_json(path):
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {}
 
 def load_file(path):
     if os.path.exists(path):
@@ -46,16 +58,36 @@ def load_file(path):
             return f.read().strip()
     return ""
 
+async def unload_all_models():
+    print(f"🧹 Clearing VRAM (Unloading all models)...", end="", flush=True)
+    # Sending a generic request with keep_alive 0 to clear current model
+    try:
+        # We don't know exactly which model is loaded, so we try a common one or just wait for timeout
+        # Ollama clears the current model if a new one is requested with keep_alive 0
+        # A more effective way is to just request a non-existent small model or use the last run model
+        pass 
+    except: pass
+
+async def unload_model(model):
+    print(f"❄️ Unloading {model}...", end="", flush=True)
+    try:
+        # Setting keep_alive to 0 triggers immediate unload
+        requests.post(OLLAMA_URL, json={"model": model, "prompt": "", "keep_alive": 0}, timeout=10)
+        print(" Done.")
+    except:
+        print(" Timed out (usually means it's unloading).")
+    time.sleep(5) # Driver settling time
+
 async def warmup_model(model):
-    print(f"🕯️ Warming up {model}...", end="", flush=True)
+    print(f"🕯️ Warmup {model}...", end="", flush=True)
     payload = {"model": model, "prompt": "hi", "stream": False}
     try:
         requests.post(OLLAMA_URL, json=payload, timeout=300)
-        print(" Ready.")
+        print(" OK")
     except Exception as e:
-        print(f" Failed to warm up: {e}")
+        print(f" ERR: {e}")
 
-async def run_inference(model, prompt, num_ctx, task_level):
+async def run_inference(model, prompt, num_ctx, task):
     payload = {
         "model": model,
         "prompt": prompt,
@@ -68,13 +100,14 @@ async def run_inference(model, prompt, num_ctx, task_level):
         "stream": True
     }
     
+    start_at = datetime.now().isoformat()
     start_time = time.time()
     full_response = ""
+    prompt_eval_count = 0
     eval_count = 0
     eval_duration = 1
     
     try:
-        # Increase timeout to 10 minutes for large models/contexts
         with requests.post(OLLAMA_URL, json=payload, stream=True, timeout=600) as resp:
             resp.raise_for_status()
             for line in resp.iter_lines():
@@ -82,77 +115,135 @@ async def run_inference(model, prompt, num_ctx, task_level):
                     chunk = json.loads(line)
                     text = chunk.get("response", "")
                     full_response += text
-                    # Minimal feedback to keep log clean but active
                     if len(full_response) % 500 == 0: print("·", end="", flush=True)
                     
                     if chunk.get("done"):
+                        prompt_eval_count = chunk.get("prompt_eval_count", 0)
                         eval_count = chunk.get("eval_count", 0)
                         eval_duration = chunk.get("eval_duration", 1)
                         break
         
+        end_at = datetime.now().isoformat()
         tps = round(eval_count / (eval_duration / 1e9), 2)
-        return {"status": "success", "tps": tps, "time": round(time.time() - start_time, 2), "response": full_response}
+        return {
+            "status": "success", 
+            "tps": tps, 
+            "duration": round(time.time() - start_time, 2), 
+            "start_at": start_at,
+            "end_at": end_at,
+            "response": full_response,
+            "tokens": {
+                "input": prompt_eval_count,
+                "output": eval_count,
+                "total": prompt_eval_count + eval_count
+            }
+        }
     except Exception as e:
         return {"status": "failed", "error": str(e)}
 
 async def main():
-    print(f"🚀 --- STARTING FIXED CSB-01 CODING BASELINE CAMPAIGN --- 🚀")
+    print(f"🚀 --- STARTING CLEAN-VRAM CSB-01 CAMPAIGN --- 🚀")
+    
+    metrics_tpl = load_json(f"{TEMPLATE_DIR}/metrics.json")
+    metadata_tpl = load_json(f"{TEMPLATE_DIR}/metadata.json")
+    
+    session_id = datetime.now().strftime("%Y%m%d_%H%M")
     
     for model_info in LOCAL_ROSTER:
         model_name = model_info["name"]
-        safe_name = model_name.replace("/", "_").replace(":", "_")
-        print(f"\n\n🤖 TARGET: {model_name} ({model_info['size']})")
+        m_meta = MODEL_METADATA.get(model_name, {"url": "N/A", "family": "Unknown", "quant": "Unknown"})
+        safe_model_name = model_name.replace("/", "_").replace(":", "_")
         
-        # Mandatory Warmup
+        # 1. ENSURE CLEAN START
+        await unload_model(model_name) 
+        
+        # 2. WARMUP
         await warmup_model(model_name)
         
-        model_res_dir = f"{RESULT_DIR}/{safe_name}"
-        os.makedirs(model_res_dir, exist_ok=True)
-
         for task in TASK_LIST:
-            # EABS-01 Safety Check
             if model_info["size"] == "14B" and task["ctx"] != "8K":
-                print(f"⚠️ Safety Skip: {task['level']} ({task['ctx']}) context exceeds 8K limit for 14B model.")
                 continue
 
-            print(f"\n📝 Task: {task['level']} - {task['name']} (Ctx: {task['ctx']}) ", end="", flush=True)
+            print(f"\n📝 {model_name} | {task['level']} ({task['ctx']}) ", end="", flush=True)
             
             task_content = load_file(f"{BASE_TASK_DIR}/{task['path']}")
             payload_content = load_file(f"{PAYLOAD_DIR}/payload_{task['ctx'].lower()}.txt")
             
-            full_prompt = f"Context Data:\n{payload_content}\n\nTask Instruction:\n{task_content}"
             ctx_val = int(task["ctx"].replace("K", "")) * 1024
             
-            result = await run_inference(model_name, full_prompt, ctx_val, task["level"])
+            full_prompt = f"""### SYSTEM INSTRUCTION
+You are an expert Senior Developer. Your task is to provide a clean, functional TypeScript implementation based on the instruction below.
+CRITICAL: Output ONLY the solution code inside a single markdown block. DO NOT repeat the context data or provide long explanations.
+
+### TASK
+{task_content}
+
+### CONTEXT DATA (For reference only)
+{payload_content}
+
+### SOLUTION
+"""
+            result = await run_inference(model_name, full_prompt, ctx_val, task)
             
             if result["status"] == "success":
-                print(f" ✅ {result['tps']} t/s ({result['time']}s)")
-                # Save results
-                task_res_dir = f"{model_res_dir}/{task['level']}"
-                os.makedirs(task_res_dir, exist_ok=True)
-                with open(f"{task_res_dir}/response.txt", "w", encoding="utf-8") as f:
-                    f.write(result["response"])
+                print(f" ✅ {result['tps']} TPS")
                 
-                metrics = {
-                    "model": model_name,
-                    "task": task["level"],
-                    "tps": result["tps"],
-                    "duration": result["time"],
-                    "timestamp": datetime.now().isoformat()
-                }
-                with open(f"{task_res_dir}/metrics.json", "w", encoding="utf-8") as f:
-                    json.dump(metrics, f, indent=2)
+                # Directory Setup
+                task_dir = f"{RESULT_ROOT}/{safe_model_name}/{task['level']}"
+                os.makedirs(f"{task_dir}/artifacts", exist_ok=True)
+                os.makedirs(f"{task_dir}/traces", exist_ok=True)
+                
+                # Populate Metadata
+                meta = metadata_tpl.copy()
+                meta.update({
+                    "benchmark_id": f"bench_{session_id}_{task['level']}",
+                    "run_id": f"run_{uuid.uuid4().hex[:8]}",
+                    "created_at": result["start_at"],
+                    "model": {
+                        **meta["model"],
+                        "name": model_name,
+                        "family": m_meta["family"],
+                        "model_url": m_meta["url"],
+                        "quantization": m_meta["quant"],
+                        "parameter_size": model_info["size"],
+                        "context_length": ctx_val
+                    },
+                    "dataset": {
+                        **meta["dataset"],
+                        "sample_id": task["level"]
+                    }
+                })
+                
+                # Populate Metrics
+                met = metrics_tpl.copy()
+                met.update({
+                    "benchmark_id": meta["benchmark_id"],
+                    "task_id": task["level"],
+                    "context_length": ctx_val,
+                    "started_at": result["start_at"],
+                    "ended_at": result["end_at"],
+                    "duration_seconds": result["duration"],
+                    "tokens": result["tokens"],
+                    "throughput": {**met["throughput"], "avg_tps": result["tps"]}
+                })
+                
+                with open(f"{task_dir}/metadata.json", "w", encoding="utf-8") as f: json.dump(meta, f, indent=2)
+                with open(f"{task_dir}/metrics.json", "w", encoding="utf-8") as f: json.dump(met, f, indent=2)
+                with open(f"{task_dir}/artifacts/response.txt", "w", encoding="utf-8") as f: f.write(result["response"])
+                with open(f"{task_dir}/artifacts/prompt.txt", "w", encoding="utf-8") as f: f.write(payload_content + "\n\n" + task_content)
+                
+                open(f"{task_dir}/samples.jsonl", 'a').close()
+                open(f"{task_dir}/events.jsonl", 'a').close()
+                
             else:
-                print(f" ❌ FAILED: {result['error']}")
+                print(f" ❌ {result['error']}")
 
-            # Thermal Rest (EABS-01) - 10 seconds between tasks to cool down
-            time.sleep(10)
+            time.sleep(10) # Cooldown between tasks
 
-        # Longer rest between model swaps (60 seconds)
-        print(f"❄️ Cooldown between models (60s)...")
-        time.sleep(60)
-
-    print(f"\n\n🏁 --- CSB-01 CAMPAIGN FINISHED --- 🏁")
+        # 3. UNLOAD AFTER MODEL FINISHED
+        await unload_model(model_name)
+        print(f"❄️ Model {model_name} cycle finished. Cooling down (30s)...")
+        time.sleep(30)
 
 if __name__ == "__main__":
     asyncio.run(main())

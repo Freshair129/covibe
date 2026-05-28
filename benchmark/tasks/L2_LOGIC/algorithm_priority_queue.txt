@@ -1,0 +1,9 @@
+Task: Implement a 'PriorityQueue' class in TypeScript.
+Requirements:
+- Support 'enqueue(item, priority)' and 'dequeue()' methods.
+- 'dequeue' must return the item with the highest priority (lowest numerical value).
+- Internally use a Min-Heap for efficiency (O(log n) for enqueue/dequeue).
+- Include a 'peek()' and 'isEmpty()' method.
+- Provide Vitest unit tests to verify the core functionality, including edge cases like empty queue.
+
+Output: Class implementation and corresponding test suite.
