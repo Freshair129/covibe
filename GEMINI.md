@@ -70,16 +70,17 @@ g:/covibe/
 
 ## 5. มาตรฐานความปลอดภัย AI Infrastructure (AI Safety Standards)
 
-**MANDATORY READING:** ก่อนดำเนินการใดๆ ที่เกี่ยวข้องกับ Benchmark คุณต้องอ่านและปฏิบัติตามเอกสาร [CoVibe Enterprise AI Benchmark Standard (EABS-01)](./benchmark/CoVibe-ENTERPRISE-BENCHMARK-STANDARD.md) อย่างเคร่งครัด
+**MANDATORY READING:** ก่อนดำเนินการใดๆ ที่เกี่ยวข้องกับ Benchmark คุณต้องอ่านและปฏิบัติตามเอกสาร [CoVibe Enterprise AI Benchmark Standard (EABS-01)](./benchmark/CoVibe-ENTERPRISE-BENCHMARK-STANDARD.md) และระบบคลังความรู้ **Guided Knowledge System (.gks)** ในโฟลเดอร์ `benchmark/.gks/` อย่างเคร่งครัด
 
 1.  **TDR Guard (Thermal & Power Management):**
-    - **RTX 3060 Standard:** ต้อง Underclock -104MHz และ Power Limit 90% เสมอ
-    - **Thermal Rule:** หาก GPU Temp แตะ 71°C หรือ Power Draw เกิน 150W ต้องหยุดพักเครื่อง 2 นาที
-    - **Log Source:** อ้างอิงข้อมูลจาก `D:\hw_log\HardwareMonitoring.hml` (MSI Afterburner)
+    - **RTX 3060 Standard:** ต้อง Underclock -104MHz และ Power Limit 90% เสมอ (อ้างอิง `PROTOCOL--HW-TUNING.md`)
+    - **Thermal Rule:** หาก GPU Temp แตะ 71°C หรือ Power Draw เกิน 153W ต้องหยุดพักเครื่อง 120 วินาที
+    - **Log Source:** อ้างอิงข้อมูลจากโฟลเดอร์ `benchmark/telemetry_logs/` หรือ `D:\hw_log\HardwareMonitoring.hml` (MSI Afterburner)
 2.  **Software Pipeline Hardening:**
     - **UTF-8 Force:** สคริปต์ต้องบังคับ encoding="utf-8" เพื่อป้องกัน Emoji Crash บน Windows (CP1252 fix)
     - **Loop Guard:** ตั้งค่า `num_predict` (2000-2500) และ Stop Tokens (`### END`) เสมอ
-    - **Reasoning Strip:** สำหรับโมเดล RL ต้องตัดแท็ก `<think>...</think>` ออกก่อนแสดงผลใน Dashboard
+    - **Reasoning Strip:** สำหรับโมเดล RL ต้องตัดแท็ก `<think>...</think>` ออกก่อนการคำนวณคะแนน Verify
+    - **Clean VRAM:** บังคับ Unload โมเดล (`keep_alive: 0`) ก่อนเริ่มโหลดตัวถัดไปเสมอเพื่อป้องกัน VRAM Fragmentation
 
 ---
 
