@@ -1,7 +1,10 @@
 # CoVibe Enterprise AI Benchmark Standard (EABS-01)
 
 **Document ID:** EABS-01  
-**Version:** 2.0 Enterprise Revision  
+**created_at:** 2026-05-27 05:00 AM (GMT+7)
+**Version:** 2.1.0 (Restructure Revision)
+**Last Update:** 2026-05-28 12:30 PM (GMT+7)
+**Aliases:** EABS, Benchmark, LLM Benchmark Standard, AI Benchmark Protocal
 **Status:** MANDATORY  
 **Classification:** Internal Infrastructure Standard  
 **Scope:** AI Model Benchmarking, Runtime Telemetry, Hardware Observability, Token Analytics, Resource Governance, and Regression Intelligence.
@@ -45,36 +48,48 @@ Raw telemetry is the source of truth.
 
 All benchmark executions MUST follow the structure below.
 
-### 1.1 Benchmark Kits (Test Configuration)
+## 1.0 Directory Structure
+```text
+benchmark/
+├── benchmark-kits/
+├── benchmark-run/
+├── scripts/
+├── telemetry_logs/
+├── templates/
+├── ui/
+├── CoVibe-ENTERPRISE-BENCHMARK-STANDARD.md
+├── GEMINI.md
+└── log.jsonl
+
+
+### 1.2 Benchmark Kits (Test Configuration)
 ```text
 benchmark-kits/
 └── <kit_name>/
     └── BENCHMARK--<test_name>.md  # Full Test Specification & Payload Mapping
 ```
 
-### 1.2 Benchmark Run (Result Output)
+### 1.3 Benchmark Run (Result Output)
 ```text
 benchmark-run/
-├── metadata.json
-├── metrics.json
-├── samples.jsonl
-├── events.jsonl
-├── token_trace.jsonl
-├── failures.jsonl
-├── artifacts/
-│   ├── prompt.txt
-│   ├── response.txt
-│   ├── purified_response.txt
-│   ├── logs.txt
-│   ├── stderr.log
-│   ├── runtime_stdout.log
-│   └── raw_hardware.hml
+├── <model-name>/
+│   ├── metadata.json
+│   ├── metrics.json
+│   ├── samples.jsonl
+│   ├── artifacts/
+│   │   ├── prompt.txt
+│   │   ├── response.txt
+│   │   ├── purified_response.txt
+│   │   ├── logs.txt
+│   │   ├── stderr.log
+│   │   ├── runtime_stdout.log
+│   │   └── raw_hardware.hml
 └── traces/
-    ├── gpu.csv
-    ├── cpu.csv
-    ├── memory.csv
-    ├── power.csv
-    └── tokens.csv
+    ├── samples.jsonl
+    ├── system_logs.jsonl
+    ├── events.jsonl
+    ├── token_trace.jsonl
+    └── failures.jsonl
 ```
 
 ---
@@ -249,11 +264,11 @@ Stores append-only time-series telemetry.
 
 ### Format
 
-One JSON object per line.
+One JSON object per line. Fields may vary based on source (HWiNFO or MSI Afterburner fallback).
 
 ```json
-{"ts":"2026-05-27T00:46:53.739Z","gpu_temp":39,"gpu_power":22}
-{"ts":"2026-05-27T00:46:54.739Z","gpu_temp":41,"gpu_power":88}
+{"ts":"2026-05-27T00:46:53.739Z","gpu_temp":39.0,"gpu_power":22.0,"gpu_vram":9363.0,"cpu_usage":16.0}
+{"ts":"2026-05-27T00:46:54.739Z","gpu_temp":41.0,"gpu_power":88.0,"gpu_vram":9380.0,"cpu_usage":23.5}
 ```
 
 ---
@@ -416,107 +431,99 @@ Required for concurrent runtimes.
 
 ---
 
-# 7. Hardware Governance & Safety
+# 7. Hardware Governance & Safety (Pre-flight Tuning & SOP)
 
 ## 7.1 RTX 3060 12GB Context Rules
-
-### Small Models (< 7B)
-
-Allowed up to 32K context.
-
-### Medium Models (8B – 13B)
-
-Allowed up to 32K with enforced power limits.
-
-### Large Models (>= 14B)
-
-STRICTLY LIMITED to 8K context locally without CPU offloading.
+- **Small Models (< 7B)**: Allowed up to 32K context.
+- **Medium Models (8B – 13B)**: Allowed up to 32K with enforced power limits.
+- **Large Models (>= 14B)**: STRICTLY LIMITED to 8K context locally without CPU offloading (to prevent TDR driver resets).
 
 ---
 
-## 7.2 Thermal Governance
+## 7.2 Pre-flight Hardware Tuning SOP
+Before initiating any benchmark test, the host system MUST be configured using one of the following methods to manage clock rates, temperatures, and power ceilings:
 
-### Mandatory Tuning
+### Method A: MSI Afterburner (GUI & Profile-based CLI activation)
+1. **Core Clock Offset**: `-104MHz`
+2. **Power Limit**: `90%`
+3. **Execution Command (CLI)**: Save these settings to Profile slot 2 and apply them using:
+   ```cmd
+   "C:\Program Files (x86)\MSI Afterburner\MSIAfterburner.exe" -profile2
+   ```
 
-```text
-Core Clock Offset: -104MHz
-Power Limit: 90%
-```
-
----
-
-## 7.3 Thermal Stop Rule
-
-If GPU temperature reaches 71°C:
-
-```text
-suspend execution for 120 seconds
-```
-
----
-
-## 7.4 Power Governance
-
-Sustained GPU loads above 150W MUST trigger cooldown between model swaps.
-
----
-
-# 8. Anti-Pattern Mitigation
-
-## 8.1 Infinite Reasoning Loop
-
-### Mandatory Protections
-
-```text
-num_predict <= 2500
-```
-
-### Required Stop Sequences
-
-```json
-[
-  "<|im_end|>",
-  "### END",
-  "```\n\n",
-  "Explanation:"
-]
-```
-
-### Mandatory Timeout
-
-```text
-300 seconds
-```
+### Method B: NVIDIA-SMI Command Line (Direct CLI, Admin Rights required)
+Run Command Prompt or PowerShell with administrator privileges and execute the following:
+* **Set Power Limit (153W)**:
+  ```cmd
+  nvidia-smi -pl 153
+  ```
+  *(Note: 153W represents 90% of the default 170W power ceiling of the RTX 3060)*
+* **Lock GPU Clocks (1500MHz)**:
+  ```cmd
+  nvidia-smi --lock-gpu-clocks=1500,1500
+  ```
+* **Reset GPU Clocks**:
+  ```cmd
+  nvidia-smi --reset-gpu-clocks
+  ```
 
 ---
 
-## 8.2 Think Syntax Purification
-
-Raw responses MUST be preserved.
-
-Purified responses MUST remove:
-
-```text
-<think>...</think>
-```
-
-### Mandatory Regex
-
-```python
-re.sub(r"<think>.*?</think>", "", raw_text, flags=re.DOTALL).strip()
-```
+## 7.3 Thermal Safety Limits & Cooldown Policy
+To protect the host hardware and maintain performance reliability, the orchestrator script and websocket monitor MUST enforce:
+* **Safe Operating Zone**: `< 65°C`
+* **Danger Zone**: `> 71°C` or sustained GPU power draw `> 152W`.
+* **Thermal Stop Rule**: If GPU temperature reaches `71°C` or above, suspend execution immediately for `120 seconds`:
+  ```python
+  # Code logic for Thermal Stop
+  if gpu_temperature >= 71:
+      logger.warning("GPU Temperature limit exceeded. Triggering 120s cooldown...")
+      time.sleep(120)
+  ```
+* **Cool-down Policy**: A mandatory `10 to 120-second` pause (`time.sleep()`) MUST be executed between local model swaps to dissipate residual heat.
 
 ---
 
-# 9. Encoding Safety Standard
+# 8. Anti-Pattern Mitigation (Software Hardening SOP)
 
-All Python runners MUST explicitly use:
+## 8.1 Infinite Reasoning Loop Guard
+Reinforcement Learning models (e.g., Sushi-Coder RL) can get stuck in infinite generation loops. To safeguard memory and VRAM:
+* **Max Output Limit**: API queries MUST specify `num_predict <= 2500` (recommended: `num_predict: 2500`).
+* **Enforced Stop Sequences**:
+  ```json
+  [
+    "<|im_end|>",
+    "### END",
+    "```\n\n",
+    "Explanation:"
+  ]
+  ```
+* **Inference Timeout**: The script calling the inference runtime must enforce a strict network/HTTP timeout of **300 seconds** to terminate hanging runs.
 
-```python
-encoding="utf-8"
-```
+---
 
-Windows terminals MUST force UTF-8 mode.
+## 8.2 Think Syntax Purification (Reasoning Strip)
+Raw output from RL-tuned models must be preserved in raw files, but purified outputs for accuracy scoring must strip out reasoning tokens using regex:
+* **Mandatory Python Post-processing**:
+  ```python
+  import re
+  purified_response = re.sub(r"<think>.*?</think>", "", raw_text, flags=re.DOTALL).strip()
+  ```
+
+---
+
+# 9. Encoding Safety Standard (Emoji Crash Mitigation)
+
+## 9.1 Forced UTF-8 Mode
+High-plane Unicode characters and emojis generated by LLMs will crash default Windows terminals using the CP1252 codepage.
+* **Python File Operations**: All read/write file streams MUST explicitly pass `encoding="utf-8"`.
+* **Windows Terminal Detach Fix**: Python scripts MUST override and force UTF-8 on stdout and stderr:
+  ```python
+  import sys, codecs
+  if sys.platform == "win32":
+      sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
+      sys.stderr = codecs.getwriter("utf-8")(sys.stderr.detach())
+  ```
 
 ---
 
@@ -607,7 +614,8 @@ generate_payloads.py
 Enable:
 
 ```text
-MSI Afterburner logging
+HWiNFO CSV Logging (Primary)
+MSI Afterburner logging (Fallback)
 LibreHardwareMonitor collector
 ```
 
@@ -631,11 +639,48 @@ Modes:
 
 ## Stage 4 — Telemetry Slicing
 
-Convert raw telemetry:
+Slice and convert raw telemetry using:
 
 ```text
-raw_hardware.hml
-→ samples.jsonl
+slice_hw_logs.py
+```
+
+Inputs:
+- HWiNFO `.csv` file: `...\covibe\benchmark\telemetry_logs\HWiNFO\<filename>.csv`
+- MSI Afterburner `.hml` file: `...\covibe\benchmark\telemetry_logs\MSI Afterburner\<filename>.hml`
+- LibreHardwareMonitor `.Report` file: `...\covibe\benchmark\telemetry_logs\LibreHardwareMonitor\LibreHardwareMonitor.Report`
+
+### Benchmark Kits (Test Configuration)
+```text
+benchmark-kits/
+└── <kit_name>/
+    └── BENCHMARK--<test_name>.md  # Full Test Specification & Payload Mapping
+```
+
+### Benchmark Run (Result Output)
+```text
+benchmark-run/
+├── <model-name>/
+│   ├── metadata.json
+│   ├── metrics.json
+│   ├── samples.jsonl
+│   ├── artifacts/
+│   │   ├── prompt.txt
+│   │   ├── response.txt
+│   │   ├── purified_response.txt
+│   │   ├── logs.txt
+│   │   ├── stderr.log
+│   │   ├── runtime_stdout.log
+│   │   └── raw_hardware.hml
+└── traces/
+    ├── samples.jsonl
+    ├── system_logs.jsonl
+    ├── events.jsonl
+    ├── token_trace.jsonl
+    └── failures.jsonl
+```
+
+---
 ```
 
 ---
@@ -721,6 +766,44 @@ The platform supports live-interactive benchmarking triggered from the dashboard
 ## 17.4 Post-Run Cooldown Monitoring
 - Telemetry streams MUST continue to emit metrics for at least `10 seconds` after the runner process exits.
 - This captures the thermal cooldown slope of the GPU/CPU for analysis.
+
+## 17.5 Real-Time Execution Call Graph
+
+The following call graph visualizes the event-driven interactions between components during a real-time benchmark run under the RTTEP protocol:
+
+```mermaid
+flowchart TD
+    User["User Interface (Dashboard)"]
+    Server["WebSocket Server (Node.js)"]
+    Runner["Inference Runner (Python)"]
+    HML["HML Log File (MSI Afterburner)"]
+    
+    User -->|"1. start_benchmark_run (WS)"| Server
+    
+    subgraph Execution Loop ["Benchmark Execution Pipeline"]
+        Server -->|"2. Spawn process"| Runner
+        Server -->|"3. Activate tail observer"| HML
+        
+        Runner -->|"4. stdout/stderr streams"| Server
+        Server -->|"5. benchmark_log (WS)"| User
+        
+        HML -->|"6. Read metrics (1000ms)"| Server
+        Server -->|"7. live_hardware_sample (WS)"| User
+        
+        Server -->|"8. Thermal Safety Guard (71°C or above check)"| Server
+    end
+    
+    Runner -->|"9. Exit process"| Server
+    Server -->|"10. benchmark_status (completed/failed)"| User
+    
+    subgraph Cooldown ["Cooldown Phase"]
+        Server -->|"11. Tail cooldown (10 seconds)"| HML
+        HML -->|"12. Post-run metrics"| Server
+        Server -->|"13. live_hardware_sample"| User
+    end
+    
+    Server -->|"14. Stop tail & idle"| User
+```
 
 ---
 

@@ -6,9 +6,9 @@ import sys
 import shutil
 
 # --- CONFIGURATION ---
-BASE_RESULTS_DIR = "G:/covibe/benchmark"
-BASE_TASKS_DIR = "G:/covibe/benchmark/tasks"
-TMP_DIR = "G:/covibe/benchmark/tmp_verify"
+BASE_RESULTS_DIR = "G:/covibe/benchmark/benchmark-run"
+BASE_TASKS_DIR = "G:/covibe/benchmark/benchmark-kits/tasks"
+TMP_DIR = "G:/covibe/benchmark/benchmark-run/tmp_verify"
 
 # Model folders to process (those created by run_csb_01.py)
 TARGET_MODELS = [
@@ -106,7 +106,7 @@ def verify_task(model_name, level, response_path, metrics_path):
         f.write(code)
 
     # Create Runner
-    suite_path = f"../../tasks/{config['suite']}".replace("\\", "/")
+    suite_path = f"../../benchmark-kits/tasks/{config['suite']}".replace("\\", "/")
     runner_code = f"""
 import * as Solution from './solution';
 import {{ {config['runner_func']} }} from '{suite_path}';

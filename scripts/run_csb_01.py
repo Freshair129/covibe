@@ -41,10 +41,10 @@ TASK_LIST = [
 ]
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
-BASE_TASK_DIR = "G:/covibe/benchmark/tasks"
-PAYLOAD_DIR = "G:/covibe/payloads"
-RESULT_ROOT = "G:/covibe/benchmark"
-TEMPLATE_DIR = "G:/covibe/benchmark/template"
+BASE_TASK_DIR = "G:/covibe/benchmark/benchmark-kits/tasks"
+PAYLOAD_DIR = "G:/covibe/benchmark/benchmark-kits/ammunition/STRESS_TEST"
+RESULT_ROOT = "G:/covibe/benchmark/benchmark-run"
+TEMPLATE_DIR = "G:/covibe/benchmark/templates"
 
 def load_json(path):
     if os.path.exists(path):
@@ -68,26 +68,45 @@ async def unload_all_models():
         pass 
     except: pass
 
-async def unload_model(model):
+def log_event(task_dir, event_name, extra_data=None):
+    if not task_dir: return
+    os.makedirs(task_dir, exist_ok=True)
+    event = {
+        "ts": datetime.now().isoformat() + "Z",
+        "event": event_name
+    }
+    if extra_data:
+        event.update(extra_data)
+    
+    with open(os.path.join(task_dir, "events.jsonl"), "a", encoding="utf-8") as f:
+        f.write(json.dumps(event) + "\n")
+
+async def unload_model(model, task_dir=None):
     print(f"❄️ Unloading {model}...", end="", flush=True)
+    log_event(task_dir, "model_unload_start", {"model": model})
     try:
-        # Setting keep_alive to 0 triggers immediate unload
         requests.post(OLLAMA_URL, json={"model": model, "prompt": "", "keep_alive": 0}, timeout=10)
         print(" Done.")
+        log_event(task_dir, "model_unload_end", {"model": model, "status": "success"})
     except:
-        print(" Timed out (usually means it's unloading).")
-    time.sleep(5) # Driver settling time
+        print(" Timed out.")
+        log_event(task_dir, "model_unload_end", {"model": model, "status": "timeout"})
+    time.sleep(5)
 
-async def warmup_model(model):
+async def warmup_model(model, task_dir=None):
     print(f"🕯️ Warmup {model}...", end="", flush=True)
+    log_event(task_dir, "model_warmup_start", {"model": model})
     payload = {"model": model, "prompt": "hi", "stream": False}
     try:
         requests.post(OLLAMA_URL, json=payload, timeout=300)
         print(" OK")
+        log_event(task_dir, "model_warmup_end", {"model": model, "status": "success"})
     except Exception as e:
         print(f" ERR: {e}")
+        log_event(task_dir, "model_warmup_end", {"model": model, "status": "failed", "error": str(e)})
 
-async def run_inference(model, prompt, num_ctx, task):
+async def run_inference(model, prompt, num_ctx, task, task_dir=None):
+    log_event(task_dir, "inference_start", {"model": model, "level": task["level"]})
     payload = {
         "model": model,
         "prompt": prompt,
@@ -125,6 +144,7 @@ async def run_inference(model, prompt, num_ctx, task):
         
         end_at = datetime.now().isoformat()
         tps = round(eval_count / (eval_duration / 1e9), 2)
+        log_event(task_dir, "inference_end", {"model": model, "status": "success", "tps": tps})
         return {
             "status": "success", 
             "tps": tps, 
@@ -139,6 +159,7 @@ async def run_inference(model, prompt, num_ctx, task):
             }
         }
     except Exception as e:
+        log_event(task_dir, "inference_end", {"model": model, "status": "failed", "error": str(e)})
         return {"status": "failed", "error": str(e)}
 
 async def main():
