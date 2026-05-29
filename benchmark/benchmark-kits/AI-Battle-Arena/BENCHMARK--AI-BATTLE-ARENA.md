@@ -10,7 +10,7 @@
 This section defines the parameters of the current benchmark campaign.
 
 ### 1.1 Competitor Roster
-- **Local Arena:** Sushi RL (9B), Qwopus 3.5 (9B), Qwen 3 (14B), Qwen 3.5 (4B), Chinda (4B), Gemma 4 (3.4B), Llama 3.2 (1B).
+- **Local Model (Ollama):** Sushi RL (9B), Qwopus 3.5 (9B), Qwen 3 (14B), Qwen 3.5 (4B), Chinda (4B), Gemma 4 (3.4B), Llama 3.2 (1B).
 - **Cloud Arena:** Pathumma 3.0, Typhoon-S, Thalle 0.2, OpenThaiGPT 7.2, Gemini 2.0 Flash.
 
 ### 1.2 The Mission Matrix
