@@ -3905,11 +3905,11 @@
                         class="w-full accent-accent bg-bg-secondary h-1 rounded-lg cursor-pointer">
                     </div>
                     <div>
-                      <label
+                      <div
                         class="flex justify-between text-[8.5px] font-bold text-text-secondary mb-1 uppercase tracking-wide">
                         <span>M (Max Connections)</span>
                         <span class="text-indigo-400 font-mono">16</span>
-                      </label>
+                      </div>
                       <div
                         class="text-[10px] text-text-tertiary font-mono bg-bg-secondary border border-border/40 p-1.5 rounded">
                         M = 16 (Optimal for BGE-large)</div>
@@ -4201,7 +4201,7 @@
 
                     <div class="space-y-2.5">
                       <div>
-                        <label class="text-[9px] font-mono text-text-secondary block mb-1">PROVIDER</label>
+                        <label for="bench-provider" class="text-[9px] font-mono text-text-secondary block mb-1">PROVIDER</label>
                         <select id="bench-provider" class="w-full bg-bg-secondary border border-border rounded p-1.5 text-xs text-white focus:outline-none focus:border-orange-500/50 font-sans">
                           <option value="qwen">Ollama / Qwen (Local)</option>
                           <option value="thaillm">ThaiLLM (API)</option>
@@ -4210,12 +4210,12 @@
                       </div>
 
                       <div>
-                        <label class="text-[9px] font-mono text-text-secondary block mb-1">MODEL ID</label>
+                        <label for="bench-model-id" class="text-[9px] font-mono text-text-secondary block mb-1">MODEL ID</label>
                         <input type="text" id="bench-model-id" value="llama3.2:1b" class="w-full bg-bg-secondary border border-border rounded p-1.5 text-xs text-white focus:outline-none focus:border-orange-500/50 font-mono" placeholder="e.g. qwen2.5:7b">
                       </div>
 
                       <div>
-                        <label class="text-[9px] font-mono text-text-secondary block mb-1">PROMPT</label>
+                        <label for="bench-prompt" class="text-[9px] font-mono text-text-secondary block mb-1">PROMPT</label>
                         <textarea id="bench-prompt" rows="3" class="w-full bg-bg-secondary border border-border rounded p-1.5 text-xs text-white focus:outline-none focus:border-orange-500/50 resize-none">Write a high-performance deep merge utility in TypeScript that avoids prototype pollution.</textarea>
                       </div>
 
