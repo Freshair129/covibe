@@ -39,12 +39,21 @@ Phase 2: ACTIVE-TEST (Execution)
 | Stage 2: Monitoring   | --> | Stage 3: Runtime Execution    |
 | (เปิดตัวเก็บ Telemetry)   |     | (รัน great_orchestrator.py)   |
 +-----------------------+     +-------------------------------+
-                                              |
-                                              v
-                              +-------------------------------+
-                              | Document 2: ER-VFS Runbook    |
-                              | ([runid]-RUN-[proj].md)       |
-                              +-------------------------------+
+            |                                 |
+            +------------( Real-time Stream )-+
+                         |
+                         v
+            +-------------------------------+
+            | UI Dashboard (Real-time View) | <--- Streams hardware telemetry &
+            | - Live Telemetry Graphs       |      inference logs via WebSockets (8787)
+            | - Live Console Log Stream     |
+            +-------------------------------+
+                        |
+                        v
+          +-------------------------------+
+          | Document 2: ER-VFS Runbook    |
+          | ([runid]-RUN-[proj].md)       |
+          +-------------------------------+
                                               |
                                               v
 Phase 3: POST-TEST (Analysis & Sign-Off)
@@ -84,12 +93,24 @@ templates/*.json             -----/              |                         |
                                     +--------------------------------------------+
                                                  |                         |
 (HARDWARE SENSORS)                               |                         |
-MSI Afterburner / HWiNFO                         |                         |
-       |                                         v                         v
-       v                                [slice_hw_logs.py]         [verify_csb_01.py]
-telemetry_logs/                                  |                         |
-       |                                         |                         |
-       \-----------------------------------> (writes)                  (updates)
+MSI Afterburner / HWiNFO ---\                    |                         |
+       |                     \ (Real-time read)  |                         |
+       |                      v                  |                         |
+       |              [WebSocket Server]         |                         |
+       |              (Binds to port 8787)       |                         |
+       |                       |                 |                         |
+       |                       | (Streams WS)    |                         |
+       |                       v                 |                         |
+       |              +------------------+       |                         |
+       |              |   UI Dashboard   | <-----+ (Loads final analytics) |
+       |              +------------------+       |                         |
+       |                       ^                 |                         |
+       |                       | (Post-run slice)|                         |
+       v (Writes raw files)    |                 v                         v
+telemetry_logs/                |        [slice_hw_logs.py]         [verify_csb_01.py]
+       |                       |                 |                         |
+       | (Slices telemetry)    |                 |                         |
+       \-----------------------+----------> (writes)                  (updates)
                                                  |                         |
                                                  v                         v
                                     +--------------------------------------------+
