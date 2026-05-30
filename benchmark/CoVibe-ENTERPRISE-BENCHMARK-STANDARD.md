@@ -15,20 +15,19 @@
 
 The benchmark platform MUST optimize for:
 
-```text
-reproducibility
-observability
-stability
-traceability
-thermal sustainability
-latency consistency
-energy efficiency
-long-term analytics
-```
+- reproducibility
+- observability
+- stability
+- traceability
+- thermal sustainability
+- latency consistency
+- energy efficiency
+- long-term analytics
+
 
 Peak TPS alone is NOT considered a valid enterprise benchmark metric.
 
-The benchmark system MUST preserve:
+The benchmark system **MUST** preserve:
 
 - raw telemetry
 - raw runtime logs
@@ -48,50 +47,44 @@ Raw telemetry is the source of truth.
 
 All benchmark executions MUST follow the structure below.
 
-## 1.0 Directory Structure
-```text
+---
+
+```
 benchmark/
-├── benchmark-kits/
-├── benchmark-run/
-├── scripts/
-├── telemetry_logs/
-├── templates/
-├── ui/
-├── CoVibe-ENTERPRISE-BENCHMARK-STANDARD.md
-├── GEMINI.md
-└── log.jsonl
-
-
-### 1.2 Benchmark Kits (Test Configuration)
-```text
-benchmark-kits/
-└── <kit_name>/
-    └── BENCHMARK--<test_name>.md  # Full Test Specification & Payload Mapping
+├── benchmark-kits/                                     # ส่วนจัดเก็บ Payload และคำถามทดสอบ
+│   └── <kit_name>/                                     # ชื่อชุดทดสอบ เช่น TEST-000-CONCURRENCY
+│        └── BENCHMARK--<test_name>.md                   * ข้อมูลสเปกการทดสอบและ Payload Mapping
+├── benchmark-run/                                      # ส่วนจัดเก็บผลลัพธ์การรันจริง (Output Area)
+|   └── <model-name>/                                   # แยกโฟลเดอร์หลักตามชื่อโมเดล เช่น qwen3-9b
+|       └── <runid>/                                    # format "RUN-[YYMMDD]-[model_id]-[run_number]", e.g., RUN-260530-qw39b-001
+|           ├── metadata.json                            * ข้อมูลควบคุมและสเปกสภาพแวดล้อมระบบ (Immutable)
+|           ├── metrics.json                             * สรุปผลสถิติและประสิทธิภาพรวม (Aggregated Summary)
+|           ├── samples.jsonl                            * ข้อมูล Telemetry ละเอียดระดับวินาที (Time-series Log)
+|           ├── artifacts/                              # โฟลเดอร์เก็บรวบรวมไฟล์ประวัติทางระบบและข้อความดิบ
+|           │   ├── prompt.txt                           * ไฟล์คำสั่ง/พรอพท์ที่ใช้ส่งทดสอบ
+|           │   ├── response.txt                         * ผลลัพธ์คำตอบดิบจากตัวโมเดล
+|           │   ├── purified_response.txt                * ผลลัพธ์คำตอบที่กรองแท็ก <think> ออกแล้ว (สำหรับ RL)
+|           │   ├── logs.txt                             * ประวัติบันทึกสถานะการรันทั่วไป
+|           │   ├── stderr.log                           * ข้อผิดพลาดเชิงระบบขณะรัน
+|           │   ├── runtime_stdout.log                   * ข้อความมาตรฐานจากหน้าคอนโซลของ Engine
+|           │   └── raw_hardware.hml                     * ล็อกระบบดิบจาก MSI Afterburner (กรณีรันบน Windows)
+|           ├── documents/                              # โฟลเดอร์เก็บเอกสาร
+|           │   ├── [runid]-PLAN-[PROJECT_NAME].md       * PRE-TEST(ระยะเตรียมการ):เอกสารแผนการทดสอบและสเปกขั้นต้น 
+|           │   ├── [runid]-RUN-[PROJECT_NAME].md        * ACTIVE-TEST(ระยะรันการทดสอบ):บันทึกขั้นตอนหน้างานและผลการตรวจสอบสถิติแบบ Real-time 
+|           │   ├── [runid]-REPORT-[PROJECT_NAME].md     * POST-TEST(ระยะสรุปผล):รายงานทางเทคนิคเชิงลึก(RCA)และประเมินความพร้อมสู่ระบบProduction
+|           │   └── [runid]-SIGNOFF-[PROJECT_NAME].md    * POST-TEST(ระยะสรุปผล): Production Readiness & Sign-Off Sheet (PR-SO)
+|           └── traces/                                 # ส่วนบันทึกเหตุการณ์และประวัติแบบละเอียดคู่ขนาน
+|               ├── samples.jsonl                        * บันทึกข้อมูลเซนเซอร์รวมของรอบนั้นๆ
+|               ├── system_logs.jsonl                    * ข้อมูลบันทึกสถานะฝั่งเซิร์ฟเวอร์
+|               ├── events.jsonl                         * เส้นเวลาเหตุการณ์ (Event Timeline) เช่น first_token
+|               ├── token_trace.jsonl                    * เวลาหน่วงที่เกิดขึ้นในการสร้างแต่ละโทเค็น (Per-token Latency)
+|               └── failures.jsonl                       * บันทึกประวัติและจำแนกข้อผิดพลาด (Failure Taxonomy)
+├── scripts/                                            # สคริปต์สำหรับช่วยในการรันและประมวลผล Benchmark
+|   └── aggregate_benchmarks.py                          * สคริปต์ดึงรันเหล่านี้นำไปสรุปผลและแปลงข้อมูล
+├── telemetry_logs/                                     # ไฟล์ดิบโดยตรงจาก HWiNFO / MSI / LibreHardware
+├── templates/                                          # เทมเพลตสำหรับสร้างเอกสาร Benchmark
+└── ui/                                                 # เทมเพลตสำหรับสร้าง UI Benchmark
 ```
-
-### 1.3 Benchmark Run (Result Output)
-```text
-benchmark-run/
-├── <model-name>/
-│   ├── metadata.json
-│   ├── metrics.json
-│   ├── samples.jsonl
-│   ├── artifacts/
-│   │   ├── prompt.txt
-│   │   ├── response.txt
-│   │   ├── purified_response.txt
-│   │   ├── logs.txt
-│   │   ├── stderr.log
-│   │   ├── runtime_stdout.log
-│   │   └── raw_hardware.hml
-└── traces/
-    ├── samples.jsonl
-    ├── system_logs.jsonl
-    ├── events.jsonl
-    ├── token_trace.jsonl
-    └── failures.jsonl
-```
-
 ---
 
 # 2. Data Hierarchy Standard
@@ -101,7 +94,6 @@ benchmark-run/
 Stores static benchmark environment metadata.
 
 ### Required Fields
-
 ```json
 {
   "benchmark_id": "bench_20260527_001",
@@ -171,7 +163,7 @@ Stores static benchmark environment metadata.
     "python_version": "3.12",
     "cuda_version": "12.8",
     "driver_version": "576.02",
-    "timezone": "UTC+7 ICT(Indochina-Time-Bangkok)"
+    "timezone": "UTC+7 ICT(Bangkok)"
   }
 }
 ```
@@ -249,8 +241,8 @@ Every measurable metric MUST support:
 
   "quality": {
     "passed": true,
-    "rank": "good",
-    "score": 0.54321
+    "rank": "excellent",
+    "score": 0.84321
   }
 }
 ```
@@ -332,20 +324,24 @@ Stores structured failure reports.
 
 # 3. Token Telemetry Standard
 
-The orchestrator MUST expose token-level metrics.
+The orchestrator MUST expose token-level metrics. To maintain consistency with `metrics.json` and enterprise API standards, metrics MUST be serialized using the nested object schema below.
 
-## Required Metrics
+## Required Metrics Schema
 
 ```json
 {
-  "input_tokens": 1200,
-  "output_tokens": 400,
-  "total_tokens": 1600,
-
-  "prompt_tokens_per_second": 850,
-  "generation_tokens_per_second": 125,
-
-  "time_to_first_token_ms": 245
+  "tokens": {
+    "input": 1200,
+    "output": 400,
+    "total": 1600
+  },
+  "throughput": {
+    "avg_tps": 125,
+    "prompt_tps": 850
+  },
+  "latency": {
+    "ttft_ms": 245
+  }
 }
 ```
 
@@ -471,16 +467,16 @@ Run Command Prompt or PowerShell with administrator privileges and execute the f
 
 ## 7.3 Thermal Safety Limits & Cooldown Policy
 To protect the host hardware and maintain performance reliability, the orchestrator script and websocket monitor MUST enforce:
-* **Safe Operating Zone**: `< 65°C`
-* **Danger Zone**: `> 71°C` or sustained GPU power draw `> 152W`.
-* **Thermal Stop Rule**: If GPU temperature reaches `71°C` or above, suspend execution immediately for `120 seconds`:
+* **Safe Operating Zone**: `< 75°C`
+* **Danger Zone**: `> 83°C` or sustained GPU power draw `> 165W`.
+* **Thermal Stop Rule**: If GPU temperature reaches `88°C` or above, suspend execution immediately for `120 seconds`:
   ```python
-  # Code logic for Thermal Stop
-  if gpu_temperature >= 71:
+  # Code logic for Thermal Stop (NVIDIA Standard Adjusted)
+  if gpu_temperature >= 88:
       logger.warning("GPU Temperature limit exceeded. Triggering 120s cooldown...")
       time.sleep(120)
   ```
-* **Cool-down Policy**: A mandatory `10 to 120-second` pause (`time.sleep()`) MUST be executed between local model swaps to dissipate residual heat.
+* **Cool-down Policy**: A mandatory `10 to 60-second` pause (`time.sleep()`) MUST be executed between local model swaps to dissipate residual heat.
 
 ---
 
@@ -601,109 +597,279 @@ All GPU schemas MUST support arrays.
 
 # 14. Benchmarking Workflow
 
-## Stage 1 — Payload Generation
+The CoVibe AI Infrastructure Benchmarking Workflow is structured into three main execution phases, aligning the operational tasks (Stages 1–6) with their corresponding documentation and verification steps (Documents 1–4).
 
-```text
-generate_payloads.py
+```mermaid
+graph TD
+   subgraph Phase 1: PRE-TEST (Preparation)
+      S1[Stage 1: Payload Generation] --> D1[Document 1: BD-TP Plan]
+   end
+   
+   subgraph Phase 2: ACTIVE-TEST (Execution)
+      D1 --> S2[Stage 2: Monitoring Activation]
+      S2 --> S3[Stage 3: Runtime Execution]
+      S3 --> D2[Document 2: ER-VFS Runbook]
+   end
+
+   subgraph Phase 3: POST-TEST (Analysis & Sign-Off)
+      D2 --> S4[Stage 4: Telemetry Slicing]
+      S4 --> S5[Stage 5: Aggregation]
+      S5 --> S6[Stage 6: Analytics]
+      S6 --> D3[Document 3: TBR-RCA Report]
+      D3 --> D4[Document 4: PR-SO Sign-Off]
+   end
 ```
 
 ---
 
-## Stage 2 — Monitoring Activation
+## Phase 1: PRE-TEST (Preparation)
 
-Enable:
+During this phase, workload inputs are prepared, and the benchmark design and plan are formalized.
 
-```text
-HWiNFO CSV Logging (Primary)
-MSI Afterburner logging (Fallback)
-LibreHardwareMonitor collector
-```
+### Step 1.1: Payload Generation (Stage 1)
+Generate questions and test payloads.
+- **Tool/Script:** `generate_payloads.py`
+- **Output:** Payload files stored under [benchmark-kits/](file:///g:/covibe/benchmark/benchmark-kits/) directory.
 
----
-
-## Stage 3 — Runtime Execution
-
-Execute:
-
-```text
-great_orchestrator.py
-```
-
-Modes:
-
-- local sequential
-- async cloud
-- distributed runtime
-
----
-
-## Stage 4 — Telemetry Slicing
-
-Slice and convert raw telemetry using:
-
-```text
-slice_hw_logs.py
-```
-
-Inputs:
-- HWiNFO `.csv` file: `...\covibe\benchmark\telemetry_logs\HWiNFO\<filename>.csv`
-- MSI Afterburner `.hml` file: `...\covibe\benchmark\telemetry_logs\MSI Afterburner\<filename>.hml`
-- LibreHardwareMonitor `.Report` file: `...\covibe\benchmark\telemetry_logs\LibreHardwareMonitor\LibreHardwareMonitor.Report`
-
-### Benchmark Kits (Test Configuration)
 ```text
 benchmark-kits/
 └── <kit_name>/
     └── BENCHMARK--<test_name>.md  # Full Test Specification & Payload Mapping
 ```
 
-### Benchmark Run (Result Output)
+### Step 1.2: Establish Design & Test Plan (Document 1)
+Create the plan document under the run's workspace.
+- **File Name:** `[runid]-PLAN-[PROJECT_NAME].md`
+- **Location:** `benchmark-run/<model-name>/<runid>/documents/`
+
+#### **DOCUMENT 1: PRE-TEST — AI Benchmark Design & Test Plan (BD-TP)**
+
+**ID:** [runid]-PLAN-[PROJECT_NAME].md
 ```text
-benchmark-run/
-├── <model-name>/
-│   ├── metadata.json
-│   ├── metrics.json
-│   ├── samples.jsonl
-│   ├── artifacts/
-│   │   ├── prompt.txt
-│   │   ├── response.txt
-│   │   ├── purified_response.txt
-│   │   ├── logs.txt
-│   │   ├── stderr.log
-│   │   ├── runtime_stdout.log
-│   │   └── raw_hardware.hml
-└── traces/
-    ├── samples.jsonl
-    ├── system_logs.jsonl
-    ├── events.jsonl
-    ├── token_trace.jsonl
-    └── failures.jsonl
+RUNID Format: RUN-[YYMMDD]-[model_id]-[run_number], e.g., RUN-260530-qw39b-001
 ```
+**Version:** 1.0
+
+**Status:** [Draft / Approved]
+
+##### **1. Purpose & Scope (วัตถุประสงค์และขอบเขต)**
+
+* **Objective:** [ระบุวัตถุประสงค์ เช่น เพื่อทดสอบประสิทธิภาพของโมเดล Qwen 3 (9B) ในการรองรับภาระงานประมวลผลโค้ดระดับสถาปัตยกรรม]  
+* **Target Model:** [ระบุชื่อโมเดลและชนิด เช่น Qwen-3-9B-Instruct (GGUF Q4_K_M)]  
+* **Success Criteria:** [ระบุเกณฑ์การทดสอบที่ถือว่าสอบผ่าน เช่น Decode TPS > 12 t/s, TTFT < 200 ms และไม่มี OOM Error ระหว่างรอบการรัน]
+
+##### **2. Hardware & Environment Baselines (ข้อมูลระบบและสภาพแวดล้อมตั้งต้น)**
+
+* **Host OS:** [เช่น Windows 11 Pro 23H2 / Linux Ubuntu 22.04 LTS]  
+* **GPU:** [เช่น NVIDIA RTX 3060 12GB GDDR6]  
+* **Driver & CUDA Version:** [เช่น NVIDIA Driver 596.49 / CUDA 12.4]  
+* **Inference Engine:** [เช่น Ollama v0.24.0 / vLLM v0.4.2]  
+* **Hardware Tuning Spec:**  
+  * Core Clock Lock: [เช่น -104MHz]  
+  * Power Limit: [เช่น 90% (153W)]  
+  * Target Temperature Limit: [เช่น 80°C]
+
+##### **3. Test Workload & Scenarios (สถานการณ์และภาระงานที่ใช้ทดสอบ)**
+
+กำหนดระดับภาระงาน (Task Levels) เพื่อทดสอบขีดจำกัดของระบบ:
+---
+| Level | Task ID | Description / Use Case | Est. Input (Tokens) | Est. Output (Tokens) |
+|---|---|---|---|---|
+| **L1 (Base)** | [e.g., L1_BASE] | Simple logical reasoning or entity extraction | [เช่น 300] | [เช่น 512] |
+| **L2 (Logic)** | [e.g., L2_LOGIC] | Algorithm design, priority queue operations | [เช่น 500] | [เช่น 1,000] |
+| **L3 (Domain)** | [e.g., L3_DOMAIN] | Multi-file contextual analysis | [เช่น 1,500] | [เช่น 1,000] |
+| **L4 (Stress)** | [e.g., L4_STRESS] | Giant code refactoring (8K+ tokens) | [เช่น 6,500] | [เช่น 2,000] |
+| **L5 (Cycles)** | [e.g., L5_STRESS] | Rapid Load/Unload and model switching | N/A | N/A |
 
 ---
-```
+
+##### **4. Telemetry & Log Configuration (การบันทึกข้อมูลและเซนเซอร์)**
+
+* **Telemetry Tools:** [เช่น NVML API, LibreHardwareMonitor (JSONL)]  
+* **Sampling Interval:** [เช่น 1 วินาทีต่อ 1 Record โดยจะนำไป Decimate เหลือ 1/30 สำหรับ UI]  
+* **Metric of Interest:**  
+  * Primary: TTFT (ms), Prefill TPS, Decode TPS, VRAM Utilization (MB)  
+  * Secondary: GPU Temp (°C), GPU Power Draw (W), Residual VRAM Post-Unload
 
 ---
 
-## Stage 5 — Aggregation
+## Phase 2: ACTIVE-TEST (Execution)
 
-Generate:
+During this phase, physical telemetry monitoring is enabled, and workloads are run against the target model.
 
-```text
-metrics.json
-```
+### Step 2.1: Activate System Monitoring (Stage 2)
+Activate telemetry sensors and logging.
+- **Tools/Drivers:**
+  - HWiNFO CSV Logging (Primary) -> `telemetry_logs/`
+  - MSI Afterburner logging (Fallback)
+  - LibreHardwareMonitor collector
+
+### Step 2.2: Execute Benchmark Workload (Stage 3)
+Run the automated test runner in the specified execution mode.
+- **Tool/Script:** `great_orchestrator.py`
+- **Execution Modes:**
+  - `local sequential` (Default)
+  - `async cloud`
+  - `distributed runtime`
+
+### Step 2.3: Record Live Execution Runbook (Document 2)
+Document active observations, warm-up latency, run status, and rapid load cycles.
+- **File Name:** `[runid]-RUN-[PROJECT_NAME].md`
+- **Location:** `benchmark-run/<model-name>/<runid>/documents/`
+
+#### **DOCUMENT 2: ACTIVE-TEST — Benchmark Execution Runbook & Verification Sheet (ER-VFS)**
+
+**ID:** [runid]-RUN-[PROJECT_NAME].md
+
+**Executor:** [ชื่อผู้ทดสอบ/Agent]
+
+**Run Timestamp Start:** [YYYY-MM-DD HH:MM:SS]
+
+##### **1. Pre-Run Pre-flight Checks (ขั้นตอนตรวจสอบก่อนเริ่มรันจริง)**
+
+* [ ] ตรวจสอบอุณหภูมิ GPU ตอน Idle (ไม่ควรเกิน 45°C)  
+* [ ] บันทึกค่า Baseline VRAM ก่อนเปิด Service: [ค่าที่วัดได้] MB  
+* [ ] ตรวจสอบการจำกัด Clock และ Power Limit ของ GPU ผ่าน command line หรือ MSI Afterburner  
+* [ ] ทดสอบสคริปต์ Telemetry Logging: python scripts/check_telemetry_v2.py  
+* [ ] ล้างหน่วยความจำและปิดโปรแกรมส่วนเกินเพื่อไม่ให้กวนผลการรัน
+
+##### **2. Run Logs & Dynamic Telemetry Records (บันทึกระหว่างดำเนินการทดสอบ)**
+
+###### **A. Warm-up Phase (ขั้นทดสอบรอบอุ่นเครื่อง)**
+
+* Model Loaded: [โมเดลที่ใช้]  
+* Warm-up Inference Status: [Success / Failed]  
+* Warm-up Latency: [ค่าที่วัดได้] ms
+
+###### **B. Actual Run Tracker (ตารางการรันจริง)**
+
+*ผู้รันต้องกรอกข้อมูลจริงทันทีที่แต่ละรอบเสร็จสิ้น*
+
+| Test ID | Loop | Run Status (Pass/OOM) | Observed Max Temp (°C) | Peek VRAM (MB) | Response Time (s) |
+| :---- | :---- | :---- | :---- | :---- | :---- |
+| L1_BASE | 1 | [ ] |  |  |  |
+| L2_LOGIC | 1 | [ ] |  |  |  |
+| L3_DOMAIN | 1 | [ ] |  |  |  |
+| L4_STRESS | 1 | [ ] |  |  |  |
+
+###### **C. L5 Rapid Cycle Test Log (กรณีทดสอบขีดจำกัดหน่วยความจำ)**
+
+บันทึกสภาพ VRAM หลังทำกระบวนการโหลด/ถอนโมเดลอย่างรวดเร็ว (Rapid Load/Unload)
+
+| Cycle | Loaded Model | Post-Load VRAM (MB) | Unloaded Model | Residual VRAM (MB) |
+| :---- | :---- | :---- | :---- | :---- |
+| 1 | [Model A] |  | [Model A] |  |
+| 2 | [Model B] |  | [Model B] |  |
+| 3 | [Model C] |  | [Model C] |  |
+| 4 | [Model A] |  | [Model A] |  |
+| 5 | [Model B] |  | [Model B] |  |
+
+* **มีเหตุการณ์ OOM เกิดขึ้นหรือไม่:** [Yes / No] (ระบุรอบและจุดที่เกิดหากเกิดปัญหา)  
+* **ความผิดปกติที่ตรวจพบหน้างาน:** [เช่น หลังจบรอบที่ 3 พบว่า Residual VRAM ไม่ยอมลดลงต่ำกว่า 7GB ส่งผลให้รอบที่ 4 มีความล่าช้าในการเริ่มต้นทำงาน]
 
 ---
 
-## Stage 6 — Analytics
+## Phase 3: POST-TEST (Analysis & Sign-Off)
 
-Push into:
+During this phase, raw logs are processed, metrics aggregated, and production readiness is decided.
 
-```text
-DuckDB
-ClickHouse
-Grafana
-```
+### Step 3.1: Telemetry Slicing (Stage 4)
+Process raw sensor logs into a unified format matching execution intervals.
+- **Tool/Script:** `slice_hw_logs.py`
+- **Inputs:**
+  - HWiNFO `.csv` file: `...\covibe\benchmark\telemetry_logs\HWiNFO\<filename>.csv`
+  - MSI Afterburner `.hml` file: `...\covibe\benchmark\telemetry_logs\MSI Afterburner\<filename>.hml`
+  - LibreHardwareMonitor `.Report` file: `...\covibe\benchmark\telemetry_logs\LibreHardwareMonitor\LibreHardwareMonitor.Report`
+- **Outputs:** Telemetry samples file `samples.jsonl` and raw logs stored under the run output directory. *(Note: Refer to [Section 1: Production Directory Structure](file:///g:/covibe/benchmark/CoVibe-ENTERPRISE-BENCHMARK-STANDARD.md#1-production-directory-structure) for the exact output directory and file tree path).*
+
+### Step 3.2: Aggregate Metrics (Stage 5)
+Generate execution summary.
+- **Tool/Script:** `aggregate_benchmarks.py`
+- **Output:** Summary file `metrics.json` containing latency and memory KPIs.
+
+### Step 3.3: Publish Analytics (Stage 6)
+Push metrics into target enterprise analytics stacks.
+- **Targets:**
+  - DuckDB
+  - ClickHouse
+  - Grafana
+
+### Step 3.4: Technical Report & Root Cause Analysis (Document 3)
+Create technical report and analyze any anomalies (e.g. VRAM fragmentation).
+- **File Name:** `[runid]-REPORT-[PROJECT_NAME].md`
+- **Location:** `benchmark-run/<model-name>/<runid>/documents/`
+
+#### **DOCUMENT 3: POST-TEST — Technical Benchmark Report & RCA (TBR-RCA)**
+
+**ID:** [runid]-REPORT-[PROJECT_NAME].md
+
+**Author:** [ชื่อผู้เขียนรายงาน/Senior Architect Agent]
+
+##### **1. Executive Summary**
+
+[สรุปสาระสำคัญของผลการทดสอบเชิงบริหาร เช่น โมเดลผ่านการทดสอบหรือไม่ พบปัญหาคอขวดตรงจุดใด และผลกระทบต่อระบบโดยรวม]
+
+##### **2. System Architecture & Methodology**
+
+[อธิบายสถาปัตยกรรมข้อมูล วิธีการคำนวณ Decimation ของสถิติ telemetry และเงื่อนไขการทดสอบ]
+
+##### **3. Complete Empirical Results (ผลการทดสอบอย่างละเอียด)**
+
+[ตารางเปรียบเทียบผลลัพธ์ประสิทธิภาพจริง รวมถึง Token Distribution จากการวิเคราะห์ Log ย้อนหลัง]
+
+##### **4. Root Cause Analysis (RCA) - สำหรับเคสที่ระบบล้มเหลวหรือหน่วงผิดปกติ**
+
+* **Problem Statement:** [เช่น เกิด OOM เมื่อทำการสลับใช้งานโมเดลสลับกันไปมาในระดับ L5]  
+* **5 Whys Analysis:**  
+  1. ทำไมระบบถึงขึ้น OOM? -> *เพราะ VRAM บน GPU ไม่เพียงพอในการโหลดโมเดลตัวถัดไป*  
+  2. ทำไม VRAM ถึงไม่พอในเมื่อโมเดลก่อนหน้าสั่ง Unload ไปแล้ว? -> *เพราะยังมีหน่วยความจำตกค้าง (Residual VRAM) สูงถึง 7.6GB*  
+  3. ทำไมถึงมีหน่วยความจำตกค้างสูงขนาดนั้น? -> *เพราะ Windows Display Driver Model (WDDM) และ Ollama Service ไม่สั่งคืนหน่วยความจำ (Compact) ในทันที*  
+  4. [เติมคำตอบถัดไปตามบริบทระบบ]  
+* **Proven Mitigation Plan:** [ระบุแผนการแก้ไขปัญหาในระบบจริง เช่น การเพิ่มคำสั่ง force_restart_ollama() หรือการกำหนด VRAM Context Padding ป้องกันไว้ 1GB]
+
+### Step 3.5: Production Readiness Sign-Off (Document 4)
+Evaluate against KPIs and formalize deployment approval.
+- **File Name:** `[runid]-SIGNOFF-[PROJECT_NAME].md`
+- **Location:** `benchmark-run/<model-name>/<runid>/documents/`
+
+#### **DOCUMENT 4: POST-TEST — Production Readiness & Sign-Off Sheet (PR-SO)**
+
+**ID:** [runid]-SIGNOFF-[PROJECT_NAME]
+
+**Review Board:** [รายชื่อวิศวกรผู้ประเมินและสถาปนิกโครงสร้างระบบ]
+
+##### **1. Performance Checklist against KPIs (ตารางตรวจสอบเทียบกับเกณฑ์มาตรฐาน)**
+
+| Standard Metrics (EABS-01) | Target Threshold (เกณฑ์ขั้นต่ำ) | Actual Score (ผลสอบเฉลี่ย) | Evaluation (ผ่าน/ไม่ผ่าน) |
+| :---- | :---- | :---- | :---- |
+| **First Token Latency (TTFT)** | < 250 ms | [ใส่ค่าจริง] | [ ] Pass - [ ] Fail |
+| **Generation Rate (Decode)** | > 12.0 tokens/sec | [ใส่ค่าจริง] | [ ] Pass - [ ] Fail |
+| **VRAM Margin Room** | > 1,024 MB (During L4) | [ใส่ค่าจริง] | [ ] Pass - [ ] Fail |
+| **Error Rate (OOM/Crash)** | 0.00% (Over 20 cycles) | [ใส่ค่าจริง] | [ ] Pass - [ ] Fail |
+
+##### **2. Risk Assessment & Safe-Guards (การวิเคราะห์ความเสี่ยงและการป้องกัน)**
+
+* **Risk Detected:** [เช่น ความไม่แน่นอนของ Windows WDDM ในการคืน VRAM (Fragmentation)]  
+* **Production Safeguard Implementation:**  
+  * [ ] ได้ทำการฝังฟังก์ชัน Garbage Collection อัตโนมัติใน Orchestrator หรือยัง?  
+  * [ ] มีการสร้าง Watchdog Service สำหรับคอย Monitor และรีสตาร์ต Inference Engine เมื่อเจอสัญญาณ VRAM รั่วไหลหรือยัง?  
+  * [ ] ระบบหน้าบ้าน (Dashboard) แสดงผลค่าทางกายภาพจริงของ GPU ได้ถูกต้องและลื่นไหลดีแล้วใช่หรือไม่?
+
+##### **3. Deployment Approval (คำรับรองความพร้อมและอนุญาตให้นำไปใช้งาน)**
+
+จากการประเมินเชิงเทคนิคและเอกสารสรุปผลการทดสอบตามข้อกำหนด **EABS-01** คณะทำงานมีความเห็นชอบร่วมกันดังนี้:
+
+* [ ] **APPROVED (อนุมัติ):** ระบบมีความพร้อมในการผลักดันขึ้นสู่ระบบ Production เพื่อทำงานจริงร่วมกับ CoVibe Agent Framework  
+* [ ] **CONDITIONAL APPROVED (อนุมัติแบบมีเงื่อนไข):** นำไปใช้ได้ แต่ต้องมีการจำกัด Task L4 และห้ามใช้โมเดลสลับกันไปมาหากไม่มีการสั่ง Force Clear Cache ทุกๆ 2 ชั่วโมง  
+* [ ] **REJECTED (ปฏิเสธ):** ต้องส่งโมเดลหรือระบบกลับไปปรับแต่งฮาร์ดแวร์/ซอฟต์แวร์ใหม่ เนื่องจากไม่ผ่านเกณฑ์สำคัญด้าน [ระบุหัวข้อที่ไม่ผ่าน]
+
+**ลงชื่อผู้อนุมัติโครงการ:** ___________________________
+
+(ชื่อ-นามสกุล)
+
+ตำแหน่ง: Senior AI Infrastructure Engineer / Lead Solution Architect
+
+วันที่: YYYY-MM-DD
 
 ---
 
@@ -727,47 +893,31 @@ Grafana / Dashboard
 
 ---
 
-# 16. Final Enterprise Principle
-
-Benchmarking quality is measured by:
-
-```text
-consistency
-traceability
-efficiency
-stability
-thermal sustainability
-```
-
-NOT by peak TPS alone.
-
----
-
-# 17. Real-Time Telemetry & Execution Protocol (RTTEP)
+# 16. Real-Time Telemetry & Execution Protocol (RTTEP)
 
 The platform supports live-interactive benchmarking triggered from the dashboard and streamed in real-time.
 
-## 17.1 WebSocket Streaming Channel
+## 16.1 WebSocket Streaming Channel
 - **Protocol:** WebSockets (WS/WSS)
-- **Port:** Enforced default `8990` (binds to localhost for security).
+- **Port:** Enforced default `8787` (binds to localhost for security).
 - **Update Frequency:** Hardware metrics MUST be collected and emitted at `1000ms` intervals.
 
-## 17.2 Standard Event Schema
+## 16.2 Standard Event Schema
 - `start_benchmark_run`: Triggered from UI with configurations (`provider`, `model_id`, `prompt`).
 - `abort_benchmark_run`: Halts spawned child processes instantly via SIGKILL.
 - `benchmark_status`: Notifies state changes (`running`, `completed`, `failed`, `idle`).
 - `benchmark_log`: Streams live process stdout/stderr logs.
 - `live_hardware_sample`: Pushes per-second system metrics directly to dashboard variables for live rendering.
 
-## 17.3 Thermal Safety Guard Integration
+## 16.3 Thermal Safety Guard Integration
 - In addition to standard OS throttles, the telemetry server MUST parse real-time HML readings.
-- If a sample shows `GPU_Temp >= 71°C`, the server MUST emit a critical warning log and suspend the active run.
+- If a sample shows `GPU_Temp >= 88°C`, the server MUST emit a critical warning log and suspend the active run.
 
-## 17.4 Post-Run Cooldown Monitoring
+## 16.4 Post-Run Cooldown Monitoring
 - Telemetry streams MUST continue to emit metrics for at least `10 seconds` after the runner process exits.
 - This captures the thermal cooldown slope of the GPU/CPU for analysis.
 
-## 17.5 Real-Time Execution Call Graph
+## 16.5 Real-Time Execution Call Graph
 
 The following call graph visualizes the event-driven interactions between components during a real-time benchmark run under the RTTEP protocol:
 
@@ -790,7 +940,7 @@ flowchart TD
         HML -->|"6. Read metrics (1000ms)"| Server
         Server -->|"7. live_hardware_sample (WS)"| User
         
-        Server -->|"8. Thermal Safety Guard (71°C or above check)"| Server
+        Server -->|"8. Thermal Safety Guard (88°C or above check)"| Server
     end
     
     Runner -->|"9. Exit process"| Server
@@ -807,5 +957,134 @@ flowchart TD
 
 ---
 
+# 17. Statistical Validity & Variance Governance (EABS-01-SV)
+
+To eliminate operating system scheduling noise, background driver interrupts, and thermal fluctuations, a single-run execution is NOT sufficient for production sign-off.
+
+## 17.1 Multi-Run Execution Requirements
+
+Baseline Tasks (L1-L3): MUST be executed for a minimum of $N = 3$ continuous runs.
+
+Stress Tasks (L4-L5): MUST be executed for a minimum of $N = 5$ continuous runs.
+
+Warm-up Exemption: The very first run (Run 0) of any sequence may be excluded from statistical calculations to account for cache allocation overhead, provided it is marked as warmup: true in the events log.
+
+## 17.2 Mathematical Definitions for Variance Metrics
+
+The system aggregator MUST calculate and append the following statistical metrics to metrics.json:
+
+Arithmetic Mean ($\mu$):
+
+$$\mu = \frac{1}{N} \sum_{i=1}^{N} x_i$$
+
+Standard Deviation ($\sigma$):
+
+
+$$\sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (x_i - \mu)^2}$$
+
+Coefficient of Variation (CV):
+
+
+$$CV = \frac{\sigma}{\mu}$$
+
+
+An EABS-01 compliant run MUST achieve a $CV \le 0.05$ (5%) for Decode TPS to be considered highly stable.
+
+---
+
+## 17.3 Updated metrics.json Statistical Schema Extension
+
+This object block MUST be nested inside the primary metrics.json file under the "quality" field:
+
+---
+
+```json
+{
+  "statistical_validity": {
+    "runs_evaluated": 5,
+    "warmup_run_excluded": true,
+    "tps_variance_metrics": {
+      "mean_decode_tps": 14.52,
+      "standard_deviation": 0.38,
+      "coefficient_of_variation": 0.0261
+    },
+    "latency_variance_metrics": {
+      "mean_ttft_ms": 168.8,
+      "ttft_std_dev_ms": 4.25,
+      "ttft_p95_ms": 172.1
+    }
+  }
+}
+```
+# 18. Cold-Start Latency Isolation & Lifecycle State Machine
+
+To prevent initialization costs (such as disk-to-RAM I/O, RAM-to-VRAM loading, and CUDA context initialization) from skewing the Time-to-First-Token (TTFT) metrics, the orchestrator MUST enforce a strict model lifecycle state machine.
+
+```mermaid
+stateDiagram
+    [*] --> UNLOADED : System Idle
+    UNLOADED --> LOADING : trigger_model_load
+    LOADING --> WARMING_UP : model_load_completed
+    WARMING_UP --> ACTIVE_RUN : first_warmup_token_generated
+    ACTIVE_RUN --> COOLDOWN : benchmark_run_finished
+    COOLDOWN --> UNLOADED : trigger_unload
+    COOLDOWN --> ACTIVE_RUN : next_queued_run (Warm)
+```
+
+## 18.1 State Defintions & Logging Rules
+
+LOADING state: Begins when the engine process is spawned or the API call is made. Ends when the system registers the model weight allocations on VRAM.
+
+Required Event Logs: model_load_triggered and model_load_completed MUST be recorded in events.jsonl with microsecond-level timestamps.
+
+WARMING_UP state: Executes a dummy inference payload (10-20 tokens). This primes the KV cache and activates CUDA kernels.
+
+Required Event Logs: warmup_triggered and warmup_completed MUST be recorded.
+
+ACTIVE_RUN state: This is the only state where token-level telemetry (token_trace.jsonl) is recorded for performance evaluation.
+
+# 19. Performance Regression Intelligence & CI/CD Gateways
+
+To prevent software updates, driver revisions, or model parameter merges from degrading system efficiency, EABS-01 defines strict automated CI/CD gating rules.
+
+## 19.1 Regression Thresholds (The 5/10 Rule)
+
+A code or runtime modification is classified as a Performance Regression if the automated runner detects either of the following conditions when compared against the production baseline:
+
+Decode TPS Degradation: A decrease of $> 5\%$ in average generation speed ($\mu_{\text{new}} < 0.95 \times \mu_{\text{baseline}}$).
+
+TTFT Increase: An increase of $> 10\%$ in average time-to-first-token ($\mu_{\text{new\_ttft}} > 1.10 \times \mu_{\text{baseline\_ttft}}$).
+
+## 19.2 Orchestrator Exit Codes
+
+When running within a continuous integration runner (e.g., GitHub Actions, GitLab CI), the orchestrator script (great_orchestrator.py) MUST return the following system exit codes to halt dirty deployment pipelines:
+
+|Exit Code|Classification|Trigger Condition|
+|---|---|---|
+|0|SUCCESS|Benchmark run complete, all tasks passed, performance within baseline bounds.|
+|101|REGRESSION_DETECTED|Benchmark complete but violates the EABS 5/10 regression rule.|
+|102|HARDWARE_GOVERNANCE_FAULT|Execution aborted due to thermal limits ( $> 88^\circ\text{C}$ ) or power surges.|
+|103|STABILITY_FAIL|Run aborted due to OOM errors, runtime crash, or infinite loops.|
+
+## 19.3 Failure Schema Extension (failures.jsonl)
+
+In the event of a regression-induced exit, a structured record MUST be appended to failures.jsonl:
+
+```jsonl 
+{
+  "ts": "2026-05-30T08:15:22.105Z",
+  "type": "performance_regression",
+  "severity": "critical",
+  "recoverable": false,
+  "details": {
+    "metric": "decode_tps",
+    "baseline_val": 14.52,
+    "observed_val": 13.11,
+    "deviation_percent": -9.71,
+    "allowed_threshold_percent": -5.00
+  }
+}
+```
+---
 **END OF DOCUMENT**
 

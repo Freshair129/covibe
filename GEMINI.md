@@ -12,7 +12,7 @@
 
 1. **Client (React + Vite PWA)**: ส่วนติดต่อผู้ใช้แบบ Mobile-First ที่ออกแบบมาสำหรับการใช้งานขณะสวมหมวกกันน็อก มี Rider Mode ปุ่มขนาดใหญ่ OLED Saver และระบบจัดการคิวเพลง
 2. **Server (Node.js + WebSockets)**: เซิร์ฟเวอร์ขนาดเล็กสำหรับเก็บ Trip Room State ในหน่วยความจำ, ทำหน้าที่ Broadcast คำสั่งเครื่องเล่น (Play / Pause / Seek / Queue) และส่งผ่านสัญญาณเสียง (WebRTC Signaling)
-3. **MSP Telemetry**: ระบบความร่วมมือในการวัดผลประสิทธิภาพและต้นทุน LLM Agent (Memory & Soul Passport) โดยจะดึงข้อมูล Daily Usage Buckets มาคำนวณและแสดงผลบน Telemetry Dashboard ในหน้ารูทแมป
+3. **MSP Telemetry**: ระบบความร่วมมือในการวัดผลประสิทธิภาพและต้นทุน LLM Agent (Memory & Soul Passport) โดยจะดึงข้อมูล Daily Usage Buckets มาคำนวณและแสดงผลบน Telemetry Dashboard ในหน้าแดชบอร์ดหลัก (`/dashboard`)
 
 ---
 
@@ -28,7 +28,8 @@ g:/covibe/
 │   └── index.js             # WebSocket Server (Room State, Spawning Agents, Telemetry endpoint)
 ├── docs/
 │   └── compatibility_report.md  # รายงานสรุปผลทดสอบ Browser Compatibility บน iOS/Android
-├── covibe_roadmap.html      # หน้าแสดงแผนการพัฒนา & Telemetry Dashboard ของ CoVibe
+├── codev_dashboard.html     # หน้าแดชบอร์ดหลัก & ศูนย์สั่งการระบบ CoDev Agent (Flight Control & Monitor)
+├── covibe_roadmap.html      # แผนการพัฒนา & Telemetry Dashboard ของ CoVibe (Legacy)
 ├── package.json             # รายการ Dependencies และ Scripts ของโปรเจกต์
 ├── GEMINI.md                # คู่มือฉบับนี้ (Project Guide)
 └── README.md                # แนะนำการใช้งานทั่วไปเบื้องต้น
@@ -74,7 +75,7 @@ g:/covibe/
 
 1.  **TDR Guard (Thermal & Power Management):**
     - **RTX 3060 Standard:** ต้อง Underclock -104MHz และ Power Limit 90% เสมอ (อ้างอิง `PROTOCOL--HW-TUNING.md`)
-    - **Thermal Rule:** หาก GPU Temp แตะ 71°C หรือ Power Draw เกิน 153W ต้องหยุดพักเครื่อง 120 วินาที
+    - **Thermal Rule:** หาก GPU Temp แตะ 88°C หรือ Power Draw เกิน 165W ต้องหยุดพักเครื่อง 120 วินาที
     - **Log Source:** อ้างอิงข้อมูลจากโฟลเดอร์ `benchmark/telemetry_logs/` หรือ `D:\hw_log\HardwareMonitoring.hml` (MSI Afterburner)
 2.  **Software Pipeline Hardening:**
     - **UTF-8 Force:** สคริปต์ต้องบังคับ encoding="utf-8" เพื่อป้องกัน Emoji Crash บน Windows (CP1252 fix)

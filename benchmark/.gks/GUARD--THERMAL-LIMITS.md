@@ -21,8 +21,8 @@ linked_symbols: []
 
 | Parameter | Threshold | Action if Exceeded |
 | :--- | :--- | :--- |
-| **Max Temperature** | `>= 71°C` | Immediate 120s thermal cooldown sleep in Python orchestrator. |
-| **Power Draw** | `> 153W` | Log warning, verify MSI Afterburner profile is active. |
+| **Max Temperature** | `>= 88°C` | Immediate 120s thermal cooldown sleep in Python orchestrator. |
+| **Power Draw** | `> 165W` | Log warning, verify MSI Afterburner profile is active. |
 | **VRAM Usage** | `> 11.5 GB`| Unload model via API, reduce `num_ctx`. |
 
 ## Rationale

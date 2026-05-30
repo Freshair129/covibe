@@ -33,8 +33,8 @@ Ensure the host RTX 3060 is thermally safe and operating consistently before run
 
 ### Method B: NVIDIA-SMI (Fallback CLI)
 1. Open PowerShell as Administrator.
-2. Set Power Limit: `nvidia-smi -pl 153`
+2. Set Power Limit: `nvidia-smi -pl 165`
 3. Lock Core Clocks: `nvidia-smi --lock-gpu-clocks=1500,1500`
 
 ## Verification
-- Run `nvidia-smi` and verify the power cap is `153W`.
+- Run `nvidia-smi` and verify the power cap is `165W`.
