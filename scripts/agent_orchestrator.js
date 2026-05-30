@@ -11,7 +11,7 @@ const WebSocket = require('ws');
 const WS_URL = 'ws://localhost:8989';
 const socket = new WebSocket(WS_URL);
 
-// Tasks derived from the "todo" backlog in covibe_roadmap.html
+// Tasks derived from the "todo" backlog in codev_dashboard.html
 const parallelTasks = [
   // Stream A: Core & Bug Fixing (Qwen Coder)
   { agent: "qwen", taskId: "p1-s1b-2", taskText: "Fix User Status Display Bug" },

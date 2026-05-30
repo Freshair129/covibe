@@ -250,9 +250,10 @@ export default function App() {
               <Bike aria-hidden="true" />
               <h2>เริ่มใช้งาน</h2>
             </div>
-            <label>
+            <label htmlFor="display-name-input">
               ชื่อในทริป
               <input
+                id="display-name-input"
                 value={displayName}
                 onChange={(event) => setDisplayName(event.target.value)}
                 placeholder="เช่น เบส / แพรว"
@@ -284,9 +285,10 @@ export default function App() {
               </button>
             ) : (
               <div className="join-box">
-                <label>
+                <label htmlFor="room-code-input">
                   รหัสห้อง
                   <input
+                    id="room-code-input"
                     value={roomCode}
                     onChange={(event) => setRoomCode(event.target.value.toUpperCase())}
                     placeholder="เช่น A1B2C3"
@@ -398,12 +400,13 @@ export default function App() {
               </button>
             </div>
 
-            <label className="volume-control">
+            <label htmlFor="volume-input" className="volume-control">
               <span>
                 <Volume2 aria-hidden="true" />
                 เสียงเครื่องนี้
               </span>
               <input
+                id="volume-input"
                 type="range"
                 min="0"
                 max="100"
@@ -458,20 +461,22 @@ export default function App() {
                 <Plus aria-hidden="true" />
                 <h2>เพิ่มเพลง</h2>
               </div>
-              <label>
+              <label htmlFor="track-input">
                 YouTube URL หรือ video id
                 <div className="input-with-icon">
                   <LinkIcon aria-hidden="true" />
                   <input
+                    id="track-input"
                     value={trackInput}
                     onChange={(event) => setTrackInput(event.target.value)}
                     placeholder="https://youtu.be/..."
                   />
                 </div>
               </label>
-              <label>
+              <label htmlFor="track-title-input">
                 ชื่อเพลงที่แสดง
                 <input
+                  id="track-title-input"
                   value={trackTitle}
                   onChange={(event) => setTrackTitle(event.target.value)}
                   placeholder="ปล่อยว่างได้"

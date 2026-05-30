@@ -20,11 +20,40 @@ import { promisify } from "node:util";
 
 const execAsync = promisify(exec);
 
-// Use env var if set; otherwise fall back to 8990 (unlikely to be occupied)
-const PORT = Number(process.env.COVIBE_SERVER_PORT || 8990);
-console.log(`[Server] Listening on port ${PORT}`);
 const COVIBE_ROOT = resolve("g:/covibe");
+
+// Load .env file manually
+function loadEnv() {
+  const envPath = join(COVIBE_ROOT, ".env");
+  if (existsSync(envPath)) {
+    try {
+      const content = readFileSync(envPath, "utf-8");
+      for (const line of content.split(/\r?\n/)) {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith("#")) {
+          const idx = trimmed.indexOf("=");
+          if (idx > 0) {
+            const key = trimmed.slice(0, idx).trim();
+            const val = trimmed.slice(idx + 1).trim();
+            if (process.env[key] === undefined) {
+              process.env[key] = val.replace(/^["']|["']$/g, "");
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error("[Server] Failed to read .env file:", e.message);
+    }
+  }
+}
+loadEnv();
+
+const PORT = Number(process.env.COVIBE_SERVER_PORT || 8787);
+console.log(`[Server] Listening on port ${PORT}`);
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY || "";
+const LOGS_RETENTION_COUNT = Number(process.env.LOGS_RETENTION_COUNT || 120);
+const GPU_TEMP_ALERT_LIMIT = Number(process.env.GPU_TEMP_ALERT_LIMIT || 88);
+
 const rooms = new Map();
 const clients = new Map();
 const activeTasks = new Map();
@@ -489,23 +518,28 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  if (pathname === "/roadmap" || pathname === "/roadmap/") {
+  if (pathname === "/dashboard" || pathname === "/dashboard/") {
     try {
-      const content = await readFile(join(COVIBE_ROOT, "covibe_roadmap.html"), "utf-8");
+      const content = await readFile(join(COVIBE_ROOT, "codev_dashboard.html"), "utf-8");
+      const isProd = process.env.NODE_ENV === 'production';
+      const csp = isProd
+        ? "default-src * 'unsafe-inline' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; connect-src * ws: wss:;"
+        : "default-src * 'unsafe-inline' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; connect-src * ws: wss:;";
+
       res.writeHead(200, { 
         "content-type": "text/html",
-        "Content-Security-Policy": "default-src * 'unsafe-inline' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; connect-src * ws: wss:;"
+        "Content-Security-Policy": csp
       });
       res.end(content);
     } catch (err) {
       res.writeHead(500);
-      res.end("Error loading roadmap file.");
+      res.end("Error loading dashboard file.");
     }
     return;
   }
 
-  if (pathname === "/") {
-    res.writeHead(302, { Location: "/roadmap" });
+  if (pathname === "/" || pathname === "/roadmap" || pathname === "/roadmap/") {
+    res.writeHead(302, { Location: "/dashboard" });
     res.end();
     return;
   }
@@ -628,6 +662,27 @@ const server = createServer(async (req, res) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.writeHead(200, { "content-type": "application/json" });
     res.end(JSON.stringify({ roomId, events, count: events.length }));
+    return;
+  }
+
+  // ---------------------------------------------------------------------------
+  // EABS-01 Benchmark Data API
+  // ---------------------------------------------------------------------------
+  if (pathname === "/data/benchmarks.json" || pathname === "/dashboard/data/benchmarks.json") {
+    try {
+      const filePath = join(COVIBE_ROOT, "benchmark", "ui", "data", "benchmarks.json");
+      if (existsSync(filePath)) {
+        const content = await readFile(filePath);
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end(content);
+      } else {
+        res.writeHead(404, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: "file_not_found", message: "benchmarks.json not found on disk" }));
+      }
+    } catch (err) {
+      res.writeHead(500, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: "server_error", message: err.message }));
+    }
     return;
   }
 
@@ -768,7 +823,7 @@ function broadcastState(roomId) {
 
 function appendLog(room, event) {
   room.log.push({ ...event, at: Date.now() });
-  if (room.log.length > 120) room.log.shift();
+  if (room.log.length > LOGS_RETENTION_COUNT) room.log.shift();
 }
 
 function upsertParticipant(room, participantId, patch) {
@@ -892,45 +947,69 @@ wss.on("connection", (ws) => {
 
       console.log(`[agent] Spawning "${agent}" for task: "${taskText}"`);
       let cp;
-      if (agent === "eva" || agent === "eva-single") {
-        cp = spawn(
-          "node",
-          ["g:/eva-cli/node_modules/tsx/dist/cli.mjs", "g:/eva-cli/src/entry.ts", "--auto"],
-          {
-            cwd: "g:/covibe",
-            env: {
-              ...getEvaEnv(),
-              ...(agent === "eva-single" && { EVA_FORCE_SINGLE_SHOT: "1" })
+      try {
+        if (agent === "eva" || agent === "eva-single") {
+          cp = spawn(
+            "node",
+            ["g:/eva-cli/node_modules/tsx/dist/cli.mjs", "g:/eva-cli/src/entry.ts", "--auto"],
+            {
+              cwd: "g:/covibe",
+              env: {
+                ...getEvaEnv(),
+                ...(agent === "eva-single" && { EVA_FORCE_SINGLE_SHOT: "1" })
+              }
             }
+          );
+          if (cp && cp.stdin) {
+            cp.stdin.write(`${taskText}\n`);
           }
-        );
-        cp.stdin.write(`${taskText}\n`);
-      } else if (agent === "gemini") {
-        cp = spawn("powershell.exe", ["-NoProfile", "-Command", `gemini --prompt "${taskText.replace(/"/g, '`"')}" --approval-mode auto_edit --raw-output`], {
-          cwd: "g:/covibe",
-          env: { ...process.env, FORCE_COLOR: "1" }
-        });
-      } else if (agent === "system") {
-        cp = spawn("powershell.exe", ["-NoProfile", "-Command", taskText], {
-          cwd: "g:/covibe",
-          env: { ...process.env, FORCE_COLOR: "1" }
-        });
-      } else if (agent === "qwen") {
-        cp = spawn("python", ["g:/qwen-cli/qwen.py", taskText], {
-          cwd: "g:/covibe"
-        });
-      } else {
+        } else if (agent === "gemini") {
+          cp = spawn("powershell.exe", ["-NoProfile", "-Command", `gemini --prompt "${taskText.replace(/"/g, '`"')}" --approval-mode auto_edit --raw-output`], {
+            cwd: "g:/covibe",
+            env: { ...process.env, FORCE_COLOR: "1" }
+          });
+        } else if (agent === "system") {
+          cp = spawn("powershell.exe", ["-NoProfile", "-Command", taskText], {
+            cwd: "g:/covibe",
+            env: { ...process.env, FORCE_COLOR: "1" }
+          });
+        } else if (agent === "qwen") {
+          cp = spawn("python", ["g:/qwen-cli/qwen.py", taskText], {
+            cwd: "g:/covibe"
+          });
+        } else {
+          send(ws, {
+            type: "agent_log",
+            taskId,
+            stream: "system",
+            text: `Unknown agent type: "${agent}"`
+          });
+          send(ws, {
+            type: "agent_status",
+            taskId,
+            status: "failed"
+          });
+          return;
+        }
+        
+        if (!cp) {
+          throw new Error("Failed to initialize process object");
+        }
+      } catch (err) {
         send(ws, {
           type: "agent_log",
           taskId,
-          stream: "system",
-          text: `Unknown agent type: "${agent}"`
+          stream: "stderr",
+          text: `Sync Error spawning process: ${err.message}`
         });
         send(ws, {
           type: "agent_status",
           taskId,
           status: "failed"
         });
+        if (room) {
+          appendLog(room, { type: "agent_log", taskId, stream: "stderr", text: `Sync Error spawning process: ${err.message}` });
+        }
         return;
       }
 
@@ -1141,23 +1220,40 @@ wss.on("connection", (ws) => {
       });
 
       let cp;
-      if (provider === "thaillm" || provider === "gemini") {
-        cp = spawn("python", ["benchmark/scripts/cloud_bench.py", provider, model_id, prompt], {
-          cwd: COVIBE_ROOT
+      try {
+        if (provider === "thaillm" || provider === "gemini") {
+          cp = spawn("python", ["benchmark/scripts/cloud_bench.py", provider, model_id, prompt], {
+            cwd: COVIBE_ROOT
+          });
+        } else if (provider === "qwen") {
+          cp = spawn("python", ["benchmark/scripts/qwen_bench.py", model_id, prompt], {
+            cwd: COVIBE_ROOT
+          });
+        } else {
+          // Fallback demo mock benchmark execution
+          cp = spawn("powershell.exe", [
+            "-NoProfile",
+            "-Command",
+            `Write-Output 'Executing Local Mock Benchmark...'; Start-Sleep -Seconds 1; Write-Output 'Initializing ${model_id || "Mock-LLM-v1"}'; Start-Sleep -Seconds 2; Write-Output 'Generating code tokens...'; Start-Sleep -Seconds 2; Write-Output '📊 PERFORMANCE METRICS'; Write-Output 'Output Speed:    52.41 tokens/sec'; Write-Output 'Total Time:      5.00s'; Write-Output '### END'`
+          ], {
+            cwd: COVIBE_ROOT
+          });
+        }
+
+        if (!cp) {
+          throw new Error("Failed to initialize benchmark process object");
+        }
+      } catch (err) {
+        send(ws, {
+          type: "benchmark_log",
+          text: `Sync Error starting benchmark: ${err.message}\n`
         });
-      } else if (provider === "qwen") {
-        cp = spawn("python", ["benchmark/scripts/qwen_bench.py", model_id, prompt], {
-          cwd: COVIBE_ROOT
+        send(ws, {
+          type: "benchmark_status",
+          status: "failed"
         });
-      } else {
-        // Fallback demo mock benchmark execution
-        cp = spawn("powershell.exe", [
-          "-NoProfile",
-          "-Command",
-          `Write-Output 'Executing Local Mock Benchmark...'; Start-Sleep -Seconds 1; Write-Output 'Initializing ${model_id || "Mock-LLM-v1"}'; Start-Sleep -Seconds 2; Write-Output 'Generating code tokens...'; Start-Sleep -Seconds 2; Write-Output '📊 PERFORMANCE METRICS'; Write-Output 'Output Speed:    52.41 tokens/sec'; Write-Output 'Total Time:      5.00s'; Write-Output '### END'`
-        ], {
-          cwd: COVIBE_ROOT
-        });
+        activeBenchmarkProcess = null;
+        return;
       }
 
       activeBenchmarkProcess = cp;
@@ -1177,11 +1273,11 @@ wss.on("connection", (ws) => {
           });
         }
 
-        // Thermal Stop rule check: GPU >= 71C
-        if (sample.GPU_Temp >= 71) {
+        // Thermal Stop rule check
+        if (sample.GPU_Temp >= GPU_TEMP_ALERT_LIMIT) {
           send(ws, {
             type: "benchmark_log",
-            text: `\n⚠️ [THERMAL ALERT] GPU reached ${sample.GPU_Temp}°C! Suspending execution according to EABS-01.\n`
+            text: `\n⚠️ [THERMAL ALERT] GPU reached ${sample.GPU_Temp}°C! Suspending execution according to EABS-01 limit (${GPU_TEMP_ALERT_LIMIT}°C).\n`
           });
         }
       }, 1000);

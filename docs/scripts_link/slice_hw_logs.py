@@ -2,8 +2,8 @@ import json
 import os
 from datetime import datetime, timedelta
 
-hml_path = "G:/covibe/HardwareMonitoring.hml"
-base_benchmark_dir = "G:/covibe/benchmark"
+hml_path = "D:/hw_log/HardwareMonitoring.hml"
+base_benchmark_dir = "G:/covibe/benchmark/benchmark-run"
 
 def parse_hml_time(time_str):
     try:
