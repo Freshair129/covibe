@@ -1,4 +1,5 @@
 import json
+import os
 
 data = {
     "temp": [],
@@ -9,7 +10,12 @@ data = {
     "ram": []
 }
 
-with open("latest_hw_log.csv", "r", encoding="utf-16") as f:
+# Resolve path robustly to support running from root or from scripts folder
+log_path = "benchmark/telemetry_logs/latest_hw_log.csv"
+if not os.path.exists(log_path):
+    log_path = os.path.join(os.path.dirname(__file__), "../telemetry_logs/latest_hw_log.csv")
+
+with open(log_path, "r", encoding="utf-16") as f:
     for line in f:
         if line.startswith("80,"):
             parts = [p.strip() for p in line.split(",")]

@@ -1,6 +1,0 @@
-<think>
-Let me think about how to approach this coding problem.
-
-Problem:  - CoVibe Project Context Simulation
-    // Architecture: React + Vite + WebSocket + YouTube IFrame API
-    // This is a dummy...

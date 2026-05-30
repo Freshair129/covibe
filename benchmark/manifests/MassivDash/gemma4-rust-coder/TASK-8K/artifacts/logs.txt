@@ -1,5 +1,0 @@
-[INFO] Starting benchmark bench_20260527_0001
-[DEBUG] Model: gemma4-rust-coder-latest
-[DEBUG] Loading into VRAM... Done (4.2s)
-[PROCESS] Generating tokens...
-[INFO] Benchmark finished in 43.32s

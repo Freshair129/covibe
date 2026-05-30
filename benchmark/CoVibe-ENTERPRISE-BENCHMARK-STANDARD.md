@@ -469,11 +469,11 @@ Run Command Prompt or PowerShell with administrator privileges and execute the f
 To protect the host hardware and maintain performance reliability, the orchestrator script and websocket monitor MUST enforce:
 * **Safe Operating Zone**: `< 75°C`
 * **Danger Zone**: `> 83°C` or sustained GPU power draw `> 165W`.
-* **Thermal Stop Rule**: If GPU temperature reaches `88°C` or above, suspend execution immediately for `120 seconds`:
+* **Thermal & Power Stop Rule**: If GPU temperature reaches `88°C` or above, or GPU power draw reaches `165W` or above, suspend execution immediately for `120 seconds`:
   ```python
-  # Code logic for Thermal Stop (NVIDIA Standard Adjusted)
-  if gpu_temperature >= 88:
-      logger.warning("GPU Temperature limit exceeded. Triggering 120s cooldown...")
+  # Code logic for Thermal & Power Stop (NVIDIA Standard Adjusted)
+  if gpu_temperature >= 88 or gpu_power_draw >= 165:
+      logger.warning("GPU Temperature or Power limit exceeded. Triggering 120s cooldown...")
       time.sleep(120)
   ```
 * **Cool-down Policy**: A mandatory `10 to 60-second` pause (`time.sleep()`) MUST be executed between local model swaps to dissipate residual heat.
@@ -909,9 +909,9 @@ The platform supports live-interactive benchmarking triggered from the dashboard
 - `benchmark_log`: Streams live process stdout/stderr logs.
 - `live_hardware_sample`: Pushes per-second system metrics directly to dashboard variables for live rendering.
 
-## 16.3 Thermal Safety Guard Integration
+## 16.3 Thermal & Power Safety Guard Integration
 - In addition to standard OS throttles, the telemetry server MUST parse real-time HML readings.
-- If a sample shows `GPU_Temp >= 88°C`, the server MUST emit a critical warning log and suspend the active run.
+- If a sample shows `GPU_Temp >= 88°C` or `GPU_Power >= 165W`, the server MUST emit a critical warning log, suspend the active run, and enforce a 120-second cooling period.
 
 ## 16.4 Post-Run Cooldown Monitoring
 - Telemetry streams MUST continue to emit metrics for at least `10 seconds` after the runner process exits.
@@ -1063,7 +1063,7 @@ When running within a continuous integration runner (e.g., GitHub Actions, GitLa
 |---|---|---|
 |0|SUCCESS|Benchmark run complete, all tasks passed, performance within baseline bounds.|
 |101|REGRESSION_DETECTED|Benchmark complete but violates the EABS 5/10 regression rule.|
-|102|HARDWARE_GOVERNANCE_FAULT|Execution aborted due to thermal limits ( $> 88^\circ\text{C}$ ) or power surges.|
+|102|HARDWARE_GOVERNANCE_FAULT|Execution aborted due to thermal limits ( $> 88^\circ\text{C}$ ) or power limit violations ( $> 165\text{W}$ ).|
 |103|STABILITY_FAIL|Run aborted due to OOM errors, runtime crash, or infinite loops.|
 
 ## 19.3 Failure Schema Extension (failures.jsonl)

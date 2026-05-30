@@ -1,6 +1,0 @@
-```typescript
-import { TripRoom } from './TripRoom';
-
-function calculateSyncAction(clientTime: number, serverTime: number, drift: number): string {
-    if (drift < 250) return 'ignore';
-    if (drift ...

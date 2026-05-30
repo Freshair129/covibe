@@ -1,5 +1,0 @@
-// CRITICAL STRESS TEST
-Perform a deep analysis of the provided project context. 
-- Identify potential race conditions in the WebSocket synchronization logic.
-- Propose a fix using an atomic locking mechanism.
-- Ensure the response is highly detailed but concise enough to avoid the 2500 token limit.

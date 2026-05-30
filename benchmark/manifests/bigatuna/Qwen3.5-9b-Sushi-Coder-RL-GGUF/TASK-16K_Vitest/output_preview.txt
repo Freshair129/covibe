@@ -1,6 +1,0 @@
-<think>
-Let me analyze the problem:
-
-1. The task is to create a comprehensive Vitest unit test for the `calculateSyncAction` function
-2. The function has three thresholds:
-   - drift < 250ms → return ...

@@ -1,8 +1,0 @@
-Generate a comprehensive Vitest unit test for a utility function 'calculateSyncAction(clientTime: number, serverTime: number, drift: number)'. 
-Rules: 
-1. <250ms: Ignore. 
-2. 250ms-800ms: Return 'adjust_rate'. 
-3. >800ms: Return 'seek'. 
-- Include edge cases. 
-- Mock time using Vitest's fake timers. 
-- Output ONLY the test code.

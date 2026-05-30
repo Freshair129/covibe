@@ -523,7 +523,7 @@ const server = createServer(async (req, res) => {
       const content = await readFile(join(COVIBE_ROOT, "codev_dashboard.html"), "utf-8");
       const isProd = process.env.NODE_ENV === 'production';
       const csp = isProd
-        ? "default-src * 'unsafe-inline' data: blob:; script-src * 'unsafe-inline' data: blob:; style-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; connect-src * ws: wss:;"
+        ? "default-src * 'unsafe-inline' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; connect-src * ws: wss:;"
         : "default-src * 'unsafe-inline' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; connect-src * ws: wss:;";
 
       res.writeHead(200, { 
