@@ -25,24 +25,39 @@ Initiated manually by a developer running `python scripts/run_csb_01.py` after c
 ## Workflow Sequence (Process Level)
 
 ```text
-[ COVIBE BENCHMARK WORKFLOW (v2.1.0) ]
+[ COVIBE BENCHMARK WORKFLOW & DOCUMENTATION LIFE CYCLE ]
 
-+-------------------+     +---------------------+     +-------------------+
-| 1. CONFIGURATION  | --> | 2. ORCHESTRATION    | --> | 3. EXECUTION      |
-+-------------------+     +---------------------+     +-------------------+
-| จัดเตรียมโจทย์/      |     | รัน run_csb_01.py    |     | Ollama API รันงาน  |
-| Payload เอาไว้ใน    |     | - เคลียร์ VRAM        |     | - Load Model      |
-| benchmark-kits/   |     | - Warmup Model      |     | - Generate Code   |
-+-------------------+     | - ยิง Prompt ไป API  |     +-------------------+
-                          +---------------------+              |
-                                                               v
-+---------------------+     +----------------------+     +---------------------+
-| 6. ANALYSIS         | <-- | 5. TELEMETRY SYNC    | <-- | 4. VERIFICATION     |
-+---------------------+     +----------------------+     +**-------------------+
-| นำผลลัพธ์ที่สมบูรณ์     |     | รัน slice_hw_logs.py  |     | รัน verify_csb_01    | 
-| ใน benchmark-run/   |     | ดึง Log ความร้อน/ไฟ    |     | ดึงโค้ดไปรัน Vitest    |
-| ไปแสดงบน Dashboard |     | แมปเวลาเข้าแต่ละ Task   |     | เพื่อให้คะแนน Score    |
-+---------------------+     +---------------------+     +----------------------+
+Phase 1: PRE-TEST (Preparation)
++-----------------------+     +-------------------------------+
+| Stage 1: Payload Gen  | --> | Document 1: BD-TP Plan        |
+| (จัดเตรียมโจทย์ทดสอบ)      |     | ([runid]-PLAN-[proj].md)      |
++-----------------------+     +-------------------------------+
+                                              |
+                                              v
+Phase 2: ACTIVE-TEST (Execution)
++-----------------------+     +-------------------------------+
+| Stage 2: Monitoring   | --> | Stage 3: Runtime Execution    |
+| (เปิดตัวเก็บ Telemetry)   |     | (รัน great_orchestrator.py)   |
++-----------------------+     +-------------------------------+
+                                              |
+                                              v
+                              +-------------------------------+
+                              | Document 2: ER-VFS Runbook    |
+                              | ([runid]-RUN-[proj].md)       |
+                              +-------------------------------+
+                                              |
+                                              v
+Phase 3: POST-TEST (Analysis & Sign-Off)
++-----------------------+     +-------------------------------+     +-------------------------------+
+| Stage 4: Slicing      | --> | Stage 5 & 6: Aggregation/Ana  | --> | Document 3: TBR-RCA Report    |
+| (หั่นเก็บ telemetry)    |     | (สรุป metrics.json)            |     | ([runid]-REPORT-[proj].md)    |
++-----------------------+     +-------------------------------+     +-------------------------------+
+                                                                                    |
+                                                                                    v
+                                                                    +-------------------------------+
+                                                                    | Document 4: PR-SO Sign-Off    |
+                                                                    | ([runid]-SIGNOFF-[proj].md)   |
+                                                                    +-------------------------------+
 ```
 
 ## Data Flow Sequence (System Level)
@@ -58,11 +73,14 @@ templates/*.json             -----/              |                         |
                            (Writes Timestamps)   |   (Writes Gen-Code)     |
                                                  v                         v
                                     +--------------------------------------------+
-                                    | benchmark-run/<model_name>/<task_level>/   |
+                                    | benchmark-run/<model_name>/<runid>/        |
                                     |  ├── metadata.json                         |
                                     |  ├── metrics.json (ได้ค่า TPS เบื้องต้น)     |
-                                    |  └── artifacts/                            |
-                                    |       └── response.txt                     |
+                                    |  ├── artifacts/                            |
+                                    |  │    └── response.txt                     |
+                                    |  └── documents/                            |
+                                    |       ├── [runid]-PLAN-[PROJECT_NAME].md   |
+                                    |       └── [runid]-RUN-[PROJECT_NAME].md    |
                                     +--------------------------------------------+
                                                  |                         |
 (HARDWARE SENSORS)                               |                         |
@@ -75,10 +93,12 @@ telemetry_logs/                                  |                         |
                                                  |                         |
                                                  v                         v
                                     +--------------------------------------------+
-                                    | benchmark-run/<model_name>/<task_level>/   |
+                                    | benchmark-run/<model_name>/<runid>/        |
                                     |  ├── traces/                               |
                                     |  │    └── samples.jsonl (HW Telemetry)     |
-                                    |  └── metrics.json (+ quality.score)        |
+                                    |  └── documents/                            |
+                                    |       ├── [runid]-REPORT-[PROJECT].md      |
+                                    |       └── [runid]-SIGNOFF-[PROJECT].md     |
                                     +--------------------------------------------+
 ```
 
