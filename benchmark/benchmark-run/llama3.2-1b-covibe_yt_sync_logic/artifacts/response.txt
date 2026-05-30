@@ -1,0 +1,25 @@
+```typescript
+interface CorrectionAction {
+  type: 'ignore' | 'adjust_rate' | 'seek';
+}
+
+function calculateCorrection(currentDrift: number): CorrectionAction {
+  if (currentDrift < 250) return { type: 'ignore' };
+  if (currentDrift < 800) return { type: 'adjust_rate', drift: currentDrift - 800 };
+  return { type: 'seek', drift: 0 };
+}
+
+function CoVibeCorrection(clientTime: number, serverTime: number, drift: number): CorrectionAction {
+  const correction = calculateCorrection(drift);
+  switch (correction.type) {
+    case 'ignore':
+      return { type: 'ignore' };
+    case 'adjust_rate':
+      return { type: 'adjust_rate', drift: 0.95 };
+    case 'seek':
+      return { type: 'seek', drift: serverTime };
+    default:
+      throw new Error(`Unknown correction type: ${correction.type}`);
+  }
+}
+```

@@ -1,0 +1,110 @@
+{
+  "benchmark_id": "bench_{{YYYYMMDD}}_{{ID}}",
+  "run_id": "run_{{HASH}}",
+  "session_id": "sess_{{ID}}",
+  "experiment_id": "exp_{{NAME}}",
+  "machine_id": "machine_{{NAME}}",
+  "created_at": "{{ISO_8601}}",
+  "model": {
+    "name": "{{MODEL_NAME}}",
+    "family": "{{FAMILY}}",
+    "license": "{{LICENSE}}",
+    "base_model": "{{BASE_MODEL}}",
+    "variant": "{{VARIANT}}",
+    "source": "huggingface",
+    "model_url": "{{URL}}",
+    "format": "GGUF",
+    "quantization": "{{Q_TYPE}}",
+    "parameter_size": "{{SIZE}}",
+    "context_length": 8192,
+    "tags": [
+      "gguf",
+      "coding"
+    ],
+    "ollama_manifest": {}
+  },
+  "dataset": {
+    "name": "{{DATASET_NAME}}",
+    "dataset_url": "{{DATASET_URL}}",
+    "split": "test",
+    "category": "coding",
+    "sample_id": "{{TASK_ID}}"
+  },
+  "runtime": {
+    "runtime": "ollama",
+    "runtime_version": "0.6.0",
+    "backend": "llama.cpp",
+    "backend_version": "b5123",
+    "serving_mode": "single-user",
+    "execution_mode": "local"
+  },
+  "environment": {
+    "os": "Windows 10 Professional (22H2, Build 19045.7291)",
+    "python_version": "3.12",
+    "cuda_version": "12.8",
+    "timezone": "UTC+7 ICT"
+  },
+  "hardware": {
+    "gpu": {
+      "name": "NVIDIA GeForce RTX 3060",
+      "codename": "GA106-302 (LHR)",
+      "driver_version": "32.0.15.9649 (GeForce 596.49)",
+      "memory": "12287 MBytes of GDDR6 SDRAM [Samsung]",
+      "memory_bus_width": "192-bit",
+      "vram_type": "GDDR6",
+      "bus_type": "PCIe v4.0 x16 (16.0 GT/s) @ x4 (2.5 GT/s)",
+      "gpu_type": "Discrete",
+      "bios_version": "94.06.25.00.e2 [UEFI]",
+      "chipset_revision": "A1",
+      "graphics_processor_clock": "322.0 MHz",
+      "video_unit_clock": "555.0 MHz",
+      "number_of_rops": 48,
+      "number_of_texture_mapping_units": 96,
+      "core_count": 3584,
+      "video_dedicated_mem": true,
+      "memory_technology": "GDDR6",
+      "graphics_memory_clock": "101.2 MHz (Effective 810.0 MHz)",
+      "memory_bus_width": "192-bit",
+      "dedicated_vram_amount": "12 GB",
+      "shared_vram_amount": "0 GB",
+      "number_of_tensor_cores": 112,
+      "number_of_ray_tracing_cores": 28,
+      "asic_manufacturer": "Samsung"
+    },
+    "cpu": {
+      "name": "Intel Core i7-8700K",
+      "cores": 6,
+      "speed_GHz": 3.7,
+      "threads": 12,
+      "l1_cache_kb": 384,
+      "l2_cache_mb": 1.5,
+      "l3_cache_mb": 12
+    },
+    "ram": {
+      "type": "DDR4",
+      "size_gb": 32,
+      "configuration": "2x16GB",
+      "channel_mode": "Dual-Channel",
+      "model": "Corsair Vengeance RGB RS",
+      "part_number": "CMG32GX4M2D3600C18",
+      "speed_mhz": 2133,
+      "rated_speed_mhz": 3600,
+      "timings": "15-15-15-36",
+      "xmp_enabled": false
+    },
+    "disk": {
+      "type": "SSD",
+      "interface": "SATA 6 Gb/s",
+      "model": "WDC WDS250G2B0A-00SM50",
+      "capacity_gb": 250,
+      "measured_seq_read_mbps": 226.69,
+      "measured_seq_write_mbps": 327.36
+    },
+    "psu": {
+      "model": "AeroCool AE-750",
+      "wattage": 750,
+      "efficiency_rating": "80+"
+    },
+    "motherboard": "MSI Z370-A PRO (MS-7B48)"
+  }
+}

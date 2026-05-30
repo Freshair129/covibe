@@ -1,0 +1,16 @@
+Task: Debug and fix an async race condition in a WebSocket message handler.
+Context:
+- A user reports that sometimes 'SongQueue' items appear in the wrong order or are duplicated when multiple users add songs simultaneously.
+- The 'handleNewSong' function is async and performs an await before updating the local state.
+
+Root Cause Analysis:
+1. The state update depends on the previous state.
+2. Multiple async calls are being awaited, leading to interleaved executions.
+3. The local state is updated based on stale data.
+
+Requirements:
+- Identify the race condition in the provided code snippet (see context).
+- Propose a fix using a functional state update (e.g., setQueue(prev => ...)) or a locking/queueing mechanism.
+- Explain WHY the fix solves the race condition.
+
+Output: RCA report and the corrected code.

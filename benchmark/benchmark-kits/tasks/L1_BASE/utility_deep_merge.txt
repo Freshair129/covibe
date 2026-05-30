@@ -1,0 +1,14 @@
+Task: Implement a generic 'deepMerge' function in TypeScript.
+Requirements:
+- It should recursively merge two objects.
+- If a key exists in both objects and both values are objects, merge them recursively.
+- Otherwise, the value from the second object should overwrite the first.
+- Handle arrays by replacing the old array with the new one.
+- Ensure type safety using generics.
+
+Input Example:
+obj1 = { a: 1, b: { x: 10 } }
+obj2 = { b: { y: 20 }, c: 3 }
+Result = { a: 1, b: { x: 10, y: 20 }, c: 3 }
+
+Output: Complete TypeScript implementation with example usage.

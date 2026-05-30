@@ -1,0 +1,6 @@
+{"ts": "2026-05-29T18:06:20.654685+00:00", "gpu_temp": 35, "gpu_power": 17.96, "gpu_util": 13, "vram_mb": 2161, "cpu_usage": 0, "cpu_pkg_w": 0, "cpu_pkg_v": 0}
+{"ts": "2026-05-29T18:06:21.663362+00:00", "gpu_temp": 37, "gpu_power": 20.12, "gpu_util": 1, "vram_mb": 2161, "cpu_usage": 0, "cpu_pkg_w": 0, "cpu_pkg_v": 0}
+{"ts": "2026-05-29T18:06:22.672421+00:00", "gpu_temp": 38, "gpu_power": 37.11, "gpu_util": 1, "vram_mb": 3508, "cpu_usage": 0, "cpu_pkg_w": 0, "cpu_pkg_v": 0}
+{"ts": "2026-05-29T18:06:23.684130+00:00", "gpu_temp": 39, "gpu_power": 41.74, "gpu_util": 3, "vram_mb": 4099, "cpu_usage": 0, "cpu_pkg_w": 0, "cpu_pkg_v": 0}
+{"ts": "2026-05-29T18:06:24.692092+00:00", "gpu_temp": 57, "gpu_power": 142.72, "gpu_util": 79, "vram_mb": 4103, "cpu_usage": 0, "cpu_pkg_w": 0, "cpu_pkg_v": 0}
+{"ts": "2026-05-29T18:06:25.699038+00:00", "gpu_temp": 57, "gpu_power": 129.51, "gpu_util": 81, "vram_mb": 4102, "cpu_usage": 0, "cpu_pkg_w": 0, "cpu_pkg_v": 0}

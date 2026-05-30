@@ -1,0 +1,23 @@
+{
+  "benchmark_id": "bench_qwen3_20260530_0616",
+  "status": "completed",
+  "task_id": "algorithm_priority_queue",
+  "started_at": "2026-05-30T06:22:28.410034",
+  "duration_sec": 157.19717288017273,
+  "tokens": {
+    "total": 2000
+  },
+  "throughput": {
+    "avg_tps": 12.722875121453663
+  },
+  "gpu": {
+    "max_temp_c": 64,
+    "max_power_w": 99.21,
+    "max_vram_mb": 11571
+  },
+  "quality": {
+    "passed": true,
+    "score": 0.85,
+    "verified_by": "auto-runner"
+  }
+}

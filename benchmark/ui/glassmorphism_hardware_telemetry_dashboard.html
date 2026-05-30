@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-Telemetry Reactor: Advanced Hardware Analytics</title>
+    <!-- Favicon to resolve browser 404 console error -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><rect width='128' height='128' rx='24' fill='%2303010c'/><path d='M38 38h24a26 26 0 0 1 0 52H38V38Z' fill='none' stroke='%2306b6d4' stroke-width='10' stroke-linejoin='round'/><path d='M64 38h26a26 26 0 0 1 0 52H64' fill='none' stroke='%23d946ef' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'/><circle cx='38' cy='64' r='8' fill='%23f3f7f4'/></svg>">
+    <!-- Suppress cdn.tailwindcss.com production warning -->
+    <script>
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+            if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
+                return;
+            }
+            originalWarn.apply(console, args);
+        };
+    </script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            cyan: '#06b6d4',
+                            magenta: '#d946ef',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e',
+                            green: '#10b981',
+                            glassBg: 'rgba(15, 23, 42, 0.45)',
+                            glassBorder: 'rgba(255, 255, 255, 0.08)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans Thai', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* สไตล์ Glassmorphism ครบวงจร */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            background: rgba(15, 23, 42, 0.55);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+        }
+        .glass-panel {
+            background: rgba(8, 12, 24, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            transition: all 0.2s;
+        }
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: #06b6d4;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.25);
+        }
+        /* นีออนโกลว์สปอต (Glow Spot Backgrounds) */
+        .glow-spot-blue {
+            background: radial-gradient(circle, rgba(6,182,212,0.18) 0%, rgba(0,0,0,0) 70%);
+        }
+        .glow-spot-magenta {
+            background: radial-gradient(circle, rgba(217,70,239,0.15) 0%, rgba(0,0,0,0) 70%);
+        }
+        /* แถบเลื่อนสุดล้ำ */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 99px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06b6d4;
+        }
+    </style>
+</head>
+<body class="bg-[#03010c] text-slate-100 min-h-screen relative overflow-x-hidden">
+
+    <!-- แบล็คกราวน์และเมฆหมอกนีออนขยับได้ (Ambient Background Engine) -->
+    <div class="fixed inset-0 -z-20 overflow-hidden">
+        <div class="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full glow-spot-blue opacity-80 animate-pulse" style="animation-duration: 12s"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] rounded-full glow-spot-magenta opacity-80 animate-pulse" style="animation-duration: 18s"></div>
+        <div class="absolute top-1/2 left-1/3 w-[40%] h-[40%] rounded-full bg-indigo-950/20 blur-[130px]"></div>
+    </div>
+
+    <!-- แถบหัวข้อยึดตำแหน่งด้านบน (Header Glass Panel) -->
+    <header class="glass-panel sticky top-0 z-50 px-6 py-4 mb-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <!-- โลโก้ & ชื่อโปรแกรม -->
+            <div class="flex items-center gap-4">
+                <div class="p-2.5 bg-gradient-to-tr from-cyan-500 to-magenta-500 rounded-xl relative shadow-lg group overflow-hidden">
+                    <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                    <i data-lucide="gauge" class="w-7 h-7 text-white relative z-10 animate-spin" style="animation-duration: 15s"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-wider bg-gradient-to-r from-cyan-400 via-indigo-200 to-magenta-400 bg-clip-text text-transparent flex items-center gap-2">
+                        X-TELEMETRY REACTOR
+                    </h1>
+                    <p class="text-xs text-slate-400 font-medium tracking-wide flex items-center gap-1.5 mt-0.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span id="hardware-tag">วิเคราะห์ล็อกการทดสอบฮาร์ดแวร์</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- กล่องควบคุมการโหลดไฟล์จริงและการแสดงสถานะ -->
+            <div class="flex flex-wrap items-center gap-3 justify-end w-full md:w-auto">
+                <div class="text-right hidden sm:block">
+                    <span class="text-[10px] text-slate-500 uppercase tracking-widest block font-bold">ฐานข้อมูลเทเลเมทรี</span>
+                    <span id="file-status-badge" class="text-xs font-mono font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-3 py-0.5 rounded-full inline-block mt-0.5">
+                        ข้อมูลจำลอง RTX 3060
+                    </span>
+                </div>
+                
+                <!-- ปุ่มนำเข้าไฟล์จริง (Input File) -->
+                <label for="hml-uploader" class="cursor-pointer flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 active:scale-95 transition border border-white/10 hover:border-cyan-500/40 rounded-xl text-xs font-semibold tracking-wider">
+                    <i data-lucide="upload-cloud" class="w-4 h-4 text-cyan-400"></i>
+                    <span>อัปโหลด LOG (HML/CSV)</span>
+                    <input type="file" id="hml-uploader" accept=".hml,.txt,.csv" class="hidden">
+                </label>
+
+                <button id="reset-default-btn" class="p-2 bg-white/5 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-white/10 hover:border-rose-500/30 rounded-xl transition-all" title="คืนค่าข้อมูลตัวอย่าง">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- พื้นที่แสดงการแจ้งเตือนแบบด่วน -->
+    <div id="alert-banner" class="max-w-7xl mx-auto px-6 mb-6 hidden">
+        <div class="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i data-lucide="info" class="w-5 h-5 text-emerald-400"></i>
+                <p id="alert-text" class="text-xs text-slate-200 font-medium"></p>
+            </div>
+            <button onclick="document.getElementById('alert-banner').classList.add('hidden')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+    </div>
+
+    <!-- ส่วนเนื้อหาหลักทั้งหมด -->
+    <main class="max-w-7xl mx-auto px-6 pb-12 space-y-6">
+
+        <!-- ตะแกรงสองแผง: ออฟไลน์อัปโหลดและสั่งรันเบนช์มาร์กสด -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- แผง Drag & Drop สุดล้ำสไตล์แก้วคริสตัล -->
+            <div id="drop-zone" class="glass-card rounded-2xl p-6 border-2 border-dashed border-white/10 hover:border-cyan-500/50 bg-white/[0.01] hover:bg-cyan-500/[0.02] transition-all text-center cursor-pointer flex flex-col items-center justify-center gap-2 group h-[190px]">
+                <div class="p-2.5 bg-cyan-500/10 rounded-full text-cyan-400 group-hover:scale-110 transition-transform duration-300">
+                    <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
+                </div>
+                <p class="text-xs font-semibold text-slate-200">
+                    ลากและวางไฟล์ <span class="text-cyan-400">HARDWAREMONITORING.HML</span> หรือ <span class="text-magenta-400">CSV</span> ที่นี่
+                </p>
+                <p class="text-[10px] text-slate-400 leading-normal">
+                    ดึงข้อมูลทดสอบย้อนหลังแบบออฟไลน์
+                </p>
+            </div>
+
+            <!-- แผงรัน Benchmark Real-time -->
+            <div class="glass-card rounded-2xl p-5 border border-white/5 flex flex-col justify-between h-[190px] relative overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="zap" class="w-4 h-4 text-cyan-400 animate-pulse"></i>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-200">รันระบบทดสอบสด (Active Run)</span>
+                    </div>
+                    <select id="bench-model" class="bg-slate-900 border border-white/10 rounded-lg px-2 py-0.5 text-[10px] font-mono font-bold text-cyan-400 focus:outline-none focus:border-cyan-500">
+                        <option value="mock" selected>Mock (Demo Fast)</option>
+                        <option value="gemini">Gemini Flash Cloud</option>
+                        <option value="qwen">Qwen Local (GGUF)</option>
+                        <option value="thaillm">ThaiLLM API</option>
+                    </select>
+                </div>
+                <textarea id="bench-prompt" placeholder="ป้อนข้อความคำสั่งทดสอบ (Prompt)..." class="w-full glass-input rounded-xl px-3 py-2 text-xs text-slate-200 h-[68px] resize-none focus:outline-none focus:border-cyan-500" style="background: rgba(0,0,0,0.2)"></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button id="btn-bench-run" onclick="runActiveBenchmark()" class="flex-grow bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-xs py-2 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5">
+                        <i data-lucide="zap" class="w-3.5 h-3.5"></i> รันการทดสอบระบบ
+                    </button>
+                    <button id="btn-bench-abort" onclick="abortActiveBenchmark()" class="bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500/20 text-rose-400 font-bold text-xs py-2 px-4 rounded-xl transition-all hidden">
+                        ยกเลิกด่วน
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- แผงแสดง Console Logs ในการทดสอบแบบเรียลไทม์ -->
+        <div id="bench-console-card" class="glass-card rounded-2xl p-5 hidden flex flex-col gap-2">
+            <div class="flex items-center justify-between border-b border-white/5 pb-2">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-300">กล่องแสดงผลการรันโมเดล (Real-time Live Console)</span>
+                </div>
+                <button onclick="clearConsole()" class="text-[10px] uppercase font-bold text-slate-500 hover:text-slate-300">ล้าง (Clear)</button>
+            </div>
+            <div id="bench-console-log" class="bg-black/90 p-4 rounded-xl border border-white/5 font-mono text-[10px] text-cyan-400 leading-relaxed h-[130px] overflow-y-auto whitespace-pre-wrap select-text scrollbar-hide">
+            </div>
+        </div>
+
+        <!-- แผงประมวลผลการจำลองการวิเคราะห์ (Timeline Scrubber & Motion Controls) -->
+        <div class="glass-card rounded-2xl p-4 md:p-6 flex flex-col gap-4">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <!-- แผงปุ่ม Playback ควบคุมการแสดงผลย้อนหลัง -->
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <button id="play-pause-btn" class="p-3.5 bg-gradient-to-tr from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center">
+                        <i data-lucide="play" class="w-5 h-5" id="control-icon"></i>
+                    </button>
+                    <div>
+                        <span class="text-[10px] text-slate-400 uppercase tracking-widest block font-bold">ควบคุมจำลองสแกนเนอร์</span>
+                        <div class="flex items-center gap-2">
+                            <span id="current-timestamp" class="text-md font-mono font-bold text-white">26-05-2026 14:03:22</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- แถบเลื่อนเวลา (Scrub Bar) -->
+                <div class="w-full flex-grow mx-0 md:mx-6">
+                    <input type="range" id="scrobber-range" min="0" max="0" value="0" class="w-full h-2 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-cyan-500 focus:outline-none">
+                    <div class="flex justify-between text-[10px] text-slate-500 mt-1.5 font-mono">
+                        <span id="timeline-start-text">14:03:22</span>
+                        <span class="text-cyan-400">จุดบันทึกที่: <span id="current-point-num" class="font-bold">0</span>/<span id="total-point-num" class="font-bold">0</span></span>
+                        <span id="timeline-end-text">14:05:44</span>
+                    </div>
+                </div>
+
+                <!-- ตั้งระดับความเร็ว -->
+                <div class="flex items-center gap-2.5 shrink-0 w-full md:w-auto justify-end">
+                    <span class="text-[11px] text-slate-400">สปีดสแกน:</span>
+                    <select id="play-speed" class="bg-slate-900 border border-white/10 rounded-lg px-3 py-1.5 text-xs font-mono font-bold text-cyan-400 focus:outline-none focus:border-cyan-500">
+                        <option value="1000">1x (ช้า)</option>
+                        <option value="500">2x</option>
+                        <option value="150" selected>5x (ปกติ)</option>
+                        <option value="50">20x (ความไวสูงสุด)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- หน้าต่างแผงเครื่องปฏิกรณ์สามมิติ & ชุดเกจความร้อน (Core Engine & Gauges Grid) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- การ์ดฝั่งซ้าย: โครงสร้างเครื่องปฏิกรณ์ 3D จำลองพฤติกรรมความร้อนและการประมวลผล (Cyber Reactor Simulation) -->
+            <div class="glass-card rounded-2xl p-5 flex flex-col justify-between items-center relative overflow-hidden group">
+                <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent pointer-events-none"></div>
+                
+                <div class="w-full flex items-center justify-between mb-4 border-b border-white/5 pb-2">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="orbit" class="w-4 h-4 text-cyan-400 animate-spin" style="animation-duration: 6s"></i>
+                        <span class="text-xs font-bold uppercase tracking-widest text-slate-300">เครื่องปฏิกรณ์จำลอง (Animate Core)</span>
+                    </div>
+                    <span id="reactor-status" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">ปกติ</span>
+                </div>
+
+                <!-- Canvas แอนิเมชันความร้อนและการประมวลผลของเครื่องจริง -->
+                <div class="relative my-4 flex items-center justify-center">
+                    <canvas id="reactor-canvas" width="220" height="220" class="block"></canvas>
+                    <div class="absolute text-center pointer-events-none">
+                        <span class="text-xs text-slate-500 block uppercase tracking-wider">กำลังไฟ GPU</span>
+                        <span id="reactor-center-power" class="text-2xl font-mono font-black text-white">0.0W</span>
+                    </div>
+                </div>
+
+                <p class="text-[11px] text-slate-400 text-center px-4 leading-relaxed">
+                    ความเร็วจานหมุนแปรผันตาม <span class="text-magenta-400 font-semibold">CPU Usage</span> และระดับแสงนีออนจะเปลี่ยนตาม <span class="text-cyan-400 font-semibold">GPU Temp</span> เมื่ออุปกรณ์ทำงานหนักวงโคจรจะทำงานเร็วขึ้น
+                </p>
+            </div>
+
+            <!-- การ์ดขวา 2 บาน: รายละเอียดเกจแสดงข้อมูลหลัก GPU & CPU (Glass Gauges) -->
+            <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                
+                <!-- บล็อก 1: ข้อมูลประมวลผล GPU RTX 3060 -->
+                <div class="glass-card rounded-2xl p-5 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-cyan-500/5 to-transparent rounded-full pointer-events-none"></div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="p-2 bg-cyan-500/10 rounded-xl text-cyan-400"><i data-lucide="zap" class="w-4 h-4"></i></span>
+                            <h3 class="text-sm font-bold tracking-wide text-slate-200">GPU Hardware Monitor</h3>
+                        </div>
+                        <span class="text-xs font-mono text-cyan-400" id="gpu-fan-pct">พัดลม: 0%</span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- อุณหภูมิการ์ดจอ -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">อุณหภูมิความร้อน (GPU Temp)</span>
+                                <span class="font-mono font-bold text-slate-200" id="gpu-temp-text">0 °C</span>
+                            </div>
+                            <div class="h-2 bg-slate-950 rounded-full overflow-hidden border border-white/5 p-0.5">
+                                <div id="gpu-temp-bar" class="h-full rounded-full bg-gradient-to-r from-cyan-500 to-rose-500 transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- เปอร์เซ็นต์การประมวลผลกราฟิก (GPU Usage) -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">อัตราการใช้งาน (GPU Usage)</span>
+                                <span class="font-mono font-bold text-slate-200" id="gpu-usage-text">0%</span>
+                            </div>
+                            <div class="h-2 bg-slate-950 rounded-full overflow-hidden border border-white/5 p-0.5">
+                                <div id="gpu-usage-bar" class="h-full rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-400 transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- อัตราสัญญาญนาฬิกา (GPU Clocks) -->
+                        <div class="grid grid-cols-2 gap-3 pt-2">
+                            <div class="bg-white/5 border border-white/5 p-2.5 rounded-xl text-center">
+                                <span class="text-[10px] text-slate-400 block uppercase font-bold">Core Clock</span>
+                                <span id="gpu-core-clock" class="text-sm font-mono font-bold text-cyan-400">0 MHz</span>
+                            </div>
+                            <div class="bg-white/5 border border-white/5 p-2.5 rounded-xl text-center">
+                                <span class="text-[10px] text-slate-400 block uppercase font-bold">Memory Clock</span>
+                                <span id="gpu-mem-clock" class="text-sm font-mono font-bold text-indigo-300">0 MHz</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- บล็อก 2: ข้อมูลหน่วยประมวลผลหลัก CPU -->
+                <div class="glass-card rounded-2xl p-5 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-magenta-500/5 to-transparent rounded-full pointer-events-none"></div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="p-2 bg-magenta-500/10 rounded-xl text-magenta-400"><i data-lucide="cpu" class="w-4 h-4"></i></span>
+                            <h3 class="text-sm font-bold tracking-wide text-slate-200">CPU Telemetry Node</h3>
+                        </div>
+                        <span class="text-xs font-mono text-magenta-400" id="cpu-pwr-pct">กำลังไฟ: 0W</span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- อุณหภูมิ CPU -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">อุณหภูมิ (CPU Temp)</span>
+                                <span class="font-mono font-bold text-slate-200" id="cpu-temp-text">0 °C</span>
+                            </div>
+                            <div class="h-2 bg-slate-950 rounded-full overflow-hidden border border-white/5 p-0.5">
+                                <div id="cpu-temp-bar" class="h-full rounded-full bg-gradient-to-r from-purple-500 to-magenta-500 transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- อัตราการใช้งาน (CPU Usage) -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-400">อัตราการทำงานรวม (CPU Usage)</span>
+                                <span class="font-mono font-bold text-slate-200" id="cpu-usage-text">0%</span>
+                            </div>
+                            <div class="h-2 bg-slate-950 rounded-full overflow-hidden border border-white/5 p-0.5">
+                                <div id="cpu-usage-bar" class="h-full rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-magenta-400 transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- สรุปหน่วยความจำที่ใช้งานอยู่จริง -->
+                        <div class="grid grid-cols-2 gap-3 pt-2">
+                            <div class="bg-white/5 border border-white/5 p-2.5 rounded-xl text-center">
+                                <span class="text-[10px] text-slate-400 block uppercase font-bold">VRAM Usage</span>
+                                <span id="vram-usage-text" class="text-sm font-mono font-bold text-teal-400">0 MB</span>
+                            </div>
+                            <div class="bg-white/5 border border-white/5 p-2.5 rounded-xl text-center">
+                                <span class="text-[10px] text-slate-400 block uppercase font-bold">System RAM</span>
+                                <span id="ram-usage-text" class="text-sm font-mono font-bold text-amber-400">0 MB</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- กล่องวิเคราะห์สถิติจำแนกตามช่วงเวลาและการเปรียบเทียบเชิงสถิติ -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            
+            <div class="glass-card rounded-2xl p-4 text-center">
+                <span class="text-slate-400 text-xs uppercase block tracking-wider mb-1">จุดอุณหภูมิสูงสุด GPU ($T_{max}$)</span>
+                <span id="stat-gpu-temp-peak" class="text-3xl font-mono font-black text-rose-400">--</span>
+                <span class="text-xs text-slate-500 block mt-1">อุณหภูมิเซสชันเฉลี่ย: <span id="stat-gpu-temp-avg">--</span></span>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 text-center">
+                <span class="text-slate-400 text-xs uppercase block tracking-wider mb-1">ความร้อน CPU สูงสุด</span>
+                <span id="stat-cpu-temp-peak" class="text-3xl font-mono font-black text-purple-400">--</span>
+                <span class="text-xs text-slate-500 block mt-1">ค่าประมวลผลเฉลี่ย: <span id="stat-cpu-temp-avg">--</span></span>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 text-center">
+                <span class="text-slate-400 text-xs uppercase block tracking-wider mb-1">การใช้งาน VRAM สูงสุด</span>
+                <span id="stat-vram-peak" class="text-3xl font-mono font-black text-teal-400">--</span>
+                <span class="text-xs text-slate-500 block mt-1">เฉลี่ยการกินทรัพยากร: <span id="stat-vram-avg">--</span></span>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 text-center">
+                <span class="text-slate-400 text-xs uppercase block tracking-wider mb-1">กำลังไฟสูงสุด GPU (Watts)</span>
+                <span id="stat-power-peak" class="text-3xl font-mono font-black text-cyan-400">--</span>
+                <span class="text-xs text-slate-500 block mt-1">พลังงานเฉลี่ยที่ใช้: <span id="stat-power-avg">--</span></span>
+            </div>
+
+        </div>
+
+        <!-- ส่วนของตรรกะแผนภูมิกราฟ (Multi-chart Dashboard Layout) -->
+        <div class="glass-card rounded-2xl p-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 border-b border-white/5 pb-4">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="line-chart" class="text-cyan-400 w-5 h-5"></i>
+                    <h3 class="text-md font-bold text-slate-200">กราฟประวัติการทำงานแบบละเอียดยิบ (Fitted Trend Analysis)</h3>
+                </div>
+
+                <!-- แท็บการเลื่อนปรับกราฟตามหัวข้อ -->
+                <div class="flex bg-slate-950/80 p-1 rounded-xl border border-white/5 text-xs font-semibold">
+                    <button onclick="switchChartTab('thermals')" id="btn-chart-thermals" class="chart-tab-btn px-4 py-2 rounded-lg transition-all text-white bg-cyan-500/20 border border-cyan-500/30">
+                        อุณหภูมิและการพัดลม
+                    </button>
+                    <button onclick="switchChartTab('clocks')" id="btn-chart-clocks" class="chart-tab-btn px-4 py-2 rounded-lg transition-all text-slate-400 hover:text-white">
+                        ความถี่นาฬิกา (Clocks)
+                    </button>
+                    <button onclick="switchChartTab('load')" id="btn-chart-load" class="chart-tab-btn px-4 py-2 rounded-lg transition-all text-slate-400 hover:text-white">
+                        ภาระประมวลผล & RAM
+                    </button>
+                    <button onclick="switchChartTab('power')" id="btn-chart-power" class="chart-tab-btn px-4 py-2 rounded-lg transition-all text-slate-400 hover:text-white">
+                        กำลังพลังงานไฟ
+                    </button>
+                </div>
+            </div>
+
+            <!-- กล่องบรรจุโมดูลกราฟ -->
+            <div class="relative w-full h-[380px] md:h-[420px]">
+                <canvas id="telemetryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- ตารางรายละเอียดและค้นหา Log ฮาร์ดแวร์จริง (Log Database Explorer) -->
+        <div class="glass-card rounded-2xl p-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="database" class="text-indigo-400 w-5 h-5 animate-pulse"></i>
+                    <h3 class="text-md font-bold text-slate-200">ตรวจสอบฐานข้อมูลเทเลเมทรีดิบ (Explorer Datatable)</h3>
+                </div>
+
+                <!-- การกรองในตาราง -->
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <div class="relative flex-grow sm:flex-grow-0">
+                        <input type="text" id="table-search" placeholder="ค้นหาโดยฟิลเตอร์เวลา..." class="w-full sm:w-64 pl-9 pr-4 py-2 glass-input rounded-xl text-xs text-slate-200 focus:outline-none">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-2.5"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ตารางข้อมูล -->
+            <div class="overflow-x-auto rounded-xl border border-white/5 bg-slate-950/40">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="bg-slate-950/60 text-slate-400 border-b border-white/5 font-mono">
+                            <th class="p-3.5 font-bold">เวลาบันทึก (Time)</th>
+                            <th class="p-3.5 font-bold text-rose-400">GPU Temp (°C)</th>
+                            <th class="p-3.5 font-bold">GPU Usage (%)</th>
+                            <th class="p-3.5 font-bold text-teal-400">VRAM Used (MB)</th>
+                            <th class="p-3.5 font-bold text-cyan-400">GPU Power (W)</th>
+                            <th class="p-3.5 font-bold text-purple-400">CPU Temp (°C)</th>
+                            <th class="p-3.5 font-bold">CPU Usage (%)</th>
+                            <th class="p-3.5 font-bold text-amber-400">RAM Used (MB)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-table-rows" class="divide-y divide-white/5 font-mono">
+                        <tr>
+                            <td colspan="8" class="p-10 text-center text-slate-500">
+                                <span class="animate-pulse">กรุณาอัปโหลดไฟล์ HML หรือ CSV ด้านบน</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination เมนูย่อยสำหรับตารางคลังแสงข้อมูล -->
+            <div class="flex items-center justify-between mt-4 text-xs text-slate-400">
+                <div>
+                    กำลังแสดง <span id="pag-start" class="font-bold text-white">0</span> - <span id="pag-end" class="font-bold text-white">0</span> จากทั้งหมด <span id="pag-total" class="font-bold text-white">0</span> บันทึก
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="btn-page-prev" class="p-2 rounded-lg border border-white/5 bg-white/5 hover:bg-white/10 text-slate-200 disabled:opacity-30 disabled:hover:bg-white/5 transition">
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                    </button>
+                    <span class="font-mono">หน้า <span id="pag-current-num" class="font-bold text-cyan-400">1</span> / <span id="pag-total-num">1</span></span>
+                    <button id="btn-page-next" class="p-2 rounded-lg border border-white/5 bg-white/5 hover:bg-white/10 text-slate-200 disabled:opacity-30 disabled:hover:bg-white/5 transition">
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- เท็มเพลตสไลด์แจ้งเตือนความสำเร็จ (Toast system) -->
+    <div id="toast" class="fixed bottom-6 right-6 px-4 py-3 bg-slate-950/90 border border-cyan-500/30 text-cyan-400 rounded-xl shadow-2xl z-50 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2.5 backdrop-blur-md">
+        <i data-lucide="check-circle" class="w-5 h-5"></i>
+        <span id="toast-txt" class="text-xs font-semibold">นำข้อมูลเข้าวิเคราะห์เสร็จสมบูรณ์!</span>
+    </div>
+
+    <!-- แถบด้านล่าง (Footer) -->
+    <footer class="border-t border-white/5 bg-slate-950/40 py-6 px-6 mt-12 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 font-mono">
+            <p>© 2026 X-Telemetry Reactor - Glassmorphism Hardware Telemetry Dashboard</p>
+            <p class="flex items-center gap-1"><i data-lucide="shield" class="w-3.5 h-3.5 text-cyan-400"></i> วิเคราะห์ข้อมูลแบบ Real-time Client-side</p>
+        </div>
+    </footer>
+
+    <!-- ส่วนเขียนโค้ดคอร์สมองโปรแกรม (Core Application logic & Canvas engine) -->
+    <script>
+        /* ========================================================================
+          คู่มือการเชื่อมต่อและรวมหน้านี้เข้ากับ "Main Page" ของระบบเดิม (Integration Guide)
+          ========================================================================
+          
+          หากคุณต้องการนำระบบหน้าจอวิเคราะห์ฮาร์ดแวร์ Glassmorphism ตัวนี้ไปเชื่อมกับหน้าหลัก (Main Page) 
+          สามารถทำตามขั้นตอนและแนวทางด้านล่างนี้ได้เลยครับ:
+
+          1. การตัดส่วนโครงสร้างภายนอกออก (Stripping Outer Wrappers)
+             - ลบแท็ก html, head, body, header, และ footer ออกไปให้หมด
+             - นำเฉพาะเนื้อหาหลักที่เป็นกล่องคอนเทนเนอร์ภายใต้แท็ก main ... /main ไปใส่ลงในพื้นที่แสดงผลหลัก
+               ของระบบคุณ (เช่น div class="main-content-panel" หรือ section id="telemetry-view")
+             - สำหรับสคริปต์พื้นหลังสะท้อนแสงนีออน (Ambient Background Engine) ด้านบนสุดของหน้าเว็บ 
+               สามารถนำไปวางไว้ที่เลเยอร์หลังสุดของหน้าหลักของระบบคุณ เพื่อสร้างบรรยากาศ Glassmorphism
+
+          2. การนำเข้า Dependencies ที่จำเป็นในหน้าหลัก
+             - ตรวจสอบให้แน่ใจว่าในหน้าหลักโปรเจกต์เดิมมีการดึงสคริปต์สากลเหล่านี้เรียบร้อยแล้ว:
+               * Tailwind CSS: script src="https://cdn.tailwindcss.com"
+               * Chart.js: script src="https://cdn.jsdelivr.net/npm/chart.js"
+               * Lucide Icons: script src="https://unpkg.com/lucide@latest" 
+                 (และทำการรันคำสั่ง lucide.createIcons(); เสมอเมื่อระบบหลักสลับหน้าหรือเรนเดอร์เนื้อหาเสร็จ)
+
+          3. การตั้งค่าสไตล์และการทำ CSS Integration
+             - นำคลาส CSS พิเศษที่เราออกแบบไว้ในแท็ก style เช่น .glass-card, .glass-panel, .glow-spot-blue
+               และชุดความเบลอขัดเรียว ไปแปะลงในไฟล์ CSS หลัก (.css) ของระบบเดิมของคุณ เพื่อป้องกันสไตล์ทับซ้อน
+
+          4. การผูกข้อมูลของระบบเข้ากับโค้ดหลัก (State & Props Mapping)
+             - ตัวแปรหลักที่ควบคุมแดชบอร์ดทั้งหมดคือ 'parsedData' (อาร์เรย์ของออบเจกต์บันทึกสถิติรายวินาที)
+             - หากระบบเดิมของคุณเป็น React / Vue / Svelte:
+               * ให้แปลงฟังก์ชัน 'recalculateStatsAndSync(data, sourceName)' ไปเป็น Method ประจำ Component
+               * ส่งต่อข้อมูลผ่าน Props หรือเรียกรับข้อมูลผ่าน REST API / Websocket ในสเต็ปของการ Mount 
+                 แทนการดึงจาก FileReader แบบเดิม
+               * กำหนดให้ 'parsedData' ผูกเข้ากับ React State / Vue Ref เพื่อให้ UI และเกจ React อัปเดตแบบเรียลไทม์
+          ========================================================================
+        */
+
+        // ข้อมูลจำลองพฤติกรรมเทเลเมทรีของ RTX 3060 (Default Mock Data based on exact user scenario)
+        // เพื่อรองรับการทดสอบที่รวดเร็วสวยงามทันทีที่โหลดเสร็จ
+        const mockTelemetryData = [
+            {"Timestamp": "14:03:22", "GPU_Temp": 34, "GPU_Usage": 12.8, "VRAM_Used": 1071, "GPU_Power": 18.38, "GPU_Fan": 42, "CPU_Temp": 38, "CPU_Usage": 15, "RAM_Used": 15070, "Core_Clock": 1500, "Memory_Clock": 7500, "CPU_Clock": 4395, "CPU_Power": 16.59},
+            {"Timestamp": "14:03:25", "GPU_Temp": 34, "GPU_Usage": 15.2, "VRAM_Used": 1078, "GPU_Power": 19.09, "GPU_Fan": 42, "CPU_Temp": 39, "CPU_Usage": 18, "RAM_Used": 15080, "Core_Clock": 1520, "Memory_Clock": 7500, "CPU_Clock": 4395, "CPU_Power": 18.20},
+            {"Timestamp": "14:03:28", "GPU_Temp": 35, "GPU_Usage": 18.0, "VRAM_Used": 1061, "GPU_Power": 24.50, "GPU_Fan": 42, "CPU_Temp": 42, "CPU_Usage": 22, "RAM_Used": 15090, "Core_Clock": 1550, "Memory_Clock": 7500, "CPU_Clock": 4395, "CPU_Power": 22.10},
+            {"Timestamp": "14:03:31", "GPU_Temp": 38, "GPU_Usage": 45.0, "VRAM_Used": 2450, "GPU_Power": 65.20, "GPU_Fan": 45, "CPU_Temp": 48, "CPU_Usage": 35, "RAM_Used": 15220, "Core_Clock": 1780, "Memory_Clock": 7500, "CPU_Clock": 4395, "CPU_Power": 32.50},
+            {"Timestamp": "14:03:34", "GPU_Temp": 42, "GPU_Usage": 85.1, "VRAM_Used": 4500, "GPU_Power": 125.40, "GPU_Fan": 52, "CPU_Temp": 54, "CPU_Usage": 48, "RAM_Used": 15270, "Core_Clock": 1850, "Memory_Clock": 7500, "CPU_Clock": 4395, "CPU_Power": 45.60},
+            {"Timestamp": "14:03:37", "GPU_Temp": 51, "GPU_Usage": 99.0, "VRAM_Used": 7500, "GPU_Power": 152.66, "GPU_Fan": 58, "CPU_Temp": 62, "CPU_Usage": 65, "RAM_Used": 15150, "Core_Clock": 1920, "Memory_Clock": 7500, "CPU_Clock": 4395, "CPU_Power": 58.90},
+            {"Timestamp": "14:03:40", "GPU_Temp": 58, "GPU_Usage": 100.0, "VRAM_Used": 7538, "GPU_Power": 154.20, "GPU_Fan": 64, "CPU_Temp": 65, "CPU_Usage": 72, "RAM_Used": 15110, "Core_Clock": 1910, "Memory_Clock": 7500, "CPU_Clock": 4395, "CPU_Power": 62.40},
+            {"Timestamp": "14:03:43", "GPU_Temp": 64, "GPU_Usage": 100.0, "VRAM_Used": 7536, "GPU_Power": 153.10, "GPU_Fan": 68, "CPU_Temp": 68, "CPU_Usage": 68, "RAM_Used": 14950, "Core_Clock": 1895, "Memory_Clock": 7500, "CPU_Clock": 4395, "CPU_Power": 55.20},
+            {"Timestamp": "14:03:46", "GPU_Temp": 68, "GPU_Usage": 98.0, "VRAM_Used": 7537, "GPU_Power": 149.80, "GPU_Fan": 72, "CPU_Temp": 71, "CPU_Usage": 61, "RAM_Used": 14800, "Core_Clock": 1880, "Memory_Clock": 7500, "CPU_Clock": 4395, "CPU_Power": 52.10},
+            {"Timestamp": "14:03:49", "GPU_Temp": 71, "GPU_Usage": 100.0, "VRAM_Used": 7538, "GPU_Power": 152.66, "GPU_Fan": 75, "CPU_Temp": 73, "CPU_Usage": 75, "RAM_Used": 14720, "Core_Clock": 1850, "Memory_Clock": 7500, "CPU_Clock": 4395, "CPU_Power": 64.12},
+            {"Timestamp": "14:03:52", "GPU_Temp": 72, "GPU_Usage": 100.0, "VRAM_Used": 7540, "GPU_Power": 151.40, "GPU_Fan": 75, "CPU_Temp": 74, "CPU_Usage": 71, "RAM_Used": 14500, "Core_Clock": 1845, "Memory_Clock": 7500, "CPU_Clock": 4395, "CPU_Power": 61.20},
+            {"Timestamp": "14:03:55", "GPU_Temp": 71, "GPU_Usage": 95.0, "VRAM_Used": 7539, "GPU_Power": 142.10, "GPU_Fan": 75, "CPU_Temp": 72, "CPU_Usage": 58, "RAM_Used": 14320, "Core_Clock": 1860, "Memory_Clock": 7500, "CPU_Clock": 4395, "CPU_Power": 48.50},
+            {"Timestamp": "14:03:58", "GPU_Temp": 68, "GPU_Usage": 82.0, "VRAM_Used": 7536, "GPU_Power": 125.00, "GPU_Fan": 74, "CPU_Temp": 66, "CPU_Usage": 42, "RAM_Used": 14110, "Core_Clock": 1870, "Memory_Clock": 7500, "CPU_Clock": 4395, "CPU_Power": 38.10},
+            {"Timestamp": "14:04:01", "GPU_Temp": 62, "GPU_Usage": 41.0, "VRAM_Used": 6400, "GPU_Power": 82.30, "GPU_Fan": 70, "CPU_Temp": 58, "CPU_Usage": 31, "RAM_Used": 13900, "Core_Clock": 1890, "Memory_Clock": 7500, "CPU_Clock": 4395, "CPU_Power": 29.50},
+            {"Timestamp": "14:04:04", "GPU_Temp": 55, "GPU_Usage": 15.0, "VRAM_Used": 3200, "GPU_Power": 32.10, "GPU_Fan": 64, "CPU_Temp": 51, "CPU_Usage": 22, "RAM_Used": 13090, "Core_Clock": 1500, "Memory_Clock": 7500, "CPU_Clock": 4395, "CPU_Power": 24.30},
+            {"Timestamp": "14:04:07", "GPU_Temp": 51, "GPU_Usage": 12.0, "VRAM_Used": 1071, "GPU_Power": 20.16, "GPU_Fan": 56, "CPU_Temp": 45, "CPU_Usage": 15, "RAM_Used": 13050, "Core_Clock": 1500, "Memory_Clock": 7500, "CPU_Clock": 4395, "CPU_Power": 17.11}
+        ];
+
+        // ตัวแปรเก็บข้อมูลแอพ
+        let parsedData = [...mockTelemetryData];
+        let hardwareName = "NVIDIA GeForce RTX 3060";
+        let currentIndex = 0;
+        let isPlaying = false;
+        let timer = null;
+        let activeChartTab = "thermals";
+        let mainChart = null;
+        
+        // ข้อมูลการกรองและแบ่งหน้าของตาราง
+        let tablePage = 1;
+        const itemsPerPage = 6;
+        let filteredLogs = [...parsedData];
+
+        // ตัวตั้งค่าสำหรับ Reactor Canvas
+        const canvas = document.getElementById('reactor-canvas');
+        const ctx = canvas.getContext('2d');
+        let reactorAngle = 0;
+
+        window.onload = function() {
+            lucide.createIcons();
+            initCharts();
+            recalculateStatsAndSync(parsedData, "ข้อมูลจำลอง RTX 3060");
+            connectWebSocket();
+            
+            // เพิ่มการตรวจรับเหตุการณ์
+            document.getElementById('play-pause-btn').addEventListener('click', togglePlaySimulation);
+            document.getElementById('scrobber-range').addEventListener('input', handleScrub);
+            document.getElementById('play-speed').addEventListener('change', adjustSpeed);
+            document.getElementById('hml-uploader').addEventListener('change', handleFileRead);
+            document.getElementById('reset-default-btn').addEventListener('click', resetToDefault);
+            document.getElementById('table-search').addEventListener('input', searchLogs);
+            document.getElementById('btn-page-prev').addEventListener('click', () => changeTablePage(-1));
+            document.getElementById('btn-page-next').addEventListener('click', () => changeTablePage(1));
+
+            // กำหนดแผง Drag & Drop
+            const dropZone = document.getElementById('drop-zone');
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-cyan-500/50', 'bg-cyan-500/[0.04]');
+            });
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('border-cyan-500/50', 'bg-cyan-500/[0.04]');
+            });
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-cyan-500/50', 'bg-cyan-500/[0.04]');
+                const file = e.dataTransfer.files[0];
+                if (file) processUploadedFile(file);
+            });
+            dropZone.addEventListener('click', () => {
+                document.getElementById('hml-uploader').click();
+            });
+
+            // เริ่มรันอนิเมชันของ Reactor แกนปฏิกรณ์ 3D จำลอง
+            requestAnimationFrame(animateReactor);
+        };
+
+        // แสดงสไลด์ป๊อปอัพแจ้งเตือน
+        function triggerToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            const txt = document.getElementById('toast-txt');
+            txt.textContent = msg;
+            if (isError) {
+                toast.classList.add('border-rose-500/30', 'text-rose-400');
+                toast.classList.remove('border-cyan-500/30', 'text-cyan-400');
+            } else {
+                toast.classList.remove('border-rose-500/30', 'text-rose-400');
+                toast.classList.add('border-cyan-500/30', 'text-cyan-400');
+            }
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // คืนค่าเริ่มต้นข้อมูลตัวอย่าง
+        function resetToDefault() {
+            parsedData = [...mockTelemetryData];
+            hardwareName = "NVIDIA GeForce RTX 3060";
+            recalculateStatsAndSync(parsedData, "ข้อมูลจำลอง RTX 3060");
+            triggerToast("คืนค่าระบบและใช้โครงสร้าง RTX 3060 เรียบร้อย");
+        }
+
+        // --- ระบบอัจฉริยะล้างอักขระเว้นวรรค และดักจับความเพี้ยนจากการเข้ารหัส (Encoding Space Squeezer) ---
+        function sanitizeSpacedText(str) {
+            // ล้างไบต์ NUL (\0) ที่มักพบในไฟล์ UTF-16
+            let cleaned = str.replace(/\0/g, '');
+            
+            return cleaned.split(',').map(item => {
+                const trimmed = item.trim();
+                // เช็คว่าค่าในเซลล์มีการสลับเว้นวรรคถี่ผิดปกติหรือไม่ เช่น "1 0 : 4 3 : 1 0" หรือ "  4 2"
+                if (/\w\s+\w/.test(trimmed)) {
+                    // หากมีการเว้นระยะห่างของตัวอักษรมากกว่า 3 ตัวสลับกัน ให้ล้างช่องว่างทิ้งเพื่อความเสถียร
+                    if (/(?:\w\s){2,}\w/.test(trimmed)) {
+                        return trimmed.replace(/\s(\s)/g, '$1').replace(/(?<=[\w\d:])\s+(?=[\w\d:])/g, '');
+                    }
+                }
+                return trimmed;
+            }).join(',');
+        }
+
+        // --- ระบบถอดรหัสและวิเคราะห์ไฟล์ HML / CSV อัตโนมัติ (Unified HML & CSV Reader) ---
+        function parseFileContent(text, fileName) {
+            text = text.replace(/^\uFEFF/, '').trim();
+            const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+            if (lines.length === 0) return null;
+
+            // ตรวจสอบโครงสร้างว่าเป็นข้อมูล HML จาก MSI Afterburner หรือเป็นตาราง CSV ทั่วไป
+            const isHML = lines.some(line => {
+                const cells = line.split(',');
+                return cells[0] === '00' || cells[0] === '01' || cells[0] === '02' || line.toLowerCase().includes('hardware monitoring log');
+            });
+
+            if (isHML) {
+                return parseHMLContent(text);
+            } else {
+                return parseCSVContent(text);
+            }
+        }
+
+        // 1. ตัวถอดรหัสไฟล์ HML ของ MSI Afterburner
+        function parseHMLContent(text) {
+            const lines = text.split(/\r?\n/);
+            let extractedGPU = "NVIDIA GeForce RTX 3060";
+            let rawHeaders = [];
+            const rows = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+                if (!line) continue;
+
+                line = sanitizeSpacedText(line);
+                const cells = line.split(',').map(c => c.trim());
+                const lineCode = cells[0];
+
+                if (lineCode === '01') {
+                    extractedGPU = cells[2] || extractedGPU;
+                } else if (lineCode === '02') {
+                    rawHeaders = cells.slice(2).map(h => h.replace(/\s+/g, ' '));
+                } else if (lineCode === '80' || cells.length > 20) {
+                    const isStandardCode = lineCode === '80';
+                    const timeCell = isStandardCode ? cells[1] : cells[0];
+                    const dataCells = isStandardCode ? cells.slice(2) : cells.slice(1);
+
+                    if (rawHeaders.length > 0) {
+                        const dataObj = { "Timestamp": timeCell };
+                        rawHeaders.forEach((header, idx) => {
+                            const valueRaw = dataCells[idx];
+                            if (valueRaw === 'N/A' || valueRaw === undefined) {
+                                dataObj[header] = null;
+                            } else {
+                                const parsedVal = parseFloat(valueRaw);
+                                dataObj[header] = isNaN(parsedVal) ? valueRaw : parsedVal;
+                            }
+                        });
+                        const cleanObj = cleanTelemetryKeys(dataObj, timeCell);
+                        rows.push(cleanObj);
+                    }
+                }
+            }
+            return { extractedGPU, rows };
+        }
+
+        // 2. ตัวถอดรหัสตารางไฟล์ CSV (Standard CSV Engine)
+        function parseCSVContent(text) {
+            const lines = text.split(/\r?\n/);
+            const rows = [];
+            let headers = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+                if (!line) continue;
+
+                line = sanitizeSpacedText(line);
+                const cells = line.split(',').map(c => c.trim());
+                
+                if (headers.length === 0) {
+                    headers = cells.map(h => h.replace(/\s+/g, '_'));
+                    continue;
+                }
+
+                if (cells.length >= headers.length) {
+                    const dataObj = {};
+                    headers.forEach((header, index) => {
+                        dataObj[header] = cells[index];
+                    });
+                    const cleanObj = normalizeCSVKeys(dataObj);
+                    rows.push(cleanObj);
+                }
+            }
+            return { extractedGPU: "Standard CSV Telemetry", rows };
+        }
+
+        // ตัวแมปคีย์พารามิเตอร์ของ HML ดั้งเดิม
+        function cleanTelemetryKeys(obj, rawTime) {
+            let cleanTime = rawTime;
+            if (rawTime.includes(' ')) {
+                cleanTime = rawTime.split(' ')[1];
+            }
+
+            const clean = {
+                "Timestamp": cleanTime,
+                "GPU_Temp": findMetricValue(obj, ['GPU temperature', 'GPU Temp']),
+                "GPU_Usage": findMetricValue(obj, ['GPU usage', 'GPU Usage']),
+                "VRAM_Used": findMetricValue(obj, ['Memory usage', 'Memory Usage']),
+                "GPU_Power": findMetricValue(obj, ['Power', 'GPU Power']),
+                "GPU_Fan": findMetricValue(obj, ['Fan speed', 'GPU Fan']),
+                "CPU_Temp": findMetricValue(obj, ['CPU temperature', 'CPU Temp']),
+                "CPU_Usage": findMetricValue(obj, ['CPU usage', 'CPU Usage']),
+                "RAM_Used": findMetricValue(obj, ['RAM usage', 'RAM Usage']),
+                "Core_Clock": findMetricValue(obj, ['Core clock', 'GPU Core']),
+                "Memory_Clock": findMetricValue(obj, ['Memory clock', 'GPU Memory']),
+                "CPU_Clock": findMetricValue(obj, ['CPU clock', 'CPU Clock']),
+                "CPU_Power": findMetricValue(obj, ['CPU power', 'CPU Power'])
+            };
+            return clean;
+        }
+
+        // ตัวแมปและแปลงค่าพารามิเตอร์ของระบบ CSV
+        function normalizeCSVKeys(obj) {
+            const findVal = (keys) => {
+                for (let k of keys) {
+                    const foundKey = Object.keys(obj).find(origKey => 
+                        origKey.toLowerCase().replace(/_/g, '').trim().includes(k.toLowerCase().replace(/_/g, '').trim())
+                    );
+                    if (foundKey && obj[foundKey] !== undefined && obj[foundKey] !== null) {
+                        return parseFloat(obj[foundKey]);
+                    }
+                }
+                return null;
+            };
+
+            const rawTimeKey = Object.keys(obj).find(k => k.toLowerCase().includes('time'));
+            let cleanTime = rawTimeKey ? obj[rawTimeKey] : "00:00:00";
+            if (cleanTime.includes(' ')) {
+                cleanTime = cleanTime.split(' ')[1];
+            }
+
+            const clean = {
+                "Timestamp": cleanTime,
+                "GPU_Temp": findVal(['gputemp', 'gpu_temp', 'gpu_temperature']),
+                "GPU_Usage": findVal(['gpuusage', 'gpu_usage']) || 0,
+                "VRAM_Used": findVal(['vramused', 'vram_used', 'vram', 'fb_usage']),
+                "GPU_Power": findVal(['gpupower', 'gpu_power', 'power']),
+                "GPU_Fan": findVal(['gpufan', 'gpu_fan', 'fan']),
+                "CPU_Temp": findVal(['cputemp', 'cpu_temp', 'cpu_temperature']) || 45,
+                "CPU_Usage": findVal(['cpuusage', 'cpu_usage']),
+                "RAM_Used": findVal(['ramused', 'ram_used', 'ram']),
+                "Core_Clock": findVal(['coreclock', 'gpu_core', 'core']) || 1500,
+                "Memory_Clock": findVal(['memoryclock', 'gpu_mem', 'mem']) || 7500,
+                "CPU_Clock": findVal(['cpuclock', 'cpu_clock']) || 4200,
+                "CPU_Power": findVal(['cpupower', 'cpu_power']) || 25
+            };
+
+            // หากแรมอยู่ในรูปทศนิยมระดับสิบ (เช่น 15.07 GB) ให้ปรับมาเป็นหน่วย MB โดยคูณด้วย 1024
+            if (clean.RAM_Used !== null && clean.RAM_Used < 128) {
+                clean.RAM_Used = Math.round(clean.RAM_Used * 1024);
+            }
+            if (clean.VRAM_Used !== null && clean.VRAM_Used < 64) {
+                clean.VRAM_Used = Math.round(clean.VRAM_Used * 1024);
+            }
+
+            // คำนวณ GPU Usage อิงจากพลังงานหากเป็น 0 เพื่อความลื่นไหลของ Dashboard
+            if (clean.GPU_Usage === 0 && clean.GPU_Power > 0) {
+                clean.GPU_Usage = Math.min(100, Math.round((clean.GPU_Power / 170) * 100));
+            }
+
+            // กำหนดสเปกความเสถียรตั้งต้นกรณีไม่มีเซนเซอร์ดักจับ
+            if (clean.GPU_Temp === null) clean.GPU_Temp = 35;
+            if (clean.VRAM_Used === null) clean.VRAM_Used = 1024;
+            if (clean.GPU_Power === null) clean.GPU_Power = 15;
+            if (clean.GPU_Fan === null) clean.GPU_Fan = 30;
+            if (clean.CPU_Usage === null) clean.CPU_Usage = 5;
+            if (clean.RAM_Used === null) clean.RAM_Used = 8000;
+
+            return clean;
+        }
+
+        // ค้นหารายการค่าในหัวคอลัมน์หลากหลายรูปแบบ
+        function findMetricValue(obj, keys) {
+            for (let k of keys) {
+                const foundKey = Object.keys(obj).find(origKey => origKey.toLowerCase().trim().includes(k.toLowerCase().trim()));
+                if (foundKey && obj[foundKey] !== null) {
+                    return parseFloat(obj[foundKey]);
+                }
+            }
+            return null;
+        }
+
+        // ฟังก์ชันอ่านไฟล์เมื่อมีการคลิกนำเข้า
+        function handleFileRead(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            processUploadedFile(file);
+        }
+
+        // ประมวลผลและนำทางไฟล์ข้อมูล
+        function processUploadedFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const text = evt.target.result;
+                    const result = parseFileContent(text, file.name);
+                    
+                    if (result && result.rows.length > 0) {
+                        parsedData = result.rows;
+                        hardwareName = result.extractedGPU;
+                        recalculateStatsAndSync(parsedData, file.name);
+                        
+                        // เปิดแบนเนอร์แจ้งความสำเร็จ
+                        const alertBanner = document.getElementById('alert-banner');
+                        document.getElementById('alert-text').textContent = `โหลดไฟล์ "${file.name}" เรียบร้อย! ตรวจพบข้อมูลทั้งหมด ${parsedData.length} จุดตรวจวัด (${hardwareName})`;
+                        alertBanner.classList.remove('hidden');
+
+                        triggerToast("นำเข้าและวิเคราะห์ข้อมูลเสร็จสิ้น!");
+                    } else {
+                        triggerToast("ไม่สามารถประมวลผลไฟล์นี้ได้ กรุณาอัปโหลดไฟล์ HML หรือ CSV ที่ถูกต้อง", true);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    triggerToast("เกิดข้อผิดพลาดในการดึงข้อมูลล็อก", true);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // คำนวณขีดจำกัด ค่าเฉลี่ย และจัดวางช่วงเวลาใหม่ให้เสถียร (Data Synchronizer)
+        function recalculateStatsAndSync(data, sourceName) {
+            currentIndex = 0;
+            isPlaying = false;
+            clearInterval(timer);
+            document.getElementById('control-icon').setAttribute('data-lucide', 'play');
+            lucide.createIcons();
+
+            // อัปเดตเมนูด้านบน
+            document.getElementById('hardware-tag').textContent = `ระบบตรวจสอบอุปกรณ์: ${hardwareName}`;
+            document.getElementById('file-status-badge').textContent = sourceName;
+
+            // กำหนดแผงไทม์ไลน์เลื่อนตรวจ
+            const range = document.getElementById('scrobber-range');
+            range.max = data.length - 1;
+            range.min = 0;
+            range.value = 0;
+
+            document.getElementById('timeline-start-text').textContent = data[0].Timestamp;
+            document.getElementById('timeline-end-text').textContent = data[data.length - 1].Timestamp;
+            document.getElementById('total-point-num').textContent = data.length;
+
+            // คำนวณสถิติเซสชันทั้งหมด
+            let maxGpuTemp = 0, sumGpuTemp = 0;
+            let maxCpuTemp = 0, sumCpuTemp = 0;
+            let maxVram = 0, sumVram = 0;
+            let maxGpuPower = 0, sumGpuPower = 0;
+
+            data.forEach(r => {
+                if (r.GPU_Temp > maxGpuTemp) maxGpuTemp = r.GPU_Temp;
+                sumGpuTemp += r.GPU_Temp;
+
+                if (r.CPU_Temp > maxCpuTemp) maxCpuTemp = r.CPU_Temp;
+                sumCpuTemp += r.CPU_Temp;
+
+                if (r.VRAM_Used > maxVram) maxVram = r.VRAM_Used;
+                sumVram += r.VRAM_Used;
+
+                if (r.GPU_Power > maxGpuPower) maxGpuPower = r.GPU_Power;
+                sumGpuPower += r.GPU_Power;
+            });
+
+            const count = data.length;
+            document.getElementById('stat-gpu-temp-peak').textContent = `${maxGpuTemp} °C`;
+            document.getElementById('stat-gpu-temp-avg').textContent = `${(sumGpuTemp / count).toFixed(1)} °C`;
+            document.getElementById('stat-cpu-temp-peak').textContent = `${maxCpuTemp} °C`;
+            document.getElementById('stat-cpu-temp-avg').textContent = `${(sumCpuTemp / count).toFixed(1)} °C`;
+            document.getElementById('stat-vram-peak').textContent = `${maxVram.toLocaleString()} MB`;
+            document.getElementById('stat-vram-avg').textContent = `${Math.round(sumVram / count).toLocaleString()} MB`;
+            document.getElementById('stat-power-peak').textContent = `${maxGpuPower.toFixed(1)} W`;
+            document.getElementById('stat-power-avg').textContent = `${(sumGpuPower / count).toFixed(1)} W`;
+
+            // ดึงข้อมูลเข้าตารางและกราฟใหม่
+            filteredLogs = [...data];
+            tablePage = 1;
+            renderTable();
+            updateChartData();
+            updateDashboardWidgets(0);
+        }
+
+        // --- ระบบอัปเดตวิดเจ็ตแสดงค่าและแอนิมชัน ---
+        function updateDashboardWidgets(index) {
+            if (!parsedData[index]) return;
+            const current = parsedData[index];
+            currentIndex = index;
+
+            // ปรับไทม์ไลน์เลื่อน
+            document.getElementById('current-timestamp').textContent = current.Timestamp;
+            document.getElementById('current-point-num').textContent = index + 1;
+            document.getElementById('scrobber-range').value = index;
+
+            // สถิติแสดงผล GPU
+            document.getElementById('gpu-temp-text').textContent = `${current.GPU_Temp} °C`;
+            document.getElementById('gpu-temp-bar').style.width = `${Math.min(current.GPU_Temp, 100)}%`;
+            document.getElementById('gpu-usage-text').textContent = `${current.GPU_Usage}%`;
+            document.getElementById('gpu-usage-bar').style.width = `${current.GPU_Usage}%`;
+            document.getElementById('gpu-fan-pct').textContent = `พัดลม: ${current.GPU_Fan}%`;
+            document.getElementById('gpu-core-clock').textContent = `${current.Core_Clock} MHz`;
+            document.getElementById('gpu-mem-clock').textContent = `${current.Memory_Clock} MHz`;
+
+            // สถิติแสดงผล CPU & RAM
+            document.getElementById('cpu-temp-text').textContent = `${current.CPU_Temp} °C`;
+            document.getElementById('cpu-temp-bar').style.width = `${Math.min(current.CPU_Temp, 100)}%`;
+            document.getElementById('cpu-usage-text').textContent = `${current.CPU_Usage}%`;
+            document.getElementById('cpu-usage-bar').style.width = `${current.CPU_Usage}%`;
+            document.getElementById('cpu-pwr-pct').textContent = `กำลังไฟ: ${current.CPU_Power.toFixed(1)}W`;
+            document.getElementById('vram-usage-text').textContent = `${current.VRAM_Used.toLocaleString()} MB`;
+            
+            // ตรวจสอบว่า RAM_Used มีหน่วยเป็น GB หรือ MB
+            let ramStr = current.RAM_Used > 2000 ? `${(current.RAM_Used / 1024).toFixed(2)} GB` : `${current.RAM_Used} MB`;
+            document.getElementById('ram-usage-text').textContent = ramStr;
+
+            // กำลังไฟของ GPU ตรงปฏิกรณ์แกนกลาง
+            document.getElementById('reactor-center-power').textContent = `${current.GPU_Power.toFixed(1)}W`;
+
+            // ประเมินสถานะระบบ
+            const statusBadge = document.getElementById('reactor-status');
+            if (current.GPU_Temp >= 70 || current.CPU_Temp >= 75) {
+                statusBadge.textContent = "ความร้อนสะสมสูง";
+                statusBadge.className = "text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 animate-pulse";
+            } else if (current.GPU_Usage > 90) {
+                statusBadge.textContent = "ทำงานเต็มกำลัง";
+                statusBadge.className = "text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20";
+            } else {
+                statusBadge.textContent = "เสถียรภาพปกติ";
+                statusBadge.className = "text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+            }
+
+            // ชี้ตัวแสดงผลตำแหน่งบนกราฟหลัก
+            if (mainChart) {
+                mainChart.setActiveElements([{ datasetIndex: 0, index: index }]);
+                mainChart.update('none');
+            }
+        }
+
+        // --- ระบบควบคุมไทม์ไลน์เลื่อนดูและเล่นย้อนหลัง (Motion Control Panel) ---
+        function togglePlaySimulation() {
+            const btn = document.getElementById('play-pause-btn');
+            const icon = document.getElementById('control-icon');
+
+            if (isPlaying) {
+                isPlaying = false;
+                clearInterval(timer);
+                icon.setAttribute('data-lucide', 'play');
+            } else {
+                isPlaying = true;
+                icon.setAttribute('data-lucide', 'pause');
+                
+                const speed = parseInt(document.getElementById('play-speed').value);
+                timer = setInterval(() => {
+                    currentIndex++;
+                    if (currentIndex >= parsedData.length) {
+                        currentIndex = 0; // วนกลับเมื่อจบรอบ
+                    }
+                    updateDashboardWidgets(currentIndex);
+                }, speed);
+            }
+            lucide.createIcons();
+        }
+
+        function adjustSpeed() {
+            if (isPlaying) {
+                togglePlaySimulation(); // ปิดการเชื่อมรอบเดิม
+                togglePlaySimulation(); // บูตด้วยอัตราความเร็วใหม่
+            }
+        }
+
+        function handleScrub(e) {
+            if (isPlaying) {
+                togglePlaySimulation();
+            }
+            updateDashboardWidgets(parseInt(e.target.value));
+        }
+
+        // --- ระบบสร้างอนิเมชันแกนปฏิกรณ์ (Canvas Orbit Reactor Simulation) ---
+        function animateReactor() {
+            if (!ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const current = parsedData[currentIndex] || mockTelemetryData[0];
+
+            // 1. ความเร็วการหมุนจะสอดคล้องกับการประมวลผลของ CPU
+            const cpuUsage = current.CPU_Usage || 10;
+            const speedMultiplier = 0.01 + (cpuUsage / 100) * 0.08;
+            reactorAngle += speedMultiplier;
+
+            // 2. สีของนีออนจะแปรผันตามอุณหภูมิของการ์ดจอ GPU
+            const gpuTemp = current.GPU_Temp || 35;
+            let neonColor = "rgba(6, 182, 212, "; // สีฟ้าเย็น
+            if (gpuTemp >= 70) {
+                neonColor = "rgba(244, 63, 94, ";  // สีแดงร้อนแรง
+            } else if (gpuTemp >= 55) {
+                neonColor = "rgba(245, 158, 11, "; // สีส้มระดับกลาง
+            }
+
+            // วาดวงโคจรรอบนอก (Orbit rings)
+            ctx.strokeStyle = neonColor + "0.15)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 80, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.strokeStyle = neonColor + "0.08)";
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 100, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // วาดดาวหางอนุภาควิ่งบนวงโคจร (Orbit Particles)
+            const numParticles = 4;
+            for (let i = 0; i < numParticles; i++) {
+                const angleOffset = (Math.PI * 2 / numParticles) * i;
+                const pX = centerX + Math.cos(reactorAngle + angleOffset) * 80;
+                const pY = centerY + Math.sin(reactorAngle + angleOffset) * 80;
+                
+                // เอฟเฟกต์แสงเรืองเปล่งปลั่ง
+                ctx.shadowColor = neonColor.replace(', ', ')').replace('rgba', 'rgb');
+                ctx.shadowBlur = 12;
+                ctx.fillStyle = neonColor + "1.0)";
+                ctx.beginPath();
+                ctx.arc(pX, pY, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // รีเซ็ตเงาเรืองแสง
+            ctx.shadowBlur = 0;
+
+            // วาดครีบเกลียวความร้อน (Cooling Fan Fins Mock)
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(-reactorAngle * 0.5); // หมุนพัดลมย้อนศรเบาๆ
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+            ctx.lineWidth = 4;
+            for (let i = 0; i < 7; i++) {
+                ctx.rotate(Math.PI * 2 / 7);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.quadraticCurveTo(20, 20, 0, 60);
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            // ดึงภาพกลับเข้าลูป
+            requestAnimationFrame(animateReactor);
+        }
+
+        // --- ระบบสร้างกราฟวิเคราะห์แนวโน้มการใช้งานเชิงลึก (ChartJS Interface Engine) ---
+        function initCharts() {
+            const ctxChart = document.getElementById('telemetryChart').getContext('2d');
+            
+            Chart.defaults.color = 'rgba(255, 255, 255, 0.5)';
+            Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.05)';
+
+            mainChart = new Chart(ctxChart, {
+                type: 'line',
+                data: getChartStructureForTab(activeChartTab),
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { family: 'Noto Sans Thai, sans-serif', size: 11 },
+                                boxWidth: 10,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(8, 12, 24, 0.9)',
+                            titleFont: { family: 'monospace', size: 12 },
+                            bodyFont: { family: 'Noto Sans Thai, sans-serif', size: 11 },
+                            borderWidth: 1,
+                            borderColor: 'rgba(255, 255, 255, 0.15)'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'monospace', size: 10 } }
+                        },
+                        y: {
+                            ticks: { font: { family: 'monospace', size: 10 } }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            ticks: { font: { family: 'monospace', size: 10 } }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        }
+
+        // ดึงชุดข้อมูลตามหัวข้อแท็บการวิเคราะห์ความต่าง
+        function getChartStructureForTab(tab) {
+            const timeLabels = parsedData.map(d => d.Timestamp);
+
+            if (tab === 'thermals') {
+                return {
+                    labels: timeLabels,
+                    datasets: [
+                        {
+                            label: 'อุณหภูมิ GPU (°C)',
+                            data: parsedData.map(d => d.GPU_Temp),
+                            borderColor: '#f43f5e',
+                            backgroundColor: 'rgba(244, 63, 94, 0.04)',
+                            fill: true,
+                            borderWidth: 2,
+                            tension: 0.3,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'อุณหภูมิ CPU (°C)',
+                            data: parsedData.map(d => d.CPU_Temp),
+                            borderColor: '#a855f7',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'พัดลม GPU Fan (%)',
+                            data: parsedData.map(d => d.GPU_Fan),
+                            borderColor: '#06b6d4',
+                            borderWidth: 1.5,
+                            borderDash: [5, 5],
+                            tension: 0.2,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                };
+            } else if (tab === 'clocks') {
+                return {
+                    labels: timeLabels,
+                    datasets: [
+                        {
+                            label: 'GPU Core Clock (MHz)',
+                            data: parsedData.map(d => d.Core_Clock),
+                            borderColor: '#06b6d4',
+                            borderWidth: 2,
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'CPU Clock Speed (MHz)',
+                            data: parsedData.map(d => d.CPU_Clock),
+                            borderColor: '#ec4899',
+                            borderWidth: 1.5,
+                            borderDash: [4, 4],
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'GPU Memory Clock (MHz)',
+                            data: parsedData.map(d => d.Memory_Clock),
+                            borderColor: '#818cf8',
+                            borderWidth: 1.5,
+                            tension: 0.1,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                };
+            } else if (tab === 'load') {
+                return {
+                    labels: timeLabels,
+                    datasets: [
+                        {
+                            label: 'การใช้งาน GPU (%)',
+                            data: parsedData.map(d => d.GPU_Usage),
+                            borderColor: '#06b6d4',
+                            backgroundColor: 'rgba(6, 182, 212, 0.04)',
+                            fill: true,
+                            borderWidth: 2,
+                            tension: 0.3,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'การใช้งาน CPU (%)',
+                            data: parsedData.map(d => d.CPU_Usage),
+                            borderColor: '#eab308',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'VRAM used (MB)',
+                            data: parsedData.map(d => d.VRAM_Used),
+                            borderColor: '#10b981',
+                            borderWidth: 1.5,
+                            tension: 0.2,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                };
+            } else if (tab === 'power') {
+                return {
+                    labels: timeLabels,
+                    datasets: [
+                        {
+                            label: 'กำลังไฟ GPU (W)',
+                            data: parsedData.map(d => d.GPU_Power),
+                            borderColor: '#06b6d4',
+                            backgroundColor: 'rgba(6, 182, 212, 0.04)',
+                            fill: true,
+                            borderWidth: 2,
+                            tension: 0.3,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'กำลังไฟรวม CPU (W)',
+                            data: parsedData.map(d => d.CPU_Power),
+                            borderColor: '#a855f7',
+                            borderWidth: 1.5,
+                            tension: 0.2,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                };
+            }
+        }
+
+        function updateChartData() {
+            if (!mainChart) return;
+            mainChart.data = getChartStructureForTab(activeChartTab);
+            mainChart.update();
+        }
+
+        // จัดการสลับแท็บเมนูกราฟสถิติ
+        function switchChartTab(tab) {
+            activeChartTab = tab;
+            
+            document.querySelectorAll('.chart-tab-btn').forEach(btn => {
+                btn.className = "chart-tab-btn px-4 py-2 rounded-lg transition-all text-slate-400 hover:text-white";
+            });
+            const activeBtn = document.getElementById(`btn-chart-${tab}`);
+            activeBtn.className = "chart-tab-btn px-4 py-2 rounded-lg transition-all text-white bg-cyan-500/20 border border-cyan-500/30";
+
+            updateChartData();
+        }
+
+        // --- ระบบตารางแสดงรายการข้อมูลและการแบ่งหน้า (Log Datatable Manager) ---
+        function renderTable() {
+            const tableBody = document.getElementById('log-table-rows');
+            tableBody.innerHTML = '';
+
+            const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
+            document.getElementById('pag-total-num').textContent = totalPages === 0 ? 1 : totalPages;
+            document.getElementById('pag-current-num').textContent = tablePage;
+
+            const startIdx = (tablePage - 1) * itemsPerPage;
+            const endIdx = Math.min(startIdx + itemsPerPage, filteredLogs.length);
+
+            document.getElementById('pag-start').textContent = filteredLogs.length === 0 ? 0 : startIdx + 1;
+            document.getElementById('pag-end').textContent = endIdx;
+            document.getElementById('pag-total').textContent = filteredLogs.length;
+
+            document.getElementById('btn-page-prev').disabled = tablePage === 1;
+            document.getElementById('btn-page-next').disabled = tablePage >= totalPages || totalPages === 0;
+
+            if (filteredLogs.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="p-10 text-center text-slate-500">
+                            ไม่พบรายการที่ค้นหาตามข้อกำหนดเวลา
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            for (let i = startIdx; i < endIdx; i++) {
+                const row = filteredLogs[i];
+                const tr = document.createElement('tr');
+                
+                // หา Index ที่แท้จริงในแถวข้อมูลดิบทั้งหมด
+                const originalIndex = parsedData.findIndex(d => d.Timestamp === row.Timestamp);
+                
+                tr.className = "hover:bg-cyan-500/5 transition duration-150 cursor-pointer border-b border-white/5 " + (originalIndex === currentIndex ? 'bg-cyan-500/10 text-cyan-300 font-bold' : '');
+                
+                tr.onclick = () => {
+                    if (originalIndex !== -1) {
+                        updateDashboardWidgets(originalIndex);
+                    }
+                };
+
+                let ramVal = row.RAM_Used > 2000 ? `${(row.RAM_Used / 1024).toFixed(2)} GB` : `${row.RAM_Used} MB`;
+
+                tr.innerHTML = `
+                    <td class="p-3.5 font-bold">${row.Timestamp}</td>
+                    <td class="p-3.5 text-rose-400 font-bold">${row.GPU_Temp} °C</td>
+                    <td class="p-3.5">${row.GPU_Usage}%</td>
+                    <td class="p-3.5 text-teal-400">${row.VRAM_Used.toLocaleString()} MB</td>
+                    <td class="p-3.5 text-cyan-400 font-bold">${row.GPU_Power.toFixed(1)} W</td>
+                    <td class="p-3.5 text-purple-400">${row.CPU_Temp} °C</td>
+                    <td class="p-3.5">${row.CPU_Usage}%</td>
+                    <td class="p-3.5 text-amber-400">${ramVal}</td>
+                `;
+                tableBody.appendChild(tr);
+            }
+        }
+
+        function changeTablePage(direction) {
+            tablePage += direction;
+            renderTable();
+        }
+
+        // ตัวค้นหาเวลารายการ
+        function searchLogs(e) {
+            const query = e.target.value.toLowerCase().trim();
+            filteredLogs = parsedData.filter(d => d.Timestamp.toLowerCase().includes(query));
+            tablePage = 1;
+            renderTable();
+        }
+
+        // --- WebSocket Client & Real-time Telemetry Controller ---
+        let socket = null;
+        let isReceivingLive = false;
+
+        function connectWebSocket() {
+            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsHost = window.location.hostname || 'localhost';
+            const wsUrl = `${wsProtocol}//${wsHost}:8990`;
+            
+            socket = new WebSocket(wsUrl);
+
+            socket.onopen = function() {
+                console.log("[WebSocket] Connected to Telemetry Server at " + wsUrl);
+            };
+
+            socket.onmessage = function(event) {
+                try {
+                    const msg = JSON.parse(event.data);
+                    
+                    if (msg.type === "benchmark_status") {
+                        handleBenchmarkStatus(msg.status, msg.error);
+                    } else if (msg.type === "benchmark_log") {
+                        appendBenchmarkLog(msg.text);
+                    } else if (msg.type === "live_hardware_sample") {
+                        handleLiveSample(msg.sample);
+                    }
+                } catch(e) {
+                    console.error("[WebSocket] Message parsing error:", e);
+                }
+            };
+
+            socket.onclose = function() {
+                console.log("[WebSocket] Connection closed. Retrying in 5s...");
+                setTimeout(connectWebSocket, 5000);
+            };
+
+            socket.onerror = function(err) {
+                console.error("[WebSocket] Socket error:", err);
+            };
+        }
+
+        function runActiveBenchmark() {
+            const provider = document.getElementById('bench-model').value;
+            const prompt = document.getElementById('bench-prompt').value.trim();
+
+            if (!prompt) {
+                triggerToast("กรุณาป้อนข้อความสำหรับการทดสอบ", true);
+                return;
+            }
+
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                triggerToast("ระบบยังไม่พร้อมเชื่อมต่อ WebSocket กรุณารอสักครู่", true);
+                return;
+            }
+
+            clearConsole();
+            document.getElementById('bench-console-card').classList.remove('hidden');
+
+            socket.send(JSON.stringify({
+                type: "start_benchmark_run",
+                config: {
+                    provider,
+                    model_id: provider === "qwen" ? "qwen3" : (provider === "gemini" ? "gemini-2.0-flash" : "mock-runner"),
+                    prompt
+                }
+            }));
+        }
+
+        function abortActiveBenchmark() {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({
+                    type: "abort_benchmark_run"
+                }));
+            }
+        }
+
+        function clearConsole() {
+            document.getElementById('bench-console-log').textContent = '';
+        }
+
+        function appendBenchmarkLog(text) {
+            const consoleBox = document.getElementById('bench-console-log');
+            consoleBox.textContent += text;
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+        }
+
+        function handleBenchmarkStatus(status, error) {
+            const runBtn = document.getElementById('btn-bench-run');
+            const abortBtn = document.getElementById('btn-bench-abort');
+            const modelSelect = document.getElementById('bench-model');
+            const promptInput = document.getElementById('bench-prompt');
+
+            if (status === "running") {
+                runBtn.disabled = true;
+                runBtn.classList.add('opacity-50');
+                runBtn.textContent = "กำลังทดสอบระบบ...";
+                abortBtn.classList.remove('hidden');
+                modelSelect.disabled = true;
+                promptInput.disabled = true;
+                isReceivingLive = false; 
+            } else {
+                runBtn.disabled = false;
+                runBtn.classList.remove('opacity-50');
+                runBtn.innerHTML = `<i data-lucide="zap" class="w-3.5 h-3.5"></i> รันการทดสอบระบบ`;
+                abortBtn.classList.add('hidden');
+                modelSelect.disabled = false;
+                promptInput.disabled = false;
+                lucide.createIcons();
+
+                if (status === "completed") {
+                    triggerToast("เสร็จสิ้นการรัน Benchmark เรียบร้อย!");
+                } else if (status === "failed") {
+                    triggerToast(`การรันล้มเหลว: ${error || "เกิดข้อผิดพลาด"}`, true);
+                }
+            }
+        }
+
+        function handleLiveSample(sample) {
+            if (!isReceivingLive) {
+                parsedData = [];
+                isReceivingLive = true;
+                document.getElementById('file-status-badge').textContent = "เซนเซอร์รันสด (Live Monitoring)";
+                document.getElementById('hardware-tag').textContent = `ระบบตรวจสอบอุปกรณ์: ${hardwareName}`;
+            }
+
+            parsedData.push(sample);
+            const liveIndex = parsedData.length - 1;
+
+            const range = document.getElementById('scrobber-range');
+            range.max = parsedData.length - 1;
+            range.value = liveIndex;
+            
+            document.getElementById('timeline-start-text').textContent = parsedData[0].Timestamp;
+            document.getElementById('timeline-end-text').textContent = parsedData[parsedData.length - 1].Timestamp;
+            document.getElementById('total-point-num').textContent = parsedData.length;
+            document.getElementById('current-point-num').textContent = parsedData.length;
+
+            recalculateRunningStats();
+            updateDashboardWidgets(liveIndex);
+            updateChartData();
+        }
+
+        function recalculateRunningStats() {
+            let maxGpuTemp = 0, sumGpuTemp = 0;
+            let maxCpuTemp = 0, sumCpuTemp = 0;
+            let maxVram = 0, sumVram = 0;
+            let maxGpuPower = 0, sumGpuPower = 0;
+
+            parsedData.forEach(r => {
+                if (r.GPU_Temp > maxGpuTemp) maxGpuTemp = r.GPU_Temp;
+                sumGpuTemp += r.GPU_Temp;
+
+                if (r.CPU_Temp > maxCpuTemp) maxCpuTemp = r.CPU_Temp;
+                sumCpuTemp += r.CPU_Temp;
+
+                if (r.VRAM_Used > maxVram) maxVram = r.VRAM_Used;
+                sumVram += r.VRAM_Used;
+
+                if (r.GPU_Power > maxGpuPower) maxGpuPower = r.GPU_Power;
+                sumGpuPower += r.GPU_Power;
+            });
+
+            const count = parsedData.length;
+            document.getElementById('stat-gpu-temp-peak').textContent = `${maxGpuTemp} °C`;
+            document.getElementById('stat-gpu-temp-avg').textContent = `${(sumGpuTemp / count).toFixed(1)} °C`;
+            document.getElementById('stat-cpu-temp-peak').textContent = `${maxCpuTemp} °C`;
+            document.getElementById('stat-cpu-temp-avg').textContent = `${(sumCpuTemp / count).toFixed(1)} °C`;
+            document.getElementById('stat-vram-peak').textContent = `${maxVram.toLocaleString()} MB`;
+            document.getElementById('stat-vram-avg').textContent = `${Math.round(sumVram / count).toLocaleString()} MB`;
+            document.getElementById('stat-power-peak').textContent = `${maxGpuPower.toFixed(1)} W`;
+            document.getElementById('stat-power-avg').textContent = `${(sumGpuPower / count).toFixed(1)} W`;
+
+            filteredLogs = [...parsedData];
+            renderTable();
+        }
+    </script>
+</body>
+</html>

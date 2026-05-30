@@ -1,0 +1,17 @@
+{
+  "avg_tps": 48.49,
+  "duration": 5.47,
+  "total_tokens": 8457,
+  "gpu": {
+    "max_temp_c": 60.0,
+    "avg_temp_c": 51.0,
+    "max_power_w": 154.74,
+    "avg_power_w": 102.2,
+    "max_vram_mb": 5517.0,
+    "avg_vram_mb": 5516.3
+  },
+  "cpu": {
+    "max_usage_percent": 0.0,
+    "avg_usage_percent": 0.0
+  }
+}

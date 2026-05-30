@@ -1,0 +1,23 @@
+# TASK: HumanEval (Rust Version)
+# Level: L3_DOMAIN
+# Target: Rust Logic & Type Safety
+
+PROMPT:
+"Complete the following Rust function. Ensure it handles edge cases and uses idiomatic Rust.
+
+/// Check if in given list of numbers, are any two numbers closer to each other than
+/// given threshold.
+/// >>> has_close_elements(vec![1.0, 2.0, 3.0], 0.5)
+/// false
+/// >>> has_close_elements(vec![1.0, 2.8, 3.0, 4.0, 5.0, 2.2], 0.3)
+/// true
+fn has_close_elements(numbers: Vec<f32>, threshold: f32) -> bool {
+    // Your code here
+}
+"
+
+---
+EXPECTED CRITERIA:
+- Correct logic (nested loop or sorting approach)
+- Compiles in Rust (no syntax errors)
+- Correct return values for provided test cases

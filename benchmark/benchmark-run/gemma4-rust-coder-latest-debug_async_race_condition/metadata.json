@@ -1,0 +1,9 @@
+{
+  "model": "gemma4-rust-coder:latest",
+  "task": "debug_async_race_condition",
+  "started_at": "2026-05-29T02:48:10.311187+00:00",
+  "ended_at": "2026-05-29T02:48:15.776240+00:00",
+  "duration_s": 5.465053,
+  "tokens_input": 8192,
+  "tokens_output": 265
+}

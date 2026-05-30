@@ -1,0 +1,264 @@
+@import "tailwindcss";
+
+:root {
+    --bg-body: #121212;
+    --glass-bg: rgba(30, 30, 30, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --primary: #ED6C35; /* Orange theme primary */
+    --sidebar-primary: var(--primary);
+    --text-muted: #888;
+}
+
+/* The Sidebar (kept for backward compatibility, unused in horizontal layout) */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    height: 100vh;
+    width: 80px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-right: 1px solid var(--glass-border);
+    padding: 24px 0;
+    transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow: hidden;
+    z-index: 1000;
+    display: none; /* Hide sidebar completely in glass-nav layout */
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Hover: Expand Sidebar */
+.sidebar:hover {
+    width: 250px;
+}
+
+/* Branding/Logo area */
+.brand {
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    margin-bottom: 30px;
+    height: 50px;
+}
+
+.brand i {
+    font-size: 1.6rem;
+    color: var(--sidebar-primary);
+    min-width: 32px;
+}
+
+.brand span {
+    font-size: 1.15rem;
+    font-weight: 800;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s;
+    letter-spacing: 0.05em;
+    background: linear-gradient(to right, #ED6C35, #F59E0B);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.sidebar:hover .brand span {
+    opacity: 1;
+    transition-delay: 0.1s;
+}
+
+/* Navigation List */
+.nav-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nav-item {
+    position: relative;
+    padding: 0 16px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-muted);
+    padding: 12px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.nav-link i {
+    font-size: 1.2rem;
+    min-width: 32px;
+}
+
+.nav-link span {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Hover Effects */
+.sidebar:hover .nav-link span {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.nav-link:hover {
+    background: rgba(237, 108, 53, 0.15);
+    color: var(--primary);
+}
+
+.nav-link.active {
+    background: var(--sidebar-primary);
+    color: #020617 !important;
+    box-shadow: 0 0 15px rgba(237, 108, 53, 0.4);
+    font-weight: 700;
+}
+
+/* Tooltip (for collapsed view) */
+.nav-item::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 88px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #0f172a;
+    color: #f8fafc;
+    border: 1px solid #1e293b;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* Show tooltip only when sidebar is collapsed (not hovered) */
+.sidebar:not(:hover) .nav-item:hover::after {
+    opacity: 1;
+}
+
+/* Horizontal Glass Nav Styles (Replicated from AmberCitrus-Design.html & Orange Themed) */
+.glass-nav {
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 6px 12px;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.glass-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.glass-nav-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.glass-nav-item.active {
+    background: rgba(237, 108, 53, 0.15);
+    color: #ED6C35;
+    font-weight: 600;
+}
+
+.glass-nav-item .nav-icon {
+    font-size: 1rem;
+    transition: color 0.3s;
+}
+
+.glass-nav-item.active .nav-icon {
+    color: #ED6C35;
+    filter: drop-shadow(0 0 4px rgba(237, 108, 53, 0.5));
+}
+
+.nav-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Active glow dot at bottom */
+.glass-nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 3px;
+    background: #ED6C35;
+    border-radius: 99px;
+    box-shadow: 0 0 8px rgba(237, 108, 53, 0.8);
+}
+
+/* Content Wrapper - Reset sidebar indentation */
+.content-wrapper {
+    padding-left: 0;
+    transition: none;
+}
+
+/* Background glowing orbs - Themed with Orange & Amber */
+.orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(100px);
+    -webkit-filter: blur(100px);
+    z-index: -1;
+    pointer-events: none;
+}
+
+.orb-1 {
+    width: 350px;
+    height: 350px;
+    background: rgba(237, 108, 53, 0.12); /* Orange */
+    top: 20%;
+    left: 40%;
+}
+
+.orb-2 {
+    width: 250px;
+    height: 250px;
+    background: rgba(245, 158, 11, 0.08); /* Amber */
+    top: 10%;
+    left: 5%;
+}
+
+.orb-3 {
+    width: 300px;
+    height: 300px;
+    background: rgba(237, 108, 53, 0.12); /* Orange */
+    top: -50px;
+    right: -5%;
+}
+
+.orb-4 {
+    width: 200px;
+    height: 200px;
+    background: rgba(245, 158, 11, 0.08); /* Amber */
+    bottom: -5%;
+    left: 20%;
+}

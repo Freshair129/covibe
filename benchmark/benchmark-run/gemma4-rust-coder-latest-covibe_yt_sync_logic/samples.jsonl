@@ -1,0 +1,4 @@
+{"ts": "2026-05-29T04:21:06.718119+00:00", "gpu_temp": 32, "gpu_util": 10, "gpu_mem_util": 8, "gpu_vram_mb": 5788, "gpu_power_w": 17.92, "gpu_clock_mhz": 210, "gpu_throttle": 1, "cpu_bus_mhz": 99.9}
+{"ts": "2026-05-29T04:21:07.728707+00:00", "gpu_temp": 54, "gpu_util": 96, "gpu_mem_util": 52, "gpu_vram_mb": 5785, "gpu_power_w": 109.32, "gpu_clock_mhz": 1987, "gpu_throttle": 0, "cpu_bus_mhz": 99.9}
+{"ts": "2026-05-29T04:21:08.736516+00:00", "gpu_temp": 56, "gpu_util": 99, "gpu_mem_util": 49, "gpu_vram_mb": 5785, "gpu_power_w": 153.66, "gpu_clock_mhz": 1987, "gpu_throttle": 4, "cpu_bus_mhz": 99.9}
+{"ts": "2026-05-29T04:21:09.769283+00:00", "gpu_temp": 55, "gpu_util": 80, "gpu_mem_util": 57, "gpu_vram_mb": 5785, "gpu_power_w": 136.86, "gpu_clock_mhz": 1987, "gpu_throttle": 0, "cpu_bus_mhz": 99.9}

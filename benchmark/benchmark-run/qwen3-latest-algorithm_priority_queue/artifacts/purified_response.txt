@@ -1,0 +1,195 @@
+<think>
+Okay, I need to implement a PriorityQueue class in TypeScript using a Min-Heap. Let me think about how to approach this.
+
+First, the requirements: enqueue(item, priority) and dequeue() methods. Dequeue must return the highest priority item, which is the lowest numerical value. So the heap needs to be a min-heap based on priority.
+
+The internal structure should use a heap. But how to represent the heap? Maybe as an array. Each element in the array will be an object containing the item and its priority. Wait, but maybe I can just store the priorities and items in a way that the heap operations can manage them. Alternatively, I can create a helper class for the heap, but since the user wants the PriorityQueue class to use a min-heap internally, perhaps I can implement the heap operations within the class.
+
+Wait, but maybe I can use the standard heap implementation. Let me think about the heap structure. For a min-heap, each parent node is smaller than its children. So when inserting, we add to the end and bubble up. When removing, we take the root and replace with the last element, then bubble down.
+
+So the PriorityQueue class will have an array that represents the heap. Each element in the array will be an object with item and priority. Wait, but maybe I can store the priority and item together. For example, each element in the heap array is a tuple [priority, item], but in TypeScript, maybe using an object with properties.
+
+Alternatively, I can have a separate array for priorities and items, but that might complicate things. Probably better to store them together. So each element in the heap array is an object with 'priority' and 'item' properties.
+
+So the enqueue method will add a new element to the heap, maintaining the min-heap property. The dequeue method will remove and return the element with the highest priority (lowest numerical value).
+
+Now, implementing the heap operations. Let's outline the methods:
+
+- enqueue: add the item with priority to the heap, then bubble up.
+- dequeue: remove the root, replace with last element, then bubble down.
+- peek: return the root element's item without removing.
+- isEmpty: check if the heap is empty.
+
+But how to implement the bubble up and bubble down functions. Let's think about the heap array. Let's say the heap is stored as an array called 'heap'. Each element is an object with 'priority' and 'item'.
+
+For bubble up: when inserting a new element, we compare it with its parent. If the new element's priority is lower than the parent's, we swap them. Repeat until the element is in the correct position.
+
+For bubble down: when the root is removed, we take the last element and place it at the root. Then compare it with its children. If any child has a lower priority, swap with the smallest child. Repeat until the heap property is restored.
+
+So the PriorityQueue class will have the heap array. Let's start writing the code.
+
+First, the class:
+
+class PriorityQueue {
+  private heap: { priority: number; item: any }[];
+
+  constructor() {
+    this.heap = [];
+  }
+
+  enqueue(item: any, priority: number): void {
+    // Add the new element to the end of the heap array
+    const newNode = { priority, item };
+    this.heap.push(newNode);
+    // Bubble up to maintain heap property
+    this.bubbleUp(this.heap.length - 1);
+  }
+
+  dequeue(): any {
+    if (this.isEmpty()) {
+      throw new Error('Queue is empty');
+    }
+    // Remove the root (index 0)
+    const root = this.heap[0];
+    // Replace root with last element
+    const lastNode = this.heap.pop()!;
+    if (this.heap.length > 0) {
+      this.heap[0] = lastNode;
+      // Bubble down to maintain heap property
+      this.bubbleDown(0);
+    }
+    return root.item;
+  }
+
+  peek(): any {
+    if (this.isEmpty()) {
+      throw new Error('Queue is empty');
+    }
+    return this.heap[0].item;
+  }
+
+  isEmpty(): boolean {
+    return this.heap.length === 0;
+  }
+
+  private bubbleUp(index: number): void {
+    const parentIndex = Math.floor((index - 1) / 2);
+    while (index > 0 && this.heap[index].priority < this.heap[parentIndex].priority) {
+      // Swap
+      [this.heap[index], this.heap[parentIndex]] = [this.heap[parentIndex], this.heap[index]];
+      index = parentIndex;
+      parentIndex = Math.floor((index - 1) / 2);
+    }
+  }
+
+  private bubbleDown(index: number): void {
+    const leftChildIndex = 2 * index + 1;
+    const rightChildIndex = 2 * index + 2;
+    let smallestIndex = index;
+
+    if (leftChildIndex < this.heap.length && this.heap[leftChildIndex].priority < this.heap[smallestIndex].priority) {
+      smallestIndex = leftChildIndex;
+    }
+    if (rightChildIndex < this.heap.length && this.heap[rightChildIndex].priority < this.heap[smallestIndex].priority) {
+      smallestIndex = rightChildIndex;
+    }
+
+    if (smallestIndex !== index) {
+      [this.heap[index], this.heap[smallestIndex]] = [this.heap[smallestIndex], this.heap[index]];
+      this.bubbleDown(smallestIndex);
+    }
+  }
+}
+
+Wait, but in the dequeue method, when we pop the last element, we replace the root with it, and then bubble down. That seems correct.
+
+Now, testing this. Let's think about some test cases.
+
+For example, when enqueuing items with different priorities, the dequeue should return the one with the lowest priority.
+
+But what about when priorities are the same? The problem says that dequeue returns the item with the highest priority (lowest numerical value). So if two items have the same priority, which one is dequeued first? The problem doesn't specify, but the implementation may have to handle that. However, the tests may not need to check that unless specified. Since the problem says that the dequeue must return the item with the highest priority, and if priorities are same, perhaps the order is arbitrary, but the tests may not need to check that.
+
+Now, for the Vitest tests. Let's think about the test cases.
+
+Test cases:
+
+1. Enqueue and dequeue: Check that the item with the highest priority is dequeued first.
+
+For example:
+
+- Enqueue 'a' with priority 3, 'b' with priority 1, 'c' with priority 2.
+- Dequeue should return 'b', then 'c', then 'a'.
+
+2. Peek should return the highest priority item without removing it.
+
+3. isEmpty() should return true when the queue is empty.
+
+4. Edge case: trying to dequeue from an empty queue should throw an error.
+
+5. Enqueue multiple items with same priority, dequeue order is not specified but should return one of them.
+
+Now, implementing the tests with Vitest.
+
+The test file would have:
+
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import PriorityQueue from './PriorityQueue';
+
+describe('PriorityQueue', () => {
+  let queue: PriorityQueue;
+
+  beforeEach(() => {
+    queue = new PriorityQueue();
+  });
+
+  afterEach(() => {
+    queue = new PriorityQueue();
+  });
+
+  it('should enqueue and dequeue items correctly', () => {
+    queue.enqueue('a', 3);
+    queue.enqueue('b', 1);
+    queue.enqueue('c', 2);
+
+    expect(queue.dequeue()).toBe('b');
+    expect(queue.dequeue()).toBe('c');
+    expect(queue.dequeue()).toBe('a');
+  });
+
+  it('should peek the highest priority item', () => {
+    queue.enqueue('a', 3);
+    queue.enqueue('b', 1);
+    queue.enqueue('c', 2);
+
+    expect(queue.peek()).toBe('b');
+  });
+
+  it('should return true when empty', () => {
+    expect(queue.isEmpty()).toBe(true);
+    queue.enqueue('a', 1);
+    expect(queue.isEmpty()).toBe(false);
+    queue.dequeue();
+    expect(queue.isEmpty()).toBe(true);
+  });
+
+  it('should throw error when dequeuing from empty queue', () => {
+    expect(() => queue.dequeue()).toThrow('Queue is empty');
+  });
+
+  it('should handle same priority items', () => {
+    queue.enqueue('a', 1);
+    queue.enqueue('b', 1);
+    expect(queue.dequeue()).toBe('a');
+    expect(queue.dequeue()).toBe('b');
+  });
+});
+
+Wait, but in the test for same priority, the order may depend on the implementation. For example, when two items have the same priority, the one that was enqueued first may be dequeued first. But in the current implementation, when the priorities are the same, the bubble up and bubble down may not swap them. Let me check.
+
+In the bubbleUp function, the condition is if the current node's priority is less than the parent's. So if two nodes have the same priority, they won't be swapped. So in the case of same priority, the order depends on insertion order. So when dequeuing, the first inserted item with same priority would be dequeued first? Or not?
+
+Wait, when inserting 'a' with priority 1, then 'b' with priority 1. The heap array would have:
+
+Initially, after inserting 'a', the heap is [ { priority:1, item:'a' } ]
+
+Inserting 'b' would add to the end. Then bubble up

@@ -1,0 +1,52 @@
+{
+  "benchmark_id": "bench_20260529_1809",
+  "status": "completed",
+  "task_id": "algorithm_priority_queue",
+  "question_category": "coding",
+  "context_length": 8192,
+  "started_at": "2026-05-29T18:09:26.685705+00:00",
+  "ended_at": "2026-05-29T18:09:31.588202+00:00",
+  "duration_seconds": 4.9,
+  "tokens": {
+    "input": 7602,
+    "output": 502,
+    "total": 8104
+  },
+  "throughput": {
+    "avg_tps": 102.4,
+    "min_tps": 92.16,
+    "max_tps": 112.64,
+    "p95_tps": 102.4,
+    "p99_tps": 102.4
+  },
+  "latency": {
+    "ttft_ms": 1087,
+    "inter_token_latency_ms": {
+      "avg": 9.77,
+      "p95": 0.0,
+      "p99": 0.0
+    }
+  },
+  "gpu": {
+    "max_temp_c": 58,
+    "avg_temp_c": 52.8,
+    "max_power_w": 137.19,
+    "avg_power_w": 100.4,
+    "max_vram_mb": 4108,
+    "avg_vram_mb": 4099.6
+  },
+  "efficiency": {
+    "tokens_per_watt": 5.0,
+    "joules_per_token": 0.98
+  },
+  "quality": {
+    "passed": false,
+    "score": 0.5,
+    "verified_by": "vitest"
+  },
+  "kv_cache": {
+    "allocated_mb": 0,
+    "used_mb": 0,
+    "utilization": 0.0
+  }
+}

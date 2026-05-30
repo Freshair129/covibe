@@ -1,5 +1,27 @@
 # CoVibe Benchmark Changelog
 
+## [2.2.0] - 2026-05-30 - Architecture Stability & 16K Context Mastery
+
+### Added
+- **Ollama Restart Hook:** Implemented `scripts/restart_ollama.ps1` to mitigate Windows WDDM VRAM fragmentation.
+- **16K Stress Test Suite:** Created `scripts/run_qwen3_16k_stress.py` for high-load context verification.
+- **Full EABS-01 Report:** Generated `REPORTS/EABS_01_QWEN3_9B_FULL_REPORT.md` covering the entire Qwen 3 (9B) campaign lifecycle.
+- **Mandatory Safety Rule:** Updated `benchmark/GEMINI.md` to enforce EABS-01 compliance checks for all future agents.
+
+### Fixed
+- **VRAM Plateau Issue:** Resolved the ~7.6GB residual VRAM issue via automated service cycling, restoring baseline to ~1.4GB.
+- **Stress Test Timeouts:** Optimized request timeouts (1200s) for massive 16K context prefill operations.
+
+### Performance Results (Qwen 3 9B)
+- **16K Prefill:** 827.89 TPS (Verified stable).
+- **16K Generation:** 13.64 TPS (Verified reasoning fidelity).
+- **Thermal State:** Maintained 70°C peak under 153W load via TDR Guard.
+
+### [RCA] Summary
+- **VRAM Fragmentation:** Confirmed as an OS/Service level limitation on Windows. Mitigation via `restart_ollama.ps1` is now the standard recovery protocol for EABS-01 L4/L5 tasks.
+
+---
+
 ## [2.1.0] - 2026-05-28 - Restructure Revision
 
 ### Added

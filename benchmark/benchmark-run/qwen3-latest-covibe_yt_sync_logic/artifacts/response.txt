@@ -1,0 +1,49 @@
+<think>
+Okay, let's see. I need to implement the DriftCorrection logic for the CoVibe YouTube Player. The task is to create a function called calculateCorrection that takes currentDrift as a number and returns a CorrectionAction. Also, I need to define the CorrectionAction type.
+
+First, I should understand what drift means here. The drift is the difference between the local player's current time and the leader's time. So, if the local time is behind, the drift would be negative? Or is it absolute? Wait, the problem says drift is calculated as the difference between local player's current time and the leader's time. So, if local is behind, drift would be negative. But the requirements mention drift < 250ms, etc. So maybe they're considering absolute values? Or maybe the drift is always positive? Hmm, the problem says "drift is calculated as the difference", but the requirements use drift as a value that can be positive or negative? Or maybe the drift is always considered as the absolute value? Wait, looking at the requirements:
+
+If drift < 250ms: do nothing. So if drift is negative, like -100ms, then it's less than 250ms. But maybe the drift is always positive? Or maybe the drift is the absolute value. Wait, the problem says "the difference between the local player's current time and the leader's time." So that could be positive or negative. But the requirements mention drift < 250ms, which could be either positive or negative. But the correction actions are based on the magnitude. For example, if the drift is -300ms, that's 300ms behind, which would be in the 250-800 range. So maybe the code should take the absolute value of drift when checking the thresholds?
+
+Wait, but the problem says "if drift < 250ms: do nothing". So if the drift is negative, like -100ms, then it's less than 250ms. But that's a drift of 100ms in the negative direction. But the requirement says "smooth playback" when drift is less than 250ms. So maybe the drift is considered as the absolute value? Or maybe the code is supposed to handle both positive and negative drifts, but the thresholds are based on absolute values. Hmm, the problem statement isn't entirely clear. But looking at the requirements:
+
+The first condition is if drift < 250ms: do nothing. So if the drift is negative, like -100ms, then it's less than 250ms. But that's a drift of 100ms in the negative direction. However, the requirement says "smooth playback" when drift is less than 250ms. So perhaps the code should check the absolute value of drift. But the problem statement says "drift is calculated as the difference between the local player's current time and the leader's time." So if the local time is behind, the drift is negative. But the correction logic is based on the magnitude of the drift. So maybe the code should take the absolute value of drift when checking the thresholds.
+
+Alternatively, maybe the drift is always positive. For example, if the local time is behind, the drift is considered as a positive value. But the problem says drift is the difference, which could be negative. So perhaps the code should check the absolute value of drift. Let me think. For example, if the drift is -300ms, that's a 300ms lag. So the code should adjust playback rate if the absolute value is between 250 and 800. So in the code, when checking the conditions, we need to take the absolute value of currentDrift.
+
+Wait, but the problem says "if drift < 250ms: do nothing". So if the drift is negative, like -100ms, then it's less than 250ms. But that's a drift of 100ms. So maybe the code is intended to handle both positive and negative drifts, but the thresholds are based on the absolute value. So perhaps the code should take the absolute value of currentDrift when checking the conditions.
+
+But the problem's wording is ambiguous. However, looking at the requirements again:
+
+- If drift < 250ms: Do nothing (smooth playback).
+- If 250ms <= drift <= 800ms: Adjust playback rate...
+- If drift > 800ms: Hard seek.
+
+But if drift can be negative, then for example, a drift of -300ms would be in the second condition (since 250ms <= |-300ms| <= 800ms). But the problem's wording says "drift" in the conditions. So perhaps the code should check the absolute value of drift. But how to handle the direction? For example, if the drift is positive (local time is ahead), then we need to slow down. If it's negative (local time is behind), we need to speed up.
+
+So the correction action depends on the sign of the drift. So the code needs to check the absolute value of drift for the thresholds, and then decide whether to adjust playback rate up or down based on the sign.
+
+But the problem's requirements don't mention that. The requirements say:
+
+- If drift < 250ms: do nothing.
+- If 250ms <= drift <= 800ms: adjust playback rate to 0.95x or 1.05x to catch up/slow down seamlessly.
+
+Wait, the wording says "catch up/slow down". So if the drift is positive (local time is ahead), then the playback rate should be slowed down (0.95x). If the drift is negative (local time is behind), then the playback rate should be increased (1.05x) to catch up.
+
+So the code needs to determine the direction based on the sign of the drift. But the thresholds are based on the absolute value of drift.
+
+So the steps for the function would be:
+
+1. Calculate the absolute value of currentDrift to check the thresholds.
+
+2. If absolute drift is less than 250ms: return no action.
+
+3. If absolute drift is between 250ms and 800ms: adjust playback rate. The playback rate is 0.95x if drift is positive (local is ahead, need to slow down), or 1.05x if drift is negative (local is behind, need to speed up).
+
+4. If absolute drift is more than 800ms: perform a hard seek.
+
+So the CorrectionAction type needs to have different types of actions. For example, it could be an enum with 'NoAction', 'AdjustPlaybackRate', 'SeekTo', and then have properties for the playback rate or the timestamp.
+
+But the problem says that the 'seekTo' is to the correct timestamp. How is that calculated? Well, the correct timestamp would be the leader's time. But the function is given the currentDrift, which is local time minus leader's time. So currentDrift = localTime - serverTime. So if the drift is positive, local is ahead. So to correct, the seekTo would be to serverTime (leader's time). But how to calculate that? Wait, the currentDrift is the difference between local and server time. So serverTime = localTime - drift. Wait, no: drift = localTime - serverTime. So serverTime = localTime - drift. So if we need to seek to serverTime, then the seekTo timestamp is serverTime. But how do we get that? Wait, the function is given currentDrift, but not the serverTime or localTime. So perhaps the seekTo action requires the correct timestamp, which is serverTime. But how can we compute that from currentDrift? Well, the currentDrift is localTime - serverTime. So serverTime = localTime - currentDrift. But the localTime is the current time of the player. However, the function doesn't have access to localTime or serverTime. So perhaps the seekTo action is to adjust the player's time to match the serverTime. But how to compute that? Wait, the currentDrift is the difference between local and server time. So if the currentDrift is, say, 1000ms, then the serverTime is localTime - 1000ms. So to seek to serverTime, the player should seek to localTime - currentDrift. But the function doesn't have access to localTime. Hmm, this is a problem.
+
+Wait, but the function is called 'calculateCorrection' and given currentDrift. How can it know the correct timestamp to seek to? Because the correct timestamp is serverTime, which is localTime - currentDrift. But the function doesn't have access to localTime. So perhaps the seekTo action is to adjust the player's time to the serverTime, which is the current local time minus the drift. But how can the function compute that? Unless the currentDrift is the difference between the local time and the server time, and the seekTo action is to set the player's time to the server time. But the function doesn't have access to the server time. So perhaps the seekTo action is to set the player's time to the current local time minus the drift. But how can the

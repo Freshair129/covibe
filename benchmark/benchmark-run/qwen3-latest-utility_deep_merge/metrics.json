@@ -1,0 +1,23 @@
+{
+  "benchmark_id": "bench_qwen3_20260530_0616",
+  "status": "completed",
+  "task_id": "utility_deep_merge",
+  "started_at": "2026-05-30T06:19:44.186229",
+  "duration_sec": 207.77713680267334,
+  "tokens": {
+    "total": 2000
+  },
+  "throughput": {
+    "avg_tps": 9.62569814358067
+  },
+  "gpu": {
+    "max_temp_c": 48,
+    "max_power_w": 89.25,
+    "max_vram_mb": 11560
+  },
+  "quality": {
+    "passed": true,
+    "score": 0.5,
+    "verified_by": "auto-runner"
+  }
+}

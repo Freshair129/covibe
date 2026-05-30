@@ -7,7 +7,7 @@ Welcome to the CoVibe Benchmarking control directory.
 > Before executing ANY benchmark tasks, writing any orchestrator scripts, or analyzing telemetry, you MUST first read and adhere to the official Single Source of Truth (SSOT) document:
 > * **SSOT Document Path:** [CoVibe-ENTERPRISE-BENCHMARK-STANDARD.md](./CoVibe-ENTERPRISE-BENCHMARK-STANDARD.md)
 >
-> You are required to read that file at the start of your benchmark session.
+> You are required to read that file at the start of your benchmark session. FAILURE TO COMPLY WITH EABS-01 STANDARDS MAY LEAD TO HARDWARE INSTABILITY OR DATA INACCURACY.
 
 ## Core Directives
 1. **Guided Knowledge System (.gks):** This directory utilizes a standardized vault structure located in `.gks/`. Future agents MUST consult the templates (ALGO, FLOW, ISSUE, RUNBOOK, etc.) in `.gks` before making architectural decisions or investigating hardware limits. See `.gks/README.md` for the taxonomy.

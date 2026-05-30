@@ -1,0 +1,1580 @@
+
+LibreHardwareMonitor Report
+
+--------------------------------------------------------------------------------
+
+Version: 0.9.6.0
+
+--------------------------------------------------------------------------------
+
+Common Language Runtime: 4.0.30319.42000
+Operating System: Microsoft Windows NT 10.0.19045.0
+Process Type: 64-Bit
+
+--------------------------------------------------------------------------------
+
+Sensors
+
+|
++- MSI Z370-A PRO (MS-7B48) (/motherboard)
+|  |
+|  +- Nuvoton NCT6795D (/lpc/nct6795d/0)
+|  |  +- Vcore          :    0.928     0.68    1.184 (/lpc/nct6795d/0/voltage/0)
+|  |  +- Voltage #2     :    1.024    1.024    1.024 (/lpc/nct6795d/0/voltage/1)
+|  |  +- AVCC           :    3.344    3.344    3.344 (/lpc/nct6795d/0/voltage/2)
+|  |  +- +3.3V          :    3.376     3.36    3.376 (/lpc/nct6795d/0/voltage/3)
+|  |  +- Voltage #5     :    1.008    1.008    1.016 (/lpc/nct6795d/0/voltage/4)
+|  |  +- Voltage #6     :    0.152    0.152    0.152 (/lpc/nct6795d/0/voltage/5)
+|  |  +- Voltage #7     :     0.96     0.96     0.96 (/lpc/nct6795d/0/voltage/6)
+|  |  +- +3V Standby    :    3.328    3.328    3.344 (/lpc/nct6795d/0/voltage/7)
+|  |  +- CMOS Battery   :    2.976    2.976    2.976 (/lpc/nct6795d/0/voltage/8)
+|  |  +- CPU Termination :     1.04     1.04     1.04 (/lpc/nct6795d/0/voltage/9)
+|  |  +- Voltage #11    :    1.064    1.064    1.064 (/lpc/nct6795d/0/voltage/10)
+|  |  +- Voltage #13    :    0.992    0.992        1 (/lpc/nct6795d/0/voltage/12)
+|  |  +- Voltage #14    :      0.6      0.6      0.6 (/lpc/nct6795d/0/voltage/13)
+|  |  +- Voltage #15    :    1.536    1.528    1.536 (/lpc/nct6795d/0/voltage/14)
+|  |  +- CPU Core       :       25     23.5       32 (/lpc/nct6795d/0/temperature/0)
+|  |  +- Temperature #1 :       45     44.5       46 (/lpc/nct6795d/0/temperature/1)
+|  |  +- Temperature #2 :       37       37       38 (/lpc/nct6795d/0/temperature/2)
+|  |  +- Temperature #3 :        3        3        3 (/lpc/nct6795d/0/temperature/3)
+|  |  +- Temperature #4 :       22       22       23 (/lpc/nct6795d/0/temperature/4)
+|  |  +- Fan #1         :        0        0        0 (/lpc/nct6795d/0/fan/0)
+|  |  +- Fan #2         :  535.289  528.583   536.14 (/lpc/nct6795d/0/fan/1)
+|  |  +- Fan #3         :        0        0        0 (/lpc/nct6795d/0/fan/2)
+|  |  +- Fan #4         :        0        0        0 (/lpc/nct6795d/0/fan/3)
+|  |  +- Fan #5         :        0        0        0 (/lpc/nct6795d/0/fan/4)
+|  |  +- Fan #6         :        0        0        0 (/lpc/nct6795d/0/fan/5)
+|  |  +- Fan #1         :  12.9412  12.9412  12.9412 (/lpc/nct6795d/0/control/0)
+|  |  +- Fan #2         :  12.9412  12.9412  12.9412 (/lpc/nct6795d/0/control/1)
+|  |  +- Fan #3         :  57.6471  57.6471  57.6471 (/lpc/nct6795d/0/control/2)
+|  |  +- Fan #4         :  57.6471  57.6471  57.6471 (/lpc/nct6795d/0/control/3)
+|  |  +- Fan #5         :  57.6471  57.6471  57.6471 (/lpc/nct6795d/0/control/4)
+|  |  +- Fan #6         :  57.6471  57.6471  57.6471 (/lpc/nct6795d/0/control/5)
+|
++- Intel Core i7-8700K (/intelcpu/0)
+|  +- CPU Core       :  1.04199 0.648682  1.23853 (/intelcpu/0/voltage/0)
+|  +- CPU Core #1    :    1.052 0.649048  1.23853 (/intelcpu/0/voltage/1)
+|  +- CPU Core #2    :  1.03088  0.64917  1.24121 (/intelcpu/0/voltage/2)
+|  +- CPU Core #3    :  1.02087 0.649414  1.23535 (/intelcpu/0/voltage/3)
+|  +- CPU Core #4    :  1.01294  0.64978  1.22937 (/intelcpu/0/voltage/4)
+|  +- CPU Core #5    :  1.02734 0.648926  1.22937 (/intelcpu/0/voltage/5)
+|  +- CPU Core #6    :  1.06409 0.648926  1.22742 (/intelcpu/0/voltage/6)
+|  +- CPU Package    :   15.089  7.78443  35.5955 (/intelcpu/0/power/0)
+|  +- CPU Cores      :  11.6394  4.36712  31.9658 (/intelcpu/0/power/1)
+|  +- CPU Memory     : 0.646213  0.55626  1.34226 (/intelcpu/0/power/3)
+|  +- CPU Platform   :        0        0        0 (/intelcpu/0/power/4)
+|  +- Bus Speed      :  99.8919  99.8915  99.8981 (/intelcpu/0/clock/0)
+|  +- CPU Core #1    :  4295.35  799.133  4495.13 (/intelcpu/0/clock/1)
+|  +- CPU Core #2    :  4295.35  799.133  4395.24 (/intelcpu/0/clock/2)
+|  +- CPU Core #3    :  4295.35  799.132  4395.51 (/intelcpu/0/clock/3)
+|  +- CPU Core #4    :     3696  799.132  4395.24 (/intelcpu/0/clock/4)
+|  +- CPU Core #5    :  3995.67  799.132  4395.51 (/intelcpu/0/clock/5)
+|  +- CPU Core #6    :  3795.89  799.133  4395.51 (/intelcpu/0/clock/6)
+|  +- Core Max       :       47       35       52 (/intelcpu/0/temperature/0)
+|  +- Core Average   :       39       34       45 (/intelcpu/0/temperature/1)
+|  +- CPU Core #1    :       36       34       52 (/intelcpu/0/temperature/2)
+|  +- CPU Core #2    :       47       34       49 (/intelcpu/0/temperature/3)
+|  +- CPU Core #3    :       39       34       47 (/intelcpu/0/temperature/4)
+|  +- CPU Core #4    :       35       33       51 (/intelcpu/0/temperature/5)
+|  +- CPU Core #5    :       35       34       51 (/intelcpu/0/temperature/6)
+|  +- CPU Core #6    :       42       33       46 (/intelcpu/0/temperature/7)
+|  +- CPU Package    :       42       36       53 (/intelcpu/0/temperature/8)
+|  +- CPU Core #1 Distance to TjMax :       64       48       66 (/intelcpu/0/temperature/9)
+|  +- CPU Core #2 Distance to TjMax :       53       51       66 (/intelcpu/0/temperature/10)
+|  +- CPU Core #3 Distance to TjMax :       61       53       66 (/intelcpu/0/temperature/11)
+|  +- CPU Core #4 Distance to TjMax :       65       49       67 (/intelcpu/0/temperature/12)
+|  +- CPU Core #5 Distance to TjMax :       65       49       66 (/intelcpu/0/temperature/13)
+|  +- CPU Core #6 Distance to TjMax :       58       54       67 (/intelcpu/0/temperature/14)
+|  +- CPU Total      :     5.88     1.56    24.48 (/intelcpu/0/load/0)
+|  +- CPU Core Max   :    17.65     6.25    81.25 (/intelcpu/0/load/1)
+|  +- CPU Core #1 Thread #1 :    17.65        0       75 (/intelcpu/0/load/2)
+|  +- CPU Core #1 Thread #2 :        0        0    81.25 (/intelcpu/0/load/3)
+|  +- CPU Core #2 Thread #1 :    11.76        0    47.06 (/intelcpu/0/load/4)
+|  +- CPU Core #2 Thread #2 :     5.88        0       25 (/intelcpu/0/load/5)
+|  +- CPU Core #3 Thread #1 :     5.88        0    31.25 (/intelcpu/0/load/6)
+|  +- CPU Core #3 Thread #2 :        0        0       25 (/intelcpu/0/load/7)
+|  +- CPU Core #4 Thread #1 :        0        0       25 (/intelcpu/0/load/8)
+|  +- CPU Core #4 Thread #2 :        0        0    18.75 (/intelcpu/0/load/9)
+|  +- CPU Core #5 Thread #1 :        0        0    41.18 (/intelcpu/0/load/10)
+|  +- CPU Core #5 Thread #2 :     5.88        0    23.53 (/intelcpu/0/load/11)
+|  +- CPU Core #6 Thread #1 :    17.65     6.25    58.82 (/intelcpu/0/load/12)
+|  +- CPU Core #6 Thread #2 :     5.88        0       25 (/intelcpu/0/load/13)
+|
++- Virtual Memory (/vram)
+|  +- Memory         :  42.6834  42.4169  42.9849 (/vram/load/1)
+|  +- Memory Used    :  18.9776  18.8591  19.1117 (/vram/data/2)
+|  +- Memory Available :  25.4838  25.3497  25.6022 (/vram/data/3)
+|
++- Total Memory (/ram)
+|  +- Memory         :  35.6982  35.6087   35.844 (/ram/load/0)
+|  +- Memory Used    :  11.4096   11.381  11.4562 (/ram/data/0)
+|  +- Memory Available :  20.5517  20.5051  20.5803 (/ram/data/1)
+|
++- Corsair - CMG32GX4M2D3600C18 (#1) (/memory/dimm/1)
+|  +- Capacity       :       16       16       16 (/memory/dimm/1/data/50)
+|  +- tCKAVGmin (Minimum Cycle Time) :    0.938    0.938    0.938 (/memory/dimm/1/timing/20)
+|  +- tCKAVGmax (Maximum Cycle Time) :      1.5      1.5      1.5 (/memory/dimm/1/timing/21)
+|  +- tAA (CAS Latency Time) :     13.5     13.5     13.5 (/memory/dimm/1/timing/22)
+|  +- tRCD (RAS to CAS Delay Time) :     13.5     13.5     13.5 (/memory/dimm/1/timing/23)
+|  +- tRP (Row Precharge Delay Time) :     13.5     13.5     13.5 (/memory/dimm/1/timing/24)
+|  +- tRAS (Active to Precharge Delay Time) :       33       33       33 (/memory/dimm/1/timing/25)
+|  +- tRC (Active to Active/Refresh Delay Time) :     46.5     46.5     46.5 (/memory/dimm/1/timing/26)
+|  +- tRFC1 (Refresh Recovery Delay Time) :      550      550      550 (/memory/dimm/1/timing/27)
+|  +- tRFC2 (Refresh Recovery Delay Time) :      350      350      350 (/memory/dimm/1/timing/28)
+|  +- tRFC4 (Refresh Recovery Delay Time) :      260      260      260 (/memory/dimm/1/timing/29)
+|  +- tFAW (Four Activate Window Time) :       21       21       21 (/memory/dimm/1/timing/30)
+|  +- tRRD_S (Activate to Activate Delay Time) :      3.7      3.7      3.7 (/memory/dimm/1/timing/31)
+|  +- tRRD_L (Activate to Activate Delay Time) :      5.3      5.3      5.3 (/memory/dimm/1/timing/32)
+|  +- tCCD_L (CAS to CAS Delay Time) :    5.356    5.356    5.356 (/memory/dimm/1/timing/33)
+|  +- tWR (Write Recovery Time) :        0        0        0 (/memory/dimm/1/timing/34)
+|  +- tWTR_S (Write to Read Time) :        0        0        0 (/memory/dimm/1/timing/35)
+|  +- tWTR_L (Write to Read Time) :        0        0        0 (/memory/dimm/1/timing/36)
+|
++- Corsair - CMG32GX4M2D3600C18 (#3) (/memory/dimm/3)
+|  +- Capacity       :       16       16       16 (/memory/dimm/3/data/50)
+|  +- tCKAVGmin (Minimum Cycle Time) :    0.938    0.938    0.938 (/memory/dimm/3/timing/20)
+|  +- tCKAVGmax (Maximum Cycle Time) :      1.5      1.5      1.5 (/memory/dimm/3/timing/21)
+|  +- tAA (CAS Latency Time) :     13.5     13.5     13.5 (/memory/dimm/3/timing/22)
+|  +- tRCD (RAS to CAS Delay Time) :     13.5     13.5     13.5 (/memory/dimm/3/timing/23)
+|  +- tRP (Row Precharge Delay Time) :     13.5     13.5     13.5 (/memory/dimm/3/timing/24)
+|  +- tRAS (Active to Precharge Delay Time) :       33       33       33 (/memory/dimm/3/timing/25)
+|  +- tRC (Active to Active/Refresh Delay Time) :     46.5     46.5     46.5 (/memory/dimm/3/timing/26)
+|  +- tRFC1 (Refresh Recovery Delay Time) :      550      550      550 (/memory/dimm/3/timing/27)
+|  +- tRFC2 (Refresh Recovery Delay Time) :      350      350      350 (/memory/dimm/3/timing/28)
+|  +- tRFC4 (Refresh Recovery Delay Time) :      260      260      260 (/memory/dimm/3/timing/29)
+|  +- tFAW (Four Activate Window Time) :       21       21       21 (/memory/dimm/3/timing/30)
+|  +- tRRD_S (Activate to Activate Delay Time) :      3.7      3.7      3.7 (/memory/dimm/3/timing/31)
+|  +- tRRD_L (Activate to Activate Delay Time) :      5.3      5.3      5.3 (/memory/dimm/3/timing/32)
+|  +- tCCD_L (CAS to CAS Delay Time) :    5.356    5.356    5.356 (/memory/dimm/3/timing/33)
+|  +- tWR (Write Recovery Time) :        0        0        0 (/memory/dimm/3/timing/34)
+|  +- tWTR_S (Write to Read Time) :        0        0        0 (/memory/dimm/3/timing/35)
+|  +- tWTR_L (Write to Read Time) :        0        0        0 (/memory/dimm/3/timing/36)
+|
++- NVIDIA GeForce RTX 3060 (/gpu-nvidia/0)
+|  +- GPU Core Voltage :   0.6625   0.6625   0.6625 (/gpu-nvidia/0/voltage/0)
+|  +- GPU Package    :   18.413   17.662   19.076 (/gpu-nvidia/0/power/0)
+|  +- GPU Core       :      210      210      292 (/gpu-nvidia/0/clock/0)
+|  +- GPU Memory     :      405      405      405 (/gpu-nvidia/0/clock/4)
+|  +- GPU Core       :       33       32       33 (/gpu-nvidia/0/temperature/0)
+|  +- GPU Hot Spot   :  44.0313  43.5313  44.5313 (/gpu-nvidia/0/temperature/2)
+|  +- GPU Core       :        3        0       53 (/gpu-nvidia/0/load/0)
+|  +- GPU Memory Controller :        7        6       33 (/gpu-nvidia/0/load/1)
+|  +- GPU Video Engine :        0        0        0 (/gpu-nvidia/0/load/2)
+|  +- GPU Memory     :  12.5113  12.2997  12.5545 (/gpu-nvidia/0/load/3)
+|  +- GPU Bus        :        2        0        7 (/gpu-nvidia/0/load/3)
+|  +- GPU Power      :   10.707   10.308   11.943 (/gpu-nvidia/0/load/4)
+|  +- GPU Board Power :   10.716   10.345   12.956 (/gpu-nvidia/0/load/5)
+|  +- D3D 3D         :  4.64543  1.66812  29.0796 (/gpu-nvidia/0/load/7)
+|  +- D3D Compute_0  :        0        0        0 (/gpu-nvidia/0/load/8)
+|  +- D3D Compute_1  :        0        0        0 (/gpu-nvidia/0/load/9)
+|  +- D3D Copy       :        0        0        0 (/gpu-nvidia/0/load/10)
+|  +- D3D Copy       : 0.0616289        0 0.378554 (/gpu-nvidia/0/load/11)
+|  +- D3D Copy       : 0.277736        0  1.37591 (/gpu-nvidia/0/load/12)
+|  +- D3D Copy       :        0        0        0 (/gpu-nvidia/0/load/13)
+|  +- D3D Copy       :        0        0        0 (/gpu-nvidia/0/load/14)
+|  +- D3D Copy       :        0        0        0 (/gpu-nvidia/0/load/15)
+|  +- D3D Cuda       :        0        0        0 (/gpu-nvidia/0/load/16)
+|  +- D3D Graphics_1 :        0        0        0 (/gpu-nvidia/0/load/17)
+|  +- D3D Optical Flow Accelerator 0 :        0        0        0 (/gpu-nvidia/0/load/18)
+|  +- D3D Overlay    :        0        0        0 (/gpu-nvidia/0/load/19)
+|  +- D3D Security   :        0        0        0 (/gpu-nvidia/0/load/20)
+|  +- D3D Video Decode :        0        0        0 (/gpu-nvidia/0/load/21)
+|  +- D3D Video Encode :        0        0        0 (/gpu-nvidia/0/load/22)
+|  +- D3D VR         :        0        0        0 (/gpu-nvidia/0/load/23)
+|  +- GPU Fan 1      :     1013     1008     1016 (/gpu-nvidia/0/fan/1)
+|  +- GPU Fan 2      :        0        0        0 (/gpu-nvidia/0/fan/2)
+|  +- GPU Fan 1      :        0        0        0 (/gpu-nvidia/0/control/1)
+|  +- GPU Fan 2      :        0        0        0 (/gpu-nvidia/0/control/2)
+|  +- GPU Memory Free :    10750    10745    10776 (/gpu-nvidia/0/smalldata/0)
+|  +- GPU Memory Used :     1537     1511     1542 (/gpu-nvidia/0/smalldata/1)
+|  +- GPU Memory Total :    12288    12288    12288 (/gpu-nvidia/0/smalldata/2)
+|  +- D3D Dedicated Memory Used :  1372.71  1345.56   1378.1 (/gpu-nvidia/0/smalldata/3)
+|  +- D3D Shared Memory Used :  135.106   126.52   138.75 (/gpu-nvidia/0/smalldata/4)
+|  +- GPU PCIe Rx    :   149504    49152 9.68499E+07 (/gpu-nvidia/0/throughput/0)
+|  +- GPU PCIe Tx    :    99328    49152 2.02496E+07 (/gpu-nvidia/0/throughput/1)
+|
++- WDC  WDS250G2B0A-00SM50  (/ssd/0)
+|  +- Temperature    :       38        0       38 (/ssd/0/temperature/0)
+|  +- Used Space     :  83.8352  83.8351  83.8353 (/ssd/0/load/30)
+|  +- Read Activity  :        0        0  9.85918 (/ssd/0/load/51)
+|  +- Write Activity :        0        0   10.914 (/ssd/0/load/52)
+|  +- Total Activity :        0        0  99.9999 (/ssd/0/load/53)
+|  +- Life           :       67        0       67 (/ssd/0/level/20)
+|  +- Power On Count :      515        0      515 (/ssd/0/factor/23)
+|  +- Power On Hours :    37926        0    37926 (/ssd/0/factor/24)
+|  +- Data Read      :    30811        0    30811 (/ssd/0/data/21)
+|  +- Data Written   :    79807        0    79807 (/ssd/0/data/22)
+|  +- Free Space     :  40.4215  40.4214  40.4219 (/ssd/0/data/31)
+|  +- Total Space    :  250.059  250.059  250.059 (/ssd/0/data/32)
+|  +- Read Rate      :        0        0 8.11279E+06 (/ssd/0/throughput/54)
+|  +- Write Rate     :        0        0 1.65869E+07 (/ssd/0/throughput/55)
+|
++- WDC WD10EZEX-00RKKA0 (/hdd/2)
+|  +- Temperature    :       38        0       38 (/hdd/2/temperature/0)
+|  +- Used Space     :  54.8752  54.8752  54.8752 (/hdd/2/load/30)
+|  +- Read Activity  :        0        0  9.60181 (/hdd/2/load/51)
+|  +- Write Activity :        0        0  29.9208 (/hdd/2/load/52)
+|  +- Total Activity :  0.06955        0  99.9999 (/hdd/2/load/53)
+|  +- Power On Count :    43818        0    43818 (/hdd/2/factor/23)
+|  +- Power On Hours :    44703        0    44703 (/hdd/2/factor/24)
+|  +- Free Space     :  451.341  451.341  451.341 (/hdd/2/data/31)
+|  +- Total Space    :  1000.21  1000.21  1000.21 (/hdd/2/data/32)
+|  +- Read Rate      :        0        0    53460 (/hdd/2/throughput/54)
+|  +- Write Rate     :        0        0 3.50163E+06 (/hdd/2/throughput/55)
+|
++- WDC WD20EZRX-00D8PB0 (/hdd/1)
+|  +- Temperature    :       36        0       36 (/hdd/1/temperature/0)
+|  +- Used Space     :  28.5672  28.5672  28.5672 (/hdd/1/load/30)
+|  +- Read Activity  :        0        0   3.0791 (/hdd/1/load/51)
+|  +- Write Activity :        0        0  33.6333 (/hdd/1/load/52)
+|  +- Total Activity :        0        0  99.9999 (/hdd/1/load/53)
+|  +- Power On Count :     1716        0     1716 (/hdd/1/factor/23)
+|  +- Power On Hours :    27221        0    27221 (/hdd/1/factor/24)
+|  +- Free Space     :  1428.94  1428.94  1428.94 (/hdd/1/data/31)
+|  +- Total Space    :   2000.4   2000.4   2000.4 (/hdd/1/data/32)
+|  +- Read Rate      :        0        0  47558.8 (/hdd/1/throughput/54)
+|  +- Write Rate     :        0        0 3.5248E+06 (/hdd/1/throughput/55)
+|
++- Ethernet (/nic/%7B69B5AA58-9940-4602-8D57-7986AF5AFA6A%7D)
+|  +- Network Utilization : 0.0398724        0  2.70326 (/nic/%7B69B5AA58-9940-4602-8D57-7986AF5AFA6A%7D/load/1)
+|  +- Data Uploaded  : 0.291399 0.291226 0.291399 (/nic/%7B69B5AA58-9940-4602-8D57-7986AF5AFA6A%7D/data/2)
+|  +- Data Downloaded :  1.18072  1.18002  1.18072 (/nic/%7B69B5AA58-9940-4602-8D57-7986AF5AFA6A%7D/data/3)
+|  +- Upload Speed   :        0        0  43152.4 (/nic/%7B69B5AA58-9940-4602-8D57-7986AF5AFA6A%7D/throughput/7)
+|  +- Download Speed :  4984.05        0   320637 (/nic/%7B69B5AA58-9940-4602-8D57-7986AF5AFA6A%7D/throughput/8)
+
+--------------------------------------------------------------------------------
+
+Parameters
+
+|
++- MSI Z370-A PRO (MS-7B48) (/motherboard)
+|  |
+|  +- Nuvoton NCT6795D (/lpc/nct6795d/0)
+|  |  |
+|  |  +- Vcore (/lpc/nct6795d/0/voltage/0)
+|  |  |  +- Ri [kΩ] : 0 : 0
+|  |  |  +- Rf [kΩ] : 1 : 1
+|  |  |  +- Vf [V] : 0 : 0
+|  |  |
+|  |  +- Voltage #2 (/lpc/nct6795d/0/voltage/1)
+|  |  |  +- Ri [kΩ] : 0 : 0
+|  |  |  +- Rf [kΩ] : 1 : 1
+|  |  |  +- Vf [V] : 0 : 0
+|  |  |
+|  |  +- AVCC (/lpc/nct6795d/0/voltage/2)
+|  |  |  +- Ri [kΩ] : 34 : 34
+|  |  |  +- Rf [kΩ] : 34 : 34
+|  |  |  +- Vf [V] : 0 : 0
+|  |  |
+|  |  +- +3.3V (/lpc/nct6795d/0/voltage/3)
+|  |  |  +- Ri [kΩ] : 34 : 34
+|  |  |  +- Rf [kΩ] : 34 : 34
+|  |  |  +- Vf [V] : 0 : 0
+|  |  |
+|  |  +- Voltage #5 (/lpc/nct6795d/0/voltage/4)
+|  |  |  +- Ri [kΩ] : 0 : 0
+|  |  |  +- Rf [kΩ] : 1 : 1
+|  |  |  +- Vf [V] : 0 : 0
+|  |  |
+|  |  +- Voltage #6 (/lpc/nct6795d/0/voltage/5)
+|  |  |  +- Ri [kΩ] : 0 : 0
+|  |  |  +- Rf [kΩ] : 1 : 1
+|  |  |  +- Vf [V] : 0 : 0
+|  |  |
+|  |  +- Voltage #7 (/lpc/nct6795d/0/voltage/6)
+|  |  |  +- Ri [kΩ] : 0 : 0
+|  |  |  +- Rf [kΩ] : 1 : 1
+|  |  |  +- Vf [V] : 0 : 0
+|  |  |
+|  |  +- +3V Standby (/lpc/nct6795d/0/voltage/7)
+|  |  |  +- Ri [kΩ] : 34 : 34
+|  |  |  +- Rf [kΩ] : 34 : 34
+|  |  |  +- Vf [V] : 0 : 0
+|  |  |
+|  |  +- CMOS Battery (/lpc/nct6795d/0/voltage/8)
+|  |  |  +- Ri [kΩ] : 34 : 34
+|  |  |  +- Rf [kΩ] : 34 : 34
+|  |  |  +- Vf [V] : 0 : 0
+|  |  |
+|  |  +- CPU Termination (/lpc/nct6795d/0/voltage/9)
+|  |  |  +- Ri [kΩ] : 0 : 0
+|  |  |  +- Rf [kΩ] : 1 : 1
+|  |  |  +- Vf [V] : 0 : 0
+|  |  |
+|  |  +- Voltage #11 (/lpc/nct6795d/0/voltage/10)
+|  |  |  +- Ri [kΩ] : 0 : 0
+|  |  |  +- Rf [kΩ] : 1 : 1
+|  |  |  +- Vf [V] : 0 : 0
+|  |  |
+|  |  +- Voltage #13 (/lpc/nct6795d/0/voltage/12)
+|  |  |  +- Ri [kΩ] : 0 : 0
+|  |  |  +- Rf [kΩ] : 1 : 1
+|  |  |  +- Vf [V] : 0 : 0
+|  |  |
+|  |  +- Voltage #14 (/lpc/nct6795d/0/voltage/13)
+|  |  |  +- Ri [kΩ] : 0 : 0
+|  |  |  +- Rf [kΩ] : 1 : 1
+|  |  |  +- Vf [V] : 0 : 0
+|  |  |
+|  |  +- Voltage #15 (/lpc/nct6795d/0/voltage/14)
+|  |  |  +- Ri [kΩ] : 0 : 0
+|  |  |  +- Rf [kΩ] : 1 : 1
+|  |  |  +- Vf [V] : 0 : 0
+|  |  |
+|  |  +- CPU Core (/lpc/nct6795d/0/temperature/0)
+|  |  |  +- Offset [°C] : 0 : 0
+|  |  |
+|  |  +- Temperature #1 (/lpc/nct6795d/0/temperature/1)
+|  |  |  +- Offset [°C] : 0 : 0
+|  |  |
+|  |  +- Temperature #2 (/lpc/nct6795d/0/temperature/2)
+|  |  |  +- Offset [°C] : 0 : 0
+|  |  |
+|  |  +- Temperature #3 (/lpc/nct6795d/0/temperature/3)
+|  |  |  +- Offset [°C] : 0 : 0
+|  |  |
+|  |  +- Temperature #4 (/lpc/nct6795d/0/temperature/4)
+|  |  |  +- Offset [°C] : 0 : 0
+|
++- Intel Core i7-8700K (/intelcpu/0)
+|  |
+|  +- CPU Core #1 (/intelcpu/0/temperature/2)
+|  |  +- TjMax [°C] : 100 : 100
+|  |  +- TSlope [°C] : 1 : 1
+|  |
+|  +- CPU Core #2 (/intelcpu/0/temperature/3)
+|  |  +- TjMax [°C] : 100 : 100
+|  |  +- TSlope [°C] : 1 : 1
+|  |
+|  +- CPU Core #3 (/intelcpu/0/temperature/4)
+|  |  +- TjMax [°C] : 100 : 100
+|  |  +- TSlope [°C] : 1 : 1
+|  |
+|  +- CPU Core #4 (/intelcpu/0/temperature/5)
+|  |  +- TjMax [°C] : 100 : 100
+|  |  +- TSlope [°C] : 1 : 1
+|  |
+|  +- CPU Core #5 (/intelcpu/0/temperature/6)
+|  |  +- TjMax [°C] : 100 : 100
+|  |  +- TSlope [°C] : 1 : 1
+|  |
+|  +- CPU Core #6 (/intelcpu/0/temperature/7)
+|  |  +- TjMax [°C] : 100 : 100
+|  |  +- TSlope [°C] : 1 : 1
+|  |
+|  +- CPU Package (/intelcpu/0/temperature/8)
+|  |  +- TjMax [°C] : 100 : 100
+|  |  +- TSlope [°C] : 1 : 1
+|
++- Virtual Memory (/vram)
+|
++- Total Memory (/ram)
+|
++- Corsair - CMG32GX4M2D3600C18 (#1) (/memory/dimm/1)
+|
++- Corsair - CMG32GX4M2D3600C18 (#3) (/memory/dimm/3)
+|
++- NVIDIA GeForce RTX 3060 (/gpu-nvidia/0)
+|
++- WDC  WDS250G2B0A-00SM50  (/ssd/0)
+|
++- WDC WD10EZEX-00RKKA0 (/hdd/2)
+|
++- WDC WD20EZRX-00D8PB0 (/hdd/1)
+|
++- Ethernet (/nic/%7B69B5AA58-9940-4602-8D57-7986AF5AFA6A%7D)
+
+--------------------------------------------------------------------------------
+
+Motherboard
+
+SMBios Version: 3.0
+
+BIOS Vendor: American Megatrends Inc.
+BIOS Version: 2.30
+BIOS Date: 12/21/2017
+BIOS Size: 16 MB
+
+System Manufacturer: Micro-Star International Co., Ltd.
+System Name: MS-7B48
+System Version: 1.0
+System Wakeup: PowerSwitch
+
+Motherboard Manufacturer: Micro-Star International Co., Ltd.
+Motherboard Name: Z370-A PRO (MS-7B48)
+Motherboard Version: 1.0
+Motherboard Serial: I316700969
+
+System Enclosure Type: Desktop
+System Enclosure Manufacturer: Micro-Star International Co., Ltd.
+System Enclosure Version: 1.0
+System Enclosure Serial: Default string
+System Enclosure Asset Tag: Default string
+System Enclosure SKU: Default string
+System Enclosure Boot Up State: Safe
+System Enclosure Power Supply State: Safe
+System Enclosure Thermal State: Safe
+System Enclosure Power Cords: 1
+System Enclosure Lock Detected: No
+System Enclosure Security Status: None
+
+Processor Manufacturer: Intel(R) Corporation
+Processor Type: CentralProcessor
+Processor Version: Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz
+Processor Serial: To Be Filled By O.E.M.
+Processor Socket Designation: U3E1
+Processor Socket: Lga1151
+Processor Version: Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz
+Processor Family: IntelCoreI7
+Processor Core Count: 6
+Processor Core Enabled: 6
+Processor Thread Count: 12
+Processor External Clock: 100 Mhz
+Processor Max Speed: 8300 Mhz
+Processor Current Speed: 3700 Mhz
+
+Cache [L1] Size: 384
+Cache [L1] Associativity: 8Way
+
+Cache [L2] Size: 1536
+Cache [L2] Associativity: 4Way
+
+Cache [L3] Size: 12288
+Cache [L3] Associativity: 16Way
+
+Memory Device [0] Manufacturer: 
+Memory Device [0] Part Number: 
+Memory Device [0] Device Locator: ChannelA-DIMM0
+Memory Device [0] Bank Locator: BANK 0
+Memory Device [0] Speed: 0
+Memory Device [0] Configured Speed: 0
+Memory Device [0] Configured Voltage: 0
+Memory Device [0] Size: 0 MB
+
+Memory Device [1] Manufacturer: 029E
+Memory Device [1] Part Number: CMG32GX4M2D3600C18
+Memory Device [1] Device Locator: ChannelA-DIMM1
+Memory Device [1] Bank Locator: BANK 1
+Memory Device [1] Speed: 2133
+Memory Device [1] Configured Speed: 2133
+Memory Device [1] Configured Voltage: 1200
+Memory Device [1] Size: 16384 MB
+
+Memory Device [2] Manufacturer: 
+Memory Device [2] Part Number: 
+Memory Device [2] Device Locator: ChannelB-DIMM0
+Memory Device [2] Bank Locator: BANK 2
+Memory Device [2] Speed: 0
+Memory Device [2] Configured Speed: 0
+Memory Device [2] Configured Voltage: 0
+Memory Device [2] Size: 0 MB
+
+Memory Device [3] Manufacturer: 029E
+Memory Device [3] Part Number: CMG32GX4M2D3600C18
+Memory Device [3] Device Locator: ChannelB-DIMM1
+Memory Device [3] Bank Locator: BANK 3
+Memory Device [3] Speed: 2133
+Memory Device [3] Configured Speed: 2133
+Memory Device [3] Configured Voltage: 1200
+Memory Device [3] Size: 16384 MB
+
+SMBios Table
+
+ AAMAAIIQAAAAGAAAAQIA8AP/gJiLPwEAAAADDQUM//9BbWVyaWNhbiBNZWdhdHJl
+ bmRzIEluYy4AMi4zMAAxMi8yMS8yMDE3AAABGwEAAQIDBAAAAAAAAAAAAAAwnCOn
+ LDcGBQZNaWNyby1TdGFyIEludGVybmF0aW9uYWwgQ28uLCBMdGQuAE1TLTdCNDgA
+ MS4wAERlZmF1bHQgc3RyaW5nAERlZmF1bHQgc3RyaW5nAERlZmF1bHQgc3RyaW5n
+ AAACDwIAAQIDBAUJBgMACgBNaWNyby1TdGFyIEludGVybmF0aW9uYWwgQ28uLCBM
+ dGQuAFozNzAtQSBQUk8gKE1TLTdCNDgpADEuMABJMzE2NzAwOTY5AERlZmF1bHQg
+ c3RyaW5nAERlZmF1bHQgc3RyaW5nAAADFgMAAQMCAwQDAwMDAAAAAAABAAMFTWlj
+ cm8tU3RhciBJbnRlcm5hdGlvbmFsIENvLiwgTHRkLgAxLjAARGVmYXVsdCBzdHJp
+ bmcARGVmYXVsdCBzdHJpbmcARGVmYXVsdCBzdHJpbmcAAAgJBAABAAIPDkoxQTEA
+ UFMyTW91c2UAAAgJBQABAAIPDUoxQTEAS2V5Ym9hcmQAAAgJBgABAAId/0oyQTEA
+ VFYgT3V0AAAICQcAAQACCAlKMkEyQQBDT00gQQAACAkIAAEAAgccSjJBMkIAVmlk
+ ZW8AAAgJCQABAAISEEozQTEAVVNCMQAACAkKAAH/AAD/SjlBMSAtIFRQTSBIRFIA
+ AAgJCwAB/wAA/0o5QzEgLSBQQ0lFIERPQ0tJTkcgQ09OTgAACAkMAAH/AAD/SjJC
+ MyAtIENQVSBGQU4AAAgJDQAB/wAA/0o2QzIgLSBFWFQgSERNSQAACAkOAAH/AAD/
+ SjNDMSAtIEdNQ0ggRkFOAAAICQ8AAf8AAP9KMUQxIC0gSVRQAAAICRAAAf8AAP9K
+ OUUyIC0gTURDIElOVFBTUgAACAkRAAH/AAD/SjlFNCAtIE1EQyBJTlRQU1IAAAgJ
+ EgAB/wAA/0o5RTMgLSBMUEMgSE9UIERPQ0tJTkcAAAgJEwAB/wAA/0o5RTEgLSBT
+ Q0FOIE1BVFJJWAAACAkUAAH/AAD/SjlHMSAtIExQQyBTSURFIEJBTkQAAAgJFQAB
+ /wAA/0o4RjEgLSBVTklGSUVEAAAICRYAAf8AAP9KNkYxIC0gTFZEUwAACAkXAAH/
+ AAD/SjJGMSAtIExBSSBGQU4AAAgJGAAB/wAA/0oyRzEgLSBHRlggVklEAAAICRkA
+ Af8AAP9KMUc2IC0gQUMgSkFDSwAACREaAAGlDQQEAAAMAQAAAAhKNkIyAAAJERsA
+ AaUIBAMBAAwBAAAA40o2QjEAAAkRHAABpQgEAwIADAEAAADkSjZEMQAACREdAAGl
+ CAQDAwAMAQAAAOVKN0IxAAAJER4AAaUIBAMEAAwBAAAA5ko4QjQAAAkRHwABpQgE
+ AwUADAEAAADnSjhEMQAACREgAAEGBQQDBgAMAQAAAPBKOEIzAAALBSEAAURlZmF1
+ bHQgc3RyaW5nAAAMBSIAAURlZmF1bHQgc3RyaW5nAAAgFCMAAAAAAAAAAAAAAAAA
+ AAAAAAAAIgskAAEEAAAAAANMTTc4LTEAABoWJQABZwCAAIAAgACAAIAAAAAAAIBM
+ TTc4QQAAJBAmAAEAAgADAAQABQAGAAAAIwsnAAEkACUAJgBEZWZhdWx0IHN0cmlu
+ ZwAAHBYoAAFnAIAAgACAAIAAgAAAAAAAgExNNzhBAAAkECkAAQACAAMABAAFAAYA
+ AAAjCyoAASQAKAApAERlZmF1bHQgc3RyaW5nAAAbDysAKABnAQAAAAAAgAFDb29s
+ aW5nIERldiAxAAAkECwAAQACAAMABAAFAAYAAAAjCy0AASQAKwAsAERlZmF1bHQg
+ c3RyaW5nAAAbDy4AKABnAQAAAAAAgAAAACQQLwABAAIAAwAEAAUABgAAACMLMAAB
+ JAAuAC8ARGVmYXVsdCBzdHJpbmcAAB0WMQABZwCAAIAAgACAAIAAAAAAAIBBQkMA
+ ACQQMgAAgACAAIAAgACAAIAAACMLMwABJAAxADIARGVmYXVsdCBzdHJpbmcAABoW
+ NAABagCAAIAAgACAAIAAAAAAAIBMTTc4QQAAHBY1AAFqAIAAgACAAIAAgAAAAAAA
+ gExNNzhBAAAbDzYANQBnAQAAAAAAgAFDb29saW5nIERldiAxAAAdFjcAAWoAgACA
+ AIAAgACAAAAAAACAQUJDAAAnFjgAAQECAwQFBgcAgKIRNAA2ADcAVG8gQmUgRmls
+ bGVkIEJ5IE8uRS5NLgBUbyBCZSBGaWxsZWQgQnkgTy5FLk0uAFRvIEJlIEZpbGxl
+ ZCBCeSBPLkUuTS4AVG8gQmUgRmlsbGVkIEJ5IE8uRS5NLgBUbyBCZSBGaWxsZWQg
+ QnkgTy5FLk0uAFRvIEJlIEZpbGxlZCBCeSBPLkUuTS4AVG8gQmUgRmlsbGVkIEJ5
+ IE8uRS5NLgAAKQs5AAGDAQAAABAgT25ib2FyZCBJR0QAACkLOgABhQEAAADIIE9u
+ Ym9hcmQgTEFOAAApCzsAAYEBAAAD4iBPbmJvYXJkIDEzOTQAABAXPAADAwMAAAAE
+ /v8EAAAAAAAAAAAAAAARKD0APAD+/wAAAAAAAAIAAQICAAAAAAAAAAAAAAAAAAAA
+ AAAAAAAAQ2hhbm5lbEEtRElNTTAAQkFOSyAwADk4NzY1NDMyMTAAABEoPgA8AP7/
+ QABAAABACQABAhqAQFUIAwQFBgEAAAAAVQgAAAAAsARDaGFubmVsQS1ESU1NMQBC
+ QU5LIDEAMDI5RQAwMDAwMDAwMAA5ODc2NTQzMjEwAENNRzMyR1g0TTJEMzYwMEMx
+ OCAgAAARKD8APAD+/wAAAAAAAAIAAQICAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ2hh
+ bm5lbEItRElNTTAAQkFOSyAyADk4NzY1NDMyMTAAABEoQAA8AP7/QABAAABACQAB
+ AhqAQFUIAwQFBgEAAAAAVQgAAAAAsARDaGFubmVsQi1ESU1NMQBCQU5LIDMAMDI5
+ RQAwMDAwMDAwMAA5ODc2NTQzMjEwAENNRzMyR1g0TTJEMzYwMEMxOCAgAAATH0EA
+ AAAAAP///wE8AAIAAAAAAAAAAAAAAAAAAAAAAAAHE0IAAYABgAGAASAAIAAABAUH
+ TDEgQ2FjaGUAAAcTQwABgQEABgAGIAAgAAAFBQVMMiBDYWNoZQAABxNEAAGCAQAw
+ ADAgACAAAAYFCEwzIENhY2hlAAAEMEUAAQPGAuoGCQD/++u/A4pkAGwgdA5BMkIA
+ QwBEAAQFBgYGDPwAxgAGAAYADABVM0UxAEludGVsKFIpIENvcnBvcmF0aW9uAElu
+ dGVsKFIpIENvcmUoVE0pIGk3LTg3MDBLIENQVSBAIDMuNzBHSHoAVG8gQmUgRmls
+ bGVkIEJ5IE8uRS5NLgBUbyBCZSBGaWxsZWQgQnkgTy5FLk0uAFRvIEJlIEZpbGxl
+ ZCBCeSBPLkUuTS4AABQjRgAAAAAA////AD4AQQD/AQIAAAAAAAAAAAAAAAAAAAAA
+ AAAUI0cAAAAAAf///wFAAEEA/wICAAAAAAAAAAAAAAAAAAAAAAAAghRIACRBTVQA
+ AAAAAKWvAsAAAAAAAINASQA1AAAAAAAAAAAAAAD4AMmiAAAAAAEAAAAIAAsARw0y
+ AAAAAAD+AP//AAAAAAAAAAAmAAAAdlBybwAAAAAAAN0aSgADAQACBwIAAAIAAAAA
+ fAADAAAFAAAAUmVmZXJlbmNlIENvZGUgLSBDUFUAdUNvZGUgVmVyc2lvbgBUWFQg
+ QUNNIHZlcnNpb24AAN0aSwADAQACBwIAAAIAAAAAAAADBAsIMkcNUmVmZXJlbmNl
+ IENvZGUgLSBNRSAxMS4wAE1FQnggdmVyc2lvbgBNRSBGaXJtd2FyZSBWZXJzaW9u
+ AENvbnN1bWVyIFNLVQAA3UtMAAoBAAIHAgAAAgP//////wQA////AAAFAP///wAA
+ BgD//////wcAPgAAAAAIADQAAAAACQALAAAAAAoAPgAAAAALADQAAAAAUmVmZXJl
+ bmNlIENvZGUgLSBTS0wgUENIAFBDSC1DUklEIFN0YXR1cwBEaXNhYmxlZABQQ0gt
+ Q1JJRCBPcmlnaW5hbCBWYWx1ZQBQQ0gtQ1JJRCBOZXcgVmFsdWUAT1BST00gLSBS
+ U1QgLSBSQUlEAFNLTCBQQ0ggSCBCeCBIc2lvIFZlcnNpb24AU0tMIFBDSCBIIER4
+ IEhzaW8gVmVyc2lvbgBLQkwgUENIIEggQXggSHNpbyBWZXJzaW9uAFNLTCBQQ0gg
+ TFAgQnggSHNpbyBWZXJzaW9uAFNLTCBQQ0ggTFAgQ3ggSHNpbyBWZXJzaW9uAADd
+ Nk0ABwEAAgcCAAACAAIHAgAAAwACBwIAAAQF//////8GAP///wcABwD///8HAAgA
+ //////9SZWZlcmVuY2UgQ29kZSAtIFNBIC0gU3lzdGVtIEFnZW50AFJlZmVyZW5j
+ ZSBDb2RlIC0gTVJDAFNBIC0gUENJZSBWZXJzaW9uAFNBLUNSSUQgU3RhdHVzAERp
+ c2FibGVkAFNBLUNSSUQgT3JpZ2luYWwgVmFsdWUAU0EtQ1JJRCBOZXcgVmFsdWUA
+ T1BST00gLSBWQklPUwAA3WdOAA4BAAAAAP8AAgD//////wME//////8FBv//////
+ Bwj//////wkAAAAAAAAKAP//////CwD//wAAAAwA//////8NAP//////DgD/////
+ /w8A//////8QEQEDBAEBEgAABwMAAExhbiBQaHkgVmVyc2lvbgBTZW5zb3IgRmly
+ bXdhcmUgVmVyc2lvbgBEZWJ1ZyBNb2RlIFN0YXR1cwBEaXNhYmxlZABQZXJmb3Jt
+ YW5jZSBNb2RlIFN0YXR1cwBEaXNhYmxlZABEZWJ1ZyBVc2UgVVNCKERpc2FibGVk
+ OlNlcmlhbCkARGlzYWJsZWQASUNDIE92ZXJjbG9ja2luZyBWZXJzaW9uAFVOREkg
+ VmVyc2lvbgBFQyBGVyBWZXJzaW9uAEdPUCBWZXJzaW9uAEJJT1MgR3VhcmQgVmVy
+ c2lvbgBCYXNlIEVDIEZXIFZlcnNpb24ARUMtRUMgUHJvdG9jb2wgVmVyc2lvbgBS
+ b3lhbCBQYXJrIFZlcnNpb24AQlAxLjMuNC4xX1JQMDEAUGxhdGZvcm0gVmVyc2lv
+ bgAAjxBPAAABAgMEBQYHCAkKC01FRlctMTEuOC41MC4zMzk5AFZCSU9TLTAwMDAA
+ UkFJRC0xNS45LjEuMzI3MQBQWEVMMS12Mi42NgBBTUktQXB0aW9WAEdTRVMtNS8z
+ AE1zaUZsYXNoLTE3AE4vQQBOL0EATi9BAE4vQQBOL0EAAIgGUAAAAAAADhRRAAHd
+ SgDdSwDdTADdTQDdTgBGaXJtd2FyZSBWZXJzaW9uIEluZm8AAA4IUgAB2wAAJE1F
+ SQAA21FTAAEDAVUCAJAGAwBmIAAAAABACAAAAAAAAgAAAAL/////////////////
+ //////////////8DAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAATUVJMQBNRUkyAE1F
+ STMAAH8EVAAAAA==
+
+--------------------------------------------------------------------------------
+
+LPC Nct677X
+
+Chip Id: 0xD352
+Chip Revision: 0x52
+Base Address: 0x0A20
+
+Hardware Monitor Registers
+
+        00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+
+ 0000   03 21 03 21 00 FF FF FF FF FF FF FF FF FF FF FF
+ 0010   03 93 03 93 03 93 03 93 40 82 85 00 7D 4B C0 00
+ 0020   7B 80 D1 D3 7E 13 78 25 FF FF FF DA 00 00 00 00
+ 0030   00 00 00 00 00 00 00 00 00 00 00 FF FF FF FF FF
+ 0040   23 00 00 DF DF 00 2F FF 2D FF FF 10 00 55 00 A3
+ 0050   05 FF FF FF FF FF FF FF C1 FF FF FF FF 03 02 00
+ 0060   25 F0 FF FF FF 01 00 FF FF FF FF FF FF FF FF FF
+ 0070   00 0A 00 19 00 19 00 19 00 19 00 19 00 19 00 FF
+ 00F0   00 00 00 00 00 00 00 FF 1C 00 4B 00 EF FF FF FF
+ 0100   10 00 42 01 01 01 01 3C 00 21 FF 21 00 FF FF FF
+ 0110   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0120   FF 28 37 46 55 FF FF 21 60 A0 FF FF FF FF FF FF
+ 0130   FF 00 FF FF 00 65 00 CC 00 FF FF FF FF FF FF 00
+ 0140   FF FF FF FF FF 00 00 FF FF FF FF FF FF FF 01 FF
+ 0150   2D 00 00 5F 00 76 00 FF FF FF FF FF FF FF FF FF
+ 0200   10 32 42 01 01 01 01 3C 00 21 00 21 00 00 00 49
+ 0210   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0220   FF 28 37 46 55 FF FF 21 60 A0 FF FF FF FF FF FF
+ 0230   FF 00 FF FF 00 65 00 CC 00 01 00 00 00 00 00 00
+ 0240   FF FF FF FF FF 00 00 FF FF FF FF FF FF FF 02 FF
+ 0250   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0260   FF FF FF FF FF FF 11 00 00 21 FF FF FF FF FF FF
+ 0300   10 00 42 01 01 01 01 3C 00 93 FF 93 00 00 00 3A
+ 0320   FF 19 23 2D 37 FF FF 93 93 93 93 FF FF FF FF FF
+ 0330   FF 00 FF FF 00 65 00 CC 00 FF FF FF FF FF FF 00
+ 0340   FF FF FF FF FF 00 00 FF FF FF FF FF FF FF 03 FF
+ 0360   FF FF FF FF FF FF 11 00 00 93 FF FF FF FF FF FF
+ 0400   00 00 00 00 00 00 00 00 00 00 00 00 00 FF FF FF
+ 0410   FF FF FF FF FF FF FF FF FF 00 00 FF FF FF FF FF
+ 0420   FF FF FF 96 64 96 64 E1 96 00 FF FF FF FF FF FF
+ 0440   FF FF 00 00 FF FF FF FF FF FF 00 00 00 00 04 FF
+ 0450   00 F3 FF FF 00 00 00 FF FF 1E 13 33 09 00 FF FF
+ 0460   FF 01 00 00 00 00 00 00 FF FF FF FF FF FF FF FF
+ 0480   7B 80 D1 D3 7E 13 78 D0 BA 82 85 00 7D 4B C0 00
+ 0490   25 2D 1C 17 80 FE 00 30 00 19 19 19 19 19 00 19
+ 04B0   FF 1F 4E 1A FF 1F FF 1F FF 1F FF 1F 00 93 FF FF
+ 04C0   00 00 02 17 00 00 00 00 00 00 00 00 FF FF FF FF
+ 04F0   19 40 00 00 19 00 00 00 00 00 00 00 00 00 00 FF
+ 0500   FF FF 00 FF FF FF 00 FF 57 FF FF FF FF 00 00 FF
+ 0550   D0 BA 40 FF 00 00 00 00 00 00 00 00 00 00 00 00
+ 0560   00 00 00 00 00 00 7F 00 3B FF FF FF FF FF FF FF
+ 0600   00 00 00 00 00 00 00 FF FF FF FF FF FF FF FF FF
+ 0610   00 00 00 00 00 00 FF FF FF FF FF FF FF FF FF FF
+ 0620   FF 01 02 00 FF FF FF FF FF FF FF FF FF FF FF 1F
+ 0630   FF 1F 4E 1A FF 1F FF 1F FF 1F FF 1F FF 1F FF 1F
+ 0640   FF 1F FF 1F 02 02 02 02 02 02 FF 1F FF FF 06 FF
+ 0650   7F 7F FF FF 00 00 00 00 02 17 00 00 00 00 00 00
+ 0660   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0670   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0700   FF 85 02 10 00 00 00 00 00 57 00 00 00 00 00 00
+ 0710   00 00 00 00 00 00 00 F0 90 F8 80 F8 80 F8 80 01
+ 0720   19 01 07 00 00 00 EF 3F 00 EF 00 00 00 00 00 00
+ 0730   00 00 00 00 00 00 00 00 00 00 00 0E 0A FF FF FF
+ 0800   10 00 42 01 01 01 01 3C 00 93 FF 93 00 FF FF FF
+ 0820   FF 19 23 2D 37 FF FF 93 93 93 93 FF FF FF FF FF
+ 0830   FF 00 FF FF 00 65 00 CC 00 FF FF FF FF FF FF 00
+ 0840   FF FF FF FF FF FF FF FF FF FF FF FF FF FF 08 FF
+ 0900   10 00 42 01 01 01 01 3C 00 93 FF 93 00 FF FF FF
+ 0920   FF 19 23 2D 37 FF FF 93 93 93 93 FF FF FF FF FF
+ 0930   FF 00 FF FF 00 65 00 CC 00 FF FF FF FF FF FF 00
+ 0940   FF FF FF FF FF FF FF FF FF FF FF FF FF FF 09 FF
+ 0960   FF FF FF FF FF FF 11 00 FF FF FF FF FF FF FF FF
+ 0A00   10 00 42 01 01 01 01 3C 00 93 FF 93 00 FF FF FF
+ 0A10   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0A20   FF 19 23 2D 37 FF FF 93 93 93 93 FF FF FF FF FF
+ 0A30   FF 00 FF FF 00 65 00 CC 00 FF FF FF FF FF FF 00
+ 0A40   FF FF FF FF FF FF FF FF FF FF FF FF FF FF 0A FF
+ 0A50   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0A60   FF FF FF FF FF FF 11 00 FF FF FF FF FF FF FF FF
+ 0A70   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0B00   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0B10   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0B20   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0B30   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0B50   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0B60   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0B70   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0C00   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0C10   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0C20   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0C30   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0C50   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0C60   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0C70   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0D00   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0D10   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0D20   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0D30   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0D50   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0D60   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0E00   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0E10   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0E20   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0E30   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0F00   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0F10   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0F20   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 0F30   FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+ 8040   23 00 00 DF DF 00 2F FF 2D FF FF 10 00 55 80 5C
+ 80F0   00 00 00 00 00 00 00 FF 1C 00 4B 00 EF FF FF FF
+
+
+
+Temperature debug (SuperIO read):
+  Index 0 "CPU Core": 25.00
+  Index 1 "Temperature #1": 45.00
+  Index 2 "Temperature #2": 37.00
+  Index 3 "Temperature #3": 3.00
+  Index 4 "Temperature #4": 22.00
+  Index 5 "Temperature #5": null
+  Index 6 "Temperature #6": null
+--------------------------------------------------------------------------------
+
+CPUID
+
+Processor 0
+
+Processor Vendor: Intel
+Processor Brand: Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz
+Family: 0x6
+Model: 0x9E
+Stepping: 0xA
+
+CPUID Return Values
+
+ CPU Group: 0
+ CPU Thread: 0
+ APIC ID: 0
+ Processor ID: 0
+ Core ID: 0
+ Thread ID: 0
+
+ Function  EAX       EBX       ECX       EDX
+ 00000000  00000016  756E6547  6C65746E  49656E69
+ 00000001  000906EA  00100800  FEDAF387  BFEBFBFF
+ 00000002  76036301  00F0B5FF  00000000  00C30000
+ 00000003  00000000  00000000  00000000  00000000
+ 00000004  1C004121  01C0003F  0000003F  00000000
+ 00000005  00000000  00000000  00000000  00000000
+ 00000006  000007F3  00000002  00000001  00000000
+ 00000007  00000000  009C6FBB  00000000  BC000400
+ 00000008  00000000  00000000  00000000  00000000
+ 00000009  00000000  00000000  00000000  00000000
+ 0000000A  07300404  00000000  00000000  00000603
+ 0000000B  00000001  00000002  00000100  00000000
+ 0000000C  00000000  00000000  00000000  00000000
+ 0000000D  0000001F  00000440  00000440  00000000
+ 0000000E  00000000  00000000  00000000  00000000
+ 0000000F  00000000  00000000  00000000  00000000
+ 00000010  00000000  00000000  00000000  00000000
+ 00000011  00000000  00000000  00000000  00000000
+ 00000012  00000000  00000000  00000000  00000000
+ 00000013  00000000  00000000  00000000  00000000
+ 00000014  00000001  0000000F  00000003  00000000
+ 00000015  00000002  00000134  00000000  00000000
+ 00000016  00000000  00000000  00000000  00000000
+ 80000000  80000008  00000000  00000000  00000000
+ 80000001  00000000  00000000  00000121  2C100800
+ 80000002  65746E49  2952286C  726F4320  4D542865
+ 80000003  37692029  3037382D  43204B30  40205550
+ 80000004  372E3320  7A484730  00000000  00000000
+ 80000005  00000000  00000000  00000000  00000000
+ 80000006  00000000  00000000  01006040  00000000
+ 80000007  00000000  00000000  00000000  00000100
+ 80000008  00003027  00000000  00000000  00000000
+
+ CPU Group: 0
+ CPU Thread: 1
+ APIC ID: 1
+ Processor ID: 0
+ Core ID: 0
+ Thread ID: 1
+
+ Function  EAX       EBX       ECX       EDX
+ 00000000  00000016  756E6547  6C65746E  49656E69
+ 00000001  000906EA  01100800  FEDAF387  BFEBFBFF
+ 00000002  76036301  00F0B5FF  00000000  00C30000
+ 00000003  00000000  00000000  00000000  00000000
+ 00000004  1C004121  01C0003F  0000003F  00000000
+ 00000005  00000000  00000000  00000000  00000000
+ 00000006  000007F3  00000002  00000001  00000000
+ 00000007  00000000  009C6FBB  00000000  BC000400
+ 00000008  00000000  00000000  00000000  00000000
+ 00000009  00000000  00000000  00000000  00000000
+ 0000000A  07300404  00000000  00000000  00000603
+ 0000000B  00000001  00000002  00000100  00000001
+ 0000000C  00000000  00000000  00000000  00000000
+ 0000000D  0000001F  00000440  00000440  00000000
+ 0000000E  00000000  00000000  00000000  00000000
+ 0000000F  00000000  00000000  00000000  00000000
+ 00000010  00000000  00000000  00000000  00000000
+ 00000011  00000000  00000000  00000000  00000000
+ 00000012  00000000  00000000  00000000  00000000
+ 00000013  00000000  00000000  00000000  00000000
+ 00000014  00000001  0000000F  00000003  00000000
+ 00000015  00000002  00000134  00000000  00000000
+ 00000016  00000000  00000000  00000000  00000000
+ 80000000  80000008  00000000  00000000  00000000
+ 80000001  00000000  00000000  00000121  2C100800
+ 80000002  65746E49  2952286C  726F4320  4D542865
+ 80000003  37692029  3037382D  43204B30  40205550
+ 80000004  372E3320  7A484730  00000000  00000000
+ 80000005  00000000  00000000  00000000  00000000
+ 80000006  00000000  00000000  01006040  00000000
+ 80000007  00000000  00000000  00000000  00000100
+ 80000008  00003027  00000000  00000000  00000000
+
+ CPU Group: 0
+ CPU Thread: 2
+ APIC ID: 2
+ Processor ID: 0
+ Core ID: 1
+ Thread ID: 0
+
+ Function  EAX       EBX       ECX       EDX
+ 00000000  00000016  756E6547  6C65746E  49656E69
+ 00000001  000906EA  02100800  FEDAF387  BFEBFBFF
+ 00000002  76036301  00F0B5FF  00000000  00C30000
+ 00000003  00000000  00000000  00000000  00000000
+ 00000004  1C004121  01C0003F  0000003F  00000000
+ 00000005  00000000  00000000  00000000  00000000
+ 00000006  000007F3  00000002  00000001  00000000
+ 00000007  00000000  009C6FBB  00000000  BC000400
+ 00000008  00000000  00000000  00000000  00000000
+ 00000009  00000000  00000000  00000000  00000000
+ 0000000A  07300404  00000000  00000000  00000603
+ 0000000B  00000001  00000002  00000100  00000002
+ 0000000C  00000000  00000000  00000000  00000000
+ 0000000D  0000001F  00000440  00000440  00000000
+ 0000000E  00000000  00000000  00000000  00000000
+ 0000000F  00000000  00000000  00000000  00000000
+ 00000010  00000000  00000000  00000000  00000000
+ 00000011  00000000  00000000  00000000  00000000
+ 00000012  00000000  00000000  00000000  00000000
+ 00000013  00000000  00000000  00000000  00000000
+ 00000014  00000001  0000000F  00000003  00000000
+ 00000015  00000002  00000134  00000000  00000000
+ 00000016  00000000  00000000  00000000  00000000
+ 80000000  80000008  00000000  00000000  00000000
+ 80000001  00000000  00000000  00000121  2C100800
+ 80000002  65746E49  2952286C  726F4320  4D542865
+ 80000003  37692029  3037382D  43204B30  40205550
+ 80000004  372E3320  7A484730  00000000  00000000
+ 80000005  00000000  00000000  00000000  00000000
+ 80000006  00000000  00000000  01006040  00000000
+ 80000007  00000000  00000000  00000000  00000100
+ 80000008  00003027  00000000  00000000  00000000
+
+ CPU Group: 0
+ CPU Thread: 3
+ APIC ID: 3
+ Processor ID: 0
+ Core ID: 1
+ Thread ID: 1
+
+ Function  EAX       EBX       ECX       EDX
+ 00000000  00000016  756E6547  6C65746E  49656E69
+ 00000001  000906EA  03100800  FEDAF387  BFEBFBFF
+ 00000002  76036301  00F0B5FF  00000000  00C30000
+ 00000003  00000000  00000000  00000000  00000000
+ 00000004  1C004121  01C0003F  0000003F  00000000
+ 00000005  00000000  00000000  00000000  00000000
+ 00000006  000007F3  00000002  00000001  00000000
+ 00000007  00000000  009C6FBB  00000000  BC000400
+ 00000008  00000000  00000000  00000000  00000000
+ 00000009  00000000  00000000  00000000  00000000
+ 0000000A  07300404  00000000  00000000  00000603
+ 0000000B  00000001  00000002  00000100  00000003
+ 0000000C  00000000  00000000  00000000  00000000
+ 0000000D  0000001F  00000440  00000440  00000000
+ 0000000E  00000000  00000000  00000000  00000000
+ 0000000F  00000000  00000000  00000000  00000000
+ 00000010  00000000  00000000  00000000  00000000
+ 00000011  00000000  00000000  00000000  00000000
+ 00000012  00000000  00000000  00000000  00000000
+ 00000013  00000000  00000000  00000000  00000000
+ 00000014  00000001  0000000F  00000003  00000000
+ 00000015  00000002  00000134  00000000  00000000
+ 00000016  00000000  00000000  00000000  00000000
+ 80000000  80000008  00000000  00000000  00000000
+ 80000001  00000000  00000000  00000121  2C100800
+ 80000002  65746E49  2952286C  726F4320  4D542865
+ 80000003  37692029  3037382D  43204B30  40205550
+ 80000004  372E3320  7A484730  00000000  00000000
+ 80000005  00000000  00000000  00000000  00000000
+ 80000006  00000000  00000000  01006040  00000000
+ 80000007  00000000  00000000  00000000  00000100
+ 80000008  00003027  00000000  00000000  00000000
+
+ CPU Group: 0
+ CPU Thread: 4
+ APIC ID: 4
+ Processor ID: 0
+ Core ID: 2
+ Thread ID: 0
+
+ Function  EAX       EBX       ECX       EDX
+ 00000000  00000016  756E6547  6C65746E  49656E69
+ 00000001  000906EA  04100800  FEDAF387  BFEBFBFF
+ 00000002  76036301  00F0B5FF  00000000  00C30000
+ 00000003  00000000  00000000  00000000  00000000
+ 00000004  1C004121  01C0003F  0000003F  00000000
+ 00000005  00000000  00000000  00000000  00000000
+ 00000006  000007F3  00000002  00000001  00000000
+ 00000007  00000000  009C6FBB  00000000  BC000400
+ 00000008  00000000  00000000  00000000  00000000
+ 00000009  00000000  00000000  00000000  00000000
+ 0000000A  07300404  00000000  00000000  00000603
+ 0000000B  00000001  00000002  00000100  00000004
+ 0000000C  00000000  00000000  00000000  00000000
+ 0000000D  0000001F  00000440  00000440  00000000
+ 0000000E  00000000  00000000  00000000  00000000
+ 0000000F  00000000  00000000  00000000  00000000
+ 00000010  00000000  00000000  00000000  00000000
+ 00000011  00000000  00000000  00000000  00000000
+ 00000012  00000000  00000000  00000000  00000000
+ 00000013  00000000  00000000  00000000  00000000
+ 00000014  00000001  0000000F  00000003  00000000
+ 00000015  00000002  00000134  00000000  00000000
+ 00000016  00000000  00000000  00000000  00000000
+ 80000000  80000008  00000000  00000000  00000000
+ 80000001  00000000  00000000  00000121  2C100800
+ 80000002  65746E49  2952286C  726F4320  4D542865
+ 80000003  37692029  3037382D  43204B30  40205550
+ 80000004  372E3320  7A484730  00000000  00000000
+ 80000005  00000000  00000000  00000000  00000000
+ 80000006  00000000  00000000  01006040  00000000
+ 80000007  00000000  00000000  00000000  00000100
+ 80000008  00003027  00000000  00000000  00000000
+
+ CPU Group: 0
+ CPU Thread: 5
+ APIC ID: 5
+ Processor ID: 0
+ Core ID: 2
+ Thread ID: 1
+
+ Function  EAX       EBX       ECX       EDX
+ 00000000  00000016  756E6547  6C65746E  49656E69
+ 00000001  000906EA  05100800  FEDAF387  BFEBFBFF
+ 00000002  76036301  00F0B5FF  00000000  00C30000
+ 00000003  00000000  00000000  00000000  00000000
+ 00000004  1C004121  01C0003F  0000003F  00000000
+ 00000005  00000000  00000000  00000000  00000000
+ 00000006  000007F3  00000002  00000001  00000000
+ 00000007  00000000  009C6FBB  00000000  BC000400
+ 00000008  00000000  00000000  00000000  00000000
+ 00000009  00000000  00000000  00000000  00000000
+ 0000000A  07300404  00000000  00000000  00000603
+ 0000000B  00000001  00000002  00000100  00000005
+ 0000000C  00000000  00000000  00000000  00000000
+ 0000000D  0000001F  00000440  00000440  00000000
+ 0000000E  00000000  00000000  00000000  00000000
+ 0000000F  00000000  00000000  00000000  00000000
+ 00000010  00000000  00000000  00000000  00000000
+ 00000011  00000000  00000000  00000000  00000000
+ 00000012  00000000  00000000  00000000  00000000
+ 00000013  00000000  00000000  00000000  00000000
+ 00000014  00000001  0000000F  00000003  00000000
+ 00000015  00000002  00000134  00000000  00000000
+ 00000016  00000000  00000000  00000000  00000000
+ 80000000  80000008  00000000  00000000  00000000
+ 80000001  00000000  00000000  00000121  2C100800
+ 80000002  65746E49  2952286C  726F4320  4D542865
+ 80000003  37692029  3037382D  43204B30  40205550
+ 80000004  372E3320  7A484730  00000000  00000000
+ 80000005  00000000  00000000  00000000  00000000
+ 80000006  00000000  00000000  01006040  00000000
+ 80000007  00000000  00000000  00000000  00000100
+ 80000008  00003027  00000000  00000000  00000000
+
+ CPU Group: 0
+ CPU Thread: 6
+ APIC ID: 6
+ Processor ID: 0
+ Core ID: 3
+ Thread ID: 0
+
+ Function  EAX       EBX       ECX       EDX
+ 00000000  00000016  756E6547  6C65746E  49656E69
+ 00000001  000906EA  06100800  FEDAF387  BFEBFBFF
+ 00000002  76036301  00F0B5FF  00000000  00C30000
+ 00000003  00000000  00000000  00000000  00000000
+ 00000004  1C004121  01C0003F  0000003F  00000000
+ 00000005  00000000  00000000  00000000  00000000
+ 00000006  000007F3  00000002  00000001  00000000
+ 00000007  00000000  009C6FBB  00000000  BC000400
+ 00000008  00000000  00000000  00000000  00000000
+ 00000009  00000000  00000000  00000000  00000000
+ 0000000A  07300404  00000000  00000000  00000603
+ 0000000B  00000001  00000002  00000100  00000006
+ 0000000C  00000000  00000000  00000000  00000000
+ 0000000D  0000001F  00000440  00000440  00000000
+ 0000000E  00000000  00000000  00000000  00000000
+ 0000000F  00000000  00000000  00000000  00000000
+ 00000010  00000000  00000000  00000000  00000000
+ 00000011  00000000  00000000  00000000  00000000
+ 00000012  00000000  00000000  00000000  00000000
+ 00000013  00000000  00000000  00000000  00000000
+ 00000014  00000001  0000000F  00000003  00000000
+ 00000015  00000002  00000134  00000000  00000000
+ 00000016  00000000  00000000  00000000  00000000
+ 80000000  80000008  00000000  00000000  00000000
+ 80000001  00000000  00000000  00000121  2C100800
+ 80000002  65746E49  2952286C  726F4320  4D542865
+ 80000003  37692029  3037382D  43204B30  40205550
+ 80000004  372E3320  7A484730  00000000  00000000
+ 80000005  00000000  00000000  00000000  00000000
+ 80000006  00000000  00000000  01006040  00000000
+ 80000007  00000000  00000000  00000000  00000100
+ 80000008  00003027  00000000  00000000  00000000
+
+ CPU Group: 0
+ CPU Thread: 7
+ APIC ID: 7
+ Processor ID: 0
+ Core ID: 3
+ Thread ID: 1
+
+ Function  EAX       EBX       ECX       EDX
+ 00000000  00000016  756E6547  6C65746E  49656E69
+ 00000001  000906EA  07100800  FEDAF387  BFEBFBFF
+ 00000002  76036301  00F0B5FF  00000000  00C30000
+ 00000003  00000000  00000000  00000000  00000000
+ 00000004  1C004121  01C0003F  0000003F  00000000
+ 00000005  00000000  00000000  00000000  00000000
+ 00000006  000007F3  00000002  00000001  00000000
+ 00000007  00000000  009C6FBB  00000000  BC000400
+ 00000008  00000000  00000000  00000000  00000000
+ 00000009  00000000  00000000  00000000  00000000
+ 0000000A  07300404  00000000  00000000  00000603
+ 0000000B  00000001  00000002  00000100  00000007
+ 0000000C  00000000  00000000  00000000  00000000
+ 0000000D  0000001F  00000440  00000440  00000000
+ 0000000E  00000000  00000000  00000000  00000000
+ 0000000F  00000000  00000000  00000000  00000000
+ 00000010  00000000  00000000  00000000  00000000
+ 00000011  00000000  00000000  00000000  00000000
+ 00000012  00000000  00000000  00000000  00000000
+ 00000013  00000000  00000000  00000000  00000000
+ 00000014  00000001  0000000F  00000003  00000000
+ 00000015  00000002  00000134  00000000  00000000
+ 00000016  00000000  00000000  00000000  00000000
+ 80000000  80000008  00000000  00000000  00000000
+ 80000001  00000000  00000000  00000121  2C100800
+ 80000002  65746E49  2952286C  726F4320  4D542865
+ 80000003  37692029  3037382D  43204B30  40205550
+ 80000004  372E3320  7A484730  00000000  00000000
+ 80000005  00000000  00000000  00000000  00000000
+ 80000006  00000000  00000000  01006040  00000000
+ 80000007  00000000  00000000  00000000  00000100
+ 80000008  00003027  00000000  00000000  00000000
+
+ CPU Group: 0
+ CPU Thread: 8
+ APIC ID: 8
+ Processor ID: 0
+ Core ID: 4
+ Thread ID: 0
+
+ Function  EAX       EBX       ECX       EDX
+ 00000000  00000016  756E6547  6C65746E  49656E69
+ 00000001  000906EA  08100800  FEDAF387  BFEBFBFF
+ 00000002  76036301  00F0B5FF  00000000  00C30000
+ 00000003  00000000  00000000  00000000  00000000
+ 00000004  1C004121  01C0003F  0000003F  00000000
+ 00000005  00000000  00000000  00000000  00000000
+ 00000006  000007F3  00000002  00000001  00000000
+ 00000007  00000000  009C6FBB  00000000  BC000400
+ 00000008  00000000  00000000  00000000  00000000
+ 00000009  00000000  00000000  00000000  00000000
+ 0000000A  07300404  00000000  00000000  00000603
+ 0000000B  00000001  00000002  00000100  00000008
+ 0000000C  00000000  00000000  00000000  00000000
+ 0000000D  0000001F  00000440  00000440  00000000
+ 0000000E  00000000  00000000  00000000  00000000
+ 0000000F  00000000  00000000  00000000  00000000
+ 00000010  00000000  00000000  00000000  00000000
+ 00000011  00000000  00000000  00000000  00000000
+ 00000012  00000000  00000000  00000000  00000000
+ 00000013  00000000  00000000  00000000  00000000
+ 00000014  00000001  0000000F  00000003  00000000
+ 00000015  00000002  00000134  00000000  00000000
+ 00000016  00000000  00000000  00000000  00000000
+ 80000000  80000008  00000000  00000000  00000000
+ 80000001  00000000  00000000  00000121  2C100800
+ 80000002  65746E49  2952286C  726F4320  4D542865
+ 80000003  37692029  3037382D  43204B30  40205550
+ 80000004  372E3320  7A484730  00000000  00000000
+ 80000005  00000000  00000000  00000000  00000000
+ 80000006  00000000  00000000  01006040  00000000
+ 80000007  00000000  00000000  00000000  00000100
+ 80000008  00003027  00000000  00000000  00000000
+
+ CPU Group: 0
+ CPU Thread: 9
+ APIC ID: 9
+ Processor ID: 0
+ Core ID: 4
+ Thread ID: 1
+
+ Function  EAX       EBX       ECX       EDX
+ 00000000  00000016  756E6547  6C65746E  49656E69
+ 00000001  000906EA  09100800  FEDAF387  BFEBFBFF
+ 00000002  76036301  00F0B5FF  00000000  00C30000
+ 00000003  00000000  00000000  00000000  00000000
+ 00000004  1C004121  01C0003F  0000003F  00000000
+ 00000005  00000000  00000000  00000000  00000000
+ 00000006  000007F3  00000002  00000001  00000000
+ 00000007  00000000  009C6FBB  00000000  BC000400
+ 00000008  00000000  00000000  00000000  00000000
+ 00000009  00000000  00000000  00000000  00000000
+ 0000000A  07300404  00000000  00000000  00000603
+ 0000000B  00000001  00000002  00000100  00000009
+ 0000000C  00000000  00000000  00000000  00000000
+ 0000000D  0000001F  00000440  00000440  00000000
+ 0000000E  00000000  00000000  00000000  00000000
+ 0000000F  00000000  00000000  00000000  00000000
+ 00000010  00000000  00000000  00000000  00000000
+ 00000011  00000000  00000000  00000000  00000000
+ 00000012  00000000  00000000  00000000  00000000
+ 00000013  00000000  00000000  00000000  00000000
+ 00000014  00000001  0000000F  00000003  00000000
+ 00000015  00000002  00000134  00000000  00000000
+ 00000016  00000000  00000000  00000000  00000000
+ 80000000  80000008  00000000  00000000  00000000
+ 80000001  00000000  00000000  00000121  2C100800
+ 80000002  65746E49  2952286C  726F4320  4D542865
+ 80000003  37692029  3037382D  43204B30  40205550
+ 80000004  372E3320  7A484730  00000000  00000000
+ 80000005  00000000  00000000  00000000  00000000
+ 80000006  00000000  00000000  01006040  00000000
+ 80000007  00000000  00000000  00000000  00000100
+ 80000008  00003027  00000000  00000000  00000000
+
+ CPU Group: 0
+ CPU Thread: 10
+ APIC ID: 10
+ Processor ID: 0
+ Core ID: 5
+ Thread ID: 0
+
+ Function  EAX       EBX       ECX       EDX
+ 00000000  00000016  756E6547  6C65746E  49656E69
+ 00000001  000906EA  0A100800  FEDAF387  BFEBFBFF
+ 00000002  76036301  00F0B5FF  00000000  00C30000
+ 00000003  00000000  00000000  00000000  00000000
+ 00000004  1C004121  01C0003F  0000003F  00000000
+ 00000005  00000000  00000000  00000000  00000000
+ 00000006  000007F3  00000002  00000001  00000000
+ 00000007  00000000  009C6FBB  00000000  BC000400
+ 00000008  00000000  00000000  00000000  00000000
+ 00000009  00000000  00000000  00000000  00000000
+ 0000000A  07300404  00000000  00000000  00000603
+ 0000000B  00000001  00000002  00000100  0000000A
+ 0000000C  00000000  00000000  00000000  00000000
+ 0000000D  0000001F  00000440  00000440  00000000
+ 0000000E  00000000  00000000  00000000  00000000
+ 0000000F  00000000  00000000  00000000  00000000
+ 00000010  00000000  00000000  00000000  00000000
+ 00000011  00000000  00000000  00000000  00000000
+ 00000012  00000000  00000000  00000000  00000000
+ 00000013  00000000  00000000  00000000  00000000
+ 00000014  00000001  0000000F  00000003  00000000
+ 00000015  00000002  00000134  00000000  00000000
+ 00000016  00000000  00000000  00000000  00000000
+ 80000000  80000008  00000000  00000000  00000000
+ 80000001  00000000  00000000  00000121  2C100800
+ 80000002  65746E49  2952286C  726F4320  4D542865
+ 80000003  37692029  3037382D  43204B30  40205550
+ 80000004  372E3320  7A484730  00000000  00000000
+ 80000005  00000000  00000000  00000000  00000000
+ 80000006  00000000  00000000  01006040  00000000
+ 80000007  00000000  00000000  00000000  00000100
+ 80000008  00003027  00000000  00000000  00000000
+
+ CPU Group: 0
+ CPU Thread: 11
+ APIC ID: 11
+ Processor ID: 0
+ Core ID: 5
+ Thread ID: 1
+
+ Function  EAX       EBX       ECX       EDX
+ 00000000  00000016  756E6547  6C65746E  49656E69
+ 00000001  000906EA  0B100800  FEDAF387  BFEBFBFF
+ 00000002  76036301  00F0B5FF  00000000  00C30000
+ 00000003  00000000  00000000  00000000  00000000
+ 00000004  1C004121  01C0003F  0000003F  00000000
+ 00000005  00000000  00000000  00000000  00000000
+ 00000006  000007F3  00000002  00000001  00000000
+ 00000007  00000000  009C6FBB  00000000  BC000400
+ 00000008  00000000  00000000  00000000  00000000
+ 00000009  00000000  00000000  00000000  00000000
+ 0000000A  07300404  00000000  00000000  00000603
+ 0000000B  00000001  00000002  00000100  0000000B
+ 0000000C  00000000  00000000  00000000  00000000
+ 0000000D  0000001F  00000440  00000440  00000000
+ 0000000E  00000000  00000000  00000000  00000000
+ 0000000F  00000000  00000000  00000000  00000000
+ 00000010  00000000  00000000  00000000  00000000
+ 00000011  00000000  00000000  00000000  00000000
+ 00000012  00000000  00000000  00000000  00000000
+ 00000013  00000000  00000000  00000000  00000000
+ 00000014  00000001  0000000F  00000003  00000000
+ 00000015  00000002  00000134  00000000  00000000
+ 00000016  00000000  00000000  00000000  00000000
+ 80000000  80000008  00000000  00000000  00000000
+ 80000001  00000000  00000000  00000121  2C100800
+ 80000002  65746E49  2952286C  726F4320  4D542865
+ 80000003  37692029  3037382D  43204B30  40205550
+ 80000004  372E3320  7A484730  00000000  00000000
+ 80000005  00000000  00000000  00000000  00000000
+ 80000006  00000000  00000000  01006040  00000000
+ 80000007  00000000  00000000  00000000  00000100
+ 80000008  00003027  00000000  00000000  00000000
+
+--------------------------------------------------------------------------------
+
+Intel CPU
+
+Name: Intel Core i7-8700K
+Number of Cores: 6
+Threads per Core: 2
+Timer Frequency: 10 MHz
+Time Stamp Counter: Invariant
+Estimated Time Stamp Counter Frequency: 3696.23 MHz
+Estimated Time Stamp Counter Frequency Error: 0.34005 Mhz
+Time Stamp Counter Frequency: 3696 MHz
+
+MicroArchitecture: KabyLake
+Time Stamp Counter Multiplier: 37
+
+--------------------------------------------------------------------------------
+
+Memory Report:
+Virtual Memory (/vram):
+
+Memory Used: 18.97759
+Memory Available: 25.48376
+Memory: 42.68335
+Total Memory (/ram):
+
+Memory Used: 11.40964
+Memory Available: 20.55171
+Memory: 35.69824
+Corsair - CMG32GX4M2D3600C18 (#1) (/memory/dimm/1):
+
+tCKAVGmin (Minimum Cycle Time): 0.938
+tCKAVGmax (Maximum Cycle Time): 1.5
+tAA (CAS Latency Time): 13.5
+tRCD (RAS to CAS Delay Time): 13.5
+tRP (Row Precharge Delay Time): 13.5
+tRAS (Active to Precharge Delay Time): 33
+tRC (Active to Active/Refresh Delay Time): 46.5
+tRFC1 (Refresh Recovery Delay Time): 550
+tRFC2 (Refresh Recovery Delay Time): 350
+tRFC4 (Refresh Recovery Delay Time): 260
+tFAW (Four Activate Window Time): 21
+tRRD_S (Activate to Activate Delay Time): 3.7
+tRRD_L (Activate to Activate Delay Time): 5.3
+tCCD_L (CAS to CAS Delay Time): 5.356
+tWR (Write Recovery Time): 0
+tWTR_S (Write to Read Time): 0
+tWTR_L (Write to Read Time): 0
+Capacity: 16
+Corsair - CMG32GX4M2D3600C18 (#3) (/memory/dimm/3):
+
+tCKAVGmin (Minimum Cycle Time): 0.938
+tCKAVGmax (Maximum Cycle Time): 1.5
+tAA (CAS Latency Time): 13.5
+tRCD (RAS to CAS Delay Time): 13.5
+tRP (Row Precharge Delay Time): 13.5
+tRAS (Active to Precharge Delay Time): 33
+tRC (Active to Active/Refresh Delay Time): 46.5
+tRFC1 (Refresh Recovery Delay Time): 550
+tRFC2 (Refresh Recovery Delay Time): 350
+tRFC4 (Refresh Recovery Delay Time): 260
+tFAW (Four Activate Window Time): 21
+tRRD_S (Activate to Activate Delay Time): 3.7
+tRRD_L (Activate to Activate Delay Time): 5.3
+tCCD_L (CAS to CAS Delay Time): 5.356
+tWR (Write Recovery Time): 0
+tWTR_S (Write to Read Time): 0
+tWTR_L (Write to Read Time): 0
+Capacity: 16
+--------------------------------------------------------------------------------
+
+NvApi
+
+Version: NVidia Complete Version 1.10
+Number of GPUs: 1
+
+--------------------------------------------------------------------------------
+
+Nvidia GPU
+
+Name: NVIDIA GeForce RTX 3060
+Index: 0
+Driver Version: 596.49
+Driver Branch: r596_25-10
+DeviceID: 0x250410DE
+SubSystemID: 0x153610DE
+RevisionID: 0xA1
+ExtDeviceID: 0x2504
+
+Thermal Settings
+
+ Sensor[0].Controller: GpuInternal
+ Sensor[0].DefaultMinTemp: 4294967256
+ Sensor[0].DefaultMaxTemp: 150
+ Sensor[0].CurrentTemp: 33
+ Sensor[0].Target: Gpu
+
+Clocks
+
+ Clock[0]: 210000
+ Clock[4]: 405000
+
+Tachometer
+
+ Status: NotSupported
+
+P-States
+
+ Percentage[0]: 4
+ Percentage[1]: 7
+ Percentage[2]: 0
+ Percentage[3]: 2
+
+Usages
+
+ Usage[0]: 4
+ Usage[1]: 7
+ Usage[2]: 0
+ Usage[3]: 2
+
+Cooler Settings
+
+ Status: NotSupported
+
+Fan Coolers Status
+
+ Items[0].CoolerId: 1
+ Items[0].CurrentRpm: 1013
+ Items[0].CurrentMinLevel: 30
+ Items[0].CurrentMaxLevel: 100
+ Items[0].CurrentLevel: 0
+ Items[1].CoolerId: 2
+ Items[1].CurrentRpm: 0
+ Items[1].CurrentMinLevel: 30
+ Items[1].CurrentMaxLevel: 100
+ Items[1].CurrentLevel: 0
+
+Power Topology
+
+ Entries[0].Domain: Gpu
+ Entries[0].PowerUsage: 10546
+ Entries[1].Domain: Board
+ Entries[1].PowerUsage: 10801
+
+Memory Info
+
+ AvailableDedicatedVideoMemory: 12405760
+ DedicatedVideoMemory: 12582912
+ CurrentAvailableDedicatedVideoMemory: 11008760
+ SharedSystemMemory: 16756952
+ SystemVideoMemory: 0
+
+D3D
+
+ Id: \\?\PCI#VEN_10DE&DEV_2504&SUBSYS_153610DE&REV_A1#4&2ce211ea&0&0008#{1ca05180-a699-450a-9a0c-de4fbe3ddd89}
+
+--------------------------------------------------------------------------------
+
+Intel GPU Detection
+
+Intel GCL Initialized: False
+
+Intel GPU (D3D - Integrated)
+
+Number of D3D adapters: 2
+
+AdapterIndex: 0
+DeviceId: \\?\ROOT#BasicRender#0000#{1ca05180-a699-450a-9a0c-de4fbe3ddd89}
+IsIntel: False
+
+AdapterIndex: 1
+DeviceId: \\?\PCI#VEN_10DE&DEV_2504&SUBSYS_153610DE&REV_A1#4&2ce211ea&0&0008#{1ca05180-a699-450a-9a0c-de4fbe3ddd89}
+IsIntel: False
+
+--------------------------------------------------------------------------------
+
+Power Monitors:
+
+
+--------------------------------------------------------------------------------
+
+FTD2XX
+
+Status: missing DLL
+
+--------------------------------------------------------------------------------
+
+AquaComputer Hardware
+
+No AquaComputer Hardware found.
+
+--------------------------------------------------------------------------------
+
+AeroCool Hardware
+
+No AeroCool Hardware found.
+
+--------------------------------------------------------------------------------
+
+Nzxt Hardware
+
+No Nzxt Hardware found.
+
+--------------------------------------------------------------------------------
+
+Razer Hardware
+
+No Razer Hardware found.
+
+--------------------------------------------------------------------------------
+
+ARCTIC Hardware
+
+--------------------------------------------------------------------------------
+
+MSI Hardware:
+
+
+--------------------------------------------------------------------------------
+
+Storage
+
+Drive Name: WDC  WDS250G2B0A-00SM50 
+Firmware Version and Revision: 401020WD; 401020WD
+
+Smart Attributes:
+ID, Description, Value, Threshold
+  5,                                       Reassigned Block Count,                  0,   0
+  9,                                               Power On Hours,              37926,   0
+ 12,                                            Power Cycle Count,                515,   0
+165,                                      Block Erase Count (SLC),       3.072073E+12,   0
+166,                                           Minimum P/E Cycles,                 25,   0
+167,                                   Maximum Bad Blocks per die,                 23,   0
+168,                                           Maximum P/E Cycles,                 95,   0
+169,                                              Total Bad Block,                 82,   0
+170,                                             Grown Bad Blocks,                  0,   0
+171,                                           Program Fail Count,                  0,   0
+172,                                             Erase Fail Count,                  0,   0
+173,                                           Average P/E Cycles,                 73,   0
+174,                                  Unexpected Power Loss Count,                195,   0
+184,                  End-to-End Error Detection/Correction Count,                  0,   0
+187,                                Reported Uncorrectable Errors,                  0,   0
+188,                                        Command Timeout Count,                169,   0
+194,                                                  Temperature,         2.0616E+11,   0
+199,                                              CRC Error Count,                  7,   0
+230,                                      Media Wearout Indicator,       3.635272E+13,   0
+232,                                      Available Reserve Space,                100,   0
+233,                                              NAND GB Written,              18555,   0
+233,                                              NAND GB Written,              18555,   0
+230,                                      Media Wearout Indicator,       3.635272E+13,   0
+241,                                             Total GB Written,              79807,   0
+242,                                                Total GB Read,              30811,   0
+233,                                              NAND GB Written,              18555,   0
+244,                                  Temperature Throttle Status,                  0,   0
+233,                                              NAND GB Written,              18555,   0
+
+Partitions:
+Partition #1
+Available Free Space: 71371776
+Partition #2
+Partition #3
+Drive Letter: C
+Available Free Space: 40347152384
+Partition #4
+
+Total Free Size: 40421485568
+Total Size: 250059350016
+--------------------------------------------------------------------------------
+
+Storage
+
+Drive Name: WDC WD10EZEX-00RKKA0
+Firmware Version and Revision: 80.00A80; 80.00A80
+
+Smart Attributes:
+ID, Description, Value, Threshold
+  1,                                              Read Error Rate,                  1,   0
+  3,                                                 Spin-Up Time,               2258,   0
+  4,                                             Start/Stop Count,              63096,   0
+  5,                                    Reallocated Sectors Count,                  0,   0
+  7,                                              Seek Error Rate,                  0,   0
+  9,                                               Power-On Hours,              44703,   0
+ 10,                                             Spin Retry Count,                  0,   0
+ 11,                                        Recalibration Retries,                  0,   0
+ 12,                                            Power Cycle Count,              43818,   0
+192,                                      Power-off Retract Count,              42050,   0
+193,                                      Load/Unload Cycle Count,              21045,   0
+194,                                                  Temperature,                 38,   0
+196,                                     Reallocation Event Count,                  0,   0
+197,                                 Current Pending Sector Count,                  0,   0
+198,                                   Uncorrectable Sector Count,                  0,   0
+199,                                     UltraDMA CRC Error Count,                193,   0
+200,                                             Write Error Rate,                  0,   0
+193,                                      Load/Unload Cycle Count,              21045,   0
+193,                                      Load/Unload Cycle Count,              21045,   0
+192,                                      Power-off Retract Count,              42050,   0
+194,                                                  Temperature,                 38,   0
+
+Partitions:
+Partition #1
+Drive Letter: G
+Available Free Space: 451337719808
+Partition #0
+Partition #0
+Partition #0
+
+Total Free Size: 451340562432
+Total Size: 1000204886016
+--------------------------------------------------------------------------------
+
+Storage
+
+Drive Name: WDC WD20EZRX-00D8PB0
+Firmware Version and Revision: 80.00A80; 80.00A80
+
+Smart Attributes:
+ID, Description, Value, Threshold
+  1,                                              Read Error Rate,             184454,   0
+  3,                                                 Spin-Up Time,               4158,   0
+  4,                                             Start/Stop Count,              11836,   0
+  5,                                    Reallocated Sectors Count,                  0,   0
+  7,                                              Seek Error Rate,                  1,   0
+  9,                                               Power-On Hours,              27221,   0
+ 10,                                             Spin Retry Count,                  0,   0
+ 11,                                        Recalibration Retries,                  0,   0
+ 12,                                            Power Cycle Count,               1716,   0
+192,                                      Power-off Retract Count,                329,   0
+193,                                      Load/Unload Cycle Count,             748996,   0
+194,                                                  Temperature,                 36,   0
+196,                                     Reallocation Event Count,                  0,   0
+197,                                 Current Pending Sector Count,                  2,   0
+198,                                   Uncorrectable Sector Count,                  0,   0
+199,                                     UltraDMA CRC Error Count,                  9,   0
+200,                                             Write Error Rate,             306409,   0
+193,                                      Load/Unload Cycle Count,             748996,   0
+193,                                      Load/Unload Cycle Count,             748996,   0
+192,                                      Power-off Retract Count,                329,   0
+194,                                                  Temperature,                 36,   0
+
+Partitions:
+Partition #1
+Drive Letter: D
+Available Free Space: 1428939177984
+Partition #0
+Partition #0
+Partition #0
+
+Total Free Size: 1428941365248
+Total Size: 2000398934016
+--------------------------------------------------------------------------------
+
+Realtek PCIe GbE Family Controller
+Up
+
+Data Uploaded
+0.291399
+
+Data Downloaded
+1.180716
+
+Upload Speed
+0
+
+Download Speed
+4984.053
+
+Network Utilization
+0.03987243
+
+--------------------------------------------------------------------------------
+
+Corsair HXi/RMi series PSU Hardware
+
+--------------------------------------------------------------------------------
+
+MSI Ai series PSU Hardware
+
+No MSI PSU Hardware found.
+

@@ -1,0 +1,4 @@
+seek_response
+{
+  "result": "The provided context is a set of code snippets and a request for a response, but there is no actual question or task to be performed based on this context. Please provide a specific question or instruction so I can assist you."
+}

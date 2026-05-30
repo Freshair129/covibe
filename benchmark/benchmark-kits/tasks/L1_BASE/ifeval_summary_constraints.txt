@@ -1,0 +1,18 @@
+# TASK: IFEval (Instruction Following Evaluation)
+# Level: L1_BASE
+# Target: Constraint Adherence
+
+PROMPT:
+"Write a 300+ word summary of the project 'CoVibe' (a realtime music sync PWA for riders and passengers). 
+You must adhere to the following strict constraints:
+1. Do not use any commas (',') in the entire text.
+2. Highlight at least 3 sections using bold markdown (e.g., **section title**).
+3. The response must be in English.
+4. End the response with the exact phrase: ### COMPLETED"
+
+---
+EXPECTED CRITERIA:
+- Word count >= 300
+- Comma count == 0
+- Bold sections >= 3
+- Final phrase presence

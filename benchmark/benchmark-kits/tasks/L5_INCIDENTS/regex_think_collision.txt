@@ -1,0 +1,14 @@
+Perform a Root Cause Analysis (RCA) and propose a technical fix for the following scenario:
+
+[CONTEXT]
+A Python script extracts TypeScript code from an LLM response using: `re.search(r"```typescript\s*(.*?)\s*```", response, re.DOTALL)`.
+The LLM used is a Reasoning Model (Sushi RL) that outputs:
+1. A `<think>` block containing the original source code.
+2. A final output block containing the generated Unit Test.
+
+[PROBLEM]
+The script extracts the original source code instead of the Unit Test.
+
+[TASK]
+1. Identify the root cause.
+2. Propose a more robust Python regex or logic to ensure the correct block is extracted.
