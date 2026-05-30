@@ -691,6 +691,22 @@ RUNID Format: RUN-[YYMMDD]-[model_id]-[run_number], e.g., RUN-260530-qw39b-001
   * Primary: TTFT (ms), Prefill TPS, Decode TPS, VRAM Utilization (MB)  
   * Secondary: GPU Temp (°C), GPU Power Draw (W), Residual VRAM Post-Unload
 
+### Step 1.3: Initialize Benchmark Run Directory Skeleton (Pre-flight Validation)
+Before starting system telemetry logging and executing inference requests, the orchestrator script or AI Developer Agent MUST pre-create the workspace skeleton. This verifies naming schemas, permission boundaries, and target storage structures.
+
+- **Workspace Path:** `g:/covibe/benchmark/benchmark-run/<model-name>/<runid>/`
+- **Skeleton Folder Architecture:**
+  - Documents folder: `g:/covibe/benchmark/benchmark-run/<model-name>/<runid>/documents/`
+  - Telemetry traces folder: `g:/covibe/benchmark/benchmark-run/<model-name>/<runid>/traces/`
+  - Process outputs folder: `g:/covibe/benchmark/benchmark-run/<model-name>/<runid>/artifacts/`
+- **Seeded Placeholder/Template Files:**
+  - PRE-TEST Plan: `g:/covibe/benchmark/benchmark-run/<model-name>/<runid>/documents/[runid]-PLAN-[PROJECT_NAME].md` (Copy from BD-TP standard)
+  - ACTIVE-TEST Runbook: `g:/covibe/benchmark/benchmark-run/<model-name>/<runid>/documents/[runid]-RUN-[PROJECT_NAME].md` (Empty template)
+  - POST-TEST Technical Report: `g:/covibe/benchmark/benchmark-run/<model-name>/<runid>/documents/[runid]-REPORT-[PROJECT_NAME].md` (Empty template)
+  - POST-TEST Sign-Off: `g:/covibe/benchmark/benchmark-run/<model-name>/<runid>/documents/[runid]-SIGNOFF-[PROJECT_NAME].md` (Empty template)
+  - System Environment Spec: `g:/covibe/benchmark/benchmark-run/<model-name>/<runid>/metadata.json` (Initialized with run parameters)
+  - Aggregate Performance Metrics: `g:/covibe/benchmark/benchmark-run/<model-name>/<runid>/metrics.json` (Initialized with benchmark status: pending)
+
 ---
 
 ## Phase 2: ACTIVE-TEST (Execution)
