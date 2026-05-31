@@ -12,5 +12,6 @@ Welcome to the CoVibe Benchmarking control directory.
 ## Core Directives
 1. **Guided Knowledge System (.gks):** This directory utilizes a standardized vault structure located in `.gks/`. Future agents MUST consult the templates (ALGO, FLOW, ISSUE, RUNBOOK, etc.) in `.gks` before making architectural decisions or investigating hardware limits. See `.gks/README.md` for the taxonomy.
 2. **SSOT Policy:** Do not refer to duplicate files or memory context. All folder hierarchies (`benchmark-kits/`, `benchmark-run/`, `telemetry_logs/`), schema validations (`metadata.json`, `metrics.json`, `samples.jsonl`), pre-flight hardware tuning, and thermal cooldown policies are governed strictly by the SSOT and `.gks` documents.
-3. **Safety Gates:** Run underclocks and lock GPU clocks before initiating local model inference as documented in the SSOT (or `PROTOCOL--HW-TUNING.md`).
+3. **MANDATORY PATH VALIDATION:** Before creating or updating any file within `benchmark-run/`, the agent MUST verify the path against EABS-01 Section 1. Every document MUST reside within the `<model-name>/<runid>/documents/` hierarchy. NO files are allowed in the root of `benchmark-run/`.
+4. **Safety Gates:** Run underclocks and lock GPU clocks before initiating local model inference as documented in the SSOT (or `PROTOCOL--HW-TUNING.md`).
 4. **Loop & Encoding Guards:** Enforce maximum tokens, stop tokens, and forced UTF-8 output streams in your runner code to mitigate risks (see `RISK--EMOJI-CRASH.md`).
