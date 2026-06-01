@@ -21,51 +21,289 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.26.0/cytoscape.min.js"></script>
 
   <!-- Tailwind CSS -->
-  <script>
-    // Suppress cdn.tailwindcss.com console warning for local development dashboard
-    (function() {
-      const filterTailwindWarn = (origFn) => {
-        return function(...args) {
-          if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
-            return;
-          }
-          origFn.apply(console, args);
-        };
-      };
-      console.warn = filterTailwindWarn(console.warn);
-      console.log = filterTailwindWarn(console.log);
-    })();
-  </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
-          colors: {
-            bg: { primary: '#0a0d10', secondary: '#101418', tertiary: '#171d24' },
-            border: { DEFAULT: 'rgba(255, 255, 255, 0.15)', hover: 'rgba(255, 255, 255, 0.25)' },
-            text: { primary: '#ffffff', secondary: '#c2d1cb', tertiary: '#94a39d' },
-            accent: { DEFAULT: '#78f4bf', dim: 'rgba(120, 244, 191, 0.15)', glow: 'rgba(120, 244, 191, 0.4)' }
-          },
-          animation: {
-            'spin-slow': 'spin 3s linear infinite',
-            'pulse-border': 'pulseBorder 2s infinite',
-          },
-          keyframes: {
-            pulseBorder: {
-              '0%, 100%': { boxShadow: '0 0 0 0 rgba(96, 165, 250, 0.4)' },
-              '50%': { boxShadow: '0 0 0 8px rgba(96, 165, 250, 0)' }
-            }
-          }
-        }
+  
+<script>
+    let models = {}, selectedModel = '', isPlaying = false;
+    let telemetryChart = null, activeChartTab = 'thermals', reactorAngle = 0, currentDomain = 'overview';
+    let sidebarExpanded = true;
+
+    const domainRegistry = {
+      overview: {
+        title: 'Overview', subtitle: 'Project Center', icon: 'ti ti-layout-dashboard',
+        items: [
+          { id: 'dashboard', label: 'Dashboard', icon: 'ti ti-chart-pie', action: () => switchTab('simulator') },
+          { id: 'roadmap', label: 'Manager Board', icon: 'ti ti-layout-kanban', action: () => switchMainView('roadmap') },
+          { id: 'agents', label: 'Agent Roster', icon: 'ti ti-users', action: () => switchTab('training') }
+        ]
+      },
+      gks: {
+        title: 'Genesis Knowledge', subtitle: 'Code Intelligence', icon: 'ti ti-brain',
+        items: [
+          { id: 'structure', label: 'Code Structure', icon: 'ti ti-hierarchy-2', action: () => switchMainView('callgraph') },
+          { id: 'logic', label: 'Business Logic', icon: 'ti ti-script', action: () => {} },
+          { id: 'graph', label: 'Codebase Graph', icon: 'ti ti-share', action: () => switchMainView('canvas') }
+        ]
+      },
+      gdb: {
+        title: 'Block DB', subtitle: 'Atomic Memory', icon: 'ti ti-database',
+        items: [
+          { id: 'explorer', label: 'Explorer Hub', icon: 'ti ti-table', action: () => switchDomainSubTab('explorer') },
+          { id: 'processing', label: 'Processing Lab', icon: 'ti ti-microscope', action: () => switchDomainSubTab('processing') },
+          { id: 'retrieval', label: 'Retrieval Studio', icon: 'ti ti-search', action: () => switchDomainSubTab('retrieval') },
+          { id: 'symbol-link', label: 'Symbol Linker', icon: 'ti ti-link', action: () => switchDomainSubTab('symbol-link') },
+          { id: 'visualizer', label: 'HNSW Space', icon: 'ti ti-binary-tree', action: () => switchDomainSubTab('visualizer') }
+        ]
+      },
+      benchmark: {
+        title: 'Benchmark', subtitle: 'Performance', icon: 'ti ti-trending-up',
+        items: [
+          { id: 'bench-control', label: 'Execution', icon: 'ti ti-player-play', action: () => switchMainView('benchmark') },
+          { id: 'telemetry', label: 'Telemetry', icon: 'ti ti-activity', action: () => switchTab('gap-analysis') },
+          { id: 'reports', label: 'Reports', icon: 'ti ti-file-analytics', action: () => switchTab('campaign') }
+        ]
+      }
+    };
+
+    function switchDomain(domainId) {
+      currentDomain = domainId;
+      const config = domainRegistry[domainId];
+      if (!config) return;
+
+      document.querySelectorAll('.domain-tab-btn').forEach(btn => {
+        const isActive = btn.id === `domain-btn-${domainId}`;
+        btn.classList.toggle('active', isActive);
+        btn.classList.toggle('text-white', isActive);
+        btn.classList.toggle('bg-white/5', isActive);
+        btn.classList.toggle('border-white/10', isActive);
+        btn.classList.toggle('text-text-tertiary', !isActive);
+      });
+
+      document.getElementById('sidebar-context-title').textContent = config.title;
+      document.getElementById('sidebar-context-subtitle').textContent = config.subtitle;
+      document.getElementById('sidebar-context-icon').innerHTML = `<i class="${config.icon}"></i>`;
+      
+      const navContainer = document.getElementById('glass-subnav');
+      if (navContainer) {
+        navContainer.innerHTML = config.items.map(item => `
+          <li class="sb-item" data-tooltip="${item.label}">
+            <button onclick="handleSubNavClick('${item.id}', this)" data-sub-id="${item.id}" class="sb-link sub-nav-item">
+              <i class="${item.icon}"></i><span>${item.label}</span>
+            </button>
+          </li>`).join('');
+        if (config.items.length > 0) handleSubNavClick(config.items[0].id, navContainer.querySelector('.sb-link'));
       }
     }
-  </script>
+
+    function handleSubNavClick(itemId, element) {
+      document.querySelectorAll('.sb-link').forEach(btn => btn.classList.remove('active'));
+      if (element) element.classList.add('active');
+      const item = domainRegistry[currentDomain].items.find(i => i.id === itemId);
+      if (item && item.action) item.action();
+    }
+
+    function switchDomainSubTab(tabId) {
+      document.querySelectorAll('.gdb-sub-view').forEach(view => view.classList.add('hidden'));
+      const target = document.getElementById(`gdb-view-${tabId}`);
+      if (target) target.classList.remove('hidden');
+      if (tabId === 'visualizer') setTimeout(initHnswVisualizer, 100);
+    }
+
+    function switchMainView(view) {
+      const ids = ['roadmap-view', 'workflow-canvas', 'callgraph-view', 'benchmark-view', 'gdb-view-container'];
+      ids.forEach(id => { const el = document.getElementById(id); if(el) { el.classList.add('hidden'); el.classList.remove('flex'); } });
+      const target = document.getElementById(view + '-view') || document.getElementById(view) || document.getElementById(view + '-container');
+      if (target) { target.classList.remove('hidden'); if(view !== 'roadmap') target.classList.add('flex'); }
+    }
+
+    function switchTab(tabName) {
+      const tabs = ['simulator', 'overview', 'gap-analysis', 'training', 'campaign'];
+      tabs.forEach(t => { const el = document.getElementById(`tab-content-${t}`); if(el) el.classList.add('hidden'); });
+      let target = tabName === 'dashboard' ? 'simulator' : (tabName === 'roadmap' ? 'overview' : tabName);
+      const active = document.getElementById(`tab-content-${target}`);
+      if (active) active.classList.remove('hidden');
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('glass-sidebar');
+      const toggleIcon = document.getElementById('sidebar-toggle-icon');
+      sidebarExpanded = !sidebarExpanded;
+      if (sidebar) sidebar.classList.toggle('collapsed');
+      if (toggleIcon) toggleIcon.className = sidebarExpanded ? 'ti ti-chevron-left text-lg' : 'ti ti-chevron-right text-lg';
+    }
+
+    function setGdbModel(name) { 
+      const el = document.getElementById('gdb-active-model');
+      if (el) el.textContent = name; 
+    }
+    
+    function runSrsSimulation(q) { console.log(`Querying SRS for: ${q}`); }
+
+    function animateReactor() {
+        const canvas = document.getElementById('reactor-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0,0,180,180);
+        reactorAngle += 0.04;
+        ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(90, 90, 60, 0, Math.PI*2); ctx.stroke();
+        for(let i=0; i<4; i++) {
+            let a = reactorAngle + (Math.PI*0.5)*i;
+            ctx.fillStyle = '#06b6d4'; ctx.shadowBlur = 10; ctx.shadowColor = '#06b6d4'; ctx.beginPath(); ctx.arc(90 + Math.cos(a)*60, 90 + Math.sin(a)*60, 4, 0, Math.PI*2); ctx.fill();
+        }
+        requestAnimationFrame(animateReactor);
+    }
+
+    async function loadBenchmarkData() {
+        try {
+            const res = await fetch('/benchmark/ui/data/benchmarks.json');
+            if (res.ok) models = await res.json();
+        } catch(e) {}
+    }
+
+    window.onload = () => { switchDomain('overview'); animateReactor(); loadBenchmarkData(); };
+</script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+<script>
+    let models = {}, selectedModel = '', isPlaying = false;
+    let telemetryChart = null, activeChartTab = 'thermals', reactorAngle = 0, currentDomain = 'overview';
+    let sidebarExpanded = true;
+
+    const domainRegistry = {
+      overview: {
+        title: 'Overview', subtitle: 'Project Center', icon: 'ti ti-layout-dashboard',
+        items: [
+          { id: 'dashboard', label: 'Dashboard', icon: 'ti ti-chart-pie', action: () => switchTab('simulator') },
+          { id: 'roadmap', label: 'Manager Board', icon: 'ti ti-layout-kanban', action: () => switchMainView('roadmap') },
+          { id: 'agents', label: 'Agent Roster', icon: 'ti ti-users', action: () => switchTab('training') }
+        ]
+      },
+      gks: {
+        title: 'Genesis Knowledge', subtitle: 'Code Intelligence', icon: 'ti ti-brain',
+        items: [
+          { id: 'structure', label: 'Code Structure', icon: 'ti ti-hierarchy-2', action: () => switchMainView('callgraph') },
+          { id: 'logic', label: 'Business Logic', icon: 'ti ti-script', action: () => {} },
+          { id: 'graph', label: 'Codebase Graph', icon: 'ti ti-share', action: () => switchMainView('canvas') }
+        ]
+      },
+      gdb: {
+        title: 'Block DB', subtitle: 'Atomic Memory', icon: 'ti ti-database',
+        items: [
+          { id: 'explorer', label: 'Explorer Hub', icon: 'ti ti-table', action: () => switchDomainSubTab('explorer') },
+          { id: 'processing', label: 'Processing Lab', icon: 'ti ti-microscope', action: () => switchDomainSubTab('processing') },
+          { id: 'retrieval', label: 'Retrieval Studio', icon: 'ti ti-search', action: () => switchDomainSubTab('retrieval') },
+          { id: 'symbol-link', label: 'Symbol Linker', icon: 'ti ti-link', action: () => switchDomainSubTab('symbol-link') },
+          { id: 'visualizer', label: 'HNSW Space', icon: 'ti ti-binary-tree', action: () => switchDomainSubTab('visualizer') }
+        ]
+      },
+      benchmark: {
+        title: 'Benchmark', subtitle: 'Performance', icon: 'ti ti-trending-up',
+        items: [
+          { id: 'bench-control', label: 'Execution', icon: 'ti ti-player-play', action: () => switchMainView('benchmark') },
+          { id: 'telemetry', label: 'Telemetry', icon: 'ti ti-activity', action: () => switchTab('gap-analysis') },
+          { id: 'reports', label: 'Reports', icon: 'ti ti-file-analytics', action: () => switchTab('campaign') }
+        ]
+      }
+    };
+
+    function switchDomain(domainId) {
+      currentDomain = domainId;
+      const config = domainRegistry[domainId];
+      if (!config) return;
+
+      document.querySelectorAll('.domain-tab-btn').forEach(btn => {
+        const isActive = btn.id === `domain-btn-${domainId}`;
+        btn.classList.toggle('active', isActive);
+        btn.classList.toggle('text-white', isActive);
+        btn.classList.toggle('bg-white/5', isActive);
+        btn.classList.toggle('border-white/10', isActive);
+        btn.classList.toggle('text-text-tertiary', !isActive);
+      });
+
+      document.getElementById('sidebar-context-title').textContent = config.title;
+      document.getElementById('sidebar-context-subtitle').textContent = config.subtitle;
+      document.getElementById('sidebar-context-icon').innerHTML = `<i class="${config.icon}"></i>`;
+      
+      const navContainer = document.getElementById('glass-subnav');
+      if (navContainer) {
+        navContainer.innerHTML = config.items.map(item => `
+          <li class="sb-item" data-tooltip="${item.label}">
+            <button onclick="handleSubNavClick('${item.id}', this)" data-sub-id="${item.id}" class="sb-link sub-nav-item">
+              <i class="${item.icon}"></i><span>${item.label}</span>
+            </button>
+          </li>`).join('');
+        if (config.items.length > 0) handleSubNavClick(config.items[0].id, navContainer.querySelector('.sb-link'));
+      }
+    }
+
+    function handleSubNavClick(itemId, element) {
+      document.querySelectorAll('.sb-link').forEach(btn => btn.classList.remove('active'));
+      if (element) element.classList.add('active');
+      const item = domainRegistry[currentDomain].items.find(i => i.id === itemId);
+      if (item && item.action) item.action();
+    }
+
+    function switchDomainSubTab(tabId) {
+      document.querySelectorAll('.gdb-sub-view').forEach(view => view.classList.add('hidden'));
+      const target = document.getElementById(`gdb-view-${tabId}`);
+      if (target) target.classList.remove('hidden');
+      if (tabId === 'visualizer') setTimeout(initHnswVisualizer, 100);
+    }
+
+    function switchMainView(view) {
+      const ids = ['roadmap-view', 'workflow-canvas', 'callgraph-view', 'benchmark-view', 'gdb-view-container'];
+      ids.forEach(id => { const el = document.getElementById(id); if(el) { el.classList.add('hidden'); el.classList.remove('flex'); } });
+      const target = document.getElementById(view + '-view') || document.getElementById(view) || document.getElementById(view + '-container');
+      if (target) { target.classList.remove('hidden'); if(view !== 'roadmap') target.classList.add('flex'); }
+    }
+
+    function switchTab(tabName) {
+      const tabs = ['simulator', 'overview', 'gap-analysis', 'training', 'campaign'];
+      tabs.forEach(t => { const el = document.getElementById(`tab-content-${t}`); if(el) el.classList.add('hidden'); });
+      let target = tabName === 'dashboard' ? 'simulator' : (tabName === 'roadmap' ? 'overview' : tabName);
+      const active = document.getElementById(`tab-content-${target}`);
+      if (active) active.classList.remove('hidden');
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('glass-sidebar');
+      const toggleIcon = document.getElementById('sidebar-toggle-icon');
+      sidebarExpanded = !sidebarExpanded;
+      if (sidebar) sidebar.classList.toggle('collapsed');
+      if (toggleIcon) toggleIcon.className = sidebarExpanded ? 'ti ti-chevron-left text-lg' : 'ti ti-chevron-right text-lg';
+    }
+
+    function setGdbModel(name) { 
+      const el = document.getElementById('gdb-active-model');
+      if (el) el.textContent = name; 
+    }
+    
+    function runSrsSimulation(q) { console.log(`Querying SRS for: ${q}`); }
+
+    function animateReactor() {
+        const canvas = document.getElementById('reactor-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0,0,180,180);
+        reactorAngle += 0.04;
+        ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(90, 90, 60, 0, Math.PI*2); ctx.stroke();
+        for(let i=0; i<4; i++) {
+            let a = reactorAngle + (Math.PI*0.5)*i;
+            ctx.fillStyle = '#06b6d4'; ctx.shadowBlur = 10; ctx.shadowColor = '#06b6d4'; ctx.beginPath(); ctx.arc(90 + Math.cos(a)*60, 90 + Math.sin(a)*60, 4, 0, Math.PI*2); ctx.fill();
+        }
+        requestAnimationFrame(animateReactor);
+    }
+
+    async function loadBenchmarkData() {
+        try {
+            const res = await fetch('/benchmark/ui/data/benchmarks.json');
+            if (res.ok) models = await res.json();
+        } catch(e) {}
+    }
+
+    window.onload = () => { switchDomain('overview'); animateReactor(); loadBenchmarkData(); };
+</script>
+
 
   <style>
     :root {
@@ -952,6 +1190,7 @@
           <span class="text-[9px] text-accent font-bold">CoVibe Project</span>
         </div>
       </div>
+      
       <nav class="flex items-center gap-1">
         <button id="domain-btn-overview" onclick="switchDomain('overview')" class="domain-tab-btn active px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-white bg-white/5 border border-white/10">
           <i class="ti ti-layout-dashboard"></i> <span>Overview</span>
@@ -966,6 +1205,7 @@
           <i class="ti ti-trending-up"></i> <span>Benchmark</span>
         </button>
       </nav>
+      
       <div class="ml-auto flex items-center gap-3">
         <div id="connection-indicator" class="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-emerald-500/20">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
@@ -979,320 +1219,37 @@
 
 
     <!-- Main Workspace Area -->
+    
+    <!-- Main Workspace Area -->
     <main class="flex-1 flex overflow-hidden relative bg-[#0a0d10] h-[calc(100vh-3.5rem)]">
-
-      <aside id="left-sidebar"
-        class="w-[300px] lg:w-[320px] xl:w-[350px] flex flex-col gap-4 h-full shrink-0 overflow-hidden p-4">
-
-        <!-- 1.1 Roadmap Stack (Shown for Roadmap View) -->
-        <div id="left-sidebar-roadmap" class="flex flex-col gap-4 h-full overflow-hidden">
-
-          <!-- 1.1 CoVibe Development Roadmap Progress & Project Status -->
-          <div
-          class="bg-bg-secondary border border-border rounded-xl p-4 flex flex-col gap-3 shrink-0 shadow-lg relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-accent to-blue-500"></div>
-
-          <div class="flex justify-between items-start gap-2">
-            <div class="min-w-0 flex-1">
-              <h3 class="text-xs font-bold text-white mb-0.5 truncate">CoVibe Development Roadmap</h3>
-              <p class="text-[9.5px] text-text-secondary leading-tight">
-                แผนการพัฒนาและติดตามผลความคืบหน้าของฟีเจอร์ที่สำคัญดังต่อไปนี้</p>
-            </div>
-            <button id="reset-btn"
-              class="flex items-center gap-1 px-2 py-1 rounded bg-white/5 hover:bg-accent/10 border border-border hover:border-accent text-[9.5px] font-bold text-text-secondary hover:text-accent transition shrink-0"
-              title="รีเซ็ตค่ากลับเป็นค่าตั้งต้นทางการ">
-              <i class="ti ti-rotate"></i> Reset
-            </button>
-          </div>
-
-          <div>
-            <div class="flex justify-between items-center mb-1">
-              <span class="text-[9.5px] text-text-secondary font-medium">ความคืบหน้าโครงการรวม</span>
-              <span class="text-sm font-bold text-accent font-mono" id="global-percent-text">53%</span>
-            </div>
-            <div class="progress-track">
-              <div class="progress-fill" id="global-progress-fill" style="width: 53%;"></div>
+      <!-- MODERN GLASS SIDEBAR -->
+      <nav id="glass-sidebar" class="sidebar">
+        <div>
+          <div class="sb-brand">
+            <div id="sidebar-context-icon" class="sb-brand-icon"><i class="ti ti-layout-dashboard"></i></div>
+            <div class="sb-brand-text">
+              <div id="sidebar-context-title" class="sb-brand-title">Overview</div>
+              <div id="sidebar-context-subtitle" class="sb-brand-sub">Project Center</div>
             </div>
           </div>
-
-          <div class="grid grid-cols-4 gap-1 border-t border-border/40 pt-2.5 mt-1 text-center">
-            <div>
-              <p class="text-sm font-bold font-mono text-white" id="stat-total">49</p>
-              <p class="text-[8px] text-text-tertiary uppercase leading-tight">งานทั้งหมด</p>
-            </div>
-            <div>
-              <p class="text-sm font-bold font-mono text-accent" id="stat-done">26</p>
-              <p class="text-[8px] text-text-tertiary uppercase leading-tight">ทำเสร็จแล้ว</p>
-            </div>
-            <div>
-              <p class="text-sm font-bold font-mono text-yellow-500" id="stat-pending">2</p>
-              <p class="text-[8px] text-text-tertiary uppercase leading-tight">รอดำเนินการ</p>
-            </div>
-            <div>
-              <p class="text-sm font-bold font-mono text-indigo-400">5</p>
-              <p class="text-[8px] text-text-tertiary uppercase leading-tight">Phase</p>
-            </div>
-          </div>
-
-          <!-- Project Status Section -->
-          <div class="border-t border-border/40 pt-2.5 mt-1 flex flex-col gap-2">
-            <div class="flex items-center gap-1.5 text-text-secondary font-bold text-[9px] uppercase tracking-wider">
-              <i class="ti ti-activity text-accent"></i>
-              <span>Project Status</span>
-            </div>
-            <div class="grid grid-cols-3 gap-1.5">
-              <div
-                class="bg-bg-primary border border-border rounded-lg p-1.5 flex flex-col justify-center shadow-inner text-center">
-                <span class="text-[11px] font-bold font-mono text-accent truncate" id="tel-cost">$0.0490</span>
-                <span class="text-[7.5px] text-text-tertiary uppercase truncate mt-0.5">Spend</span>
-              </div>
-              <div
-                class="bg-bg-primary border border-border rounded-lg p-1.5 flex flex-col justify-center shadow-inner text-center">
-                <span class="text-[11px] font-bold font-mono text-indigo-400 truncate" id="tel-calls">14</span>
-                <span class="text-[7.5px] text-text-tertiary uppercase truncate mt-0.5">LLM Calls</span>
-              </div>
-              <div
-                class="bg-bg-primary border border-border rounded-lg p-1.5 flex flex-col justify-center shadow-inner text-center">
-                <span class="text-[11px] font-bold font-mono text-yellow-500 truncate" id="tel-tools">28</span>
-                <span class="text-[7.5px] text-text-tertiary uppercase truncate mt-0.5">Tools</span>
-              </div>
-              <div
-                class="bg-bg-primary border border-border rounded-lg p-1.5 flex flex-col justify-center shadow-inner text-center">
-                <span class="text-[11px] font-bold font-mono text-blue-400 truncate" id="tel-in">37,282</span>
-                <span class="text-[7.5px] text-text-tertiary uppercase truncate mt-0.5">Input TK</span>
-              </div>
-              <div
-                class="bg-bg-primary border border-border rounded-lg p-1.5 flex flex-col justify-center shadow-inner text-center">
-                <span class="text-[11px] font-bold font-mono text-pink-400 truncate" id="tel-out">4,478</span>
-                <span class="text-[7.5px] text-text-tertiary uppercase truncate mt-0.5">Output TK</span>
-              </div>
-              <div
-                class="bg-bg-primary border border-border rounded-lg p-1.5 flex flex-col justify-center shadow-inner text-center">
-                <span class="text-[11px] font-bold font-mono text-cyan-400 truncate" id="tel-time">1m 24s</span>
-                <span class="text-[7.5px] text-text-tertiary uppercase truncate mt-0.5">Time Used</span>
-              </div>
-            </div>
-          </div>
+          <ul id="glass-subnav" class="sb-nav"></ul>
         </div>
-
-        <!-- Tab Panel (Agents, Monitor, Config) -->
-        <div
-          class="bg-bg-secondary border border-border rounded-xl flex flex-col flex-1 min-h-0 shadow-lg overflow-hidden">
-          <div class="flex px-1 pt-2 border-b border-border shrink-0 bg-white/5">
-            <button
-              class="tab-btn px-2 py-3 text-[10px] lg:text-[11px] flex items-center gap-1.5 flex-1 justify-center whitespace-nowrap"
-              onclick="switchRightTab('tab-settings', this)">
-              <i class="ti ti-settings text-sm"></i> <span class="hidden xl:inline">Config</span>
-            </button>
-            <button
-              class="tab-btn px-2 py-3 text-[10px] lg:text-[11px] flex items-center gap-1.5 flex-1 justify-center whitespace-nowrap"
-              onclick="switchRightTab('tab-monitor', this)">
-              <i class="ti ti-chart-dots text-sm"></i> <span class="hidden xl:inline">Monitor</span>
-            </button>
-            <button
-              class="tab-btn active px-2 py-3 text-[10px] lg:text-[11px] flex items-center gap-1.5 flex-1 justify-center whitespace-nowrap"
-              onclick="switchRightTab('tab-agents', this)">
-              <i class="ti ti-users text-sm"></i> <span class="hidden xl:inline">Agents</span>
-            </button>
+        <div class="sb-footer">
+          <div class="sb-divider"></div>
+          <div id="sidebar-stats-section" class="sb-stats-grid">
+            <div class="sb-stat"><span class="sb-stat-val text-accent">$0.049</span><span class="sb-stat-lbl">Cost</span></div>
+            <div class="sb-stat"><span class="sb-stat-val" style="color:#818cf8">14</span><span class="sb-stat-lbl">Calls</span></div>
+            <div class="sb-stat"><span class="sb-stat-val" style="color:#eab308">28</span><span class="sb-stat-lbl">Tools</span></div>
+            <div class="sb-stat"><span class="sb-stat-val" style="color:#60a5fa">37k</span><span class="sb-stat-lbl">In TK</span></div>
+            <div class="sb-stat"><span class="sb-stat-val" style="color:#f472b6">4.4k</span><span class="sb-stat-lbl">Out TK</span></div>
+            <div class="sb-stat"><span class="sb-stat-val" style="color:#22d3ee">1m 24s</span><span class="sb-stat-lbl">Time</span></div>
           </div>
-
-          <div class="flex-1 overflow-y-auto min-h-0">
-            <!-- TAB 1: Settings -->
-            <div id="tab-settings" class="tab-content p-4 h-full">
-              <div class="flex items-center gap-3 mb-6">
-                <div
-                  class="w-10 h-10 rounded-lg bg-accent/20 text-accent flex items-center justify-center text-xl shrink-0">
-                  <i class="ti ti-robot"></i>
-                </div>
-                <div class="min-w-0">
-                  <h3 class="font-bold text-sm truncate text-accent">AI Coder (eva-cli)</h3>
-                  <p class="text-[10px] text-text-tertiary truncate">Agent Execution Node</p>
-                </div>
-              </div>
-              <div class="space-y-4">
-                <div>
-                  <label for="system-prompt"
-                    class="block text-[10px] font-bold text-text-secondary mb-1.5 uppercase tracking-wide">System
-                    Prompt</label>
-                  <textarea id="system-prompt" name="system-prompt"
-                    class="w-full h-24 bg-bg-primary border border-border rounded-lg p-2.5 text-xs text-text-primary focus:border-accent outline-none resize-none"
-                    placeholder="You are an autonomous AI..."></textarea>
-                </div>
-                <div>
-                  <label for="workspace-path"
-                    class="block text-[10px] font-bold text-text-secondary mb-1.5 uppercase tracking-wide">Workspace
-                    Path</label>
-                  <label for="workspace-path" class="sr-only">Input</label><input id="workspace-path" name="workspace-path" type="text" value="/workspace/covibe-app"
-                    class="w-full bg-bg-primary border border-border rounded-lg p-2 text-xs text-text-primary focus:border-accent outline-none font-mono">
-                </div>
-              </div>
-            </div>
-
-            <!-- TAB 2: Monitor (Telemetry) -->
-            <div id="tab-monitor" class="tab-content p-4 h-full">
-              <h3 class="font-bold text-[10px] text-text-secondary uppercase tracking-wider mb-3">Current Execution</h3>
-              <div class="space-y-2 text-xs" id="agent-actions-list">
-                <div
-                  class="bg-bg-primary border border-border rounded p-2.5 text-text-secondary flex gap-2 items-center">
-                  <i class="ti ti-circle text-text-tertiary shrink-0"></i>
-                  <span class="truncate">Ready for execution...</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- TAB 3: Agents List -->
-            <div id="tab-agents" class="tab-content active p-4 h-full">
-              <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-[10px] text-text-secondary uppercase tracking-wider">Agent Roster</h3>
-                <button class="text-text-primary hover:text-accent transition-colors"><i
-                    class="ti ti-refresh text-sm"></i></button>
-              </div>
-
-              <div class="space-y-3">
-                <!-- Active Agent -->
-                <div
-                  class="bg-bg-primary border border-accent/40 rounded-xl p-3 shadow-[0_0_15px_rgba(120,244,191,0.1)] relative overflow-hidden group cursor-pointer hover:border-accent transition-colors">
-                  <div class="absolute left-0 top-0 bottom-0 w-1 bg-accent"></div>
-                  <div class="flex justify-between items-start mb-2 pl-2 gap-2">
-                    <div class="flex items-center gap-2.5 min-w-0">
-                      <img src="https://api.dicebear.com/7.x/bottts/svg?seed=eva&backgroundColor=78f4bf" alt="EVA"
-                        class="w-8 h-8 rounded-lg border border-accent/30 bg-bg-secondary p-0.5 shadow-sm shrink-0">
-                      <div class="min-w-0">
-                        <h4 class="text-xs font-bold text-white truncate">EVA -cli</h4>
-                        <p class="text-[9px] text-text-secondary font-medium truncate">Primary Codder</p>
-                      </div>
-                    </div>
-                    <span
-                      class="flex items-center gap-1 text-[8px] font-bold text-accent uppercase tracking-wider bg-accent/10 px-1.5 py-1 rounded border border-accent/20 shrink-0">
-                      <span class="w-1 h-1 rounded-full bg-accent animate-pulse"></span> Active
-                    </span>
-                  </div>
-                  <div class="flex justify-between items-center pl-2 pt-2 border-t border-border mt-2 gap-2">
-                    <span class="text-[9px] font-medium text-text-primary flex items-center gap-1.5 truncate"><i
-                        class="ti ti-server-cog text-text-secondary shrink-0"></i> <span class="truncate">Google
-                        DeepMind</span></span>
-                    <span
-                      class="text-[9px] font-mono font-bold text-white bg-white/10 px-1.5 py-0.5 rounded border border-border shrink-0">gemini
-                      3.0</span>
-                  </div>
-                </div>
-
-                <!-- Idle Agent -->
-                <div
-                  class="bg-bg-primary border border-border rounded-xl p-3 relative overflow-hidden opacity-90 hover:opacity-100 hover:border-yellow-500/50 transition-all cursor-pointer">
-                  <div class="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500"></div>
-                  <div class="flex justify-between items-start mb-2 pl-2 gap-2">
-                    <div class="flex items-center gap-2.5 min-w-0">
-                      <img src="https://api.dicebear.com/7.x/bottts/svg?seed=qwen&backgroundColor=fbbf24" alt="Qwen"
-                        class="w-8 h-8 rounded-lg border border-yellow-500/30 bg-bg-secondary p-0.5 shadow-sm shrink-0">
-                      <div class="min-w-0">
-                        <h4 class="text-xs font-bold text-white truncate">qwen-coder</h4>
-                        <p class="text-[9px] text-text-secondary font-medium truncate">Code Reviewer</p>
-                      </div>
-                    </div>
-                    <span
-                      class="flex items-center gap-1 text-[8px] font-bold text-yellow-500 uppercase tracking-wider bg-yellow-500/10 px-1.5 py-1 rounded border border-yellow-500/20 shrink-0">
-                      <span class="w-1 h-1 rounded-full bg-yellow-500"></span> Idle
-                    </span>
-                  </div>
-                  <div class="flex justify-between items-center pl-2 pt-2 border-t border-border mt-2 gap-2">
-                    <span class="text-[9px] font-medium text-text-primary flex items-center gap-1.5 truncate"><i
-                        class="ti ti-cloud text-text-secondary shrink-0"></i> <span class="truncate">Alibaba
-                        Cloud</span></span>
-                    <span
-                      class="text-[9px] font-mono font-bold text-white bg-white/10 px-1.5 py-0.5 rounded border border-border shrink-0">qwen-2.5</span>
-                  </div>
-                </div>
-
-                <!-- Offline Agent -->
-                <div
-                  class="bg-bg-primary border border-border rounded-xl p-3 relative overflow-hidden opacity-60 hover:opacity-80 transition-all cursor-not-allowed">
-                  <div class="absolute left-0 top-0 bottom-0 w-1 bg-text-tertiary"></div>
-                  <div class="flex justify-between items-start mb-2 pl-2 gap-2">
-                    <div class="flex items-center gap-2.5 min-w-0">
-                      <img src="https://api.dicebear.com/7.x/bottts/svg?seed=local&backgroundColor=6b7280" alt="Local"
-                        class="w-8 h-8 rounded-lg border border-border bg-bg-secondary p-0.5 shadow-sm grayscale shrink-0">
-                      <div class="min-w-0">
-                        <h4 class="text-xs font-bold text-white truncate">local-dev</h4>
-                        <p class="text-[9px] text-text-secondary font-medium truncate">Offline Fallback</p>
-                      </div>
-                    </div>
-                    <span
-                      class="flex items-center gap-1 text-[8px] font-bold text-text-tertiary uppercase tracking-wider bg-white/5 px-1.5 py-1 rounded border border-border shrink-0">
-                      Offline
-                    </span>
-                  </div>
-                  <div class="flex justify-between items-center pl-2 pt-2 border-t border-border mt-2 gap-2">
-                    <span class="text-[9px] font-medium text-text-primary flex items-center gap-1.5 truncate"><i
-                        class="ti ti-device-desktop text-text-secondary shrink-0"></i> <span class="truncate">Ollama
-                        (Local)</span></span>
-                    <span
-                      class="text-[9px] font-mono font-bold text-white bg-white/10 px-1.5 py-0.5 rounded border border-border shrink-0">llama-3</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <button id="sidebar-toggle-btn" onclick="toggleSidebar()" class="w-full mt-4 flex items-center justify-center p-2 rounded-lg hover:bg-white/5 transition-all text-text-tertiary">
+             <i class="ti ti-chevron-left text-lg" id="sidebar-toggle-icon"></i>
+          </button>
         </div>
+      </nav>
 
-        <!-- 1.2 Benchmark Stack (Shown for Benchmark View) -->
-        <div id="left-sidebar-benchmark" class="hidden flex-col gap-4 h-full overflow-hidden">
-          <div class="bg-bg-secondary border border-border rounded-xl p-4 flex flex-col gap-3 shrink-0 shadow-lg relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-orange-500 to-amber-500"></div>
-            <div class="flex items-center gap-2 mb-2">
-              <div class="bg-gradient-to-tr from-orange-500 to-amber-500 p-2.5 rounded-xl text-slate-950 shadow-lg shadow-orange-500/10 shrink-0">
-                <i class="ti ti-cpu text-base"></i>
-              </div>
-              <div class="min-w-0">
-                <h3 class="text-xs font-bold text-white mb-0.5 truncate">AI Benchmark</h3>
-                <p class="text-[9.5px] text-text-secondary leading-tight">v3.2 Stable</p>
-              </div>
-            </div>
-            
-            <h4 class="text-[9px] font-bold text-text-tertiary uppercase tracking-wider mb-1">Navigation</h4>
-            <nav class="flex flex-col gap-1.5" id="benchmark-sidebar-nav">
-              <button onclick="switchTab('dashboard')" id="tab-btn-dashboard"
-                class="flex items-center gap-2.5 px-3 py-2 text-xs font-bold rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20 transition w-full text-left">
-                <i class="ti ti-chart-pie text-sm"></i>
-                <span>Dashboard</span>
-              </button>
-              <button onclick="switchTab('gap-analysis')" id="tab-btn-gap-analysis"
-                class="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-lg text-text-secondary hover:text-white hover:bg-white/5 transition w-full text-left">
-                <i class="ti ti-chart-line text-sm"></i>
-                <span>Gap Analysis</span>
-              </button>
-              <button onclick="switchTab('simulator')" id="tab-btn-simulator"
-                class="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-lg text-text-secondary hover:text-white hover:bg-white/5 transition w-full text-left">
-                <i class="ti ti-terminal-2 text-sm"></i>
-                <span>Simulator</span>
-              </button>
-              <button onclick="switchTab('training')" id="tab-btn-training"
-                class="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-lg text-text-secondary hover:text-white hover:bg-white/5 transition w-full text-left">
-                <i class="ti ti-users text-sm"></i>
-                <span>Agent Management</span>
-              </button>
-              <button onclick="switchTab('campaign')" id="tab-btn-campaign"
-                class="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-lg text-text-secondary hover:text-white hover:bg-white/5 transition w-full text-left">
-                <i class="ti ti-file-analytics text-sm"></i>
-                <span>Campaign Report</span>
-              </button>
-              <button onclick="switchTab('overview')" id="tab-btn-overview"
-                class="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-lg text-text-secondary hover:text-white hover:bg-white/5 transition w-full text-left">
-                <i class="ti ti-award text-sm"></i>
-                <span>ทำเนียบแชมเปี้ยน</span>
-              </button>
-            </nav>
-          </div>
-          
-          <!-- Benchmark Sidebar Footnote -->
-          <div class="mt-auto bg-bg-secondary border border-border rounded-xl p-4 text-[10px] text-text-tertiary leading-relaxed font-mono shadow-lg relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-border"></div>
-            <div>Host Backend: i7-8700K</div>
-            <div>Target GPU: RTX 3060 12GB</div>
-            <div class="mt-1">© 2026 CoVibe Eng.</div>
-          </div>
-        </div>
-      </aside>
 
       <!-- COLUMN 2: CENTER BENTO LARGE PANEL -->
       <section
@@ -1349,13 +1306,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p0-s0-1" class="sr-only">Checkbox</label><input id="doc-chk-p0-s0-1" name="doc-chk-p0-s0-1" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p0-s0-1" name="doc-chk-p0-s0-1" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p0-s0-1" class="sr-only">Checkbox</label><input id="code-chk-p0-s0-1" name="code-chk-p0-s0-1" type="checkbox" class="code-chk"
+                            <input id="code-chk-p0-s0-1" name="code-chk-p0-s0-1" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1364,7 +1321,7 @@
                           พร้อมกัน</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p0-s0-1" class="sr-only">Select</label><select id="assist-select-p0-s0-1" name="assist-select-p0-s0-1"
+                          <select id="assist-select-p0-s0-1" name="assist-select-p0-s0-1"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1381,13 +1338,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p0-s0-2" class="sr-only">Checkbox</label><input id="doc-chk-p0-s0-2" name="doc-chk-p0-s0-2" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p0-s0-2" name="doc-chk-p0-s0-2" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p0-s0-2" class="sr-only">Checkbox</label><input id="code-chk-p0-s0-2" name="code-chk-p0-s0-2" type="checkbox" class="code-chk"
+                            <input id="code-chk-p0-s0-2" name="code-chk-p0-s0-2" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1396,7 +1353,7 @@
                           broadcast event</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p0-s0-2" class="sr-only">Select</label><select id="assist-select-p0-s0-2" name="assist-select-p0-s0-2"
+                          <select id="assist-select-p0-s0-2" name="assist-select-p0-s0-2"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1413,13 +1370,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p0-s0-3" class="sr-only">Checkbox</label><input id="doc-chk-p0-s0-3" name="doc-chk-p0-s0-3" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p0-s0-3" name="doc-chk-p0-s0-3" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p0-s0-3" class="sr-only">Checkbox</label><input id="code-chk-p0-s0-3" name="code-chk-p0-s0-3" type="checkbox" class="code-chk"
+                            <input id="code-chk-p0-s0-3" name="code-chk-p0-s0-3" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1427,7 +1384,7 @@
                         <span class="task-text truncate flex-1 min-w-0">Play / Pause / Seek sync เบื้องต้น</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p0-s0-3" class="sr-only">Select</label><select id="assist-select-p0-s0-3" name="assist-select-p0-s0-3"
+                          <select id="assist-select-p0-s0-3" name="assist-select-p0-s0-3"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1444,13 +1401,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p0-s0-4" class="sr-only">Checkbox</label><input id="doc-chk-p0-s0-4" name="doc-chk-p0-s0-4" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p0-s0-4" name="doc-chk-p0-s0-4" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p0-s0-4" class="sr-only">Checkbox</label><input id="code-chk-p0-s0-4" name="code-chk-p0-s0-4" type="checkbox" class="code-chk"
+                            <input id="code-chk-p0-s0-4" name="code-chk-p0-s0-4" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1458,7 +1415,7 @@
                         <span class="task-text truncate flex-1 min-w-0">วัด drift จริงระหว่าง 2 เครื่อง</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p0-s0-4" class="sr-only">Select</label><select id="assist-select-p0-s0-4" name="assist-select-p0-s0-4"
+                          <select id="assist-select-p0-s0-4" name="assist-select-p0-s0-4"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1475,13 +1432,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p0-s0-5" class="sr-only">Checkbox</label><input id="doc-chk-p0-s0-5" name="doc-chk-p0-s0-5" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p0-s0-5" name="doc-chk-p0-s0-5" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p0-s0-5" class="sr-only">Checkbox</label><input id="code-chk-p0-s0-5" name="code-chk-p0-s0-5" type="checkbox" class="code-chk"
+                            <input id="code-chk-p0-s0-5" name="code-chk-p0-s0-5" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1489,7 +1446,7 @@
                         <span class="task-text truncate flex-1 min-w-0">ทดสอบบน iOS Safari + Android Chrome</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p0-s0-5" class="sr-only">Select</label><select id="assist-select-p0-s0-5" name="assist-select-p0-s0-5"
+                          <select id="assist-select-p0-s0-5" name="assist-select-p0-s0-5"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1506,13 +1463,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p0-s0-6" class="sr-only">Checkbox</label><input id="doc-chk-p0-s0-6" name="doc-chk-p0-s0-6" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p0-s0-6" name="doc-chk-p0-s0-6" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p0-s0-6" class="sr-only">Checkbox</label><input id="code-chk-p0-s0-6" name="code-chk-p0-s0-6" type="checkbox" class="code-chk"
+                            <input id="code-chk-p0-s0-6" name="code-chk-p0-s0-6" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1521,7 +1478,7 @@
                           wake lock</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p0-s0-6" class="sr-only">Select</label><select id="assist-select-p0-s0-6" name="assist-select-p0-s0-6"
+                          <select id="assist-select-p0-s0-6" name="assist-select-p0-s0-6"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1585,13 +1542,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p1-s1a-1" class="sr-only">Checkbox</label><input id="doc-chk-p1-s1a-1" name="doc-chk-p1-s1a-1" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p1-s1a-1" name="doc-chk-p1-s1a-1" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p1-s1a-1" class="sr-only">Checkbox</label><input id="code-chk-p1-s1a-1" name="code-chk-p1-s1a-1" type="checkbox" class="code-chk"
+                            <input id="code-chk-p1-s1a-1" name="code-chk-p1-s1a-1" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1600,7 +1557,7 @@
                           worker shell)</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p1-s1a-1" class="sr-only">Select</label><select id="assist-select-p1-s1a-1" name="assist-select-p1-s1a-1"
+                          <select id="assist-select-p1-s1a-1" name="assist-select-p1-s1a-1"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1617,13 +1574,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p1-s1a-2" class="sr-only">Checkbox</label><input id="doc-chk-p1-s1a-2" name="doc-chk-p1-s1a-2" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p1-s1a-2" name="doc-chk-p1-s1a-2" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p1-s1a-2" class="sr-only">Checkbox</label><input id="code-chk-p1-s1a-2" name="code-chk-p1-s1a-2" type="checkbox" class="code-chk"
+                            <input id="code-chk-p1-s1a-2" name="code-chk-p1-s1a-2" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1632,7 +1589,7 @@
                           state ในเมมโมรี่</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p1-s1a-2" class="sr-only">Select</label><select id="assist-select-p1-s1a-2" name="assist-select-p1-s1a-2"
+                          <select id="assist-select-p1-s1a-2" name="assist-select-p1-s1a-2"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1649,13 +1606,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p1-s1a-3" class="sr-only">Checkbox</label><input id="doc-chk-p1-s1a-3" name="doc-chk-p1-s1a-3" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p1-s1a-3" name="doc-chk-p1-s1a-3" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p1-s1a-3" class="sr-only">Checkbox</label><input id="code-chk-p1-s1a-3" name="code-chk-p1-s1a-3" type="checkbox" class="code-chk"
+                            <input id="code-chk-p1-s1a-3" name="code-chk-p1-s1a-3" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1664,7 +1621,7 @@
                           code</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p1-s1a-3" class="sr-only">Select</label><select id="assist-select-p1-s1a-3" name="assist-select-p1-s1a-3"
+                          <select id="assist-select-p1-s1a-3" name="assist-select-p1-s1a-3"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1681,13 +1638,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p1-s1a-4" class="sr-only">Checkbox</label><input id="doc-chk-p1-s1a-4" name="doc-chk-p1-s1a-4" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p1-s1a-4" name="doc-chk-p1-s1a-4" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p1-s1a-4" class="sr-only">Checkbox</label><input id="code-chk-p1-s1a-4" name="code-chk-p1-s1a-4" type="checkbox" class="code-chk"
+                            <input id="code-chk-p1-s1a-4" name="code-chk-p1-s1a-4" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1695,7 +1652,7 @@
                         <span class="task-text truncate flex-1 min-w-0">QR generator + share link</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p1-s1a-4" class="sr-only">Select</label><select id="assist-select-p1-s1a-4" name="assist-select-p1-s1a-4"
+                          <select id="assist-select-p1-s1a-4" name="assist-select-p1-s1a-4"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1712,13 +1669,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p1-s1a-5" class="sr-only">Checkbox</label><input id="doc-chk-p1-s1a-5" name="doc-chk-p1-s1a-5" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p1-s1a-5" name="doc-chk-p1-s1a-5" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p1-s1a-5" class="sr-only">Checkbox</label><input id="code-chk-p1-s1a-5" name="code-chk-p1-s1a-5" type="checkbox" class="code-chk"
+                            <input id="code-chk-p1-s1a-5" name="code-chk-p1-s1a-5" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1726,7 +1683,7 @@
                         <span class="task-text truncate flex-1 min-w-0">Passenger: สแกน QR → ใส่ชื่อ → join ห้อง</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p1-s1a-5" class="sr-only">Select</label><select id="assist-select-p1-s1a-5" name="assist-select-p1-s1a-5"
+                          <select id="assist-select-p1-s1a-5" name="assist-select-p1-s1a-5"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1743,13 +1700,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p1-s1a-6" class="sr-only">Checkbox</label><input id="doc-chk-p1-s1a-6" name="doc-chk-p1-s1a-6" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p1-s1a-6" name="doc-chk-p1-s1a-6" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p1-s1a-6" class="sr-only">Checkbox</label><input id="code-chk-p1-s1a-6" name="code-chk-p1-s1a-6" type="checkbox" class="code-chk"
+                            <input id="code-chk-p1-s1a-6" name="code-chk-p1-s1a-6" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1758,7 +1715,7 @@
                           disconnected)</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p1-s1a-6" class="sr-only">Select</label><select id="assist-select-p1-s1a-6" name="assist-select-p1-s1a-6"
+                          <select id="assist-select-p1-s1a-6" name="assist-select-p1-s1a-6"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1775,13 +1732,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p1-s1a-7" class="sr-only">Checkbox</label><input id="doc-chk-p1-s1a-7" name="doc-chk-p1-s1a-7" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p1-s1a-7" name="doc-chk-p1-s1a-7" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p1-s1a-7" class="sr-only">Checkbox</label><input id="code-chk-p1-s1a-7" name="code-chk-p1-s1a-7" type="checkbox" class="code-chk"
+                            <input id="code-chk-p1-s1a-7" name="code-chk-p1-s1a-7" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1790,7 +1747,7 @@
                           layout</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p1-s1a-7" class="sr-only">Select</label><select id="assist-select-p1-s1a-7" name="assist-select-p1-s1a-7"
+                          <select id="assist-select-p1-s1a-7" name="assist-select-p1-s1a-7"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1830,13 +1787,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p1-s1b-1" class="sr-only">Checkbox</label><input id="doc-chk-p1-s1b-1" name="doc-chk-p1-s1b-1" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p1-s1b-1" name="doc-chk-p1-s1b-1" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p1-s1b-1" class="sr-only">Checkbox</label><input id="code-chk-p1-s1b-1" name="code-chk-p1-s1b-1" type="checkbox" class="code-chk"
+                            <input id="code-chk-p1-s1b-1" name="code-chk-p1-s1b-1" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1845,7 +1802,7 @@
                           integration</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p1-s1b-1" class="sr-only">Select</label><select id="assist-select-p1-s1b-1" name="assist-select-p1-s1b-1"
+                          <select id="assist-select-p1-s1b-1" name="assist-select-p1-s1b-1"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1862,13 +1819,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p1-s1b-2" class="sr-only">Checkbox</label><input id="doc-chk-p1-s1b-2" name="doc-chk-p1-s1b-2" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p1-s1b-2" name="doc-chk-p1-s1b-2" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p1-s1b-2" class="sr-only">Checkbox</label><input id="code-chk-p1-s1b-2" name="code-chk-p1-s1b-2" type="checkbox" class="code-chk"
+                            <input id="code-chk-p1-s1b-2" name="code-chk-p1-s1b-2" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1876,7 +1833,7 @@
                         <span class="task-text truncate flex-1 min-w-0">Queue เพลง: add / remove / reorder</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p1-s1b-2" class="sr-only">Select</label><select id="assist-select-p1-s1b-2" name="assist-select-p1-s1b-2"
+                          <select id="assist-select-p1-s1b-2" name="assist-select-p1-s1b-2"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1893,13 +1850,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p1-s1b-3" class="sr-only">Checkbox</label><input id="doc-chk-p1-s1b-3" name="doc-chk-p1-s1b-3" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p1-s1b-3" name="doc-chk-p1-s1b-3" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p1-s1b-3" class="sr-only">Checkbox</label><input id="code-chk-p1-s1b-3" name="code-chk-p1-s1b-3" type="checkbox" class="code-chk"
+                            <input id="code-chk-p1-s1b-3" name="code-chk-p1-s1b-3" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1908,7 +1865,7 @@
                           positionMs, serverStartedAt)</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p1-s1b-3" class="sr-only">Select</label><select id="assist-select-p1-s1b-3" name="assist-select-p1-s1b-3"
+                          <select id="assist-select-p1-s1b-3" name="assist-select-p1-s1b-3"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1925,13 +1882,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p1-s1b-4" class="sr-only">Checkbox</label><input id="doc-chk-p1-s1b-4" name="doc-chk-p1-s1b-4" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p1-s1b-4" name="doc-chk-p1-s1b-4" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p1-s1b-4" class="sr-only">Checkbox</label><input id="code-chk-p1-s1b-4" name="code-chk-p1-s1b-4" type="checkbox" class="code-chk"
+                            <input id="code-chk-p1-s1b-4" name="code-chk-p1-s1b-4" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1940,7 +1897,7 @@
                           WebSocket</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p1-s1b-4" class="sr-only">Select</label><select id="assist-select-p1-s1b-4" name="assist-select-p1-s1b-4"
+                          <select id="assist-select-p1-s1b-4" name="assist-select-p1-s1b-4"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1957,13 +1914,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p1-s1b-5" class="sr-only">Checkbox</label><input id="doc-chk-p1-s1b-5" name="doc-chk-p1-s1b-5" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p1-s1b-5" name="doc-chk-p1-s1b-5" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p1-s1b-5" class="sr-only">Checkbox</label><input id="code-chk-p1-s1b-5" name="code-chk-p1-s1b-5" type="checkbox" class="code-chk"
+                            <input id="code-chk-p1-s1b-5" name="code-chk-p1-s1b-5" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -1971,7 +1928,7 @@
                         <span class="task-text truncate flex-1 min-w-0">Auto-next เมื่อเพลงจบ</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p1-s1b-5" class="sr-only">Select</label><select id="assist-select-p1-s1b-5" name="assist-select-p1-s1b-5"
+                          <select id="assist-select-p1-s1b-5" name="assist-select-p1-s1b-5"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -1988,13 +1945,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p1-s1b-6" class="sr-only">Checkbox</label><input id="doc-chk-p1-s1b-6" name="doc-chk-p1-s1b-6" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p1-s1b-6" name="doc-chk-p1-s1b-6" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p1-s1b-6" class="sr-only">Checkbox</label><input id="code-chk-p1-s1b-6" name="code-chk-p1-s1b-6" type="checkbox" class="code-chk"
+                            <input id="code-chk-p1-s1b-6" name="code-chk-p1-s1b-6" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2002,7 +1959,7 @@
                         <span class="task-text truncate flex-1 min-w-0">Volume control แยกแต่ละ device</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p1-s1b-6" class="sr-only">Select</label><select id="assist-select-p1-s1b-6" name="assist-select-p1-s1b-6"
+                          <select id="assist-select-p1-s1b-6" name="assist-select-p1-s1b-6"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2064,13 +2021,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p2-s2a-1" class="sr-only">Checkbox</label><input id="doc-chk-p2-s2a-1" name="doc-chk-p2-s2a-1" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p2-s2a-1" name="doc-chk-p2-s2a-1" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p2-s2a-1" class="sr-only">Checkbox</label><input id="code-chk-p2-s2a-1" name="code-chk-p2-s2a-1" type="checkbox" class="code-chk"
+                            <input id="code-chk-p2-s2a-1" name="code-chk-p2-s2a-1" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2079,7 +2036,7 @@
                           250-800ms ปรับ rate / &gt;800ms seek)</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p2-s2a-1" class="sr-only">Select</label><select id="assist-select-p2-s2a-1" name="assist-select-p2-s2a-1"
+                          <select id="assist-select-p2-s2a-1" name="assist-select-p2-s2a-1"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2096,13 +2053,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p2-s2a-2" class="sr-only">Checkbox</label><input id="doc-chk-p2-s2a-2" name="doc-chk-p2-s2a-2" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p2-s2a-2" name="doc-chk-p2-s2a-2" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p2-s2a-2" class="sr-only">Checkbox</label><input id="code-chk-p2-s2a-2" name="code-chk-p2-s2a-2" type="checkbox" class="code-chk"
+                            <input id="code-chk-p2-s2a-2" name="code-chk-p2-s2a-2" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2111,7 +2068,7 @@
                           server</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p2-s2a-2" class="sr-only">Select</label><select id="assist-select-p2-s2a-2" name="assist-select-p2-s2a-2"
+                          <select id="assist-select-p2-s2a-2" name="assist-select-p2-s2a-2"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2128,13 +2085,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p2-s2a-3" class="sr-only">Checkbox</label><input id="doc-chk-p2-s2a-3" name="doc-chk-p2-s2a-3" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p2-s2a-3" name="doc-chk-p2-s2a-3" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p2-s2a-3" class="sr-only">Checkbox</label><input id="code-chk-p2-s2a-3" name="code-chk-p2-s2a-3" type="checkbox" class="code-chk"
+                            <input id="code-chk-p2-s2a-3" name="code-chk-p2-s2a-3" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2143,7 +2100,7 @@
                           position</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p2-s2a-3" class="sr-only">Select</label><select id="assist-select-p2-s2a-3" name="assist-select-p2-s2a-3"
+                          <select id="assist-select-p2-s2a-3" name="assist-select-p2-s2a-3"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2160,13 +2117,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p2-s2a-4" class="sr-only">Checkbox</label><input id="doc-chk-p2-s2a-4" name="doc-chk-p2-s2a-4" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p2-s2a-4" name="doc-chk-p2-s2a-4" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p2-s2a-4" class="sr-only">Checkbox</label><input id="code-chk-p2-s2a-4" name="code-chk-p2-s2a-4" type="checkbox" class="code-chk"
+                            <input id="code-chk-p2-s2a-4" name="code-chk-p2-s2a-4" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2175,7 +2132,7 @@
                           แจ้งเตือนผู้ใช้เมื่อเน็ตช้า</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p2-s2a-4" class="sr-only">Select</label><select id="assist-select-p2-s2a-4" name="assist-select-p2-s2a-4"
+                          <select id="assist-select-p2-s2a-4" name="assist-select-p2-s2a-4"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2192,13 +2149,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p2-s2a-5" class="sr-only">Checkbox</label><input id="doc-chk-p2-s2a-5" name="doc-chk-p2-s2a-5" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p2-s2a-5" name="doc-chk-p2-s2a-5" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p2-s2a-5" class="sr-only">Checkbox</label><input id="code-chk-p2-s2a-5" name="code-chk-p2-s2a-5" type="checkbox" class="code-chk"
+                            <input id="code-chk-p2-s2a-5" name="code-chk-p2-s2a-5" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2207,7 +2164,7 @@
                           เมื่อผู้เปิดห้องตัดการเชื่อมต่อ</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p2-s2a-5" class="sr-only">Select</label><select id="assist-select-p2-s2a-5" name="assist-select-p2-s2a-5"
+                          <select id="assist-select-p2-s2a-5" name="assist-select-p2-s2a-5"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2224,13 +2181,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p2-s2a-6" class="sr-only">Checkbox</label><input id="doc-chk-p2-s2a-6" name="doc-chk-p2-s2a-6" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p2-s2a-6" name="doc-chk-p2-s2a-6" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p2-s2a-6" class="sr-only">Checkbox</label><input id="code-chk-p2-s2a-6" name="code-chk-p2-s2a-6" type="checkbox" class="code-chk"
+                            <input id="code-chk-p2-s2a-6" name="code-chk-p2-s2a-6" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2239,7 +2196,7 @@
                           พฤติกรรมการซิงค์</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p2-s2a-6" class="sr-only">Select</label><select id="assist-select-p2-s2a-6" name="assist-select-p2-s2a-6"
+                          <select id="assist-select-p2-s2a-6" name="assist-select-p2-s2a-6"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2279,13 +2236,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p2-s2b-1" class="sr-only">Checkbox</label><input id="doc-chk-p2-s2b-1" name="doc-chk-p2-s2b-1" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p2-s2b-1" name="doc-chk-p2-s2b-1" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p2-s2b-1" class="sr-only">Checkbox</label><input id="code-chk-p2-s2b-1" name="code-chk-p2-s2b-1" type="checkbox" class="code-chk"
+                            <input id="code-chk-p2-s2b-1" name="code-chk-p2-s2b-1" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2294,7 +2251,7 @@
                           แตะง่าย</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p2-s2b-1" class="sr-only">Select</label><select id="assist-select-p2-s2b-1" name="assist-select-p2-s2b-1"
+                          <select id="assist-select-p2-s2b-1" name="assist-select-p2-s2b-1"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2311,13 +2268,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p2-s2b-2" class="sr-only">Checkbox</label><input id="doc-chk-p2-s2b-2" name="doc-chk-p2-s2b-2" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p2-s2b-2" name="doc-chk-p2-s2b-2" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p2-s2b-2" class="sr-only">Checkbox</label><input id="code-chk-p2-s2b-2" name="code-chk-p2-s2b-2" type="checkbox" class="code-chk"
+                            <input id="code-chk-p2-s2b-2" name="code-chk-p2-s2b-2" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2326,7 +2283,7 @@
                           ประหยัดพลังงาน</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p2-s2b-2" class="sr-only">Select</label><select id="assist-select-p2-s2b-2" name="assist-select-p2-s2b-2"
+                          <select id="assist-select-p2-s2b-2" name="assist-select-p2-s2b-2"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2343,13 +2300,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p2-s2b-3" class="sr-only">Checkbox</label><input id="doc-chk-p2-s2b-3" name="doc-chk-p2-s2b-3" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p2-s2b-3" name="doc-chk-p2-s2b-3" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p2-s2b-3" class="sr-only">Checkbox</label><input id="code-chk-p2-s2b-3" name="code-chk-p2-s2b-3" type="checkbox" class="code-chk"
+                            <input id="code-chk-p2-s2b-3" name="code-chk-p2-s2b-3" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2358,7 +2315,7 @@
                           เพิ่มเพลง</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p2-s2b-3" class="sr-only">Select</label><select id="assist-select-p2-s2b-3" name="assist-select-p2-s2b-3"
+                          <select id="assist-select-p2-s2b-3" name="assist-select-p2-s2b-3"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2375,13 +2332,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p2-s2b-4" class="sr-only">Checkbox</label><input id="doc-chk-p2-s2b-4" name="doc-chk-p2-s2b-4" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p2-s2b-4" name="doc-chk-p2-s2b-4" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p2-s2b-4" class="sr-only">Checkbox</label><input id="code-chk-p2-s2b-4" name="code-chk-p2-s2b-4" type="checkbox" class="code-chk"
+                            <input id="code-chk-p2-s2b-4" name="code-chk-p2-s2b-4" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2389,7 +2346,7 @@
                         <span class="task-text truncate flex-1 min-w-0">Trip summary หน้าสรุปรายละเอียดการเดินทาง</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p2-s2b-4" class="sr-only">Select</label><select id="assist-select-p2-s2b-4" name="assist-select-p2-s2b-4"
+                          <select id="assist-select-p2-s2b-4" name="assist-select-p2-s2b-4"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2406,13 +2363,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p2-s2b-5" class="sr-only">Checkbox</label><input id="doc-chk-p2-s2b-5" name="doc-chk-p2-s2b-5" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p2-s2b-5" name="doc-chk-p2-s2b-5" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p2-s2b-5" class="sr-only">Checkbox</label><input id="code-chk-p2-s2b-5" name="code-chk-p2-s2b-5" type="checkbox" class="code-chk"
+                            <input id="code-chk-p2-s2b-5" name="code-chk-p2-s2b-5" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2421,7 +2378,7 @@
                           อัตราดริฟต์เฉลี่ย)</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p2-s2b-5" class="sr-only">Select</label><select id="assist-select-p2-s2b-5" name="assist-select-p2-s2b-5"
+                          <select id="assist-select-p2-s2b-5" name="assist-select-p2-s2b-5"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2438,13 +2395,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p2-s2b-6" class="sr-only">Checkbox</label><input id="doc-chk-p2-s2b-6" name="doc-chk-p2-s2b-6" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p2-s2b-6" name="doc-chk-p2-s2b-6" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p2-s2b-6" class="sr-only">Checkbox</label><input id="code-chk-p2-s2b-6" name="code-chk-p2-s2b-6" type="checkbox" class="code-chk"
+                            <input id="code-chk-p2-s2b-6" name="code-chk-p2-s2b-6" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2452,7 +2409,7 @@
                         <span class="task-text truncate flex-1 min-w-0">Error tracking integration (รายงาน crash)</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p2-s2b-6" class="sr-only">Select</label><select id="assist-select-p2-s2b-6" name="assist-select-p2-s2b-6"
+                          <select id="assist-select-p2-s2b-6" name="assist-select-p2-s2b-6"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2514,13 +2471,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p3-s3a-1" class="sr-only">Checkbox</label><input id="doc-chk-p3-s3a-1" name="doc-chk-p3-s3a-1" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p3-s3a-1" name="doc-chk-p3-s3a-1" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p3-s3a-1" class="sr-only">Checkbox</label><input id="code-chk-p3-s3a-1" name="code-chk-p3-s3a-1" type="checkbox" class="code-chk"
+                            <input id="code-chk-p3-s3a-1" name="code-chk-p3-s3a-1" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2529,7 +2486,7 @@
                           วิธีเชื่อมต่อ</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p3-s3a-1" class="sr-only">Select</label><select id="assist-select-p3-s3a-1" name="assist-select-p3-s3a-1"
+                          <select id="assist-select-p3-s3a-1" name="assist-select-p3-s3a-1"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2546,13 +2503,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p3-s3a-2" class="sr-only">Checkbox</label><input id="doc-chk-p3-s3a-2" name="doc-chk-p3-s3a-2" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p3-s3a-2" name="doc-chk-p3-s3a-2" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p3-s3a-2" class="sr-only">Checkbox</label><input id="code-chk-p3-s3a-2" name="code-chk-p3-s3a-2" type="checkbox" class="code-chk"
+                            <input id="code-chk-p3-s3a-2" name="code-chk-p3-s3a-2" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2561,7 +2518,7 @@
                           ประเมินหลังเดินทาง</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p3-s3a-2" class="sr-only">Select</label><select id="assist-select-p3-s3a-2" name="assist-select-p3-s3a-2"
+                          <select id="assist-select-p3-s3a-2" name="assist-select-p3-s3a-2"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2578,13 +2535,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p3-s3a-3" class="sr-only">Checkbox</label><input id="doc-chk-p3-s3a-3" name="doc-chk-p3-s3a-3" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p3-s3a-3" name="doc-chk-p3-s3a-3" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p3-s3a-3" class="sr-only">Checkbox</label><input id="code-chk-p3-s3a-3" name="code-chk-p3-s3a-3" type="checkbox" class="code-chk"
+                            <input id="code-chk-p3-s3a-3" name="code-chk-p3-s3a-3" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2593,7 +2550,7 @@
                           คู่มาร่วมทดสอบ</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p3-s3a-3" class="sr-only">Select</label><select id="assist-select-p3-s3a-3" name="assist-select-p3-s3a-3"
+                          <select id="assist-select-p3-s3a-3" name="assist-select-p3-s3a-3"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2610,13 +2567,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p3-s3a-4" class="sr-only">Checkbox</label><input id="doc-chk-p3-s3a-4" name="doc-chk-p3-s3a-4" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p3-s3a-4" name="doc-chk-p3-s3a-4" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p3-s3a-4" class="sr-only">Checkbox</label><input id="code-chk-p3-s3a-4" name="code-chk-p3-s3a-4" type="checkbox" class="code-chk"
+                            <input id="code-chk-p3-s3a-4" name="code-chk-p3-s3a-4" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2624,7 +2581,7 @@
                         <span class="task-text truncate flex-1 min-w-0">ทำสื่อคลิปสั้นอธิบายระบบลง Reels/TikTok</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p3-s3a-4" class="sr-only">Select</label><select id="assist-select-p3-s3a-4" name="assist-select-p3-s3a-4"
+                          <select id="assist-select-p3-s3a-4" name="assist-select-p3-s3a-4"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2641,13 +2598,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p3-s3a-5" class="sr-only">Checkbox</label><input id="doc-chk-p3-s3a-5" name="doc-chk-p3-s3a-5" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p3-s3a-5" name="doc-chk-p3-s3a-5" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p3-s3a-5" class="sr-only">Checkbox</label><input id="code-chk-p3-s3a-5" name="code-chk-p3-s3a-5" type="checkbox" class="code-chk"
+                            <input id="code-chk-p3-s3a-5" name="code-chk-p3-s3a-5" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2656,7 +2613,7 @@
                           ประชาสัมพันธ์ติดร้านบิ๊กไบค์</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p3-s3a-5" class="sr-only">Select</label><select id="assist-select-p3-s3a-5" name="assist-select-p3-s3a-5"
+                          <select id="assist-select-p3-s3a-5" name="assist-select-p3-s3a-5"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2689,13 +2646,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p3-s3b-1" class="sr-only">Checkbox</label><input id="doc-chk-p3-s3b-1" name="doc-chk-p3-s3b-1" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p3-s3b-1" name="doc-chk-p3-s3b-1" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p3-s3b-1" class="sr-only">Checkbox</label><input id="code-chk-p3-s3b-1" name="code-chk-p3-s3b-1" type="checkbox" class="code-chk"
+                            <input id="code-chk-p3-s3b-1" name="code-chk-p3-s3b-1" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2704,7 +2661,7 @@
                           ตรวจสอบความถี่และชั่วโมงการเปิดซิงค์เพลง</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p3-s3b-1" class="sr-only">Select</label><select id="assist-select-p3-s3b-1" name="assist-select-p3-s3b-1"
+                          <select id="assist-select-p3-s3b-1" name="assist-select-p3-s3b-1"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2721,13 +2678,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p3-s3b-2" class="sr-only">Checkbox</label><input id="doc-chk-p3-s3b-2" name="doc-chk-p3-s3b-2" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p3-s3b-2" name="doc-chk-p3-s3b-2" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p3-s3b-2" class="sr-only">Checkbox</label><input id="code-chk-p3-s3b-2" name="code-chk-p3-s3b-2" type="checkbox" class="code-chk"
+                            <input id="code-chk-p3-s3b-2" name="code-chk-p3-s3b-2" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2736,7 +2693,7 @@
                           7 วัน</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p3-s3b-2" class="sr-only">Select</label><select id="assist-select-p3-s3b-2" name="assist-select-p3-s3b-2"
+                          <select id="assist-select-p3-s3b-2" name="assist-select-p3-s3b-2"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2753,13 +2710,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p3-s3b-3" class="sr-only">Checkbox</label><input id="doc-chk-p3-s3b-3" name="doc-chk-p3-s3b-3" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p3-s3b-3" name="doc-chk-p3-s3b-3" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p3-s3b-3" class="sr-only">Checkbox</label><input id="code-chk-p3-s3b-3" name="code-chk-p3-s3b-3" type="checkbox" class="code-chk"
+                            <input id="code-chk-p3-s3b-3" name="code-chk-p3-s3b-3" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2768,7 +2725,7 @@
                           อันดับแรกเพื่อจัดคิวแก้ไข</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p3-s3b-3" class="sr-only">Select</label><select id="assist-select-p3-s3b-3" name="assist-select-p3-s3b-3"
+                          <select id="assist-select-p3-s3b-3" name="assist-select-p3-s3b-3"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2785,13 +2742,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p3-s3b-4" class="sr-only">Checkbox</label><input id="doc-chk-p3-s3b-4" name="doc-chk-p3-s3b-4" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p3-s3b-4" name="doc-chk-p3-s3b-4" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p3-s3b-4" class="sr-only">Checkbox</label><input id="code-chk-p3-s3b-4" name="code-chk-p3-s3b-4" type="checkbox" class="code-chk"
+                            <input id="code-chk-p3-s3b-4" name="code-chk-p3-s3b-4" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2800,7 +2757,7 @@
                           ผู้ใช้ที่ชอบฟีเจอร์นี้มากที่สุด</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p3-s3b-4" class="sr-only">Select</label><select id="assist-select-p3-s3b-4" name="assist-select-p3-s3b-4"
+                          <select id="assist-select-p3-s3b-4" name="assist-select-p3-s3b-4"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2817,13 +2774,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p3-s3b-5" class="sr-only">Checkbox</label><input id="doc-chk-p3-s3b-5" name="doc-chk-p3-s3b-5" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p3-s3b-5" name="doc-chk-p3-s3b-5" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p3-s3b-5" class="sr-only">Checkbox</label><input id="code-chk-p3-s3b-5" name="code-chk-p3-s3b-5" type="checkbox" class="code-chk"
+                            <input id="code-chk-p3-s3b-5" name="code-chk-p3-s3b-5" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2832,7 +2789,7 @@
                           แก้ปัญหาเร่งด่วนตามเสียงตอบรับ</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p3-s3b-5" class="sr-only">Select</label><select id="assist-select-p3-s3b-5" name="assist-select-p3-s3b-5"
+                          <select id="assist-select-p3-s3b-5" name="assist-select-p3-s3b-5"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2894,13 +2851,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p4-task-1" class="sr-only">Checkbox</label><input id="doc-chk-p4-task-1" name="doc-chk-p4-task-1" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p4-task-1" name="doc-chk-p4-task-1" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p4-task-1" class="sr-only">Checkbox</label><input id="code-chk-p4-task-1" name="code-chk-p4-task-1" type="checkbox" class="code-chk"
+                            <input id="code-chk-p4-task-1" name="code-chk-p4-task-1" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2909,7 +2866,7 @@
                           (ซิงค์ตรงโดยไม่พึ่งอินเทอร์เน็ต)</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p4-task-1" class="sr-only">Select</label><select id="assist-select-p4-task-1" name="assist-select-p4-task-1"
+                          <select id="assist-select-p4-task-1" name="assist-select-p4-task-1"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2926,13 +2883,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p4-task-2" class="sr-only">Checkbox</label><input id="doc-chk-p4-task-2" name="doc-chk-p4-task-2" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p4-task-2" name="doc-chk-p4-task-2" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p4-task-2" class="sr-only">Checkbox</label><input id="code-chk-p4-task-2" name="code-chk-p4-task-2" type="checkbox" class="code-chk"
+                            <input id="code-chk-p4-task-2" name="code-chk-p4-task-2" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2941,7 +2898,7 @@
                           สนทนาเสียงแบบสายตรงในแอป</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p4-task-2" class="sr-only">Select</label><select id="assist-select-p4-task-2" name="assist-select-p4-task-2"
+                          <select id="assist-select-p4-task-2" name="assist-select-p4-task-2"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2958,13 +2915,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p4-task-3" class="sr-only">Checkbox</label><input id="doc-chk-p4-task-3" name="doc-chk-p4-task-3" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p4-task-3" name="doc-chk-p4-task-3" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p4-task-3" class="sr-only">Checkbox</label><input id="code-chk-p4-task-3" name="code-chk-p4-task-3" type="checkbox" class="code-chk"
+                            <input id="code-chk-p4-task-3" name="code-chk-p4-task-3" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -2973,7 +2930,7 @@
                           ติดตามแผนที่ของเพื่อนร่วมคาราวาน</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p4-task-3" class="sr-only">Select</label><select id="assist-select-p4-task-3" name="assist-select-p4-task-3"
+                          <select id="assist-select-p4-task-3" name="assist-select-p4-task-3"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -2990,13 +2947,13 @@
                         <div class="flex items-center gap-2.5 shrink-0" onclick="event.stopPropagation()">
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="doc-chk-p4-task-4" class="sr-only">Checkbox</label><input id="doc-chk-p4-task-4" name="doc-chk-p4-task-4" type="checkbox" class="doc-chk"
+                            <input id="doc-chk-p4-task-4" name="doc-chk-p4-task-4" type="checkbox" class="doc-chk"
                               onchange="handleDocChange(this)">
                             <span>Doc</span>
                           </label>
                           <label
                             class="flex items-center gap-1 text-[10px] text-text-secondary cursor-pointer select-none">
-                            <label for="code-chk-p4-task-4" class="sr-only">Checkbox</label><input id="code-chk-p4-task-4" name="code-chk-p4-task-4" type="checkbox" class="code-chk"
+                            <input id="code-chk-p4-task-4" name="code-chk-p4-task-4" type="checkbox" class="code-chk"
                               disabled onchange="handleCodeChange(this)">
                             <span>Code</span>
                           </label>
@@ -3004,7 +2961,7 @@
                         <span class="task-text truncate flex-1 min-w-0">Voice command สั่งงานระบบคิวเพลงด้วยเสียง</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
-                          <label for="assist-select-p4-task-4" class="sr-only">Select</label><select id="assist-select-p4-task-4" name="assist-select-p4-task-4"
+                          <select id="assist-select-p4-task-4" name="assist-select-p4-task-4"
                             class="assist-to-select bg-bg-primary border border-border rounded text-[9.5px] text-text-secondary px-1 py-0.5 outline-none focus:border-accent"
                             onchange="saveStateToStorage()">
                             <option value="none">Unassigned</option>
@@ -3159,7 +3116,7 @@
               </div>
               <div class="flex items-center gap-1.5 text-[10px] text-text-secondary border-l border-border pl-4">
                 <label for="graph-depth-selector">Depth:</label>
-                <label for="graph-depth-selector" class="sr-only">Select</label><select id="graph-depth-selector" name="graph-depth-selector" onchange="changeGraphDepth(this.value)"
+                <select id="graph-depth-selector" name="graph-depth-selector" onchange="changeGraphDepth(this.value)"
                   class="bg-bg-secondary border border-border rounded text-[9.5px] text-text-secondary px-1.5 py-0.5 outline-none focus:border-accent">
                   <option value="all">All (Show All)</option>
                   <option value="1">1 (Direct Calls)</option>
@@ -3305,7 +3262,7 @@
             <div class="h-10 border-b border-border bg-bg-primary flex items-center px-4 justify-between shrink-0 z-10">
               <div class="flex items-center gap-2">
                 <label for="schema-selector" class="text-[10px] text-text-tertiary">Schema:</label>
-                <label for="schema-selector" class="sr-only">Select</label><select
+                <select
                   class="bg-bg-secondary border border-border rounded text-[9.5px] text-text-primary px-1.5 py-0.5 outline-none focus:border-accent"
                   id="schema-selector" name="schema-selector">
                   <option value="public" selected>public</option>
@@ -3677,7 +3634,7 @@
                     <label for="vector-backend-type"
                       class="block text-[8.5px] font-bold text-text-secondary mb-1 uppercase tracking-wide">Index
                       Backend</label>
-                    <label for="vector-backend-type" class="sr-only">Select</label><select id="vector-backend-type" name="vector-backend-type" onchange="toggleBackendParameters()"
+                    <select id="vector-backend-type" name="vector-backend-type" onchange="toggleBackendParameters()"
                       class="w-full bg-bg-secondary border border-border rounded-lg p-2 text-xs text-text-primary focus:border-accent outline-none">
                       <option value="hnsw">HNSW Graph (In-process)</option>
                       <option value="bruteforce">Brute-Force Cosine (In-Memory)</option>
@@ -3693,7 +3650,7 @@
                       </label>
                       <input type="range" id="param-efSearch" name="param-efSearch" min="5" max="200" value="40"
                         oninput="document.getElementById('val-efSearch').textContent = this.value"
-                        class="w-full accent-accent bg-bg-secondary h-1 rounded-lg cursor-pointer" aria-label="Slider">
+                        class="w-full accent-accent bg-bg-secondary h-1 rounded-lg cursor-pointer">
                     </div>
                     <div>
                       <label
@@ -3715,7 +3672,7 @@
                     </label>
                     <input type="range" id="param-threshold" name="param-threshold" min="0.0" max="1.0" step="0.05"
                       value="0.35" oninput="document.getElementById('val-threshold').textContent = this.value"
-                      class="w-full accent-accent bg-bg-secondary h-1 rounded-lg cursor-pointer" aria-label="Slider">
+                      class="w-full accent-accent bg-bg-secondary h-1 rounded-lg cursor-pointer">
                   </div>
 
                   <div>
@@ -3726,7 +3683,7 @@
                     </label>
                     <input type="range" id="param-topk" name="param-topk" min="1" max="10" value="5"
                       oninput="document.getElementById('val-topk').textContent = this.value"
-                      class="w-full accent-accent bg-bg-secondary h-1 rounded-lg cursor-pointer" aria-label="Slider">
+                      class="w-full accent-accent bg-bg-secondary h-1 rounded-lg cursor-pointer">
                   </div>
                 </div>
               </div>
@@ -3756,7 +3713,7 @@
                   <textarea id="vector-ingest-text" name="vector-ingest-text" aria-label="New Memory Content"
                     class="w-full h-16 bg-bg-secondary border border-border rounded-lg p-2 text-xs text-text-primary focus:border-accent outline-none resize-none"
                     placeholder="เนื้อหาความจำ เช่น 'ADR-012: HNSW replaces brute-force at scale'"></textarea>
-                  <label for="vector-ingest-source" class="sr-only">Input</label><input id="vector-ingest-source" name="vector-ingest-source" aria-label="New Memory Source File"
+                  <input id="vector-ingest-source" name="vector-ingest-source" aria-label="New Memory Source File"
                     type="text" placeholder="แหล่งที่มา (เช่น adr-012.md)"
                     class="w-full bg-bg-secondary border border-border rounded-lg p-1.5 text-[10px] text-text-primary focus:border-accent outline-none font-mono">
                   <button onclick="ingestVectorDoc()"
@@ -4068,7 +4025,7 @@
                           <i class="ti ti-volume text-text-secondary text-sm"></i>
                           <div class="flex-1 sm:w-28">
                             <input oninput="updateAudioVolume(this.value)" type="range" min="0" max="1" step="0.1" value="0.4"
-                              class="w-full accent-orange-500 bg-bg-secondary h-1.5 rounded-lg appearance-none cursor-pointer" aria-label="Slider">
+                              class="w-full accent-orange-500 bg-bg-secondary h-1.5 rounded-lg appearance-none cursor-pointer">
                           </div>
                           <span id="volume-label-text" class="text-[9.5px] font-mono text-text-secondary w-7 text-right">40%</span>
                         </div>
@@ -4429,7 +4386,7 @@
           </div>
       </section>
 
-    </main></div>
+    </main>
 
     <!-- HITL Modal (Global Overlay) -->
     <div id="hitl-modal"
@@ -4493,7 +4450,7 @@
       <div class="flex items-center gap-2">
         <div class="flex items-center">
           <label for="terminal-shell-selector" class="text-[9px] text-text-tertiary font-sans mr-1.5">เอเจนต์:</label>
-          <label for="terminal-shell-selector" class="sr-only">Select</label><select class="shell-select" id="terminal-shell-selector">
+          <select class="shell-select" id="terminal-shell-selector">
             <option value="gemini">Gemini CLI (Official)</option>
             <option value="system">System Shell (Raw Command)</option>
             <option value="eva" selected>EVA Agent (eva-cli)</option>
@@ -4514,17 +4471,17 @@
     <div
       class="p-2 lg:p-3 border-t border-border bg-[#06080a] flex items-center shrink-0 shadow-[0_-5px_15px_rgba(0,0,0,0.3)]">
       <span class="text-accent text-xs font-mono mr-2.5 font-bold">$</span>
-      <label for="terminal-input" class="sr-only">Input</label><input type="text" id="terminal-input" placeholder="พิมพ์คำสั่งที่นี่ (เช่น npm run test)..."
+      <input type="text" id="terminal-input" placeholder="พิมพ์คำสั่งที่นี่ (เช่น npm run test)..."
         class="flex-1 min-w-0 bg-transparent border-none text-[11px] font-mono text-text-primary focus:outline-none placeholder-text-tertiary"
         onkeypress="handleTerminalInput(event)">
     </div>
   </div>
 
-  <script>
-    let currentDomain = 'overview';
-    let sidebarExpanded = true;
+  
+<script>
     let models = {}, selectedModel = '', isPlaying = false;
-    let telemetryChart = null, activeChartTab = 'thermals', reactorAngle = 0;
+    let telemetryChart = null, activeChartTab = 'thermals', reactorAngle = 0, currentDomain = 'overview';
+    let sidebarExpanded = true;
 
     const domainRegistry = {
       overview: {
@@ -4567,7 +4524,7 @@
       currentDomain = domainId;
       const config = domainRegistry[domainId];
       if (!config) return;
-      
+
       document.querySelectorAll('.domain-tab-btn').forEach(btn => {
         const isActive = btn.id === `domain-btn-${domainId}`;
         btn.classList.toggle('active', isActive);
@@ -4577,27 +4534,19 @@
         btn.classList.toggle('text-text-tertiary', !isActive);
       });
 
-      const titleEl = document.getElementById('sidebar-context-title');
-      const subEl = document.getElementById('sidebar-context-subtitle');
-      const iconEl = document.getElementById('sidebar-context-icon');
+      document.getElementById('sidebar-context-title').textContent = config.title;
+      document.getElementById('sidebar-context-subtitle').textContent = config.subtitle;
+      document.getElementById('sidebar-context-icon').innerHTML = `<i class="${config.icon}"></i>`;
       
-      if (titleEl) titleEl.textContent = config.title;
-      if (subEl) subEl.textContent = config.subtitle;
-      if (iconEl) iconEl.innerHTML = `<i class="${config.icon}"></i>`;
-
       const navContainer = document.getElementById('glass-subnav');
       if (navContainer) {
-          navContainer.innerHTML = config.items.map(item => `
-            <li class="sb-item" data-tooltip="${item.label}">
-              <button onclick="handleSubNavClick('${item.id}', this)" data-sub-id="${item.id}" class="sb-link sub-nav-item">
-                <i class="${item.icon}"></i><span>${item.label}</span>
-              </button>
-            </li>`).join('');
-          
-          if (config.items.length > 0) {
-            const firstBtn = navContainer.querySelector('.sb-link');
-            if (firstBtn) handleSubNavClick(config.items[0].id, firstBtn);
-          }
+        navContainer.innerHTML = config.items.map(item => `
+          <li class="sb-item" data-tooltip="${item.label}">
+            <button onclick="handleSubNavClick('${item.id}', this)" data-sub-id="${item.id}" class="sb-link sub-nav-item">
+              <i class="${item.icon}"></i><span>${item.label}</span>
+            </button>
+          </li>`).join('');
+        if (config.items.length > 0) handleSubNavClick(config.items[0].id, navContainer.querySelector('.sb-link'));
       }
     }
 
@@ -4617,16 +4566,9 @@
 
     function switchMainView(view) {
       const ids = ['roadmap-view', 'workflow-canvas', 'callgraph-view', 'benchmark-view', 'gdb-view-container'];
-      ids.forEach(id => { 
-          const el = document.getElementById(id); 
-          if(el) { el.classList.add('hidden'); el.classList.remove('flex'); } 
-      });
-      
+      ids.forEach(id => { const el = document.getElementById(id); if(el) { el.classList.add('hidden'); el.classList.remove('flex'); } });
       const target = document.getElementById(view + '-view') || document.getElementById(view) || document.getElementById(view + '-container');
-      if (target) { 
-          target.classList.remove('hidden'); 
-          if(view !== 'roadmap') target.classList.add('flex'); 
-      }
+      if (target) { target.classList.remove('hidden'); if(view !== 'roadmap') target.classList.add('flex'); }
     }
 
     function switchTab(tabName) {
@@ -4635,23 +4577,22 @@
       let target = tabName === 'dashboard' ? 'simulator' : (tabName === 'roadmap' ? 'overview' : tabName);
       const active = document.getElementById(`tab-content-${target}`);
       if (active) active.classList.remove('hidden');
-      if (target === 'campaign') loadCampaignSummary();
-      if (target === 'gap-analysis') updateTelemetryChart();
     }
 
     function toggleSidebar() {
       const sidebar = document.getElementById('glass-sidebar');
+      const toggleIcon = document.getElementById('sidebar-toggle-icon');
+      sidebarExpanded = !sidebarExpanded;
       if (sidebar) sidebar.classList.toggle('collapsed');
+      if (toggleIcon) toggleIcon.className = sidebarExpanded ? 'ti ti-chevron-left text-lg' : 'ti ti-chevron-right text-lg';
     }
 
     function setGdbModel(name) { 
-        const el = document.getElementById('gdb-active-model');
-        if (el) el.textContent = name; 
+      const el = document.getElementById('gdb-active-model');
+      if (el) el.textContent = name; 
     }
     
-    function runSrsSimulation(q) { 
-        console.log(`Querying SRS for: ${q}`); 
-    }
+    function runSrsSimulation(q) { console.log(`Querying SRS for: ${q}`); }
 
     function animateReactor() {
         const canvas = document.getElementById('reactor-canvas');
@@ -4669,35 +4610,14 @@
 
     async function loadBenchmarkData() {
         try {
-            const res = await fetch('data/benchmarks.json');
+            const res = await fetch('/benchmark/ui/data/benchmarks.json');
             if (res.ok) models = await res.json();
         } catch(e) {}
     }
 
-    async function loadCampaignSummary() {
-      try {
-        const res = await fetch('/benchmark/ui/data/sushirl_summary.json');
-        if (!res.ok) return;
-        const summary = await res.json();
-        const modelNameEl = document.getElementById('summary-model-name');
-        if (modelNameEl) modelNameEl.innerText = summary.model_name;
-        const pctEl = document.getElementById('summary-completion-pct');
-        if (pctEl) pctEl.innerText = `${summary.completion_pct}%`;
-        const badge = document.getElementById('summary-overall-badge');
-        if (badge) badge.innerText = summary.overall_status;
-      } catch (err) {}
-    }
-
-    function updateTelemetryChart() {
-        console.log("Telemetry Chart Update Triggered");
-    }
-
-    window.onload = () => { 
-        switchDomain('overview'); 
-        animateReactor(); 
-        loadBenchmarkData(); 
-    };
+    window.onload = () => { switchDomain('overview'); animateReactor(); loadBenchmarkData(); };
 </script>
+
 </body>
 
 </html>
