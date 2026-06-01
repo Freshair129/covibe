@@ -5,10 +5,7 @@ import requests
 import time
 import sys
 import codecs
-
-# Force UTF-8 for Windows Console
-if sys.platform == "win32":
-    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
+from datetime import datetime
 
 OLLAMA_HOST = "http://localhost:11434"
 
@@ -61,36 +58,49 @@ def run_cmd(cmd_list):
 
 def run_campaign(model_name):
     print(f"\n{'='*60}")
-    print(f"🏆 STARTING CAMPAIGN: {model_name}")
+    print(f"🏆 [EABS-01] STARTING CAMPAIGN: {model_name}")
     print(f"{'='*60}\n")
     
     unload_models()
     
+    plan_path = "benchmark-run/sushirl-latest/RUN-260530-sushi-001/documents/RUN-260530-sushi-001-PLAN-SKILL_LIST.md"
+
     for entry in MISSION_MATRIX:
-        task_path = os.path.join("tasks", entry["level"], entry["task"])
-        payload_path = os.path.join("ammunition", "STRESS_TEST", entry["payload"])
+        task_path = os.path.join("benchmark-kits", "tasks", entry["level"], entry["task"])
+        payload_path = os.path.join("benchmark-kits", "ammunition", "STRESS_TEST", entry["payload"])
         task_id = entry["task"].replace(".txt", "")
         
-        print(f"\n--- Round: {entry['level']} | Task: {task_id} ---")
+        # EABS-01 Section 17: Multi-run Execution (N=3 for L1-L3)
+        num_runs = 3 if entry["level"] in ["L1_BASE", "L2_LOGIC", "L3_DOMAIN"] else 1
         
-        if not os.path.exists(task_path) or not os.path.exists(payload_path):
-            print(f"⚠️ Missing file: {task_path} or {payload_path}")
-            continue
-
-        # 1. Execute Benchmark
-        run_cmd(["scripts/great_orchestrator.py", model_name, task_path, payload_path])
+        print(f"\n--- Round: {entry['level']} | Task: {task_id} | Runs: {num_runs} ---")
         
-        # 2. Slice Telemetry
-        output_dir = os.path.join("results", model_name.replace(":", "_"), task_id, "run1")
-        if os.path.exists(output_dir):
-            run_cmd(["scripts/slice_hw_logs.py", output_dir])
+        for i in range(1, num_runs + 1):
+            run_id = f"RUN-{datetime.now().strftime('%y%m%d')}-{task_id[:5]}-{i:03d}"
+            print(f"▶️ Sub-run {i}/{num_runs}: {run_id}")
             
-            # 3. Generate Report
-            run_cmd(["scripts/generate_reports.py", output_dir])
-        else:
-            print(f"❌ Output directory not found: {output_dir}")
+            # 1. Execute Benchmark
+            run_dir = run_benchmark(model_name, task_path, payload_path, run_id=run_id, plan_path=plan_path)
+            
+            if run_dir:
+                # 2. Slice Telemetry (Legacy scripts expect this, but great_orchestrator handles samples.jsonl now)
+                # run_cmd(["scripts/slice_hw_logs.py", run_dir])
+                
+                # 3. Verify Compliance (MANDATORY)
+                print(f"🧪 Verifying Compliance for {run_id}...")
+                verify_res = subprocess.run(["python", "scripts/verify_eabs_structure.py", run_dir], capture_output=True, text=True, encoding="utf-8")
+                print(verify_res.stdout)
+                
+                # 4. Generate Report
+                run_cmd(["scripts/generate_reports.py", run_dir])
+            else:
+                print(f"❌ Run {run_id} failed.")
 
     print(f"\n🏁 CAMPAIGN FINISHED: {model_name}")
+
+# Import run_benchmark from great_orchestrator
+import great_orchestrator
+from great_orchestrator import run_benchmark, unload_models
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

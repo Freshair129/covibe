@@ -1298,6 +1298,11 @@
                 <i class="ti ti-users text-sm"></i>
                 <span>Agent Management</span>
               </button>
+              <button onclick="switchTab('campaign')" id="tab-btn-campaign"
+                class="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-lg text-text-secondary hover:text-white hover:bg-white/5 transition w-full text-left">
+                <i class="ti ti-file-analytics text-sm"></i>
+                <span>Campaign Report</span>
+              </button>
               <button onclick="switchTab('overview')" id="tab-btn-overview"
                 class="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-lg text-text-secondary hover:text-white hover:bg-white/5 transition w-full text-left">
                 <i class="ti ti-award text-sm"></i>
@@ -4384,6 +4389,69 @@
                 </div>
               </section>
 
+              <!-- TAB 5: CAMPAIGN REPORT (EABS-01 SUMMARY) -->
+              <section id="tab-content-campaign" class="hidden space-y-6">
+                <div class="bg-bg-primary/40 border border-border rounded-xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm">
+                  <div>
+                    <div class="flex items-center space-x-2 mb-1">
+                      <i class="ti ti-file-certificate text-orange-400 text-lg"></i>
+                      <h2 class="text-base font-bold text-white uppercase tracking-tight">EABS-01 Campaign Summary: Sushi Skill-List</h2>
+                    </div>
+                    <p class="text-xs text-text-secondary">
+                      Technical validation report for model <span class="text-orange-400 font-bold" id="summary-model-name">...</span>
+                    </p>
+                  </div>
+                  <div id="summary-overall-badge" class="px-4 py-2 rounded-xl border font-black text-sm uppercase tracking-widest shadow-lg">
+                    LOADING...
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                  <div class="lg:col-span-3 space-y-6">
+                    <!-- Levels Matrix -->
+                    <div class="bg-bg-primary/40 border border-border rounded-xl overflow-hidden shadow-md">
+                      <table class="w-full text-left text-xs font-mono">
+                        <thead class="bg-bg-primary/80 text-text-tertiary uppercase">
+                          <tr>
+                            <th class="p-4 border-b border-border">Level / Skill</th>
+                            <th class="p-4 border-b border-border">Status</th>
+                            <th class="p-4 border-b border-border">Mean TPS</th>
+                            <th class="p-4 border-b border-border">Variance (CV)</th>
+                            <th class="p-4 border-b border-border">Max Temp</th>
+                            <th class="p-4 border-b border-border">Compliance</th>
+                          </tr>
+                        </thead>
+                        <tbody id="campaign-summary-body" class="divide-y divide-border/30 text-text-secondary">
+                          <!-- Dynamic rows -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div class="space-y-6">
+                    <!-- Completion Score -->
+                    <div class="bg-bg-primary/40 border border-border rounded-xl p-6 text-center shadow-md">
+                      <div class="text-[10px] text-text-tertiary font-mono mb-2 uppercase font-bold tracking-widest">Skill Completion</div>
+                      <div class="text-5xl font-black text-white font-mono tracking-tighter" id="summary-completion-pct">0%</div>
+                      <div class="mt-4 h-2 bg-bg-primary rounded-full overflow-hidden border border-border">
+                        <div id="summary-completion-bar" class="h-full bg-gradient-to-r from-orange-500 to-amber-500 shadow-[0_0_10px_rgba(249,115,22,0.4)]" style="width: 0%"></div>
+                      </div>
+                    </div>
+
+                    <!-- Production Readiness -->
+                    <div class="bg-bg-primary/60 border border-border rounded-xl p-6 shadow-md">
+                      <h4 class="text-[10px] font-bold text-text-tertiary mb-3 uppercase tracking-widest flex items-center gap-1.5">
+                        <i class="ti ti-shield-check text-orange-400"></i>
+                        Production Sign-off
+                      </h4>
+                      <div id="production-readiness-content" class="space-y-3.5">
+                        <!-- Pass/Fail Criteria -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
             </div>
           </div>
       </section>
@@ -4766,11 +4834,13 @@
       const overviewEl = document.getElementById('tab-content-overview');
       const gapAnalysisEl = document.getElementById('tab-content-gap-analysis');
       const trainingEl = document.getElementById('tab-content-training');
+      const campaignEl = document.getElementById('tab-content-campaign');
 
       if (simulatorEl) simulatorEl.classList.add('hidden');
       if (overviewEl) overviewEl.classList.add('hidden');
       if (gapAnalysisEl) gapAnalysisEl.classList.add('hidden');
       if (trainingEl) trainingEl.classList.add('hidden');
+      if (campaignEl) campaignEl.classList.add('hidden');
 
       // Map 'dashboard' tab selection to show 'simulator' view container (resolving the missing view container bug)
       let targetTab = tabName;
@@ -4799,6 +4869,70 @@
       }
       if (targetTab === 'gap-analysis') {
         updateTelemetryChart();
+      }
+      if (targetTab === 'campaign') {
+        loadCampaignSummary();
+      }
+    }
+
+    async function loadCampaignSummary() {
+      try {
+        const response = await fetch('ui/data/sushirl_summary.json');
+        if (!response.ok) return;
+        const summary = await response.json();
+
+        document.getElementById('summary-model-name').innerText = summary.model_name;
+        document.getElementById('summary-completion-pct').innerText = `${summary.completion_pct}%`;
+        document.getElementById('summary-completion-bar').style.width = `${summary.completion_pct}%`;
+
+        const badge = document.getElementById('summary-overall-badge');
+        badge.innerText = summary.overall_status;
+        if (summary.overall_status === 'APPROVED') {
+          badge.className = 'px-4 py-2 rounded-xl border border-emerald-500/50 bg-emerald-500/10 text-emerald-400 font-black text-sm uppercase tracking-widest shadow-[0_0_15px_rgba(16,185,129,0.2)]';
+        } else {
+          badge.className = 'px-4 py-2 rounded-xl border border-amber-500/50 bg-amber-500/10 text-amber-400 font-black text-sm uppercase tracking-widest';
+        }
+
+        const tbody = document.getElementById('campaign-summary-body');
+        tbody.innerHTML = '';
+
+        const levels = ["L1_BASE", "L2_LOGIC", "L3_DOMAIN", "L4_STRESS", "L5_INCIDENTS"];
+        levels.forEach(level => {
+          const s = summary.stats[level];
+          const row = document.createElement('tr');
+          const statusColor = s.status === 'PASS' ? 'text-emerald-400' : (s.status === 'FAIL' ? 'text-rose-400' : 'text-text-tertiary');
+
+          row.innerHTML = `
+                        <td class="p-4 font-bold text-text-secondary">${level}</td>
+                        <td class="p-4 font-black ${statusColor}">${s.status}</td>
+                        <td class="p-4 text-white">${s.mean_tps} t/s</td>
+                        <td class="p-4 text-text-secondary">${(s.cv * 100).toFixed(2)}%</td>
+                        <td class="p-4 text-amber-400">${s.max_temp}°C</td>
+                        <td class="p-4">
+                            <span class="px-2 py-0.5 rounded bg-bg-primary border border-border text-[10px] text-text-tertiary">EABS-01 Verified</span>
+                        </td>
+                    `;
+          tbody.appendChild(row);
+        });
+
+        const readiness = document.getElementById('production-readiness-content');
+        readiness.innerHTML = `
+                    <div class="flex items-center justify-between text-[11px] font-mono">
+                        <span class="text-text-secondary">Mean TPS > 12.0</span>
+                        <i class="ti ${summary.stats.L1_BASE.mean_tps > 12 ? 'ti-circle-check-filled text-emerald-500' : 'ti-circle-x-filled text-rose-500'}"></i>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] font-mono">
+                        <span class="text-text-secondary">Variance CV < 5%</span>
+                        <i class="ti ${summary.stats.L1_BASE.cv < 0.05 ? 'ti-circle-check-filled text-emerald-500' : 'ti-circle-x-filled text-rose-500'}"></i>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] font-mono">
+                        <span class="text-text-secondary">Temp < 75°C</span>
+                        <i class="ti ${summary.stats.L1_BASE.max_temp < 75 ? 'ti-circle-check-filled text-emerald-500' : 'ti-circle-x-filled text-rose-500'}"></i>
+                    </div>
+                `;
+
+      } catch (err) {
+        console.error("Failed to load campaign summary", err);
       }
     }
 

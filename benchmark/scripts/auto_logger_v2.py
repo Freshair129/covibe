@@ -109,7 +109,7 @@ class TelemetryLogger:
                 f.write(json.dumps(sample) + "\n")
                 f.flush()
                 # Real-time stdout for orchestrator/dashboard
-                print(f"DATA_STREAM: {json.dumps(sample)}", flush=True)
+                # print(f"DATA_STREAM: {json.dumps(sample)}", flush=True)
                 time.sleep(1)
 
     def stop(self):

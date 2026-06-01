@@ -1,9 +1,0 @@
-{
-  "model": "gemma4-rust-coder:latest",
-  "task": "covibe_yt_sync_logic",
-  "started_at": "2026-05-29T04:21:05.954390+00:00",
-  "ended_at": "2026-05-29T04:21:10.051334+00:00",
-  "duration_s": 4.096944,
-  "tokens_input": 8192,
-  "tokens_output": 151
-}

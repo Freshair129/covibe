@@ -522,9 +522,7 @@ const server = createServer(async (req, res) => {
     try {
       const content = await readFile(join(COVIBE_ROOT, "codev_dashboard.html"), "utf-8");
       const isProd = process.env.NODE_ENV === 'production';
-      const csp = isProd
-        ? "default-src * 'unsafe-inline' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; connect-src * ws: wss:;"
-        : "default-src * 'unsafe-inline' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; connect-src * ws: wss:;";
+      const csp = "default-src 'self' * data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' * data: blob: 'unsafe-inline' 'unsafe-eval'; style-src 'self' * 'unsafe-inline'; connect-src 'self' * ws: wss:;";
 
       res.writeHead(200, { 
         "content-type": "text/html",
@@ -682,6 +680,24 @@ const server = createServer(async (req, res) => {
     } catch (err) {
       res.writeHead(500, { "content-type": "application/json" });
       res.end(JSON.stringify({ error: "server_error", message: err.message }));
+    }
+    return;
+  }
+
+  if (pathname === "/benchmark/ui/data/sushirl_summary.json" || pathname === "/dashboard/benchmark/ui/data/sushirl_summary.json") {
+    try {
+      const filePath = join(COVIBE_ROOT, "benchmark", "ui", "data", "sushirl_summary.json");
+      if (existsSync(filePath)) {
+        const content = await readFile(filePath);
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end(content);
+      } else {
+        res.writeHead(404, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: "file_not_found" }));
+      }
+    } catch (err) {
+      res.writeHead(500, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: "server_error" }));
     }
     return;
   }
@@ -1595,3 +1611,4 @@ server.on("error", (err) => {
 
 // Attempt primary port
 startServer(PORT);
+

@@ -1,9 +1,0 @@
-{
-  "model": "gemma4-rust-coder:latest",
-  "task": "algorithm_priority_queue",
-  "started_at": "2026-05-29T04:18:02.355667+00:00",
-  "ended_at": "2026-05-29T04:18:05.552640+00:00",
-  "duration_s": 3.196973,
-  "tokens_input": 8192,
-  "tokens_output": 59
-}

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="th">
 
 <head>
@@ -877,6 +877,118 @@
     .text-glow-amber {
       text-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
     }
+    /* ======================================
+       MODERN GLASS SIDEBAR
+       hover: 80px â†’ 260px auto-expand
+    ====================================== */
+    .sidebar {
+      position: relative;
+      height: 100%;
+      width: 72px;
+      background: rgba(17, 21, 28, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-right: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 16px 0;
+      transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      overflow: hidden;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .sidebar:hover { width: 260px; }
+
+    /* Brand */
+    .sb-brand {
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      margin-bottom: 20px;
+      gap: 14px;
+      min-height: 44px;
+    }
+    .sb-brand-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: rgba(120,244,191,0.15);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--color-accent);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .sb-brand-text { overflow: hidden; }
+    .sb-brand-title {
+      font-size: 0.65rem; font-weight: 900;
+      color: #fff; text-transform: uppercase;
+      letter-spacing: 0.05em; white-space: nowrap;
+      opacity: 0; transition: opacity 0.25s 0.05s;
+    }
+    .sb-brand-sub {
+      font-size: 0.55rem; font-weight: 700;
+      color: var(--color-text-tertiary); white-space: nowrap;
+      opacity: 0; transition: opacity 0.25s 0.05s;
+    }
+    .sidebar:hover .sb-brand-title,
+    .sidebar:hover .sb-brand-sub { opacity: 1; }
+
+    /* Nav list */
+    .sb-nav { list-style: none; display: flex; flex-direction: column; gap: 4px; padding: 0 10px; }
+    .sb-item { position: relative; }
+    .sb-link {
+      display: flex; align-items: center; gap: 14px;
+      text-decoration: none; color: rgba(255,255,255,0.45);
+      padding: 11px 12px; border-radius: 10px;
+      transition: all 0.25s ease; white-space: nowrap;
+      font-size: 0.72rem; font-weight: 700;
+      cursor: pointer; border: none; background: none;
+      width: 100%; text-align: left;
+    }
+    .sb-link i { font-size: 1.15rem; min-width: 24px; text-align: center; flex-shrink: 0; }
+    .sb-link span { opacity: 0; transform: translateX(-6px); transition: all 0.25s; }
+    .sidebar:hover .sb-link span { opacity: 1; transform: translateX(0); }
+    .sb-link:hover { background: rgba(120,244,191,0.08); color: var(--color-accent); }
+    .sb-link.active {
+      background: rgba(120,244,191,0.15);
+      color: var(--color-accent);
+      border: 1px solid rgba(120,244,191,0.2);
+      box-shadow: 0 0 12px rgba(120,244,191,0.12);
+    }
+
+    /* Tooltip when collapsed */
+    .sb-item::after {
+      content: attr(data-tooltip);
+      position: absolute; left: 62px; top: 50%;
+      transform: translateY(-50%);
+      background: rgba(30,35,45,0.95);
+      color: #fff; padding: 5px 10px;
+      border-radius: 7px; font-size: 0.68rem; font-weight: 700;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.15s;
+      border: 1px solid rgba(255,255,255,0.08);
+      white-space: nowrap; z-index: 100;
+    }
+    .sidebar:not(:hover) .sb-item:hover::after { opacity: 1; }
+
+    /* Divider */
+    .sb-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 10px 14px; }
+
+    /* Footer stats */
+    .sb-footer { padding: 12px 10px; flex-shrink: 0; }
+    .sb-stats-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;
+      opacity: 0; transition: opacity 0.25s;
+    }
+    .sidebar:hover .sb-stats-grid { opacity: 1; }
+    .sb-stat {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px; padding: 6px 4px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .sb-stat-val { font-size: 0.6rem; font-weight: 700; font-family: monospace; }
+    .sb-stat-lbl { font-size: 0.5rem; color: rgba(255,255,255,0.35); text-transform: uppercase; margin-top: 2px; }
   </style>
 </head>
 
@@ -932,69 +1044,61 @@
     <!-- Main Workspace Area -->
     <main class="flex-1 flex overflow-hidden relative bg-[#0a0d10] h-[calc(100vh-3.5rem)]">
 
-      <!-- GLASS SIDEBAR (Dynamic, driven by switchDomain JS) -->
-      <aside id="glass-sidebar"
-        style="width: 16rem; transition: width 0.3s ease;"
-        class="flex flex-col h-full shrink-0 overflow-hidden bg-bg-secondary border-r border-border">
+      <!-- MODERN GLASS SIDEBAR -->
+      <nav id="glass-sidebar" class="sidebar">
 
-        <!-- Sidebar Brand / Context Header -->
-        <div class="flex items-center gap-3 px-4 py-4 border-b border-border shrink-0">
-          <div id="sidebar-context-icon"
-            class="w-9 h-9 rounded-xl bg-accent/20 flex items-center justify-center text-accent text-lg shrink-0">
-            <i class="ti ti-layout-dashboard"></i>
+        <!-- TOP: Brand + Sub-nav -->
+        <div>
+          <!-- Brand / Domain Context -->
+          <div class="sb-brand">
+            <div id="sidebar-context-icon" class="sb-brand-icon">
+              <i class="ti ti-layout-dashboard"></i>
+            </div>
+            <div class="sb-brand-text">
+              <div id="sidebar-context-title" class="sb-brand-title">Overview</div>
+              <div id="sidebar-context-subtitle" class="sb-brand-sub">Project Center</div>
+            </div>
           </div>
-          <div class="min-w-0 flex-1 overflow-hidden sidebar-header-text">
-            <div id="sidebar-context-title"
-              class="text-xs font-black text-white uppercase tracking-tight truncate sidebar-text">Overview</div>
-            <div id="sidebar-context-subtitle"
-              class="text-[9px] text-text-tertiary font-bold truncate sidebar-text">Project Center</div>
-          </div>
-          <button onclick="toggleSidebar()"
-            class="ml-auto w-7 h-7 rounded-lg flex items-center justify-center text-text-tertiary hover:text-white hover:bg-white/10 transition-all shrink-0"
-            title="Toggle Sidebar">
-            <i id="sidebar-toggle-icon" class="ti ti-layout-sidebar-left-collapse text-lg"></i>
-          </button>
+
+          <!-- Dynamic Sub-Nav (injected by switchDomain JS) -->
+          <ul id="glass-subnav" class="sb-nav">
+            <!-- items injected by JS -->
+          </ul>
         </div>
 
-        <!-- Dynamic Sub-Nav (injected by switchDomain) -->
-        <nav id="glass-subnav" class="flex flex-col gap-1 px-3 py-3 flex-1 overflow-y-auto min-h-0">
-          <!-- Items injected by JS -->
-        </nav>
-
-        <!-- Sidebar Footer: Telemetry Stats -->
-        <div id="sidebar-stats-section" class="shrink-0 border-t border-border px-3 py-3">
-          <div class="text-[8.5px] font-bold text-text-tertiary uppercase tracking-wider mb-2 px-1">Session Stats</div>
-          <div class="grid grid-cols-3 gap-1.5">
-            <div class="bg-bg-primary border border-border rounded-lg p-1.5 flex flex-col items-center justify-center">
-              <span class="text-[10px] font-bold font-mono text-accent truncate" id="tel-cost">$0.0490</span>
-              <span class="text-[7px] text-text-tertiary uppercase mt-0.5">Cost</span>
+        <!-- BOTTOM: Telemetry Stats -->
+        <div class="sb-footer">
+          <div class="sb-divider"></div>
+          <div id="sidebar-stats-section" class="sb-stats-grid">
+            <div class="sb-stat">
+              <span class="sb-stat-val text-accent" id="tel-cost">$0.049</span>
+              <span class="sb-stat-lbl">Cost</span>
             </div>
-            <div class="bg-bg-primary border border-border rounded-lg p-1.5 flex flex-col items-center justify-center">
-              <span class="text-[10px] font-bold font-mono text-indigo-400 truncate" id="tel-calls">14</span>
-              <span class="text-[7px] text-text-tertiary uppercase mt-0.5">Calls</span>
+            <div class="sb-stat">
+              <span class="sb-stat-val" style="color:#818cf8" id="tel-calls">14</span>
+              <span class="sb-stat-lbl">Calls</span>
             </div>
-            <div class="bg-bg-primary border border-border rounded-lg p-1.5 flex flex-col items-center justify-center">
-              <span class="text-[10px] font-bold font-mono text-yellow-500 truncate" id="tel-tools">28</span>
-              <span class="text-[7px] text-text-tertiary uppercase mt-0.5">Tools</span>
+            <div class="sb-stat">
+              <span class="sb-stat-val" style="color:#eab308" id="tel-tools">28</span>
+              <span class="sb-stat-lbl">Tools</span>
             </div>
-            <div class="bg-bg-primary border border-border rounded-lg p-1.5 flex flex-col items-center justify-center">
-              <span class="text-[10px] font-bold font-mono text-blue-400 truncate" id="tel-in">37,282</span>
-              <span class="text-[7px] text-text-tertiary uppercase mt-0.5">In TK</span>
+            <div class="sb-stat">
+              <span class="sb-stat-val" style="color:#60a5fa" id="tel-in">37k</span>
+              <span class="sb-stat-lbl">In TK</span>
             </div>
-            <div class="bg-bg-primary border border-border rounded-lg p-1.5 flex flex-col items-center justify-center">
-              <span class="text-[10px] font-bold font-mono text-pink-400 truncate" id="tel-out">4,478</span>
-              <span class="text-[7px] text-text-tertiary uppercase mt-0.5">Out TK</span>
+            <div class="sb-stat">
+              <span class="sb-stat-val" style="color:#f472b6" id="tel-out">4.4k</span>
+              <span class="sb-stat-lbl">Out TK</span>
             </div>
-            <div class="bg-bg-primary border border-border rounded-lg p-1.5 flex flex-col items-center justify-center">
-              <span class="text-[10px] font-bold font-mono text-cyan-400 truncate" id="tel-time">1m 24s</span>
-              <span class="text-[7px] text-text-tertiary uppercase mt-0.5">Time</span>
+            <div class="sb-stat">
+              <span class="sb-stat-val" style="color:#22d3ee" id="tel-time">1m24s</span>
+              <span class="sb-stat-lbl">Time</span>
             </div>
           </div>
-          <!-- Toggle text (hidden when collapsed) -->
-          <span id="sidebar-toggle-text" class="hidden"></span>
         </div>
 
-      </aside>
+      </nav>
+
         <!-- CENTER VIEW 1: ROADMAP VIEW -->
         <div class="flex-1 overflow-y-auto min-h-0 p-4 sm:p-5 relative z-10" id="roadmap-view">
           <div class="roadmap-container">
@@ -1003,7 +1107,7 @@
             <div class="phase" id="p0">
               <div class="phase-header" onclick="togglePhase('p0')">
                 <span class="phase-badge p0-badge">Phase 0</span>
-                <span class="phase-title">Feasibility Spike — พิสูจน์ความเสถียร</span>
+                <span class="phase-title">Feasibility Spike â€” à¸žà¸´à¸ªà¸¹à¸ˆà¸™à¹Œà¸„à¸§à¸²à¸¡à¹€à¸ªà¸–à¸µà¸¢à¸£</span>
                 <div class="phase-header-progress">
                   <div class="phase-mini-bar">
                     <div class="phase-mini-fill" id="p0-mini-fill"></div>
@@ -1013,8 +1117,8 @@
                 <i class="ti ti-chevron-down phase-chevron open" id="p0-ch"></i>
               </div>
               <div class="phase-body open" id="p0-body">
-                <p class="phase-desc">ก่อนเริ่ม Sprint จริง ต้องพิสูจน์ให้ได้ว่าระบบ YouTube IFrame API ทำงานร่วมกับ
-                  WebSocket sync ในการดึงพิกัดเวลาของเพลงได้เสถียรบนมือถือ 2 เครื่อง และหาข้อจำกัดระบบ</p>
+                <p class="phase-desc">à¸à¹ˆà¸­à¸™à¹€à¸£à¸´à¹ˆà¸¡ Sprint à¸ˆà¸£à¸´à¸‡ à¸•à¹‰à¸­à¸‡à¸žà¸´à¸ªà¸¹à¸ˆà¸™à¹Œà¹ƒà¸«à¹‰à¹„à¸”à¹‰à¸§à¹ˆà¸²à¸£à¸°à¸šà¸š YouTube IFrame API à¸—à¸³à¸‡à¸²à¸™à¸£à¹ˆà¸§à¸¡à¸à¸±à¸š
+                  WebSocket sync à¹ƒà¸™à¸à¸²à¸£à¸”à¸¶à¸‡à¸žà¸´à¸à¸±à¸”à¹€à¸§à¸¥à¸²à¸‚à¸­à¸‡à¹€à¸žà¸¥à¸‡à¹„à¸”à¹‰à¹€à¸ªà¸–à¸µà¸¢à¸£à¸šà¸™à¸¡à¸·à¸­à¸–à¸·à¸­ 2 à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡ à¹à¸¥à¸°à¸«à¸²à¸‚à¹‰à¸­à¸ˆà¸³à¸à¸±à¸”à¸£à¸°à¸šà¸š</p>
                 <div class="sprint-grid">
                   <div class="sprint">
                     <div class="sprint-header">
@@ -1024,7 +1128,7 @@
                       </div>
                       <div class="sprint-meta">
                         <span class="sprint-percent" id="p0-s0-percent">0%</span>
-                        <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 3–5 วัน</span>
+                        <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 3â€“5 à¸§à¸±à¸™</span>
                       </div>
                     </div>
                     <div class="tasks" data-sprint="p0-s0">
@@ -1043,8 +1147,8 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Prototype YouTube IFrame Player บน 2 clients
-                          พร้อมกัน</span>
+                        <span class="task-text truncate flex-1 min-w-0">Prototype YouTube IFrame Player à¸šà¸™ 2 clients
+                          à¸žà¸£à¹‰à¸­à¸¡à¸à¸±à¸™</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p0-s0-1" name="assist-select-p0-s0-1"
@@ -1075,7 +1179,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">WebSocket room ขั้นต่ำ: สร้างห้อง / join /
+                        <span class="task-text truncate flex-1 min-w-0">WebSocket room à¸‚à¸±à¹‰à¸™à¸•à¹ˆà¸³: à¸ªà¸£à¹‰à¸²à¸‡à¸«à¹‰à¸­à¸‡ / join /
                           broadcast event</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
@@ -1107,7 +1211,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Play / Pause / Seek sync เบื้องต้น</span>
+                        <span class="task-text truncate flex-1 min-w-0">Play / Pause / Seek sync à¹€à¸šà¸·à¹‰à¸­à¸‡à¸•à¹‰à¸™</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p0-s0-3" name="assist-select-p0-s0-3"
@@ -1138,7 +1242,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">วัด drift จริงระหว่าง 2 เครื่อง</span>
+                        <span class="task-text truncate flex-1 min-w-0">à¸§à¸±à¸” drift à¸ˆà¸£à¸´à¸‡à¸£à¸°à¸«à¸§à¹ˆà¸²à¸‡ 2 à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p0-s0-4" name="assist-select-p0-s0-4"
@@ -1169,7 +1273,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">ทดสอบบน iOS Safari + Android Chrome</span>
+                        <span class="task-text truncate flex-1 min-w-0">à¸—à¸”à¸ªà¸­à¸šà¸šà¸™ iOS Safari + Android Chrome</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p0-s0-5" name="assist-select-p0-s0-5"
@@ -1200,7 +1304,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">ระบุข้อจำกัด autoplay / background playback /
+                        <span class="task-text truncate flex-1 min-w-0">à¸£à¸°à¸šà¸¸à¸‚à¹‰à¸­à¸ˆà¸³à¸à¸±à¸” autoplay / background playback /
                           wake lock</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
@@ -1221,10 +1325,10 @@
                     <div class="exit">
                       <div class="exit-label"><i class="ti ti-door-exit"></i> Exit criteria</div>
                       <div class="exit-items">
-                        <div class="exit-item"><i class="ti ti-check"></i>มือถือ 2 เครื่องเล่นเพลงเดียวกัน drift เฉลี่ย
+                        <div class="exit-item"><i class="ti ti-check"></i>à¸¡à¸·à¸­à¸–à¸·à¸­ 2 à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡à¹€à¸¥à¹ˆà¸™à¹€à¸žà¸¥à¸‡à¹€à¸”à¸µà¸¢à¸§à¸à¸±à¸™ drift à¹€à¸‰à¸¥à¸µà¹ˆà¸¢
                           &lt; 500ms</div>
-                        <div class="exit-item"><i class="ti ti-check"></i>Join ด้วย room link ได้</div>
-                        <div class="exit-item"><i class="ti ti-check"></i>มี document สรุปข้อจำกัดของแต่ละแพลตฟอร์ม
+                        <div class="exit-item"><i class="ti ti-check"></i>Join à¸”à¹‰à¸§à¸¢ room link à¹„à¸”à¹‰</div>
+                        <div class="exit-item"><i class="ti ti-check"></i>à¸¡à¸µ document à¸ªà¸£à¸¸à¸›à¸‚à¹‰à¸­à¸ˆà¸³à¸à¸±à¸”à¸‚à¸­à¸‡à¹à¸•à¹ˆà¸¥à¸°à¹à¸žà¸¥à¸•à¸Ÿà¸­à¸£à¹Œà¸¡
                         </div>
                       </div>
                     </div>
@@ -1237,7 +1341,7 @@
             <div class="phase" id="p1">
               <div class="phase-header" onclick="togglePhase('p1')">
                 <span class="phase-badge p1-badge">Phase 1</span>
-                <span class="phase-title">MVP Core — ฟังก์ชันห้องและการแชร์เพลง</span>
+                <span class="phase-title">MVP Core â€” à¸Ÿà¸±à¸‡à¸à¹Œà¸Šà¸±à¸™à¸«à¹‰à¸­à¸‡à¹à¸¥à¸°à¸à¸²à¸£à¹à¸Šà¸£à¹Œà¹€à¸žà¸¥à¸‡</span>
                 <div class="phase-header-progress">
                   <div class="phase-mini-bar">
                     <div class="phase-mini-fill" id="p1-mini-fill"></div>
@@ -1247,8 +1351,8 @@
                 <i class="ti ti-chevron-down phase-chevron open" id="p1-ch"></i>
               </div>
               <div class="phase-body open" id="p1-body">
-                <p class="phase-desc">วางรากฐานโครงสร้างระบบ Client และ Server ให้ Rider
-                  สามารถเปิดห้องและส่งต่อลิงก์ห้องให้ Passenger ร่วมใช้งานได้จริงบนระบบ Production</p>
+                <p class="phase-desc">à¸§à¸²à¸‡à¸£à¸²à¸à¸à¸²à¸™à¹‚à¸„à¸£à¸‡à¸ªà¸£à¹‰à¸²à¸‡à¸£à¸°à¸šà¸š Client à¹à¸¥à¸° Server à¹ƒà¸«à¹‰ Rider
+                  à¸ªà¸²à¸¡à¸²à¸£à¸–à¹€à¸›à¸´à¸”à¸«à¹‰à¸­à¸‡à¹à¸¥à¸°à¸ªà¹ˆà¸‡à¸•à¹ˆà¸­à¸¥à¸´à¸‡à¸à¹Œà¸«à¹‰à¸­à¸‡à¹ƒà¸«à¹‰ Passenger à¸£à¹ˆà¸§à¸¡à¹ƒà¸Šà¹‰à¸‡à¸²à¸™à¹„à¸”à¹‰à¸ˆà¸£à¸´à¸‡à¸šà¸™à¸£à¸°à¸šà¸š Production</p>
                 <div class="sprint-grid">
 
                   <!-- Sprint 1A -->
@@ -1260,7 +1364,7 @@
                       </div>
                       <div class="sprint-meta">
                         <span class="sprint-percent" id="p1-s1a-percent">0%</span>
-                        <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 สัปดาห์</span>
+                        <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ</span>
                       </div>
                     </div>
                     <div class="tasks" data-sprint="p1-s1a">
@@ -1279,7 +1383,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">ตั้งโปรเจกต์ React + Vite (PWA manifest, service
+                        <span class="task-text truncate flex-1 min-w-0">à¸•à¸±à¹‰à¸‡à¹‚à¸›à¸£à¹€à¸ˆà¸à¸•à¹Œ React + Vite (PWA manifest, service
                           worker shell)</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
@@ -1312,7 +1416,7 @@
                           </label>
                         </div>
                         <span class="task-text truncate flex-1 min-w-0">Backend Node.js + TypeScript + WebSocket room
-                          state ในเมมโมรี่</span>
+                          state à¹ƒà¸™à¹€à¸¡à¸¡à¹‚à¸¡à¸£à¸µà¹ˆ</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p1-s1a-2" name="assist-select-p1-s1a-2"
@@ -1343,7 +1447,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Rider: สร้างห้อง → รับ roomId → แสดง QR
+                        <span class="task-text truncate flex-1 min-w-0">Rider: à¸ªà¸£à¹‰à¸²à¸‡à¸«à¹‰à¸­à¸‡ â†’ à¸£à¸±à¸š roomId â†’ à¹à¸ªà¸”à¸‡ QR
                           code</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
@@ -1406,7 +1510,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Passenger: สแกน QR → ใส่ชื่อ → join ห้อง</span>
+                        <span class="task-text truncate flex-1 min-w-0">Passenger: à¸ªà¹à¸à¸™ QR â†’ à¹ƒà¸ªà¹ˆà¸Šà¸·à¹ˆà¸­ â†’ join à¸«à¹‰à¸­à¸‡</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p1-s1a-5" name="assist-select-p1-s1a-5"
@@ -1469,7 +1573,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Thai UI ขั้นพื้นฐาน, dark mode, mobile-first
+                        <span class="task-text truncate flex-1 min-w-0">Thai UI à¸‚à¸±à¹‰à¸™à¸žà¸·à¹‰à¸™à¸à¸²à¸™, dark mode, mobile-first
                           layout</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
@@ -1490,8 +1594,8 @@
                     <div class="exit">
                       <div class="exit-label"><i class="ti ti-door-exit"></i> Exit criteria</div>
                       <div class="exit-items">
-                        <div class="exit-item"><i class="ti ti-check"></i>Rider เปิดห้องและ Passenger join ได้บน
-                          production URL จริง</div>
+                        <div class="exit-item"><i class="ti ti-check"></i>Rider à¹€à¸›à¸´à¸”à¸«à¹‰à¸­à¸‡à¹à¸¥à¸° Passenger join à¹„à¸”à¹‰à¸šà¸™
+                          production URL à¸ˆà¸£à¸´à¸‡</div>
                       </div>
                     </div>
                   </div>
@@ -1505,7 +1609,7 @@
                       </div>
                       <div class="sprint-meta">
                         <span class="sprint-percent" id="p1-s1b-percent">0%</span>
-                        <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 สัปดาห์</span>
+                        <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ</span>
                       </div>
                     </div>
                     <div class="tasks" data-sprint="p1-s1b">
@@ -1556,7 +1660,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Queue เพลง: add / remove / reorder</span>
+                        <span class="task-text truncate flex-1 min-w-0">Queue à¹€à¸žà¸¥à¸‡: add / remove / reorder</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p1-s1b-2" name="assist-select-p1-s1b-2"
@@ -1587,7 +1691,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Current track state บน server (trackId,
+                        <span class="task-text truncate flex-1 min-w-0">Current track state à¸šà¸™ server (trackId,
                           positionMs, serverStartedAt)</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
@@ -1619,7 +1723,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Play / Pause / Skip / Seek ซิงค์ผ่าน
+                        <span class="task-text truncate flex-1 min-w-0">Play / Pause / Skip / Seek à¸‹à¸´à¸‡à¸„à¹Œà¸œà¹ˆà¸²à¸™
                           WebSocket</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
@@ -1651,7 +1755,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Auto-next เมื่อเพลงจบ</span>
+                        <span class="task-text truncate flex-1 min-w-0">Auto-next à¹€à¸¡à¸·à¹ˆà¸­à¹€à¸žà¸¥à¸‡à¸ˆà¸š</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p1-s1b-5" name="assist-select-p1-s1b-5"
@@ -1682,7 +1786,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Volume control แยกแต่ละ device</span>
+                        <span class="task-text truncate flex-1 min-w-0">Volume control à¹à¸¢à¸à¹à¸•à¹ˆà¸¥à¸° device</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p1-s1b-6" name="assist-select-p1-s1b-6"
@@ -1702,8 +1806,8 @@
                     <div class="exit">
                       <div class="exit-label"><i class="ti ti-door-exit"></i> Exit criteria</div>
                       <div class="exit-items">
-                        <div class="exit-item"><i class="ti ti-check"></i>เล่นเพลงต่อคิว 5 เพลงขึ้นไปโดยไม่ต้อง refresh
-                          หน้าเว็บ</div>
+                        <div class="exit-item"><i class="ti ti-check"></i>à¹€à¸¥à¹ˆà¸™à¹€à¸žà¸¥à¸‡à¸•à¹ˆà¸­à¸„à¸´à¸§ 5 à¹€à¸žà¸¥à¸‡à¸‚à¸¶à¹‰à¸™à¹„à¸›à¹‚à¸”à¸¢à¹„à¸¡à¹ˆà¸•à¹‰à¸­à¸‡ refresh
+                          à¸«à¸™à¹‰à¸²à¹€à¸§à¹‡à¸š</div>
                       </div>
                     </div>
                   </div>
@@ -1716,7 +1820,7 @@
             <div class="phase" id="p2">
               <div class="phase-header" onclick="togglePhase('p2')">
                 <span class="phase-badge p2-badge">Phase 2</span>
-                <span class="phase-title">Hardening + Rider UX — ความเสถียร & ขับขี่จริง</span>
+                <span class="phase-title">Hardening + Rider UX â€” à¸„à¸§à¸²à¸¡à¹€à¸ªà¸–à¸µà¸¢à¸£ & à¸‚à¸±à¸šà¸‚à¸µà¹ˆà¸ˆà¸£à¸´à¸‡</span>
                 <div class="phase-header-progress">
                   <div class="phase-mini-bar">
                     <div class="phase-mini-fill" id="p2-mini-fill"></div>
@@ -1726,8 +1830,8 @@
                 <i class="ti ti-chevron-down phase-chevron open" id="p2-ch"></i>
               </div>
               <div class="phase-body open" id="p2-body">
-                <p class="phase-desc">ปรับปรุง Algorithm การซิงค์นาฬิกา และสร้าง UI สำหรับผู้ขับขี่ (Rider)
-                  เพื่อความสะดวกปลอดภัยเวลาใช้งานจริงขณะขี่มอเตอร์ไซค์</p>
+                <p class="phase-desc">à¸›à¸£à¸±à¸šà¸›à¸£à¸¸à¸‡ Algorithm à¸à¸²à¸£à¸‹à¸´à¸‡à¸„à¹Œà¸™à¸²à¸¬à¸´à¸à¸² à¹à¸¥à¸°à¸ªà¸£à¹‰à¸²à¸‡ UI à¸ªà¸³à¸«à¸£à¸±à¸šà¸œà¸¹à¹‰à¸‚à¸±à¸šà¸‚à¸µà¹ˆ (Rider)
+                  à¹€à¸žà¸·à¹ˆà¸­à¸„à¸§à¸²à¸¡à¸ªà¸°à¸”à¸§à¸à¸›à¸¥à¸­à¸”à¸ à¸±à¸¢à¹€à¸§à¸¥à¸²à¹ƒà¸Šà¹‰à¸‡à¸²à¸™à¸ˆà¸£à¸´à¸‡à¸‚à¸“à¸°à¸‚à¸µà¹ˆà¸¡à¸­à¹€à¸•à¸­à¸£à¹Œà¹„à¸‹à¸„à¹Œ</p>
                 <div class="sprint-grid">
 
                   <!-- Sprint 2A -->
@@ -1739,7 +1843,7 @@
                       </div>
                       <div class="sprint-meta">
                         <span class="sprint-percent" id="p2-s2a-percent">0%</span>
-                        <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 สัปดาห์</span>
+                        <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ</span>
                       </div>
                     </div>
                     <div class="tasks" data-sprint="p2-s2a">
@@ -1758,8 +1862,8 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Drift correction algorithm (&lt;250ms ปล่อย /
-                          250-800ms ปรับ rate / &gt;800ms seek)</span>
+                        <span class="task-text truncate flex-1 min-w-0">Drift correction algorithm (&lt;250ms à¸›à¸¥à¹ˆà¸­à¸¢ /
+                          250-800ms à¸›à¸£à¸±à¸š rate / &gt;800ms seek)</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p2-s2a-1" name="assist-select-p2-s2a-1"
@@ -1790,7 +1894,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Latency ping ทุก 3 วินาที + clock sync กับ
+                        <span class="task-text truncate flex-1 min-w-0">Latency ping à¸—à¸¸à¸ 3 à¸§à¸´à¸™à¸²à¸—à¸µ + clock sync à¸à¸±à¸š
                           server</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
@@ -1822,7 +1926,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Reconnect อัตโนมัติหลังเน็ตหลุด + resync
+                        <span class="task-text truncate flex-1 min-w-0">Reconnect à¸­à¸±à¸•à¹‚à¸™à¸¡à¸±à¸•à¸´à¸«à¸¥à¸±à¸‡à¹€à¸™à¹‡à¸•à¸«à¸¥à¸¸à¸” + resync
                           position</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
@@ -1855,7 +1959,7 @@
                           </label>
                         </div>
                         <span class="task-text truncate flex-1 min-w-0">Buffer state handling +
-                          แจ้งเตือนผู้ใช้เมื่อเน็ตช้า</span>
+                          à¹à¸ˆà¹‰à¸‡à¹€à¸•à¸·à¸­à¸™à¸œà¸¹à¹‰à¹ƒà¸Šà¹‰à¹€à¸¡à¸·à¹ˆà¸­à¹€à¸™à¹‡à¸•à¸Šà¹‰à¸²</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p2-s2a-4" name="assist-select-p2-s2a-4"
@@ -1887,7 +1991,7 @@
                           </label>
                         </div>
                         <span class="task-text truncate flex-1 min-w-0">Host handoff fallback
-                          เมื่อผู้เปิดห้องตัดการเชื่อมต่อ</span>
+                          à¹€à¸¡à¸·à¹ˆà¸­à¸œà¸¹à¹‰à¹€à¸›à¸´à¸”à¸«à¹‰à¸­à¸‡à¸•à¸±à¸”à¸à¸²à¸£à¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p2-s2a-5" name="assist-select-p2-s2a-5"
@@ -1918,8 +2022,8 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Drift metric logging เพื่อใช้ในการ debug
-                          พฤติกรรมการซิงค์</span>
+                        <span class="task-text truncate flex-1 min-w-0">Drift metric logging à¹€à¸žà¸·à¹ˆà¸­à¹ƒà¸Šà¹‰à¹ƒà¸™à¸à¸²à¸£ debug
+                          à¸žà¸¤à¸•à¸´à¸à¸£à¸£à¸¡à¸à¸²à¸£à¸‹à¸´à¸‡à¸„à¹Œ</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p2-s2a-6" name="assist-select-p2-s2a-6"
@@ -1939,8 +2043,8 @@
                     <div class="exit">
                       <div class="exit-label"><i class="ti ti-door-exit"></i> Exit criteria</div>
                       <div class="exit-items">
-                        <div class="exit-item"><i class="ti ti-check"></i>เน็ตหลุดกลับมาแล้วซิงค์ดนตรี drift &lt; 500ms
-                          ภายใน 5 วินาที</div>
+                        <div class="exit-item"><i class="ti ti-check"></i>à¹€à¸™à¹‡à¸•à¸«à¸¥à¸¸à¸”à¸à¸¥à¸±à¸šà¸¡à¸²à¹à¸¥à¹‰à¸§à¸‹à¸´à¸‡à¸„à¹Œà¸”à¸™à¸•à¸£à¸µ drift &lt; 500ms
+                          à¸ à¸²à¸¢à¹ƒà¸™ 5 à¸§à¸´à¸™à¸²à¸—à¸µ</div>
                       </div>
                     </div>
                   </div>
@@ -1954,7 +2058,7 @@
                       </div>
                       <div class="sprint-meta">
                         <span class="sprint-percent" id="p2-s2b-percent">0%</span>
-                        <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 สัปดาห์</span>
+                        <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ</span>
                       </div>
                     </div>
                     <div class="tasks" data-sprint="p2-s2b">
@@ -1973,8 +2077,8 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Rider dashboard ปุ่มใหญ่ (Play/Pause/Skip)
-                          แตะง่าย</span>
+                        <span class="task-text truncate flex-1 min-w-0">Rider dashboard à¸›à¸¸à¹ˆà¸¡à¹ƒà¸«à¸à¹ˆ (Play/Pause/Skip)
+                          à¹à¸•à¸°à¸‡à¹ˆà¸²à¸¢</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p2-s2b-1" name="assist-select-p2-s2b-1"
@@ -2006,7 +2110,7 @@
                           </label>
                         </div>
                         <span class="task-text truncate flex-1 min-w-0">OLED Saver / Black Screen mode
-                          ประหยัดพลังงาน</span>
+                          à¸›à¸£à¸°à¸«à¸¢à¸±à¸”à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p2-s2b-2" name="assist-select-p2-s2b-2"
@@ -2037,8 +2141,8 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Passenger remote: ค้นหา YouTube +
-                          เพิ่มเพลง</span>
+                        <span class="task-text truncate flex-1 min-w-0">Passenger remote: à¸„à¹‰à¸™à¸«à¸² YouTube +
+                          à¹€à¸žà¸´à¹ˆà¸¡à¹€à¸žà¸¥à¸‡</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p2-s2b-3" name="assist-select-p2-s2b-3"
@@ -2069,7 +2173,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Trip summary หน้าสรุปรายละเอียดการเดินทาง</span>
+                        <span class="task-text truncate flex-1 min-w-0">Trip summary à¸«à¸™à¹‰à¸²à¸ªà¸£à¸¸à¸›à¸£à¸²à¸¢à¸¥à¸°à¹€à¸­à¸µà¸¢à¸”à¸à¸²à¸£à¹€à¸”à¸´à¸™à¸—à¸²à¸‡</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p2-s2b-4" name="assist-select-p2-s2b-4"
@@ -2100,8 +2204,8 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Analytics events (กิจกรรมห้อง,
-                          อัตราดริฟต์เฉลี่ย)</span>
+                        <span class="task-text truncate flex-1 min-w-0">Analytics events (à¸à¸´à¸ˆà¸à¸£à¸£à¸¡à¸«à¹‰à¸­à¸‡,
+                          à¸­à¸±à¸•à¸£à¸²à¸”à¸£à¸´à¸Ÿà¸•à¹Œà¹€à¸‰à¸¥à¸µà¹ˆà¸¢)</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p2-s2b-5" name="assist-select-p2-s2b-5"
@@ -2132,7 +2236,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Error tracking integration (รายงาน crash)</span>
+                        <span class="task-text truncate flex-1 min-w-0">Error tracking integration (à¸£à¸²à¸¢à¸‡à¸²à¸™ crash)</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p2-s2b-6" name="assist-select-p2-s2b-6"
@@ -2152,8 +2256,8 @@
                     <div class="exit">
                       <div class="exit-label"><i class="ti ti-door-exit"></i> Exit criteria</div>
                       <div class="exit-items">
-                        <div class="exit-item"><i class="ti ti-check"></i>กลุ่มทดสอบ Beta สามารถใช้งานระบบเองได้โดยไม่มี
-                          Developer คอยช่วย</div>
+                        <div class="exit-item"><i class="ti ti-check"></i>à¸à¸¥à¸¸à¹ˆà¸¡à¸—à¸”à¸ªà¸­à¸š Beta à¸ªà¸²à¸¡à¸²à¸£à¸–à¹ƒà¸Šà¹‰à¸‡à¸²à¸™à¸£à¸°à¸šà¸šà¹€à¸­à¸‡à¹„à¸”à¹‰à¹‚à¸”à¸¢à¹„à¸¡à¹ˆà¸¡à¸µ
+                          Developer à¸„à¸­à¸¢à¸Šà¹ˆà¸§à¸¢</div>
                       </div>
                     </div>
                   </div>
@@ -2166,7 +2270,7 @@
             <div class="phase" id="p3">
               <div class="phase-header" onclick="togglePhase('p3')">
                 <span class="phase-badge p3-badge">Phase 3</span>
-                <span class="phase-title">Private Beta — เริ่มการทดสอบกลุ่มย่อย</span>
+                <span class="phase-title">Private Beta â€” à¹€à¸£à¸´à¹ˆà¸¡à¸à¸²à¸£à¸—à¸”à¸ªà¸­à¸šà¸à¸¥à¸¸à¹ˆà¸¡à¸¢à¹ˆà¸­à¸¢</span>
                 <div class="phase-header-progress">
                   <div class="phase-mini-bar">
                     <div class="phase-mini-fill" id="p3-mini-fill"></div>
@@ -2176,8 +2280,8 @@
                 <i class="ti ti-chevron-down phase-chevron" id="p3-ch"></i>
               </div>
               <div class="phase-body" id="p3-body">
-                <p class="phase-desc">เริ่มเชิญกลุ่มผู้ใช้รถมอเตอร์ไซค์จำนวน 20–50 คู่
-                  ทำการทดสอบเดินทางในชีวิตประจำวันเพื่อรวบรวมข้อเสนอแนะและบั๊กที่แฝงอยู่</p>
+                <p class="phase-desc">à¹€à¸£à¸´à¹ˆà¸¡à¹€à¸Šà¸´à¸à¸à¸¥à¸¸à¹ˆà¸¡à¸œà¸¹à¹‰à¹ƒà¸Šà¹‰à¸£à¸–à¸¡à¸­à¹€à¸•à¸­à¸£à¹Œà¹„à¸‹à¸„à¹Œà¸ˆà¸³à¸™à¸§à¸™ 20â€“50 à¸„à¸¹à¹ˆ
+                  à¸—à¸³à¸à¸²à¸£à¸—à¸”à¸ªà¸­à¸šà¹€à¸”à¸´à¸™à¸—à¸²à¸‡à¹ƒà¸™à¸Šà¸µà¸§à¸´à¸•à¸›à¸£à¸°à¸ˆà¸³à¸§à¸±à¸™à¹€à¸žà¸·à¹ˆà¸­à¸£à¸§à¸šà¸£à¸§à¸¡à¸‚à¹‰à¸­à¹€à¸ªà¸™à¸­à¹à¸™à¸°à¹à¸¥à¸°à¸šà¸±à¹Šà¸à¸—à¸µà¹ˆà¹à¸à¸‡à¸­à¸¢à¸¹à¹ˆ</p>
                 <div class="sprint-grid">
 
                   <!-- Sprint 3A -->
@@ -2189,7 +2293,7 @@
                       </div>
                       <div class="sprint-meta">
                         <span class="sprint-percent" id="p3-s3a-percent">0%</span>
-                        <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 สัปดาห์</span>
+                        <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1 à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ</span>
                       </div>
                     </div>
                     <div class="tasks" data-sprint="p3-s3a">
@@ -2208,8 +2312,8 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Beta onboarding flow อธิบาย autoplay +
-                          วิธีเชื่อมต่อ</span>
+                        <span class="task-text truncate flex-1 min-w-0">Beta onboarding flow à¸­à¸˜à¸´à¸šà¸²à¸¢ autoplay +
+                          à¸§à¸´à¸˜à¸µà¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p3-s3a-1" name="assist-select-p3-s3a-1"
@@ -2241,7 +2345,7 @@
                           </label>
                         </div>
                         <span class="task-text truncate flex-1 min-w-0">In-app feedback form + rating
-                          ประเมินหลังเดินทาง</span>
+                          à¸›à¸£à¸°à¹€à¸¡à¸´à¸™à¸«à¸¥à¸±à¸‡à¹€à¸”à¸´à¸™à¸—à¸²à¸‡</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p3-s3a-2" name="assist-select-p3-s3a-2"
@@ -2272,8 +2376,8 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">รับสมัครกลุ่มผู้ขี่มอเตอร์ไซค์ 20-50
-                          คู่มาร่วมทดสอบ</span>
+                        <span class="task-text truncate flex-1 min-w-0">à¸£à¸±à¸šà¸ªà¸¡à¸±à¸„à¸£à¸à¸¥à¸¸à¹ˆà¸¡à¸œà¸¹à¹‰à¸‚à¸µà¹ˆà¸¡à¸­à¹€à¸•à¸­à¸£à¹Œà¹„à¸‹à¸„à¹Œ 20-50
+                          à¸„à¸¹à¹ˆà¸¡à¸²à¸£à¹ˆà¸§à¸¡à¸—à¸”à¸ªà¸­à¸š</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p3-s3a-3" name="assist-select-p3-s3a-3"
@@ -2304,7 +2408,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">ทำสื่อคลิปสั้นอธิบายระบบลง Reels/TikTok</span>
+                        <span class="task-text truncate flex-1 min-w-0">à¸—à¸³à¸ªà¸·à¹ˆà¸­à¸„à¸¥à¸´à¸›à¸ªà¸±à¹‰à¸™à¸­à¸˜à¸´à¸šà¸²à¸¢à¸£à¸°à¸šà¸šà¸¥à¸‡ Reels/TikTok</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p3-s3a-4" name="assist-select-p3-s3a-4"
@@ -2335,8 +2439,8 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">ผลิตสื่อ QR Code
-                          ประชาสัมพันธ์ติดร้านบิ๊กไบค์</span>
+                        <span class="task-text truncate flex-1 min-w-0">à¸œà¸¥à¸´à¸•à¸ªà¸·à¹ˆà¸­ QR Code
+                          à¸›à¸£à¸°à¸Šà¸²à¸ªà¸±à¸¡à¸žà¸±à¸™à¸˜à¹Œà¸•à¸´à¸”à¸£à¹‰à¸²à¸™à¸šà¸´à¹Šà¸à¹„à¸šà¸„à¹Œ</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p3-s3a-5" name="assist-select-p3-s3a-5"
@@ -2364,7 +2468,7 @@
                       </div>
                       <div class="sprint-meta">
                         <span class="sprint-percent" id="p3-s3b-percent">0%</span>
-                        <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1–2 สัปดาห์</span>
+                        <span class="sprint-dur"><i class="ti ti-calendar-event"></i> 1â€“2 à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ</span>
                       </div>
                     </div>
                     <div class="tasks" data-sprint="p3-s3b">
@@ -2384,7 +2488,7 @@
                           </label>
                         </div>
                         <span class="task-text truncate flex-1 min-w-0">Usage Dashboard:
-                          ตรวจสอบความถี่และชั่วโมงการเปิดซิงค์เพลง</span>
+                          à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸šà¸„à¸§à¸²à¸¡à¸–à¸µà¹ˆà¹à¸¥à¸°à¸Šà¸±à¹ˆà¸§à¹‚à¸¡à¸‡à¸à¸²à¸£à¹€à¸›à¸´à¸”à¸‹à¸´à¸‡à¸„à¹Œà¹€à¸žà¸¥à¸‡</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p3-s3b-1" name="assist-select-p3-s3b-1"
@@ -2415,8 +2519,8 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Retention tracking: อัตราการกลับมาเปิดเล่นซ้ำใน
-                          7 วัน</span>
+                        <span class="task-text truncate flex-1 min-w-0">Retention tracking: à¸­à¸±à¸•à¸£à¸²à¸à¸²à¸£à¸à¸¥à¸±à¸šà¸¡à¸²à¹€à¸›à¸´à¸”à¹€à¸¥à¹ˆà¸™à¸‹à¹‰à¸³à¹ƒà¸™
+                          7 à¸§à¸±à¸™</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p3-s3b-2" name="assist-select-p3-s3b-2"
@@ -2447,8 +2551,8 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">รวบรวม Bugs ยอดฮิต 5
-                          อันดับแรกเพื่อจัดคิวแก้ไข</span>
+                        <span class="task-text truncate flex-1 min-w-0">à¸£à¸§à¸šà¸£à¸§à¸¡ Bugs à¸¢à¸­à¸”à¸®à¸´à¸• 5
+                          à¸­à¸±à¸™à¸”à¸±à¸šà¹à¸£à¸à¹€à¸žà¸·à¹ˆà¸­à¸ˆà¸±à¸”à¸„à¸´à¸§à¹à¸à¹‰à¹„à¸‚</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p3-s3b-3" name="assist-select-p3-s3b-3"
@@ -2479,8 +2583,8 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">สรุป Persona
-                          ผู้ใช้ที่ชอบฟีเจอร์นี้มากที่สุด</span>
+                        <span class="task-text truncate flex-1 min-w-0">à¸ªà¸£à¸¸à¸› Persona
+                          à¸œà¸¹à¹‰à¹ƒà¸Šà¹‰à¸—à¸µà¹ˆà¸Šà¸­à¸šà¸Ÿà¸µà¹€à¸ˆà¸­à¸£à¹Œà¸™à¸µà¹‰à¸¡à¸²à¸à¸—à¸µà¹ˆà¸ªà¸¸à¸”</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p3-s3b-4" name="assist-select-p3-s3b-4"
@@ -2511,8 +2615,8 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">เปิดอัปเดต Quick-fix
-                          แก้ปัญหาเร่งด่วนตามเสียงตอบรับ</span>
+                        <span class="task-text truncate flex-1 min-w-0">à¹€à¸›à¸´à¸”à¸­à¸±à¸›à¹€à¸”à¸• Quick-fix
+                          à¹à¸à¹‰à¸›à¸±à¸à¸«à¸²à¹€à¸£à¹ˆà¸‡à¸”à¹ˆà¸§à¸™à¸•à¸²à¸¡à¹€à¸ªà¸µà¸¢à¸‡à¸•à¸­à¸šà¸£à¸±à¸š</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p3-s3b-5" name="assist-select-p3-s3b-5"
@@ -2532,10 +2636,10 @@
                     <div class="exit">
                       <div class="exit-label"><i class="ti ti-door-exit"></i> Exit criteria</div>
                       <div class="exit-items">
-                        <div class="exit-item"><i class="ti ti-check"></i>สะสมทริปเดินทางที่มีการใช้งานเกิน 15 นาที
-                          ได้อย่างน้อย 20 ทริป</div>
-                        <div class="exit-item"><i class="ti ti-check"></i>ค้นหาจุดบกพร่องยอดนิยม 5
-                          อันดับแรกเพื่อวางคิวพัฒนาเฟสถัดไป</div>
+                        <div class="exit-item"><i class="ti ti-check"></i>à¸ªà¸°à¸ªà¸¡à¸—à¸£à¸´à¸›à¹€à¸”à¸´à¸™à¸—à¸²à¸‡à¸—à¸µà¹ˆà¸¡à¸µà¸à¸²à¸£à¹ƒà¸Šà¹‰à¸‡à¸²à¸™à¹€à¸à¸´à¸™ 15 à¸™à¸²à¸—à¸µ
+                          à¹„à¸”à¹‰à¸­à¸¢à¹ˆà¸²à¸‡à¸™à¹‰à¸­à¸¢ 20 à¸—à¸£à¸´à¸›</div>
+                        <div class="exit-item"><i class="ti ti-check"></i>à¸„à¹‰à¸™à¸«à¸²à¸ˆà¸¸à¸”à¸šà¸à¸žà¸£à¹ˆà¸­à¸‡à¸¢à¸­à¸”à¸™à¸´à¸¢à¸¡ 5
+                          à¸­à¸±à¸™à¸”à¸±à¸šà¹à¸£à¸à¹€à¸žà¸·à¹ˆà¸­à¸§à¸²à¸‡à¸„à¸´à¸§à¸žà¸±à¸’à¸™à¸²à¹€à¸Ÿà¸ªà¸–à¸±à¸”à¹„à¸›</div>
                       </div>
                     </div>
                   </div>
@@ -2548,7 +2652,7 @@
             <div class="phase" id="p4">
               <div class="phase-header" onclick="togglePhase('p4')">
                 <span class="phase-badge nsm">Future</span>
-                <span class="phase-title">Post-Beta Expansion — แผนขยายฟีเจอร์หลัง MVP</span>
+                <span class="phase-title">Post-Beta Expansion â€” à¹à¸œà¸™à¸‚à¸¢à¸²à¸¢à¸Ÿà¸µà¹€à¸ˆà¸­à¸£à¹Œà¸«à¸¥à¸±à¸‡ MVP</span>
                 <div class="phase-header-progress">
                   <div class="phase-mini-bar">
                     <div class="phase-mini-fill" id="p4-mini-fill"></div>
@@ -2558,14 +2662,14 @@
                 <i class="ti ti-chevron-down phase-chevron" id="p4-ch"></i>
               </div>
               <div class="phase-body" id="p4-body">
-                <p class="phase-desc">แนวคิดฟีเจอร์ในอนาคตที่อยู่นอกขอบเขตของระบบ MVP
-                  โดยมีข้อจำกัดและต้องการความพร้อมด้านเทคนิคเพิ่มเติม</p>
+                <p class="phase-desc">à¹à¸™à¸§à¸„à¸´à¸”à¸Ÿà¸µà¹€à¸ˆà¸­à¸£à¹Œà¹ƒà¸™à¸­à¸™à¸²à¸„à¸•à¸—à¸µà¹ˆà¸­à¸¢à¸¹à¹ˆà¸™à¸­à¸à¸‚à¸­à¸šà¹€à¸‚à¸•à¸‚à¸­à¸‡à¸£à¸°à¸šà¸š MVP
+                  à¹‚à¸”à¸¢à¸¡à¸µà¸‚à¹‰à¸­à¸ˆà¸³à¸à¸±à¸”à¹à¸¥à¸°à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸„à¸§à¸²à¸¡à¸žà¸£à¹‰à¸­à¸¡à¸”à¹‰à¸²à¸™à¹€à¸—à¸„à¸™à¸´à¸„à¹€à¸žà¸´à¹ˆà¸¡à¹€à¸•à¸´à¸¡</p>
                 <div class="sprint-grid">
                   <div class="sprint">
                     <div class="sprint-header">
                       <div class="sprint-identity">
                         <span class="sprint-tag nsm">Backlog</span>
-                        <span class="sprint-name">รอการประเมิน Demand และความเป็นไปได้</span>
+                        <span class="sprint-name">à¸£à¸­à¸à¸²à¸£à¸›à¸£à¸°à¹€à¸¡à¸´à¸™ Demand à¹à¸¥à¸°à¸„à¸§à¸²à¸¡à¹€à¸›à¹‡à¸™à¹„à¸›à¹„à¸”à¹‰</span>
                       </div>
                       <div class="sprint-meta">
                         <span class="sprint-percent" id="p4-backlog-percent">0%</span>
@@ -2589,7 +2693,7 @@
                           </label>
                         </div>
                         <span class="task-text truncate flex-1 min-w-0">Hotspot / Local WebSocket
-                          (ซิงค์ตรงโดยไม่พึ่งอินเทอร์เน็ต)</span>
+                          (à¸‹à¸´à¸‡à¸„à¹Œà¸•à¸£à¸‡à¹‚à¸”à¸¢à¹„à¸¡à¹ˆà¸žà¸¶à¹ˆà¸‡à¸­à¸´à¸™à¹€à¸—à¸­à¸£à¹Œà¹€à¸™à¹‡à¸•)</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p4-task-1" name="assist-select-p4-task-1"
@@ -2621,7 +2725,7 @@
                           </label>
                         </div>
                         <span class="task-text truncate flex-1 min-w-0">Intercom voice chat
-                          สนทนาเสียงแบบสายตรงในแอป</span>
+                          à¸ªà¸™à¸—à¸™à¸²à¹€à¸ªà¸µà¸¢à¸‡à¹à¸šà¸šà¸ªà¸²à¸¢à¸•à¸£à¸‡à¹ƒà¸™à¹à¸­à¸›</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p4-task-2" name="assist-select-p4-task-2"
@@ -2653,7 +2757,7 @@
                           </label>
                         </div>
                         <span class="task-text truncate flex-1 min-w-0">Convoy GPS tracking
-                          ติดตามแผนที่ของเพื่อนร่วมคาราวาน</span>
+                          à¸•à¸´à¸”à¸•à¸²à¸¡à¹à¸œà¸™à¸—à¸µà¹ˆà¸‚à¸­à¸‡à¹€à¸žà¸·à¹ˆà¸­à¸™à¸£à¹ˆà¸§à¸¡à¸„à¸²à¸£à¸²à¸§à¸²à¸™</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p4-task-3" name="assist-select-p4-task-3"
@@ -2684,7 +2788,7 @@
                             <span>Code</span>
                           </label>
                         </div>
-                        <span class="task-text truncate flex-1 min-w-0">Voice command สั่งงานระบบคิวเพลงด้วยเสียง</span>
+                        <span class="task-text truncate flex-1 min-w-0">Voice command à¸ªà¸±à¹ˆà¸‡à¸‡à¸²à¸™à¸£à¸°à¸šà¸šà¸„à¸´à¸§à¹€à¸žà¸¥à¸‡à¸”à¹‰à¸§à¸¢à¹€à¸ªà¸µà¸¢à¸‡</span>
                         <div class="shrink-0 flex items-center gap-1.5" onclick="event.stopPropagation()">
                           <span class="text-[9px] text-text-tertiary">Assist:</span>
                           <select id="assist-select-p4-task-4" name="assist-select-p4-task-4"
@@ -2736,7 +2840,7 @@
               <div class="line-code" id="lc-5"><span class="text-gray-500 mr-2.5 select-none">5</span>}</div>
             </div>
             <div class="p-3 border-t border-border bg-bg-primary text-[10px] text-text-tertiary shrink-0">
-              คลิก <strong>Test Run</strong> เพื่อจำลองการวิเคราะห์ไวยากรณ์ (AST Traversal)
+              à¸„à¸¥à¸´à¸ <strong>Test Run</strong> à¹€à¸žà¸·à¹ˆà¸­à¸ˆà¸³à¸¥à¸­à¸‡à¸à¸²à¸£à¸§à¸´à¹€à¸„à¸£à¸²à¸°à¸«à¹Œà¹„à¸§à¸¢à¸²à¸à¸£à¸“à¹Œ (AST Traversal)
             </div>
           </div>
 
@@ -3422,7 +3526,7 @@
                 <div class="space-y-3">
                   <textarea id="vector-query-input" name="vector-query-input" aria-label="Semantic Query Input"
                     class="w-full h-20 bg-bg-secondary border border-border rounded-lg p-2.5 text-xs text-text-primary focus:border-accent outline-none resize-none"
-                    placeholder="ป้อนคำถาม เช่น 'memory alignment policy' หรือ 'AST traversal'"></textarea>
+                    placeholder="à¸›à¹‰à¸­à¸™à¸„à¸³à¸–à¸²à¸¡ à¹€à¸Šà¹ˆà¸™ 'memory alignment policy' à¸«à¸£à¸·à¸­ 'AST traversal'"></textarea>
                   <button onclick="runVectorSearch()"
                     class="w-full py-2 rounded-lg bg-accent text-bg-primary text-xs font-bold shadow-[0_0_15px_rgba(120,244,191,0.2)] hover:bg-[#9ef7d3] transition flex items-center justify-center gap-1.5">
                     <i class="ti ti-sparkles"></i> Search Vector Store
@@ -3438,9 +3542,9 @@
                 <div class="space-y-3">
                   <textarea id="vector-ingest-text" name="vector-ingest-text" aria-label="New Memory Content"
                     class="w-full h-16 bg-bg-secondary border border-border rounded-lg p-2 text-xs text-text-primary focus:border-accent outline-none resize-none"
-                    placeholder="เนื้อหาความจำ เช่น 'ADR-012: HNSW replaces brute-force at scale'"></textarea>
+                    placeholder="à¹€à¸™à¸·à¹‰à¸­à¸«à¸²à¸„à¸§à¸²à¸¡à¸ˆà¸³ à¹€à¸Šà¹ˆà¸™ 'ADR-012: HNSW replaces brute-force at scale'"></textarea>
                   <input id="vector-ingest-source" name="vector-ingest-source" aria-label="New Memory Source File"
-                    type="text" placeholder="แหล่งที่มา (เช่น adr-012.md)"
+                    type="text" placeholder="à¹à¸«à¸¥à¹ˆà¸‡à¸—à¸µà¹ˆà¸¡à¸² (à¹€à¸Šà¹ˆà¸™ adr-012.md)"
                     class="w-full bg-bg-secondary border border-border rounded-lg p-1.5 text-[10px] text-text-primary focus:border-accent outline-none font-mono">
                   <button onclick="ingestVectorDoc()"
                     class="w-full py-1.5 rounded-lg bg-bg-tertiary border border-border hover:border-accent hover:text-accent transition text-xs font-bold flex items-center justify-center gap-1.5">
@@ -3485,7 +3589,7 @@
                     class="hnsw-layer-plane relative border-t border-dashed border-indigo-500/10 h-1/4 flex items-center justify-center">
                     <span
                       class="absolute left-4 top-2 text-[8px] font-mono text-indigo-400/50 uppercase tracking-widest font-bold">Layer
-                      2 — Express Skip Lane</span>
+                      2 â€” Express Skip Lane</span>
                     <div class="absolute inset-0 flex items-center justify-around px-20" id="hnsw-nodes-layer-2">
                       <!-- Layer 2 nodes -->
                     </div>
@@ -3496,7 +3600,7 @@
                     class="hnsw-layer-plane relative border-t border-dashed border-purple-500/10 h-1/4 flex items-center justify-center">
                     <span
                       class="absolute left-4 top-2 text-[8px] font-mono text-purple-400/50 uppercase tracking-widest font-bold">Layer
-                      1 — Sub-Express Lane</span>
+                      1 â€” Sub-Express Lane</span>
                     <div class="absolute inset-0 flex items-center justify-around px-12" id="hnsw-nodes-layer-1">
                       <!-- Layer 1 nodes -->
                     </div>
@@ -3507,7 +3611,7 @@
                     class="hnsw-layer-plane relative border-t border-dashed border-emerald-500/10 h-2/5 flex items-center justify-center">
                     <span
                       class="absolute left-4 top-2 text-[8px] font-mono text-emerald-400/50 uppercase tracking-widest font-bold">Layer
-                      0 — Base Document Lane (Nearest Neighbors)</span>
+                      0 â€” Base Document Lane (Nearest Neighbors)</span>
                     <div class="absolute inset-0 flex items-center justify-around px-8" id="hnsw-nodes-layer-0">
                       <!-- Layer 0 nodes -->
                     </div>
@@ -3567,7 +3671,7 @@
 
               <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-3" id="vector-results-container">
                 <div class="text-center py-8 text-text-tertiary italic text-xs">
-                  กรอกคำค้นหาและกดปุ่มสืบค้นข้อมูลเวกเตอร์
+                  à¸à¸£à¸­à¸à¸„à¸³à¸„à¹‰à¸™à¸«à¸²à¹à¸¥à¸°à¸à¸”à¸›à¸¸à¹ˆà¸¡à¸ªà¸·à¸šà¸„à¹‰à¸™à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹€à¸§à¸à¹€à¸•à¸­à¸£à¹Œ
                 </div>
               </div>
             </aside>
@@ -3594,7 +3698,7 @@
                     </span>
                   </div>
                   <div class="text-sm font-bold tracking-tight text-white leading-tight">Audio Player with Oscilloscope</div>
-                  <p class="text-[10px] text-orange-400 mt-1 font-mono">ทดสอบการควบคุม Web Audio API</p>
+                  <p class="text-[10px] text-orange-400 mt-1 font-mono">à¸—à¸”à¸ªà¸­à¸šà¸à¸²à¸£à¸„à¸§à¸šà¸„à¸¸à¸¡ Web Audio API</p>
                 </div>
 
                 <!-- KPI-Card-02 : CHAMPION SPEED -->
@@ -3624,7 +3728,7 @@
                     <i class="ti ti-flag text-rose-500 text-sm"></i>
                   </div>
                   <div class="text-xl font-bold tracking-tight text-rose-400">3 Models</div>
-                  <p class="text-[10px] text-rose-500/80 mt-1 font-mono">เกิด TDR/Loop ทันทีบน VRAM 12GB</p>
+                  <p class="text-[10px] text-rose-500/80 mt-1 font-mono">à¹€à¸à¸´à¸” TDR/Loop à¸—à¸±à¸™à¸—à¸µà¸šà¸™ VRAM 12GB</p>
                 </div>
               </section>
 
@@ -3638,16 +3742,16 @@
                     <div>
                       <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
                         <i class="ti ti-cpu text-orange-400"></i>
-                        โครงสร้างคอมโพเนนต์เสียงของ AI
+                        à¹‚à¸„à¸£à¸‡à¸ªà¸£à¹‰à¸²à¸‡à¸„à¸­à¸¡à¹‚à¸žà¹€à¸™à¸™à¸•à¹Œà¹€à¸ªà¸µà¸¢à¸‡à¸‚à¸­à¸‡ AI
                       </h3>
                       <p class="text-[10px] text-text-secondary mt-1 leading-normal">
-                        คลิกเลือกโมเดลด้านล่างเพื่อสับเปลี่ยนตรรกะเสียงจำลองและการเรนเดอร์กราฟิก
+                        à¸„à¸¥à¸´à¸à¹€à¸¥à¸·à¸­à¸à¹‚à¸¡à¹€à¸”à¸¥à¸”à¹‰à¸²à¸™à¸¥à¹ˆà¸²à¸‡à¹€à¸žà¸·à¹ˆà¸­à¸ªà¸±à¸šà¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¸•à¸£à¸£à¸à¸°à¹€à¸ªà¸µà¸¢à¸‡à¸ˆà¸³à¸¥à¸­à¸‡à¹à¸¥à¸°à¸à¸²à¸£à¹€à¸£à¸™à¹€à¸”à¸­à¸£à¹Œà¸à¸£à¸²à¸Ÿà¸´à¸
                       </p>
                     </div>
 
                     <!-- Model Button List -->
                     <div class="space-y-2" id="model-buttons-container">
-                      <!-- ปุ่มจะได้รับการเรนเดอร์ผ่าน JS -->
+                      <!-- à¸›à¸¸à¹ˆà¸¡à¸ˆà¸°à¹„à¸”à¹‰à¸£à¸±à¸šà¸à¸²à¸£à¹€à¸£à¸™à¹€à¸”à¸­à¸£à¹Œà¸œà¹ˆà¸²à¸™ JS -->
                     </div>
                   </div>
                 </div>
@@ -3668,11 +3772,11 @@
                     <div class="flex bg-bg-secondary p-0.5 rounded-lg border border-border">
                       <button onclick="togglePreviewMode(false)" id="btn-mode-sandbox"
                         class="px-2.5 py-1 rounded text-[9.5px] font-bold font-mono transition bg-orange-500 text-slate-950 shadow-sm">
-                        ⚡ Live Sandbox
+                        âš¡ Live Sandbox
                       </button>
                       <button onclick="togglePreviewMode(true)" id="btn-mode-code"
                         class="px-2.5 py-1 rounded text-[9.5px] font-bold font-mono transition text-text-secondary hover:text-white">
-                        💻 AI Source Code
+                        ðŸ’» AI Source Code
                       </button>
                     </div>
                   </div>
@@ -3685,7 +3789,7 @@
                       <div class="flex items-center justify-between text-[10px] font-mono text-text-secondary bg-bg-primary/60 px-3 py-1.5 rounded border border-border/40">
                         <span class="flex items-center gap-1.5">
                           <i class="ti ti-code text-orange-400"></i>
-                          โค้ดผลลัพธ์จาก: <span id="code-model-title" class="text-orange-400 ml-1 font-bold">---</span>
+                          à¹‚à¸„à¹‰à¸”à¸œà¸¥à¸¥à¸±à¸žà¸˜à¹Œà¸ˆà¸²à¸: <span id="code-model-title" class="text-orange-400 ml-1 font-bold">---</span>
                         </span>
                         <span id="code-model-speed" class="font-bold text-white">--- t/s</span>
                       </div>
@@ -3696,7 +3800,7 @@
                         <button onclick="copyCurrentCode()"
                           class="bg-bg-tertiary hover:bg-white/5 border border-border text-white px-3 py-1.5 rounded-lg text-[10.5px] font-mono transition inline-flex items-center gap-1.5">
                           <i class="ti ti-copy"></i>
-                          คัดลอกโค้ดไปรัน (Copy)
+                          à¸„à¸±à¸”à¸¥à¸­à¸à¹‚à¸„à¹‰à¸”à¹„à¸›à¸£à¸±à¸™ (Copy)
                         </button>
                       </div>
                     </div>
@@ -3727,9 +3831,9 @@
                           <div class="w-10 h-10 bg-orange-500/10 rounded-full border border-orange-500/20 flex items-center justify-center text-orange-400 mb-2 animate-bounce">
                             <i class="ti ti-player-play text-lg"></i>
                           </div>
-                          <h5 class="text-xs font-bold text-white">พร้อมจำลองสัญญาณเครื่องดนตรีและออสซิลโลสโคป</h5>
+                          <h5 class="text-xs font-bold text-white">à¸žà¸£à¹‰à¸­à¸¡à¸ˆà¸³à¸¥à¸­à¸‡à¸ªà¸±à¸à¸à¸²à¸“à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡à¸”à¸™à¸•à¸£à¸µà¹à¸¥à¸°à¸­à¸­à¸ªà¸‹à¸´à¸¥à¹‚à¸¥à¸ªà¹‚à¸„à¸›</h5>
                           <p class="text-[9.5px] text-text-tertiary max-w-xs mt-1 leading-normal">
-                            กดปุ่ม 'Play / จำลองเสียง' ด้านล่างเพื่อกำเนิดสัญญาณความถี่จำลองแบบเรียลไทม์ และตรวจวัดความเร็ว
+                            à¸à¸”à¸›à¸¸à¹ˆà¸¡ 'Play / à¸ˆà¸³à¸¥à¸­à¸‡à¹€à¸ªà¸µà¸¢à¸‡' à¸”à¹‰à¸²à¸™à¸¥à¹ˆà¸²à¸‡à¹€à¸žà¸·à¹ˆà¸­à¸à¸³à¹€à¸™à¸´à¸”à¸ªà¸±à¸à¸à¸²à¸“à¸„à¸§à¸²à¸¡à¸–à¸µà¹ˆà¸ˆà¸³à¸¥à¸­à¸‡à¹à¸šà¸šà¹€à¸£à¸µà¸¢à¸¥à¹„à¸—à¸¡à¹Œ à¹à¸¥à¸°à¸•à¸£à¸§à¸ˆà¸§à¸±à¸”à¸„à¸§à¸²à¸¡à¹€à¸£à¹‡à¸§
                           </p>
                         </div>
                       </div>
@@ -3741,7 +3845,7 @@
                           <button onclick="toggleAudioPlayback()" id="btn-audio-playback"
                             class="w-full sm:w-auto px-4 py-2 rounded-lg text-[10.5px] font-bold bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow-lg shadow-orange-500/10 transition flex items-center justify-center gap-1.5">
                             <i id="playback-btn-icon" class="ti ti-player-play"></i>
-                            <span id="playback-btn-text">Play / จำลองเสียง</span>
+                            <span id="playback-btn-text">Play / à¸ˆà¸³à¸¥à¸­à¸‡à¹€à¸ªà¸µà¸¢à¸‡</span>
                           </button>
                           <span id="audio-waveform-label" class="text-[9.5px] font-mono text-text-tertiary hidden sm:inline">Sine Sound</span>
                         </div>
@@ -3773,7 +3877,7 @@
                   <div class="bg-bg-primary/40 border border-border rounded-xl p-4 space-y-4">
                     <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
                       <i class="ti ti-activity text-orange-400"></i>
-                      Telemetry / ตรวจสอบฮาร์ดแวร์จำลอง
+                      Telemetry / à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸šà¸®à¸²à¸£à¹Œà¸”à¹à¸§à¸£à¹Œà¸ˆà¸³à¸¥à¸­à¸‡
                     </h3>
 
                     <!-- VRAM Progress Bar -->
@@ -3786,8 +3890,8 @@
                         <div id="vram-load-bar" class="h-full bg-orange-400 rounded-full transition-all duration-300" style="width: 5%"></div>
                       </div>
                       <div class="flex justify-between text-[8px] font-mono text-text-tertiary">
-                        <span>ขีดจำกัดเสถียร: 11.2GB (Qwen 3)</span>
-                        <span id="vram-capacity-text">ความจุตามรุ่น AI</span>
+                        <span>à¸‚à¸µà¸”à¸ˆà¸³à¸à¸±à¸”à¹€à¸ªà¸–à¸µà¸¢à¸£: 11.2GB (Qwen 3)</span>
+                        <span id="vram-capacity-text">à¸„à¸§à¸²à¸¡à¸ˆà¸¸à¸•à¸²à¸¡à¸£à¸¸à¹ˆà¸™ AI</span>
                       </div>
                     </div>
 
@@ -3795,7 +3899,7 @@
                     <div class="grid grid-cols-2 gap-2.5 pt-1">
                       <div class="bg-bg-primary/80 p-2.5 rounded-lg border border-border">
                         <span class="text-[8px] font-mono text-text-tertiary block uppercase">GPU Temp</span>
-                        <span id="gpu-temp-text" class="text-sm font-extrabold font-mono text-amber-400">38°C</span>
+                        <span id="gpu-temp-text" class="text-sm font-extrabold font-mono text-amber-400">38Â°C</span>
                       </div>
                       <div class="bg-bg-primary/80 p-2.5 rounded-lg border border-border">
                         <span class="text-[8px] font-mono text-text-tertiary block uppercase">Clock Adjust</span>
@@ -3803,11 +3907,11 @@
                       </div>
                     </div>
 
-                    <!-- Safety Warning Badge (สำหรับ Qwen 3) -->
+                    <!-- Safety Warning Badge (à¸ªà¸³à¸«à¸£à¸±à¸š Qwen 3) -->
                     <div id="safety-warning-box" class="hidden bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-lg flex gap-2 items-start">
                       <i class="ti ti-alert-triangle text-amber-400 shrink-0 mt-0.5 text-xs"></i>
                       <p class="text-[9.5px] text-amber-300 leading-normal">
-                        แจ้งเตือนความปลอดภัย (Qwen 3 - 14B): โมเดลขนาดใหญ่อาจเกิด TDR/ไดรเวอร์การ์ดจอดับ หาก Context พุ่งเกิน 8K แนะนำให้จำกัด Context Layer
+                        à¹à¸ˆà¹‰à¸‡à¹€à¸•à¸·à¸­à¸™à¸„à¸§à¸²à¸¡à¸›à¸¥à¸­à¸”à¸ à¸±à¸¢ (Qwen 3 - 14B): à¹‚à¸¡à¹€à¸”à¸¥à¸‚à¸™à¸²à¸”à¹ƒà¸«à¸à¹ˆà¸­à¸²à¸ˆà¹€à¸à¸´à¸” TDR/à¹„à¸”à¸£à¹€à¸§à¸­à¸£à¹Œà¸à¸²à¸£à¹Œà¸”à¸ˆà¸­à¸”à¸±à¸š à¸«à¸²à¸ Context à¸žà¸¸à¹ˆà¸‡à¹€à¸à¸´à¸™ 8K à¹à¸™à¸°à¸™à¸³à¹ƒà¸«à¹‰à¸ˆà¸³à¸à¸±à¸” Context Layer
                       </p>
                     </div>
                   </div>
@@ -3837,9 +3941,9 @@
                       <div>
                         <h2 class="text-sm font-bold text-white flex items-center gap-1.5">
                           <i class="ti ti-award text-amber-400"></i>
-                          The Champions of CoVibe (ทำเนียบสุดยอดโมเดล)
+                          The Champions of CoVibe (à¸—à¸³à¹€à¸™à¸µà¸¢à¸šà¸ªà¸¸à¸”à¸¢à¸­à¸”à¹‚à¸¡à¹€à¸”à¸¥)
                         </h2>
-                        <p class="text-[10px] text-text-secondary">วัดผลความแม่นยำและการประมวลผลบนฮาร์ดแวร์ RTX 3060 (12GB)</p>
+                        <p class="text-[10px] text-text-secondary">à¸§à¸±à¸”à¸œà¸¥à¸„à¸§à¸²à¸¡à¹à¸¡à¹ˆà¸™à¸¢à¸³à¹à¸¥à¸°à¸à¸²à¸£à¸›à¸£à¸°à¸¡à¸§à¸¥à¸œà¸¥à¸šà¸™à¸®à¸²à¸£à¹Œà¸”à¹à¸§à¸£à¹Œ RTX 3060 (12GB)</p>
                       </div>
                       <span class="text-[9px] font-mono bg-bg-primary border border-border text-text-secondary px-2 py-0.5 rounded">Safe-Tuned Active</span>
                     </div>
@@ -3850,7 +3954,7 @@
 
                   <!-- Bar Speed Chart -->
                   <div class="bg-bg-primary/40 border border-border rounded-xl p-4 sm:p-5">
-                    <h3 class="text-xs font-bold text-slate-200 mb-3.5">เปรียบเทียบความเร็วโทเค็น (Tokens per Second)</h3>
+                    <h3 class="text-xs font-bold text-slate-200 mb-3.5">à¹€à¸›à¸£à¸µà¸¢à¸šà¹€à¸—à¸µà¸¢à¸šà¸„à¸§à¸²à¸¡à¹€à¸£à¹‡à¸§à¹‚à¸—à¹€à¸„à¹‡à¸™ (Tokens per Second)</h3>
                     <div class="space-y-3.5" id="speed-bars-container"></div>
                   </div>
                 </div>
@@ -3869,7 +3973,7 @@
                       </div>
                       <div>
                         <h3 class="text-xs font-bold text-white">Safe Mode Tuning Settings</h3>
-                        <p class="text-[9.5px] text-amber-400">จำกัดขีดจำกัดพลังงานการทำงานเพื่อรักษาเสถียรภาพ</p>
+                        <p class="text-[9.5px] text-amber-400">à¸ˆà¸³à¸à¸±à¸”à¸‚à¸µà¸”à¸ˆà¸³à¸à¸±à¸”à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸à¸²à¸£à¸—à¸³à¸‡à¸²à¸™à¹€à¸žà¸·à¹ˆà¸­à¸£à¸±à¸à¸©à¸²à¹€à¸ªà¸–à¸µà¸¢à¸£à¸ à¸²à¸ž</p>
                       </div>
                     </div>
 
@@ -3893,7 +3997,7 @@
                     </div>
 
                     <p class="text-[9px] text-text-tertiary mt-3 leading-relaxed">
-                      * ผลพวงหลังจากการวิเคราะห์หาสาเหตุหลัก (RCA) ได้ทำการปรับลดความเร็ว Core เพื่อหลีกเลี่ยงพลังงานกระชากจอดำ
+                      * à¸œà¸¥à¸žà¸§à¸‡à¸«à¸¥à¸±à¸‡à¸ˆà¸²à¸à¸à¸²à¸£à¸§à¸´à¹€à¸„à¸£à¸²à¸°à¸«à¹Œà¸«à¸²à¸ªà¸²à¹€à¸«à¸•à¸¸à¸«à¸¥à¸±à¸ (RCA) à¹„à¸”à¹‰à¸—à¸³à¸à¸²à¸£à¸›à¸£à¸±à¸šà¸¥à¸”à¸„à¸§à¸²à¸¡à¹€à¸£à¹‡à¸§ Core à¹€à¸žà¸·à¹ˆà¸­à¸«à¸¥à¸µà¸à¹€à¸¥à¸µà¹ˆà¸¢à¸‡à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸à¸£à¸°à¸Šà¸²à¸à¸ˆà¸­à¸”à¸³
                     </p>
                   </div>
 
@@ -3901,10 +4005,10 @@
                   <div class="bg-bg-primary/40 border border-border rounded-xl p-4 sm:p-5">
                     <div class="flex items-center space-x-1.5 mb-3.5">
                       <i class="ti ti-circle-x text-rose-500 text-sm"></i>
-                      <h3 class="text-xs font-bold text-slate-100">Failed Models (โมเดลที่ยกเลิก)</h3>
+                      <h3 class="text-xs font-bold text-slate-100">Failed Models (à¹‚à¸¡à¹€à¸”à¸¥à¸—à¸µà¹ˆà¸¢à¸à¹€à¸¥à¸´à¸)</h3>
                     </div>
 
-                    <p class="text-[10px] text-text-secondary mb-3.5">รายชื่อโมเดลที่ไม่เสถียรและก่อความเสียหายให้แก่ไดรเวอร์การ์ดจอจากการรัน 12GB VRAM</p>
+                    <p class="text-[10px] text-text-secondary mb-3.5">à¸£à¸²à¸¢à¸Šà¸·à¹ˆà¸­à¹‚à¸¡à¹€à¸”à¸¥à¸—à¸µà¹ˆà¹„à¸¡à¹ˆà¹€à¸ªà¸–à¸µà¸¢à¸£à¹à¸¥à¸°à¸à¹ˆà¸­à¸„à¸§à¸²à¸¡à¹€à¸ªà¸µà¸¢à¸«à¸²à¸¢à¹ƒà¸«à¹‰à¹à¸à¹ˆà¹„à¸”à¸£à¹€à¸§à¸­à¸£à¹Œà¸à¸²à¸£à¹Œà¸”à¸ˆà¸­à¸ˆà¸²à¸à¸à¸²à¸£à¸£à¸±à¸™ 12GB VRAM</p>
                     <div class="space-y-2.5" id="failed-models-container"></div>
                   </div>
                 </div>
@@ -3919,7 +4023,7 @@
                     <h2 class="text-sm font-bold text-white">Hardware Telemetry Analytics (EABS-01 Trace)</h2>
                   </div>
                   <p class="text-[10px] text-text-secondary max-w-3xl">
-                    วิเคราะห์ข้อมูลฮาร์ดแวร์จริงจากการรัน Benchmark ของโมเดลที่เลือก แสดงกราฟ Power Draw และ Temperature เพื่อตรวจสอบความเสถียรภายใต้ EABS-01 standard
+                    à¸§à¸´à¹€à¸„à¸£à¸²à¸°à¸«à¹Œà¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸®à¸²à¸£à¹Œà¸”à¹à¸§à¸£à¹Œà¸ˆà¸£à¸´à¸‡à¸ˆà¸²à¸à¸à¸²à¸£à¸£à¸±à¸™ Benchmark à¸‚à¸­à¸‡à¹‚à¸¡à¹€à¸”à¸¥à¸—à¸µà¹ˆà¹€à¸¥à¸·à¸­à¸ à¹à¸ªà¸”à¸‡à¸à¸£à¸²à¸Ÿ Power Draw à¹à¸¥à¸° Temperature à¹€à¸žà¸·à¹ˆà¸­à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸šà¸„à¸§à¸²à¸¡à¹€à¸ªà¸–à¸µà¸¢à¸£à¸ à¸²à¸¢à¹ƒà¸•à¹‰ EABS-01 standard
                   </p>
                 </div>
 
@@ -3929,7 +4033,7 @@
                       <h3 class="text-xs font-bold text-slate-200">GPU Performance Trace (Power & Temp)</h3>
                       <div class="flex gap-2">
                         <span class="text-[9px] font-mono text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded">Power (W)</span>
-                        <span class="text-[9px] font-mono text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded">Temp (°C)</span>
+                        <span class="text-[9px] font-mono text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded">Temp (Â°C)</span>
                         <span class="text-[9px] font-mono text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded">VRAM (MB)</span>
                       </div>
                     </div>
@@ -3945,10 +4049,10 @@
                 <div class="bg-bg-primary/40 border border-border rounded-xl p-4 sm:p-5">
                   <div class="flex items-center space-x-1.5 mb-1.5">
                     <i class="ti ti-users-minus text-orange-400"></i>
-                    <h2 class="text-sm font-bold text-white">ฝึกอบรม & พัฒนาโมเดล (Model Training & Fine-Tuning)</h2>
+                    <h2 class="text-sm font-bold text-white">à¸à¸¶à¸à¸­à¸šà¸£à¸¡ & à¸žà¸±à¸’à¸™à¸²à¹‚à¸¡à¹€à¸”à¸¥ (Model Training & Fine-Tuning)</h2>
                   </div>
                   <p class="text-[10px] text-text-secondary max-w-3xl">
-                    ระบบจัดการจำลองการฝึกอบรม (SFT/LoRA Fine-Tuning) และตรวจสอบสถานะ Loss / GPU Metrics ขณะปรับแต่งโมเดล CoVibe
+                    à¸£à¸°à¸šà¸šà¸ˆà¸±à¸”à¸à¸²à¸£à¸ˆà¸³à¸¥à¸­à¸‡à¸à¸²à¸£à¸à¸¶à¸à¸­à¸šà¸£à¸¡ (SFT/LoRA Fine-Tuning) à¹à¸¥à¸°à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸šà¸ªà¸–à¸²à¸™à¸° Loss / GPU Metrics à¸‚à¸“à¸°à¸›à¸£à¸±à¸šà¹à¸•à¹ˆà¸‡à¹‚à¸¡à¹€à¸”à¸¥ CoVibe
                   </p>
                 </div>
 
@@ -3976,7 +4080,7 @@
 
                     <!-- Hyperparameters Table -->
                     <div class="bg-bg-primary/40 border border-border rounded-xl p-4 sm:p-5">
-                      <h3 class="text-xs font-bold text-slate-300 mb-3">พารามิเตอร์การฝึกอบรม (Hyperparameters)</h3>
+                      <h3 class="text-xs font-bold text-slate-300 mb-3">à¸žà¸²à¸£à¸²à¸¡à¸´à¹€à¸•à¸­à¸£à¹Œà¸à¸²à¸£à¸à¸¶à¸à¸­à¸šà¸£à¸¡ (Hyperparameters)</h3>
                       <div class="overflow-x-auto">
                         <table class="w-full text-left text-[11px] font-mono text-slate-300">
                           <thead>
@@ -3990,22 +4094,22 @@
                             <tr>
                               <td class="py-2 font-bold text-orange-400">LoRA Rank (r)</td>
                               <td class="py-2">16</td>
-                              <td class="py-2 text-text-secondary leading-normal">มิติการปรับลดของ Low-Rank Adapter สำหรับโมเดลภาษา</td>
+                              <td class="py-2 text-text-secondary leading-normal">à¸¡à¸´à¸•à¸´à¸à¸²à¸£à¸›à¸£à¸±à¸šà¸¥à¸”à¸‚à¸­à¸‡ Low-Rank Adapter à¸ªà¸³à¸«à¸£à¸±à¸šà¹‚à¸¡à¹€à¸”à¸¥à¸ à¸²à¸©à¸²</td>
                             </tr>
                             <tr>
                               <td class="py-2 font-bold text-orange-400">LoRA Alpha</td>
                               <td class="py-2">32</td>
-                              <td class="py-2 text-text-secondary leading-normal">Scaling factor สำหรับ LoRA Adapter weights</td>
+                              <td class="py-2 text-text-secondary leading-normal">Scaling factor à¸ªà¸³à¸«à¸£à¸±à¸š LoRA Adapter weights</td>
                             </tr>
                             <tr>
                               <td class="py-2 font-bold text-orange-400">Batch Size</td>
                               <td class="py-2">4 (Micro) / 32 (Global)</td>
-                              <td class="py-2 text-text-secondary leading-normal">จำนวนตัวอย่างข้อมูลที่ป้อนเข้ารุ่นในแต่ละรอบย่อย</td>
+                              <td class="py-2 text-text-secondary leading-normal">à¸ˆà¸³à¸™à¸§à¸™à¸•à¸±à¸§à¸­à¸¢à¹ˆà¸²à¸‡à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸—à¸µà¹ˆà¸›à¹‰à¸­à¸™à¹€à¸‚à¹‰à¸²à¸£à¸¸à¹ˆà¸™à¹ƒà¸™à¹à¸•à¹ˆà¸¥à¸°à¸£à¸­à¸šà¸¢à¹ˆà¸­à¸¢</td>
                             </tr>
                             <tr>
                               <td class="py-2 font-bold text-orange-400">Sequence Length</td>
                               <td class="py-2">2,048 Tokens</td>
-                              <td class="py-2 text-text-secondary leading-normal">ขนาดหน้าต่าง Context สูงสุดสำหรับการคำนวณ Loss</td>
+                              <td class="py-2 text-text-secondary leading-normal">à¸‚à¸™à¸²à¸”à¸«à¸™à¹‰à¸²à¸•à¹ˆà¸²à¸‡ Context à¸ªà¸¹à¸‡à¸ªà¸¸à¸”à¸ªà¸³à¸«à¸£à¸±à¸šà¸à¸²à¸£à¸„à¸³à¸™à¸§à¸“ Loss</td>
                             </tr>
                           </tbody>
                         </table>
@@ -4016,7 +4120,7 @@
                   <!-- GPU Allocations / Resource Status -->
                   <div class="space-y-6">
                     <div class="bg-bg-primary/40 border border-border rounded-xl p-4 sm:p-5">
-                      <h3 class="text-xs font-bold text-slate-300 mb-3">การจัดสรร GPU และหน่วยความจำ (Allocation)</h3>
+                      <h3 class="text-xs font-bold text-slate-300 mb-3">à¸à¸²à¸£à¸ˆà¸±à¸”à¸ªà¸£à¸£ GPU à¹à¸¥à¸°à¸«à¸™à¹ˆà¸§à¸¢à¸„à¸§à¸²à¸¡à¸ˆà¸³ (Allocation)</h3>
                       <div class="space-y-3.5">
                         <div class="space-y-1">
                           <div class="flex justify-between text-[10px] font-mono">
@@ -4037,7 +4141,7 @@
                           </div>
                         </div>
                         <div class="border-t border-border/40 pt-3 text-[10px] text-text-secondary leading-relaxed font-mono">
-                          ⚡ <span class="text-amber-400 font-bold">TDR Warning Guard</span>: ตรวจจับ GPU Temp ที่ 68°C และจำกัดพลังงานไว้ที่ 90% เพื่อความปลอดภัยของระบบ
+                          âš¡ <span class="text-amber-400 font-bold">TDR Warning Guard</span>: à¸•à¸£à¸§à¸ˆà¸ˆà¸±à¸š GPU Temp à¸—à¸µà¹ˆ 68Â°C à¹à¸¥à¸°à¸ˆà¸³à¸à¸±à¸”à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¹„à¸§à¹‰à¸—à¸µà¹ˆ 90% à¹€à¸žà¸·à¹ˆà¸­à¸„à¸§à¸²à¸¡à¸›à¸¥à¸­à¸”à¸ à¸±à¸¢à¸‚à¸­à¸‡à¸£à¸°à¸šà¸š
                         </div>
                       </div>
                     </div>
@@ -4154,7 +4258,7 @@
   </div> <!-- Close MAIN WRAPPER -->
 
   <!-- FAB Terminal Button -->
-  <button id="fab-terminal" class="fab-terminal-btn" onclick="toggleTerminal()" title="เปิด Terminal">
+  <button id="fab-terminal" class="fab-terminal-btn" onclick="toggleTerminal()" title="à¹€à¸›à¸´à¸” Terminal">
     <i class="ti ti-terminal"></i>
   </button>
 
@@ -4175,7 +4279,7 @@
       </div>
       <div class="flex items-center gap-2">
         <div class="flex items-center">
-          <label for="terminal-shell-selector" class="text-[9px] text-text-tertiary font-sans mr-1.5">เอเจนต์:</label>
+          <label for="terminal-shell-selector" class="text-[9px] text-text-tertiary font-sans mr-1.5">à¹€à¸­à¹€à¸ˆà¸™à¸•à¹Œ:</label>
           <select class="shell-select" id="terminal-shell-selector">
             <option value="gemini">Gemini CLI (Official)</option>
             <option value="system">System Shell (Raw Command)</option>
@@ -4197,7 +4301,7 @@
     <div
       class="p-2 lg:p-3 border-t border-border bg-[#06080a] flex items-center shrink-0 shadow-[0_-5px_15px_rgba(0,0,0,0.3)]">
       <span class="text-accent text-xs font-mono mr-2.5 font-bold">$</span>
-      <input type="text" id="terminal-input" placeholder="พิมพ์คำสั่งที่นี่ (เช่น npm run test)..."
+      <input type="text" id="terminal-input" placeholder="à¸žà¸´à¸¡à¸žà¹Œà¸„à¸³à¸ªà¸±à¹ˆà¸‡à¸—à¸µà¹ˆà¸™à¸µà¹ˆ (à¹€à¸Šà¹ˆà¸™ npm run test)..."
         class="flex-1 min-w-0 bg-transparent border-none text-[11px] font-mono text-text-primary focus:outline-none placeholder-text-tertiary"
         onkeypress="handleTerminalInput(event)">
     </div>
@@ -4360,7 +4464,7 @@
       toolbar.classList.add('hidden');
       toolbar.classList.remove('flex');
 
-      // Sidebar always visible — content switching handled by switchDomain()
+      // Sidebar always visible â€” content switching handled by switchDomain()
 
       if (view === 'roadmap') {
         roadmap.classList.remove('hidden');
@@ -4455,15 +4559,15 @@
         id: 'heretic',
         name: 'Heretic Thinking (12B)',
         status: 'FAILED',
-        reason: 'เกิดอาการลูปไม่สิ้นสุด (Severe infinite looping) และตอบคำถามเพ้อเจ้อ (Hallucination)',
-        rca: 'ตรรกะพังเมื่อเจอคำสั่งสเตตซับซ้อน ตัวโมเดลสูญเสีย Context แนะนำให้เลิกใช้ถาวร'
+        reason: 'à¹€à¸à¸´à¸”à¸­à¸²à¸à¸²à¸£à¸¥à¸¹à¸›à¹„à¸¡à¹ˆà¸ªà¸´à¹‰à¸™à¸ªà¸¸à¸” (Severe infinite looping) à¹à¸¥à¸°à¸•à¸­à¸šà¸„à¸³à¸–à¸²à¸¡à¹€à¸žà¹‰à¸­à¹€à¸ˆà¹‰à¸­ (Hallucination)',
+        rca: 'à¸•à¸£à¸£à¸à¸°à¸žà¸±à¸‡à¹€à¸¡à¸·à¹ˆà¸­à¹€à¸ˆà¸­à¸„à¸³à¸ªà¸±à¹ˆà¸‡à¸ªà¹€à¸•à¸•à¸‹à¸±à¸šà¸‹à¹‰à¸­à¸™ à¸•à¸±à¸§à¹‚à¸¡à¹€à¸”à¸¥à¸ªà¸¹à¸à¹€à¸ªà¸µà¸¢ Context à¹à¸™à¸°à¸™à¸³à¹ƒà¸«à¹‰à¹€à¸¥à¸´à¸à¹ƒà¸Šà¹‰à¸–à¸²à¸§à¸£'
       },
       {
         id: 'qwen3-raw',
         name: 'Official Qwen3 (14B - Non Safe)',
         status: 'CRASHED',
-        reason: 'เกิดปัญหาจอดำ / TDR Crash ทันทีเมื่อรันบน 12GB VRAM แบบไม่มีการจูน',
-        rca: 'การไม่ได้จำกัด Layer Offloading ส่งผลให้หน่วยความจำ VRAM ทะลักเกิน 12GB จนไดรเวอร์การ์ดจอรีเซ็ต'
+        reason: 'à¹€à¸à¸´à¸”à¸›à¸±à¸à¸«à¸²à¸ˆà¸­à¸”à¸³ / TDR Crash à¸—à¸±à¸™à¸—à¸µà¹€à¸¡à¸·à¹ˆà¸­à¸£à¸±à¸™à¸šà¸™ 12GB VRAM à¹à¸šà¸šà¹„à¸¡à¹ˆà¸¡à¸µà¸à¸²à¸£à¸ˆà¸¹à¸™',
+        rca: 'à¸à¸²à¸£à¹„à¸¡à¹ˆà¹„à¸”à¹‰à¸ˆà¸³à¸à¸±à¸” Layer Offloading à¸ªà¹ˆà¸‡à¸œà¸¥à¹ƒà¸«à¹‰à¸«à¸™à¹ˆà¸§à¸¢à¸„à¸§à¸²à¸¡à¸ˆà¸³ VRAM à¸—à¸°à¸¥à¸±à¸à¹€à¸à¸´à¸™ 12GB à¸ˆà¸™à¹„à¸”à¸£à¹€à¸§à¸­à¸£à¹Œà¸à¸²à¸£à¹Œà¸”à¸ˆà¸­à¸£à¸µà¹€à¸‹à¹‡à¸•'
       }
     ];
 
@@ -4568,7 +4672,7 @@
                         <td class="p-4 font-black ${statusColor}">${s.status}</td>
                         <td class="p-4 text-white">${s.mean_tps} t/s</td>
                         <td class="p-4 text-text-secondary">${(s.cv * 100).toFixed(2)}%</td>
-                        <td class="p-4 text-amber-400">${s.max_temp}°C</td>
+                        <td class="p-4 text-amber-400">${s.max_temp}Â°C</td>
                         <td class="p-4">
                             <span class="px-2 py-0.5 rounded bg-bg-primary border border-border text-[10px] text-text-tertiary">EABS-01 Verified</span>
                         </td>
@@ -4587,7 +4691,7 @@
                         <i class="ti ${summary.stats.L1_BASE.cv < 0.05 ? 'ti-circle-check-filled text-emerald-500' : 'ti-circle-x-filled text-rose-500'}"></i>
                     </div>
                     <div class="flex items-center justify-between text-[11px] font-mono">
-                        <span class="text-text-secondary">Temp < 75°C</span>
+                        <span class="text-text-secondary">Temp < 75Â°C</span>
                         <i class="ti ${summary.stats.L1_BASE.max_temp < 75 ? 'ti-circle-check-filled text-emerald-500' : 'ti-circle-x-filled text-rose-500'}"></i>
                     </div>
                 `;
@@ -4606,7 +4710,7 @@
         }
         const data = await response.json();
         
-        // กรองความถูกต้องของข้อมูลโมเดล (ตรวจสอบคีย์ที่ไม่ใช่โมเดลจริง)
+        // à¸à¸£à¸­à¸‡à¸„à¸§à¸²à¸¡à¸–à¸¹à¸à¸•à¹‰à¸­à¸‡à¸‚à¸­à¸‡à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹‚à¸¡à¹€à¸”à¸¥ (à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸šà¸„à¸µà¸¢à¹Œà¸—à¸µà¹ˆà¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¹‚à¸¡à¹€à¸”à¸¥à¸ˆà¸£à¸´à¸‡)
         const validModels = {};
         Object.keys(data).forEach(key => {
           const item = data[key];
@@ -4734,7 +4838,7 @@
       }
 
       const vramCapacity = document.getElementById('vram-capacity-text');
-      if (vramCapacity) vramCapacity.innerText = `หน่วยความจำติดตั้ง: ${model.vram}`;
+      if (vramCapacity) vramCapacity.innerText = `à¸«à¸™à¹ˆà¸§à¸¢à¸„à¸§à¸²à¸¡à¸ˆà¸³à¸•à¸´à¸”à¸•à¸±à¹‰à¸‡: ${model.vram}`;
       
       updateHardwareMetrics(5, model.tempMax);
     }
@@ -4773,7 +4877,7 @@
               yAxisID: 'y'
             },
             {
-              label: 'Temp (°C)',
+              label: 'Temp (Â°C)',
               data: tempData,
               borderColor: '#fb923c',
               backgroundColor: 'rgba(251, 146, 60, 0.05)',
@@ -4834,7 +4938,7 @@
       if (vramBar) vramBar.style.width = `${load}%`;
 
       const tempText = document.getElementById('gpu-temp-text');
-      if (tempText) tempText.innerText = `${temp}°C`;
+      if (tempText) tempText.innerText = `${temp}Â°C`;
     }
 
     function renderOverviewTab() {
@@ -4861,7 +4965,7 @@
               <p class="text-[11px] text-text-secondary leading-normal">${model.verdict}</p>
               <div class="flex flex-wrap items-center gap-4 text-[9px] font-mono text-text-tertiary pt-1">
                 <span>VRAM: ${model.vram}</span>
-                <span>Temp Max: ${model.tempMax}°C</span>
+                <span>Temp Max: ${model.tempMax}Â°C</span>
               </div>
             </div>
             <div class="text-right min-w-[100px]">
@@ -4929,7 +5033,7 @@
       isPlaying = true;
 
       const playbackBtnText = document.getElementById('playback-btn-text');
-      if (playbackBtnText) playbackBtnText.innerText = 'หยุดจำลองเสียง';
+      if (playbackBtnText) playbackBtnText.innerText = 'à¸«à¸¢à¸¸à¸”à¸ˆà¸³à¸¥à¸­à¸‡à¹€à¸ªà¸µà¸¢à¸‡';
 
       const playbackBtnIcon = document.getElementById('playback-btn-icon');
       if (playbackBtnIcon) {
@@ -4976,7 +5080,7 @@
       isPlaying = false;
 
       const playbackBtnText = document.getElementById('playback-btn-text');
-      if (playbackBtnText) playbackBtnText.innerText = 'Play / จำลองเสียง';
+      if (playbackBtnText) playbackBtnText.innerText = 'Play / à¸ˆà¸³à¸¥à¸­à¸‡à¹€à¸ªà¸µà¸¢à¸‡';
 
       const playbackBtnIcon = document.getElementById('playback-btn-icon');
       if (playbackBtnIcon) {
@@ -5049,7 +5153,14 @@
       "p4-task-1": "todo", "p4-task-2": "todo", "p4-task-3": "todo", "p4-task-4": "todo"
     };
 
-    function togglePhase(phaseId) {
+        function toggleSidebar() {
+      const sidebar = document.getElementById('glass-sidebar');
+      if (sidebar) {
+        sidebar.classList.toggle('collapsed');
+      }
+    }
+
+      function togglePhase(phaseId) {
       const phaseEl = document.getElementById(phaseId);
       if (!phaseEl) return;
       const body = phaseEl.querySelector('.phase-body');
@@ -5227,12 +5338,12 @@
       if (lower.includes('database') || lower.includes('db')) return 'ti-database';
       if (lower.includes('qr')) return 'ti-qrcode';
       if (lower.includes('ios') || lower.includes('android') || lower.includes('safari') || lower.includes('chrome') || lower.includes('mobile')) return 'ti-device-mobile';
-      if (lower.includes('test') || lower.includes('วัด')) return 'ti-flask';
+      if (lower.includes('test') || lower.includes('à¸§à¸±à¸”')) return 'ti-flask';
       if (lower.includes('ui') || lower.includes('ux') || lower.includes('css')) return 'ti-palette';
-      if (lower.includes('user') || lower.includes('passenger') || lower.includes('participant') || lower.includes('rider') || lower.includes('ห้อง') || lower.includes('join')) return 'ti-users';
-      if (lower.includes('audio') || lower.includes('เพลง') || lower.includes('player') || lower.includes('youtube')) return 'ti-music';
+      if (lower.includes('user') || lower.includes('passenger') || lower.includes('participant') || lower.includes('rider') || lower.includes('à¸«à¹‰à¸­à¸‡') || lower.includes('join')) return 'ti-users';
+      if (lower.includes('audio') || lower.includes('à¹€à¸žà¸¥à¸‡') || lower.includes('player') || lower.includes('youtube')) return 'ti-music';
       if (lower.includes('gps') || lower.includes('map') || lower.includes('tracking')) return 'ti-map-pin';
-      if (lower.includes('voice') || lower.includes('สนทนา') || lower.includes('เสียง')) return 'ti-microphone';
+      if (lower.includes('voice') || lower.includes('à¸ªà¸™à¸—à¸™à¸²') || lower.includes('à¹€à¸ªà¸µà¸¢à¸‡')) return 'ti-microphone';
       return 'ti-settings';
     }
 
@@ -5280,6 +5391,10 @@
       });
     }
 
+    
+    
+    
+    
     function calculateRoadmapProgress() {
       const allTasks = document.querySelectorAll('#roadmap-view .task-item');
       let tTotal = allTasks.length, tDone = 0, tPending = 0;
@@ -5290,15 +5405,21 @@
         else if (state === 'pending') tPending++;
       });
 
-      document.getElementById('stat-total').textContent = tTotal;
-      document.getElementById('stat-done').textContent = tDone;
-      document.getElementById('stat-pending').textContent = tPending;
+      const totalEl = document.getElementById('stat-total');
+      const doneEl = document.getElementById('stat-done');
+      const pendingEl = document.getElementById('stat-pending');
+      const globalTextEl = document.getElementById('global-percent-text');
+      const globalFillEl = document.getElementById('global-progress-fill');
+
+      if (totalEl) totalEl.textContent = tTotal;
+      if (doneEl) doneEl.textContent = tDone;
+      if (pendingEl) pendingEl.textContent = tPending;
 
       const globalPct = tTotal > 0 ? Math.round((tDone / tTotal) * 100) : 0;
-      document.getElementById('global-percent-text').textContent = globalPct + '%';
-      document.getElementById('global-progress-fill').style.width = globalPct + '%';
+      if (globalTextEl) globalTextEl.textContent = globalPct + '%';
+      if (globalFillEl) globalFillEl.style.width = globalPct + '%';
 
-      // Update Phase Accordion Fill Bars & Percentages
+        // Update Phase Accordion Fill Bars & Percentages
       const phases = ['p0', 'p1', 'p2', 'p3', 'p4'];
       phases.forEach(phaseId => {
         const phaseEl = document.getElementById(phaseId);
@@ -5614,7 +5735,7 @@
       const queryInput = document.getElementById('vector-query-input');
       const queryText = queryInput.value.trim();
       if (!queryText) {
-        alert('กรุณากรอกข้อความเพื่อสืบค้นเวกเตอร์');
+        alert('à¸à¸£à¸¸à¸“à¸²à¸à¸£à¸­à¸à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¹€à¸žà¸·à¹ˆà¸­à¸ªà¸·à¸šà¸„à¹‰à¸™à¹€à¸§à¸à¹€à¸•à¸­à¸£à¹Œ');
         return;
       }
 
@@ -5628,7 +5749,7 @@
       resultsContainer.innerHTML = `
         <div class="flex flex-col items-center justify-center py-12 text-text-tertiary">
           <i class="ti ti-loader-2 animate-spin text-accent text-2xl mb-2"></i>
-          <span class="text-xs">กำลังคำนวณเวกเตอร์ความคล้ายคลึง...</span>
+          <span class="text-xs">à¸à¸³à¸¥à¸±à¸‡à¸„à¸³à¸™à¸§à¸“à¹€à¸§à¸à¹€à¸•à¸­à¸£à¹Œà¸„à¸§à¸²à¸¡à¸„à¸¥à¹‰à¸²à¸¢à¸„à¸¥à¸¶à¸‡...</span>
         </div>
       `;
 
@@ -5821,7 +5942,7 @@
       if (hits.length === 0) {
         container.innerHTML = `
           <div class="text-center py-8 text-text-tertiary italic text-xs">
-            ไม่พบเวกเตอร์เอกสารที่มีค่าความเหมือนเกินระดับที่กำหนด
+            à¹„à¸¡à¹ˆà¸žà¸šà¹€à¸§à¸à¹€à¸•à¸­à¸£à¹Œà¹€à¸­à¸à¸ªà¸²à¸£à¸—à¸µà¹ˆà¸¡à¸µà¸„à¹ˆà¸²à¸„à¸§à¸²à¸¡à¹€à¸«à¸¡à¸·à¸­à¸™à¹€à¸à¸´à¸™à¸£à¸°à¸”à¸±à¸šà¸—à¸µà¹ˆà¸à¸³à¸«à¸™à¸”
           </div>
         `;
         return;
@@ -5873,7 +5994,7 @@
       const source = srcEl.value.trim() || 'user-ingest.md';
 
       if (!text) {
-        alert('กรุณากรอกข้อความเพื่อสร้าง Embedding');
+        alert('à¸à¸£à¸¸à¸“à¸²à¸à¸£à¸­à¸à¸‚à¹‰à¸­à¸„à¸§à¸²à¸¡à¹€à¸žà¸·à¹ˆà¸­à¸ªà¸£à¹‰à¸²à¸‡ Embedding');
         return;
       }
 
@@ -6034,7 +6155,7 @@
       overview: {
         title: 'Overview', subtitle: 'Project Center', icon: 'ti ti-layout-dashboard',
         items: [
-          { id: 'dashboard', label: 'Dashboard', icon: 'ti ti-chart-pie', action: () => switchTab('dashboard') },
+          { id: 'dashboard', label: 'Dashboard', icon: 'ti ti-chart-pie', action: () => switchTab('simulator') },
           { id: 'roadmap', label: 'Manager Board', icon: 'ti ti-layout-kanban', action: () => switchMainView('roadmap') },
           { id: 'agents', label: 'Agent Roster', icon: 'ti ti-users', action: () => switchTab('training') }
         ]
@@ -6091,54 +6212,35 @@
       // Update Sub-nav Items
       const navContainer = document.getElementById('glass-subnav');
       navContainer.innerHTML = config.items.map(item => `
-        <button onclick="handleSubNavClick('${item.id}', this)" data-sub-id="${item.id}" class="sub-nav-item group flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-text-tertiary hover:text-white hover:bg-white/5 transition-all w-full text-left">
-          <i class="${item.icon} text-lg transition-transform group-hover:scale-110"></i>
-          <span class="sidebar-label">${item.label}</span>
-        </button>
+        <li class="sb-item" data-tooltip="${item.label}">
+          <button onclick="handleSubNavClick('${item.id}', this)" data-sub-id="${item.id}" class="sb-link sub-nav-item">
+            <i class="${item.icon}"></i>
+            <span>${item.label}</span>
+          </button>
+        </li>
       `).join('');
 
       // Auto-trigger first item
       if (config.items.length > 0) {
-        handleSubNavClick(config.items[0].id, navContainer.firstElementChild);
+        const firstBtn = navContainer.querySelector('.sb-link');
+        if (firstBtn) handleSubNavClick(config.items[0].id, firstBtn);
       }
     }
 
     function handleSubNavClick(itemId, element) {
       const config = domainRegistry[currentDomain];
       const item = config.items.find(i => i.id === itemId);
-      
-      document.querySelectorAll('.sub-nav-item').forEach(btn => {
-        btn.classList.remove('text-accent', 'bg-accent/10', 'border', 'border-accent/20');
-        btn.classList.add('text-text-tertiary');
-      });
 
-      element.classList.remove('text-text-tertiary');
-      element.classList.add('text-accent', 'bg-accent/10', 'border', 'border-accent/20');
+      // Reset all sb-link active states
+      document.querySelectorAll('.sb-link').forEach(btn => btn.classList.remove('active'));
+
+      // Activate clicked
+      element.classList.add('active');
 
       if (item && item.action) item.action();
     }
 
-    function toggleSidebar() {
-      const aside = document.getElementById('glass-sidebar');
-      const toggleIcon = document.getElementById('sidebar-toggle-icon');
-      sidebarExpanded = !sidebarExpanded;
 
-      if (sidebarExpanded) {
-        aside.style.width = '16rem';
-        toggleIcon.className = 'ti ti-layout-sidebar-left-collapse text-lg';
-        // Show all text labels
-        aside.querySelectorAll('.sidebar-label').forEach(el => el.classList.remove('hidden'));
-        aside.querySelectorAll('.sidebar-header-text').forEach(el => el.classList.remove('hidden'));
-        aside.querySelector('#sidebar-stats-section')?.classList.remove('hidden');
-      } else {
-        aside.style.width = '4.5rem';
-        toggleIcon.className = 'ti ti-layout-sidebar-left-expand text-lg';
-        // Hide all text labels, keep only icons
-        aside.querySelectorAll('.sidebar-label').forEach(el => el.classList.add('hidden'));
-        aside.querySelectorAll('.sidebar-header-text').forEach(el => el.classList.add('hidden'));
-        aside.querySelector('#sidebar-stats-section')?.classList.add('hidden');
-      }
-    }
 
     window.addEventListener('load', () => {
       switchDomain('overview');
@@ -6198,7 +6300,7 @@
           // Check WebSocket connection
           if (!socket || socket.readyState !== WebSocket.OPEN) {
             logTerminal('sys', `<span class="text-[#ff5f56] font-bold">ERROR:</span> Cannot execute task. Local CoDev Server is offline. Please run ws-agent-server first.`);
-            alert('ไม่สามารถสั่งงานได้เนื่องจากเชื่อมต่อกับระบบหลังบ้านไม่ได้ กรุณาตรวจสอบว่าได้ทำการเปิดใช้งาน WebSocket Server บนพอร์ต 8787 หรือยังครับ');
+            alert('à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¸ªà¸±à¹ˆà¸‡à¸‡à¸²à¸™à¹„à¸”à¹‰à¹€à¸™à¸·à¹ˆà¸­à¸‡à¸ˆà¸²à¸à¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­à¸à¸±à¸šà¸£à¸°à¸šà¸šà¸«à¸¥à¸±à¸‡à¸šà¹‰à¸²à¸™à¹„à¸¡à¹ˆà¹„à¸”à¹‰ à¸à¸£à¸¸à¸“à¸²à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸šà¸§à¹ˆà¸²à¹„à¸”à¹‰à¸—à¸³à¸à¸²à¸£à¹€à¸›à¸´à¸”à¹ƒà¸Šà¹‰à¸‡à¸²à¸™ WebSocket Server à¸šà¸™à¸žà¸­à¸£à¹Œà¸• 8787 à¸«à¸£à¸·à¸­à¸¢à¸±à¸‡à¸„à¸£à¸±à¸š');
             return;
           }
 
@@ -6239,7 +6341,7 @@
       const resetBtn = document.getElementById('reset-btn');
       if (resetBtn) {
         resetBtn.addEventListener('click', () => {
-          if (confirm('คุณต้องการรีเซ็ตสถานะงานทั้งหมดกลับเป็นค่าเริ่มต้นตาม Git หรือไม่?')) {
+          if (confirm('à¸„à¸¸à¸“à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸£à¸µà¹€à¸‹à¹‡à¸•à¸ªà¸–à¸²à¸™à¸°à¸‡à¸²à¸™à¸—à¸±à¹‰à¸‡à¸«à¸¡à¸”à¸à¸¥à¸±à¸šà¹€à¸›à¹‡à¸™à¸„à¹ˆà¸²à¹€à¸£à¸´à¹ˆà¸¡à¸•à¹‰à¸™à¸•à¸²à¸¡ Git à¸«à¸£à¸·à¸­à¹„à¸¡à¹ˆ?')) {
             localStorage.removeItem('covibe_roadmap_states_v3');
             document.querySelectorAll('#roadmap-view .task-item').forEach(taskItem => {
               const taskId = taskItem.getAttribute('data-task-id');
@@ -6305,7 +6407,7 @@
           input.value = '';
 
           setTimeout(() => {
-            logTerminal('eva', `กำลังรับคำสั่ง: "${val}" และประมวลผล...`);
+            logTerminal('eva', `à¸à¸³à¸¥à¸±à¸‡à¸£à¸±à¸šà¸„à¸³à¸ªà¸±à¹ˆà¸‡: "${val}" à¹à¸¥à¸°à¸›à¸£à¸°à¸¡à¸§à¸¥à¸œà¸¥...`);
 
             const agentStatus = document.getElementById('node-agent-status');
             if (agentStatus) {
@@ -6755,3 +6857,5 @@
 </body>
 
 </html>
+
+

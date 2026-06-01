@@ -39,17 +39,16 @@ def aggregate_benchmarks():
             "traces": traces
         }
 
-    # Get all result directories
-    dirs = [d for d in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, d))]
+    # Get all result directories (Recursive for EABS-01 hierarchy)
+    metadata_files = glob.glob(os.path.join(base_dir, "**", "metadata.json"), recursive=True)
     
-    for d in dirs:
-        dir_path = os.path.join(base_dir, d)
-        metadata_path = os.path.join(dir_path, "metadata.json")
+    for metadata_path in metadata_files:
+        dir_path = os.path.dirname(metadata_path)
         metrics_path = os.path.join(dir_path, "metrics.json")
         samples_path = os.path.join(dir_path, "samples.jsonl")
         response_path = os.path.join(dir_path, "artifacts", "purified_response.txt")
         
-        if not (os.path.exists(metadata_path) and os.path.exists(metrics_path)):
+        if not os.path.exists(metrics_path):
             continue
             
         with open(metadata_path, 'r', encoding='utf-8') as f:
@@ -77,9 +76,11 @@ def aggregate_benchmarks():
             with open(response_path, 'r', encoding='utf-8') as f:
                 sample_code = f.read()
 
-        model_name = metadata.get("model", "unknown")
-        task_id = metrics.get("task_id", d)
-        result_id = f"{model_name}-{task_id}"
+        model_info = metadata.get("model", {})
+        model_name = model_info.get("name", "unknown") if isinstance(model_info, dict) else str(model_info)
+        task_id = metrics.get("task_id", os.path.basename(dir_path))
+        run_id = metadata.get("run_id", os.path.basename(dir_path))
+        result_id = f"{model_name}-{run_id}"
         
         # Map to UI structure
         results[result_id] = {
