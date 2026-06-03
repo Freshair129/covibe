@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import {
   Bike,
@@ -27,6 +27,7 @@ import {
 
 import { youtubeIdFromInput, thumbnailFor } from "./utils/youtube";
 import { useRealtime } from "./hooks/useRealtime";
+import { useWebRTC } from "./hooks/useWebRTC";
 import { YouTubeDeck } from "./components/YouTubeDeck";
 import { VoicePanel } from "./components/VoicePanel";
 import { ChatPanel } from "./components/ChatPanel";
@@ -38,9 +39,47 @@ import { Role } from "./types";
 import { NAME_KEY, ROOM_KEY } from "./constants";
 
 export default function App() {
-  const { status, room, participantId, error, setError, send, voiceSignal, hostNotification } = useRealtime();
+  const { status, room, participantId, error, setError, send: wsSend, voiceSignal, webrtcSignal, hostNotification } = useRealtime();
+
   const roomFromUrl = new URLSearchParams(location.search).get("room") || "";
   const [role, setRole] = useState<Role>(roomFromUrl ? "passenger" : "rider");
+
+  const [remoteCommand, setRemoteCommand] = useState<any>(null);
+
+  const { status: p2pStatus, handleSignal, sendP2P, createOffer } = useWebRTC({
+    roomId: room?.roomId || roomFromUrl || "",
+    participantId,
+    isRider: role === "rider",
+    onMessage: (data) => {
+      console.log("[P2P] Received:", data);
+      if (data.type === "SYNC_OP") {
+        setRemoteCommand(data.payload);
+      }
+    },
+    sendSignal: (targetId, signalType, signal) => {
+      wsSend({ type: "webrtc_signal", targetId, signalType, signal });
+    }
+  });
+
+  const send = useCallback((message: any) => {
+    wsSend(message);
+    if (p2pStatus === "connected" && ["play", "pause", "seek"].includes(message.type)) {
+      const other = room?.participants.find(p => p.id !== participantId && p.connected);
+      if (other) sendP2P({ type: "SYNC_OP", payload: message });
+    }
+  }, [p2pStatus, room, participantId, sendP2P, wsSend]);
+
+  useEffect(() => {
+    if (webrtcSignal) handleSignal(webrtcSignal.fromId, webrtcSignal.signalType, webrtcSignal.signal);
+  }, [webrtcSignal, handleSignal]);
+
+  useEffect(() => {
+    if (role === "rider" && room && p2pStatus === "idle") {
+      const other = room.participants.find(p => p.id !== participantId && p.connected);
+      if (other) createOffer(other.id);
+    }
+  }, [role, room, participantId, p2pStatus, createOffer]);
+
   const [displayName, setDisplayName] = useState(
     localStorage.getItem(NAME_KEY) || (roomFromUrl ? "คนซ้อน" : "คนขับ")
   );
@@ -235,6 +274,12 @@ export default function App() {
           <RadioTower aria-hidden="true" />
           {connectionLabel}
         </div>
+        {p2pStatus === "connected" && (
+          <div className="status-badge">
+            <Wifi aria-hidden="true" />
+            P2P
+          </div>
+        )}
       </header>
 
       {hostNotification && (
@@ -333,6 +378,7 @@ export default function App() {
               volume={volume}
               mediaMode={mediaMode}
               onDuration={setDurationMs}
+              remoteCommand={remoteCommand}
             />
 
             <div className="mode-tabs" role="tablist" aria-label="เลือกโหมดเล่น">

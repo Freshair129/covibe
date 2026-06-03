@@ -1480,6 +1480,18 @@ wss.on("connection", (ws) => {
       return;
     }
 
+    if (data.type === "webrtc_signal") {
+      const targetId = String(data.targetId || "");
+      if (!targetId || !room.participants[targetId]) return;
+      sendToParticipant(room.roomId, targetId, {
+        type: "webrtc_signal",
+        signalType: data.signalType,
+        signal: data.signal,
+        fromId: data.fromId || actorId
+      });
+      return;
+    }
+
     if (data.type === "play") {
       setPlayback(room, {
         isPlaying: true,

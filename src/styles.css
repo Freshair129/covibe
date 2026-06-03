@@ -117,6 +117,19 @@ h1 {
   color: #ff8f8f;
 }
 
+.status-badge {
+  background-color: #22c55e;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .start-grid,
 .ride-layout {
   display: grid;

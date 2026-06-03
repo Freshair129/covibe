@@ -63,6 +63,7 @@ export type ServerMessage =
   | { type: "chat_message"; message: ChatMessage }
   | { type: "voice_status"; participantId: string; enabled: boolean }
   | { type: "voice_signal"; fromId: string; signal: VoiceSignal["signal"] }
+  | { type: "webrtc_signal"; fromId: string; signalType: string; signal: any }
   | {
       type: "sync_target";
       expectedMs: number;

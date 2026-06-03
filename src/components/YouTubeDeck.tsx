@@ -11,7 +11,8 @@ export function YouTubeDeck({
   send,
   volume,
   mediaMode,
-  onDuration
+  onDuration,
+  remoteCommand
 }: {
   room: RoomState | null;
   role: Role;
@@ -19,6 +20,7 @@ export function YouTubeDeck({
   volume: number;
   mediaMode: "music" | "video";
   onDuration: (durationMs: number) => void;
+  remoteCommand?: any;
 }) {
   const playerARef = useRef<YTPlayer | null>(null);
   const playerBRef = useRef<YTPlayer | null>(null);
@@ -137,6 +139,34 @@ export function YouTubeDeck({
     if (readyA) playerARef.current?.setVolume(activeDeck === "A" ? effectiveVolume : 0);
     if (readyB) playerBRef.current?.setVolume(activeDeck === "B" ? effectiveVolume : 0);
   }, [effectiveVolume, activeDeck, readyA, readyB]);
+
+  // Fast P2P Sync Logic
+  useEffect(() => {
+    if (!remoteCommand || !activePlayer) return;
+
+    console.log("[P2P Sync] Executing remote command:", remoteCommand);
+    const { type, positionMs } = remoteCommand;
+    
+    // Immediate seek correction if drift is too high
+    const expectedSeconds = Math.max(0, positionMs / 1000);
+    const actualSeconds = activePlayer.getCurrentTime?.() || 0;
+    
+    if (Math.abs(expectedSeconds - actualSeconds) > 0.3) {
+      activePlayer.seekTo(expectedSeconds, true);
+    }
+
+    // Apply playback state immediately
+    if (type === "play") {
+      try {
+        activePlayer.playVideo();
+        setNeedsUnlock(false);
+      } catch {
+        setNeedsUnlock(true);
+      }
+    } else if (type === "pause") {
+      activePlayer.pauseVideo();
+    }
+  }, [remoteCommand, activePlayer]);
 
   // Main Sync Logic
   useEffect(() => {
