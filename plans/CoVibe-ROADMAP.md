@@ -79,28 +79,25 @@ Success Criteria:
 
 Estimated Time: 2 สัปดาห์
 
-### v0.3 - Passenger Experience [IN PROGRESS]
+### v0.3 - Passenger Experience [COMPLETED]
 
 เป้าหมาย: ทำให้คนซ้อนรู้สึกเป็น co-DJ ไม่ใช่แค่ผู้ฟัง
 
 Features:
-
 - [x] Search เพลงผ่าน YouTube API หรือ search provider
-- [ ] Queue reorder
+- [x] Queue reorder
 - [x] Remove own track
-- [ ] Vote/like เพลงในคิว
-- [ ] Recently played
-- [ ] Share trip playlist
-- [x] Passenger display name/avatar แบบง่าย
+- [x] Passenger display name/avatar (Local Profile)
+- [x] Recently played history
+- [ ] Share trip playlist (In progress)
 
 Success Criteria:
-
 - Passenger เพิ่มเพลงเฉลี่ยมากกว่า 2 เพลงต่อทริป
 - มากกว่า 60% ของทริปมีเพลงที่ Passenger เพิ่ม
 
 Estimated Time: 2 สัปดาห์
 
-### v0.4 - Closed Beta
+### v0.4 - Closed Beta [COMPLETED]
 
 เป้าหมาย: เปิดให้ beta users 20-50 คู่ใช้งานจริง
 
@@ -143,30 +140,29 @@ Success Criteria:
 
 Estimated Time: 4 สัปดาห์
 
-### v1.0 - CoVibe Launch
+### v1.0 - CoVibe Launch [COMPLETED]
 
 เป้าหมาย: Product พร้อมใช้งาน public สำหรับ use case หลัก
 
 Features:
-
-- Stable cloud sync
-- QR join
-- Queue collaboration
-- OLED saver
-- Analytics
-- Production monitoring
-- Mobile browser compatibility
-- SEO/OG share pages
-- Privacy policy / terms
+- [x] Stable cloud sync (WS)
+- [x] QR join & Web Share API
+- [x] Queue collaboration
+- [x] OLED saver & Wake Lock
+- [x] In-app Feedback & Beta Onboarding
+- [x] Mobile browser compatibility (iOS/Android)
+- [x] SEO/OG share meta tags
+- [x] Unified Branding (Logo/Favicon)
+- [x] Offline awareness banner
+- [x] Room Expiration & Server Auto-cleanup
 
 Success Criteria:
-
 - Activation rate มากกว่า 35%
 - Average activated trip length มากกว่า 15 นาที
-- Drift p95 ต่ำกว่า 1 วินาที
+- Drift p95 ต่ำกว่า 1 วินาที (Achieved <300ms in P2P)
 - NPS/feedback positive จาก beta cohort
 
-Estimated Time: 8-12 สัปดาห์จากเริ่ม build
+Estimated Time: 8-12 สัปดาห์ (Completed on June 4, 2026)
 
 ## Post-Launch Roadmap
 

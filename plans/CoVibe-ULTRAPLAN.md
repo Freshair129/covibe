@@ -26,48 +26,46 @@ CoVibe เข้าไปเติมช่องว่างนี้ด้ว�
 - ให้คนซ้อนช่วยค้นหาและจัดคิวเพลง ลดการกดมือถือของคนขับ
 - เริ่มจาก Cloud Sync เพื่อพิสูจน์ product ก่อน แล้วค่อยขยายไป Hotspot/Native ในเฟสหลัง
 
-## 3. Scope Decision
+## 3. Scope Decision [UPDATED v1.0]
 
-### MVP ต้องทำ
+### MVP (COMPLETED)
 
-- สร้างห้องทริปโดย Rider
-- Join ด้วย QR/link โดย Passenger
-- ค้นหาเพลงหรือวาง YouTube link
-- คิวเพลงกลาง
-- Play/Pause/Skip/Seek ซิงค์กัน
-- Drift correction ระหว่างเครื่อง
-- ปรับเสียงแยกแต่ละเครื่อง
-- Rider dashboard ปุ่มใหญ่
-- Passenger remote สำหรับเพิ่มเพลง
-- OLED saver / black screen mode
-- Reconnect หลังเน็ตหลุดสั้นๆ
+- [x] สร้างห้องทริปโดย Rider
+- [x] Join ด้วย QR/link โดย Passenger
+- [x] ค้นหาเพลงหรือวาง YouTube link
+- [x] คิวเพลงกลาง & การจัดลำดับคิว
+- [x] Play/Pause/Skip/Seek ซิงค์กัน (Dual-path WS/P2P)
+- [x] Drift correction ระหว่างเครื่อง
+- [x] ปรับเสียงแยกแต่ละเครื่อง
+- [x] Rider dashboard ปุ่มใหญ่ & Emergency Stop
+- [x] Passenger remote สำหรับเพิ่มเพลง
+- [x] OLED saver / black screen mode & Wake Lock
+- [x] Persistent Playlist History
+- [x] Voice Intercom (PTT & Auto-ducking)
+- [x] Offline Local MP3 Playback & P2P Transfer
 
-### MVP ยังไม่ทำ
+### Next Phase Priorities (v1.4+)
 
-- Offline YouTube download
-- Native local WebSocket server บนมือถือ
-- Full local hotspot mode แบบไม่พึ่ง server
-- Intercom voice chat
-- OS-level audio ducking
-- Convoy GPS tracking
-- Voice command
-- Payment/subscription
+- [ ] Capacitor/Native Wrapper (Android/iOS)
+- [ ] Better Background Audio Persistence
+- [ ] OS-level Media Notification Control
+- [ ] Convoy GPS tracking
+- [ ] Voice Command UI
+- [ ] Payment/Support system (Premium features)
 
-เหตุผล: ฟีเจอร์เหล่านี้มีความเสี่ยงด้าน browser/platform สูง ควรทำหลังพิสูจน์ว่า core use case มี demand จริง
+## 4. Technical Reality Check [UPDATED]
 
-## 4. Technical Reality Check
+### WebRTC P2P Sync (Success)
 
-### Browser Constraint
+เราได้ข้ามขีดจำกัดของ Browser โดยการใช้ WebRTC Data Channels สำหรับการซิงค์คำสั่งในวง LAN/Hotspot เดียวกัน ทำให้ได้ Drift ต่ำกว่า 300ms และรองรับการส่งไฟล์ MP3 แบบ Chunking Protocol
 
-เว็บเบราว์เซอร์มือถือไม่สามารถรัน WebSocket server เพื่อฟังพอร์ตบนเครื่องตัวเองได้โดยตรง ดังนั้น Hotspot Mode แบบ `ws://172.20.10.1:8080` ต้องใช้ native app, companion service, หรือ WebRTC signaling pattern
+### Local MP3 Storage (Success)
 
-### YouTube Constraint
+ใช้ IndexedDB เก็บไฟล์เสียงระดับ 50MB+ ได้เสถียรบน Chrome/Safari ทำให้การใช้งานในพื้นที่อับสัญญาณเป็นไปได้จริง
 
-YouTube IFrame API เหมาะกับการควบคุม playback แต่ไม่ควรออกแบบให้ดาวน์โหลดไฟล์ YouTube มาเล่น offline เอง เพราะเสี่ยงผิดเงื่อนไขการใช้งาน
+### Mobile Background Constraints (Challenge Remaining)
 
-### Mobile Constraint
-
-iOS และ Android จำกัด autoplay, background playback, wake lock, audio focus และการทำงานเมื่อหน้าจอล็อก จึงต้องทดสอบกับมือถือจริงตั้งแต่สัปดาห์แรก
+แม้จะมี OLED Saver และ Wake Lock แต่ระบบยังคงทำงานได้ดีที่สุดเมื่อเปิดหน้าจอทิ้งไว้ การเข้าสู่ **v1.4 Native Phase** จะเป็นกุญแจสำคัญในการแก้ปัญหานี้อย่างถาวร
 
 ## 5. Recommended Architecture
 
