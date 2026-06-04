@@ -26,10 +26,14 @@ g:/covibe/
 │   └── styles.css           # ดีไซน์ระบบ (CSS variables, animations, responsive)
 ├── server/
 │   └── index.js             # WebSocket Server (Room State, Spawning Agents, Telemetry endpoint)
+├── public/                  # Static Assets & Dashboard Modules
+│   ├── dashboard.css        # Stylesheet หลักของ CoDev Dashboard
+│   └── js/
+│       ├── dashboard.js     # Logic การทำงาน (Navigation, Visualizers, WS Client)
+│       └── dashboard_data.js # แหล่งข้อมูล Roadmap และ Task Verification (JSON)
 ├── docs/
 │   └── compatibility_report.md  # รายงานสรุปผลทดสอบ Browser Compatibility บน iOS/Android
-├── codev_dashboard.html     # หน้าแดชบอร์ดหลัก & ศูนย์สั่งการระบบ CoDev Agent (Flight Control & Monitor)
-├── covibe_roadmap.html      # แผนการพัฒนา & Telemetry Dashboard ของ CoVibe (Legacy)
+├── codev_dashboard.html     # หน้าแดชบอร์ดหลัก (Modular Entry Point)
 ├── package.json             # รายการ Dependencies และ Scripts ของโปรเจกต์
 ├── GEMINI.md                # คู่มือฉบับนี้ (Project Guide)
 └── README.md                # แนะนำการใช้งานทั่วไปเบื้องต้น
@@ -63,9 +67,10 @@ g:/covibe/
 2. **Background Playback**:
    - เมื่อปิดหน้าจอหรือสลับแอปไปทำอย่างอื่น YouTube IFrame มักจะหยุดทำงานชั่วคราว
    - มีการแก้ไขด้วยการใช้ **OLED Saver Mode** (ซ่อนทุกเลเยอร์เพื่อประหยัดแบตเตอรี่ แต่เปิดหน้าเว็บไว้ตลอดเวลา) แทนการปิดหน้าจอมือถือจริง
-3. **การซิงค์ระดับสูง (Drift Correction)**:
+3. **การซิงค์ระดับสูง (Drift Correction & Sampling)**:
    - ต่ำกว่า `250ms`: ปล่อยผ่านเพื่อให้ได้ความไหลลื่น
    - ระหว่าง `250ms - 800ms`: ปรับลด/เพิ่มความเร็วการเล่น (Playback Rate) 0.95x หรือ 1.05x เพื่อปรับความตึงแบบไร้รอยต่อ
+   - **Drift Sampling**: เซิร์ฟเวอร์จะทำการเก็บตัวอย่าง `drift_sample` (driftMs, latencyMs) ทุกครั้งที่ได้รับ `sync_report` เพื่อใช้ในการคำนวณสถิติความเสถียรย้อนหลัง (Performance Auditing)
 
 ---
 

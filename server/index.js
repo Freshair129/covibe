@@ -689,6 +689,42 @@ const server = createServer(async (req, res) => {
   }
 
   // ---------------------------------------------------------------------------
+  // Feedback API
+  // ---------------------------------------------------------------------------
+  if (pathname === "/api/feedback" && method === "POST") {
+    let body = "";
+    req.on("data", chunk => { body += chunk; });
+    req.on("end", () => {
+      try {
+        const feedback = JSON.parse(body);
+        if (!feedback.rating) {
+          res.writeHead(400, { "content-type": "application/json", "Access-Control-Allow-Origin": "*" });
+          res.end(JSON.stringify({ error: "Rating is required" }));
+          return;
+        }
+
+        const feedbackPath = path.join(process.cwd(), "data", "feedback.jsonl");
+        const entry = JSON.stringify({ ...feedback, serverTimestamp: Date.now() }) + "\n";
+        
+        fs.appendFile(feedbackPath, entry, (err) => {
+          if (err) {
+            console.error("[server] Failed to save feedback:", err);
+            res.writeHead(500, { "content-type": "application/json", "Access-Control-Allow-Origin": "*" });
+            res.end(JSON.stringify({ error: "Internal server error" }));
+            return;
+          }
+          res.writeHead(200, { "content-type": "application/json", "Access-Control-Allow-Origin": "*" });
+          res.end(JSON.stringify({ success: true }));
+        });
+      } catch (err) {
+        res.writeHead(400, { "content-type": "application/json", "Access-Control-Allow-Origin": "*" });
+        res.end(JSON.stringify({ error: "Invalid JSON" }));
+      }
+    });
+    return;
+  }
+
+  // ---------------------------------------------------------------------------
   // Analytics API
   // ---------------------------------------------------------------------------
   if (pathname.startsWith("/api/analytics/")) {
