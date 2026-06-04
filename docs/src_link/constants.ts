@@ -4,4 +4,9 @@ export const WS_URL =
 
 export const PARTICIPANT_KEY = "covibe.participantId";
 export const NAME_KEY = "covibe.displayName";
+export const AVATAR_KEY = "covibe.avatar";
 export const ROOM_KEY = "covibe.roomId";
+
+export const AVATARS = [
+  "bike", "users", "music", "headphones", "zap", "flame", "smile", "heart"
+];

@@ -14,8 +14,7 @@
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
     rel="stylesheet">
 
-  <!-- Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
 
   <!-- Dependencies -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.26.0/cytoscape.min.js"></script>
@@ -30,41 +29,46 @@
   class="h-screen w-screen flex antialiased selection:bg-accent selection:text-bg-primary bg-bg-primary overflow-hidden">
 
   <!-- GLOBAL LEFT NAV BAR -->
-  <nav
-    class="w-14 sm:w-16 h-full bg-bg-secondary border-r border-border flex flex-col items-center py-4 gap-4 shrink-0 z-50 shadow-[4px_0_24px_rgba(0,0,0,0.2)] overflow-y-auto">
-    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xl shadow-lg cursor-pointer hover:opacity-90 transition mb-2">
-      <i class="ti ti-brand-codesandbox"></i>
-    </div>
 
-    <div class="flex flex-col gap-2 w-full px-2">
-      <button onclick="switchDomain('overview')" class="w-full aspect-square flex flex-col items-center justify-center gap-1 text-text-tertiary hover:text-white rounded-xl transition cursor-pointer">
-        <i class="ti ti-layout-dashboard text-xl"></i>
-        <span class="text-[9px] font-bold hidden sm:block uppercase">Dash</span>
-      </button>
-      <button onclick="switchDomain('gks')" class="w-full aspect-square flex flex-col items-center justify-center gap-1 text-text-tertiary hover:text-white rounded-xl transition cursor-pointer">
-        <i class="ti ti-brain text-xl"></i>
-        <span class="text-[9px] font-bold hidden sm:block uppercase">GKS</span>
-      </button>
-      <button onclick="switchDomain('gdb')" class="w-full aspect-square flex flex-col items-center justify-center gap-1 text-text-tertiary hover:text-white rounded-xl transition cursor-pointer">
-        <i class="ti ti-database text-xl"></i>
-        <span class="text-[9px] font-bold hidden sm:block uppercase">DB</span>
-      </button>
-      <button onclick="switchDomain('benchmark')" class="w-full aspect-square flex flex-col items-center justify-center gap-1 text-text-tertiary hover:text-white rounded-xl transition cursor-pointer">
-        <i class="ti ti-trending-up text-xl"></i>
-        <span class="text-[9px] font-bold hidden sm:block uppercase">Bench</span>
-      </button>
-    </div>
-
-    <div class="flex-1"></div>
-
-    <div class="flex flex-col gap-2 pb-2">
-      <button class="w-10 h-10 mx-auto rounded-full bg-bg-tertiary border border-border flex items-center justify-center text-text-secondary hover:text-white transition cursor-pointer">
-        <i class="ti ti-settings text-lg"></i>
-      </button>
-      <div class="w-10 h-10 mx-auto rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 border border-border overflow-hidden">
-        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" class="w-full h-full">
+  <nav id="glass-sidebar" class="sidebar">
+    <div class="flex-1 overflow-y-auto">
+      <div class="sb-brand">
+        <div id="sidebar-context-icon" class="sb-brand-icon"><i class="ti ti-layout-dashboard"></i></div>
+        <div class="sb-brand-text">
+          <div id="sidebar-context-title" class="sb-brand-title">Overview</div>
+          <div id="sidebar-context-subtitle" class="sb-brand-sub">Project Center</div>
+        </div>
       </div>
+      <ul id="glass-subnav" class="sb-nav"></ul>
     </div>
+    <div class="sb-footer">
+      <div class="sb-stats-grid mb-4">
+        <div class="sb-stat"><span class="sb-stat-val text-accent" id="stat-cost">$0.00</span><span
+            class="sb-stat-lbl">Cost</span></div>
+        <div class="sb-stat"><span class="sb-stat-val text-indigo-400" id="stat-calls">0</span><span
+            class="sb-stat-lbl">Calls</span></div>
+        <div class="sb-stat"><span class="sb-stat-val text-amber-400" id="stat-tools">0</span><span
+            class="sb-stat-lbl">Tools</span></div>
+      </div>
+      <button onclick="toggleSidebar()"
+        class="w-full flex items-center justify-center p-2 rounded-lg hover:bg-white/5 transition-all text-text-tertiary border border-transparent hover:border-border">
+        <i class="ti ti-layout-sidebar-left-collapse text-lg"></i>
+      </button>
+    </div>
+  </nav>
+
+  <div class="flex-1"></div>
+
+  <div class="flex flex-col gap-2 pb-2">
+    <button
+      class="w-10 h-10 mx-auto rounded-full bg-bg-tertiary border border-border flex items-center justify-center text-text-secondary hover:text-white transition cursor-pointer">
+      <i class="ti ti-settings text-lg"></i>
+    </button>
+    <div
+      class="w-10 h-10 mx-auto rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 border border-border overflow-hidden">
+      <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" class="w-full h-full">
+    </div>
+  </div>
   </nav>
 
   <!-- MAIN WRAPPER -->
@@ -74,51 +78,33 @@
         <span class="text-xs font-black text-white uppercase tracking-tighter">CoDev Command</span>
         <span class="text-[9px] text-accent font-bold">NODE-01</span>
       </div>
-      
+
       <nav class="flex items-center gap-1">
-        <button id="domain-btn-overview" onclick="switchDomain('overview')" class="domain-tab-btn active px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-2">
+        <button id="domain-btn-overview" onclick="switchDomain('overview')"
+          class="domain-tab-btn active px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-2">
           <i class="ti ti-layout-dashboard"></i> <span>Overview</span>
         </button>
-        <button id="domain-btn-gks" onclick="switchDomain('gks')" class="domain-tab-btn px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-2 text-text-tertiary hover:text-white">
+        <button id="domain-btn-gks" onclick="switchDomain('gks')"
+          class="domain-tab-btn px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-2 text-text-tertiary hover:text-white">
           <i class="ti ti-brain"></i> <span>Knowledge</span>
         </button>
-        <button id="domain-btn-gdb" onclick="switchDomain('gdb')" class="domain-tab-btn px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-2 text-text-tertiary hover:text-white">
+        <button id="domain-btn-gdb" onclick="switchDomain('gdb')"
+          class="domain-tab-btn px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-2 text-text-tertiary hover:text-white">
           <i class="ti ti-database"></i> <span>Block DB</span>
         </button>
-        <button id="domain-btn-benchmark" onclick="switchDomain('benchmark')" class="domain-tab-btn px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-2 text-text-tertiary hover:text-white">
+        <button id="domain-btn-benchmark" onclick="switchDomain('benchmark')"
+          class="domain-tab-btn px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-2 text-text-tertiary hover:text-white">
           <i class="ti ti-trending-up"></i> <span>Benchmark</span>
         </button>
       </nav>
-      
+
       <div class="ml-auto flex items-center gap-3">
-        <div id="connection-status" class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></div>
+        <div id="connection-status" class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]">
+        </div>
       </div>
     </header>
 
     <main class="flex-1 flex overflow-hidden relative bg-[#0a0d10]">
-      <!-- MODERN GLASS SIDEBAR -->
-      <nav id="glass-sidebar" class="sidebar">
-        <div class="flex-1 overflow-y-auto">
-          <div class="sb-brand">
-            <div id="sidebar-context-icon" class="sb-brand-icon"><i class="ti ti-layout-dashboard"></i></div>
-            <div class="sb-brand-text">
-              <div id="sidebar-context-title" class="sb-brand-title">Overview</div>
-              <div id="sidebar-context-subtitle" class="sb-brand-sub">Project Center</div>
-            </div>
-          </div>
-          <ul id="glass-subnav" class="sb-nav"></ul>
-        </div>
-        <div class="sb-footer">
-          <div class="sb-stats-grid mb-4">
-            <div class="sb-stat"><span class="sb-stat-val text-accent" id="stat-cost">$0.00</span><span class="sb-stat-lbl">Cost</span></div>
-            <div class="sb-stat"><span class="sb-stat-val text-indigo-400" id="stat-calls">0</span><span class="sb-stat-lbl">Calls</span></div>
-            <div class="sb-stat"><span class="sb-stat-val text-amber-400" id="stat-tools">0</span><span class="sb-stat-lbl">Tools</span></div>
-          </div>
-          <button onclick="toggleSidebar()" class="w-full flex items-center justify-center p-2 rounded-lg hover:bg-white/5 transition-all text-text-tertiary border border-transparent hover:border-border">
-             <i class="ti ti-layout-sidebar-left-collapse text-lg"></i>
-          </button>
-        </div>
-      </nav>
 
       <!-- CENTER BENTO PANEL -->
       <section class="flex-1 flex flex-col h-full min-h-0 overflow-hidden relative">
@@ -130,29 +116,33 @@
 
         <!-- CENTER VIEW 2: WORKFLOW CANVAS (AST) -->
         <div class="hidden flex-1 flex overflow-hidden" id="workflow-canvas">
-          <div id="ast-code-panel" class="w-[280px] lg:w-[320px] border-r border-border bg-bg-secondary flex flex-col shrink-0 overflow-hidden">
+          <div id="ast-code-panel"
+            class="w-[280px] lg:w-[320px] border-r border-border bg-bg-secondary flex flex-col shrink-0 overflow-hidden">
             <div class="px-4 py-3 border-b border-border bg-white/5 flex items-center justify-between shrink-0">
-              <span class="text-xs font-bold text-text-primary flex items-center gap-1.5"><i class="ti ti-file-code text-accent"></i> calculateDrift.js</span>
+              <span class="text-xs font-bold text-text-primary flex items-center gap-1.5"><i
+                  class="ti ti-file-code text-accent"></i> calculateDrift.js</span>
             </div>
             <div class="flex-1 p-4 font-mono text-xs overflow-y-auto bg-[#07090c] space-y-1">
-              <div class="line-code" id="lc-1"><span class="text-indigo-400">function</span> <span class="text-yellow-400">calculateDrift</span>(latency) {</div>
-              <div class="line-code pl-4" id="lc-2"><span class="text-indigo-400">if</span> (latency > <span class="text-cyan-400">250</span>) {</div>
+              <div class="line-code" id="lc-1"><span class="text-indigo-400">function</span> <span
+                  class="text-yellow-400">calculateDrift</span>(latency) {</div>
+              <div class="line-code pl-4" id="lc-2"><span class="text-indigo-400">if</span> (latency > <span
+                  class="text-cyan-400">250</span>) {</div>
               <div class="line-code pl-8" id="lc-3"><span class="text-yellow-400">resync</span>();</div>
               <div class="line-code pl-4">}</div>
               <div class="line-code">}</div>
             </div>
           </div>
           <div class="flex-1 relative bg-grid overflow-hidden" id="ast-tree-canvas">
-             <svg id="ast-svg" class="absolute inset-0 w-full h-full pointer-events-none"></svg>
-             <!-- Draggable Nodes -->
-             <div class="workflow-node" id="node-start" style="left: 50px; top: 100px;">
-                <div class="node-header"><i class="ti ti-player-play"></i> Start</div>
-                <div class="node-body">Entry Point</div>
-             </div>
-             <div class="workflow-node" id="node-agent" style="left: 300px; top: 100px;">
-                <div class="node-header"><i class="ti ti-robot"></i> Agent</div>
-                <div class="node-body">Logic Analysis</div>
-             </div>
+            <svg id="ast-svg" class="absolute inset-0 w-full h-full pointer-events-none"></svg>
+            <!-- Draggable Nodes -->
+            <div class="workflow-node" id="node-start" style="left: 50px; top: 100px;">
+              <div class="node-header"><i class="ti ti-player-play"></i> Start</div>
+              <div class="node-body">Entry Point</div>
+            </div>
+            <div class="workflow-node" id="node-agent" style="left: 300px; top: 100px;">
+              <div class="node-header"><i class="ti ti-robot"></i> Agent</div>
+              <div class="node-body">Logic Analysis</div>
+            </div>
           </div>
         </div>
 
@@ -164,86 +154,98 @@
         <!-- CENTER VIEW 4: DB SCHEMA -->
         <div class="hidden flex-1 flex flex-col overflow-hidden" id="database-view">
           <div class="flex-1 relative bg-grid overflow-hidden" id="erd-canvas-container">
-             <svg id="erd-canvas" class="absolute inset-0 w-full h-full pointer-events-none"></svg>
-             <div class="db-table-card workflow-node" style="left: 100px; top: 50px;" id="tbl-rooms">
-                <div class="node-header font-bold text-xs text-white">rooms</div>
-                <div class="node-body p-0">
-                  <div class="px-3 py-1.5 border-b border-border/40 text-[10px] text-white">roomId (PK)</div>
-                  <div class="px-3 py-1.5 text-[10px] text-text-secondary">hostId</div>
-                </div>
-             </div>
+            <svg id="erd-canvas" class="absolute inset-0 w-full h-full pointer-events-none"></svg>
+            <div class="db-table-card workflow-node" style="left: 100px; top: 50px;" id="tbl-rooms">
+              <div class="node-header font-bold text-xs text-white">rooms</div>
+              <div class="node-body p-0">
+                <div class="px-3 py-1.5 border-b border-border/40 text-[10px] text-white">roomId (PK)</div>
+                <div class="px-3 py-1.5 text-[10px] text-text-secondary">hostId</div>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- CENTER VIEW 5: VECTOR STORE -->
         <div class="hidden flex-1 flex overflow-hidden" id="vector-view">
-           <aside class="w-64 border-r border-border bg-bg-primary p-4 shrink-0 overflow-y-auto">
-              <h4 class="text-[10px] font-bold text-text-tertiary uppercase mb-4">Vector Search</h4>
-              <textarea id="vector-query-input" class="w-full h-24 bg-bg-secondary border border-border rounded-lg p-2 text-xs text-white mb-4 resize-none focus:border-accent outline-none"></textarea>
-              <button onclick="runVectorSearch()" class="w-full py-2 rounded-lg bg-accent text-bg-primary text-xs font-bold hover:brightness-110 transition">Search</button>
-           </aside>
-           <div class="flex-1 relative bg-[#080b0e] overflow-hidden" id="hnsw-visualizer-area">
-              <svg id="hnsw-svg-canvas" class="absolute inset-0 w-full h-full pointer-events-none"></svg>
-              <div id="hnsw-nodes-layer-0" class="absolute inset-0"></div>
-           </div>
+          <aside class="w-64 border-r border-border bg-bg-primary p-4 shrink-0 overflow-y-auto">
+            <h4 class="text-[10px] font-bold text-text-tertiary uppercase mb-4">Vector Search</h4>
+            <textarea id="vector-query-input"
+              class="w-full h-24 bg-bg-secondary border border-border rounded-lg p-2 text-xs text-white mb-4 resize-none focus:border-accent outline-none"></textarea>
+            <button onclick="runVectorSearch()"
+              class="w-full py-2 rounded-lg bg-accent text-bg-primary text-xs font-bold hover:brightness-110 transition">Search</button>
+          </aside>
+          <div class="flex-1 relative bg-[#080b0e] overflow-hidden" id="hnsw-visualizer-area">
+            <svg id="hnsw-svg-canvas" class="absolute inset-0 w-full h-full pointer-events-none"></svg>
+            <div id="hnsw-nodes-layer-0" class="absolute inset-0"></div>
+          </div>
         </div>
 
         <!-- CENTER VIEW 6: BENCHMARK VIEW -->
         <div class="hidden flex-1 flex flex-col overflow-hidden" id="benchmark-view">
-            <!-- Ported Benchmark sub-tabs will render here -->
-            <div id="tab-content-simulator" class="flex-1 flex flex-col p-6 space-y-6">
-                <div class="grid grid-cols-4 gap-4">
-                    <div class="bg-bg-primary border border-border rounded-xl p-4">
-                        <span class="text-[10px] text-text-tertiary font-bold uppercase">Champion Speed</span>
-                        <div class="text-2xl font-black text-white">55.41 <span class="text-xs font-normal">t/s</span></div>
-                    </div>
-                </div>
-                <div class="flex-1 bg-bg-primary border border-border rounded-2xl overflow-hidden relative">
-                    <canvas id="oscilloscope-canvas" class="w-full h-full"></canvas>
-                </div>
+          <!-- Ported Benchmark sub-tabs will render here -->
+          <div id="tab-content-simulator" class="flex-1 flex flex-col p-6 space-y-6">
+            <div class="grid grid-cols-4 gap-4">
+              <div class="bg-bg-primary border border-border rounded-xl p-4">
+                <span class="text-[10px] text-text-tertiary font-bold uppercase">Champion Speed</span>
+                <div class="text-2xl font-black text-white">55.41 <span class="text-xs font-normal">t/s</span></div>
+              </div>
             </div>
-            <div id="tab-content-gap-analysis" class="hidden flex-1 p-6">
-                <div class="h-64 bg-bg-primary border border-border rounded-xl mb-6">
-                    <canvas id="telemetryChart"></canvas>
-                </div>
+            <div class="flex-1 bg-bg-primary border border-border rounded-2xl overflow-hidden relative">
+              <canvas id="oscilloscope-canvas" class="w-full h-full"></canvas>
             </div>
+          </div>
+          <div id="tab-content-gap-analysis" class="hidden flex-1 p-6">
+            <div class="h-64 bg-bg-primary border border-border rounded-xl mb-6">
+              <canvas id="telemetryChart"></canvas>
+            </div>
+          </div>
         </div>
 
       </section>
 
       <!-- RIGHT SIDEBAR (Telemetry & Monitors) -->
-      <aside class="w-80 border-l border-border bg-bg-secondary flex flex-col shrink-0 overflow-hidden" id="right-panel">
-         <div class="h-10 border-b border-border flex items-center px-2">
-            <button onclick="switchRightTab('tab-terminal', this)" class="tab-btn active px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Terminal</button>
-            <button onclick="switchRightTab('tab-monitor', this)" class="tab-btn px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Monitor</button>
-         </div>
-         <div id="tab-terminal" class="tab-content active flex-1 flex flex-col overflow-hidden bg-black">
-            <div id="terminal-output" class="flex-1 overflow-y-auto p-3 font-mono text-[10px] leading-relaxed"></div>
-            <div class="p-2 border-t border-border flex items-center gap-2">
-               <span class="text-accent font-bold">$</span>
-               <input type="text" id="terminal-input" onkeypress="handleTerminalInput(event)" class="flex-1 bg-transparent border-none outline-none text-white font-mono text-[11px]">
+      <aside class="w-80 border-l border-border bg-bg-secondary flex flex-col shrink-0 overflow-hidden"
+        id="right-panel">
+        <div class="h-10 border-b border-border flex items-center px-2">
+          <button onclick="switchRightTab('tab-terminal', this)"
+            class="tab-btn active px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Terminal</button>
+          <button onclick="switchRightTab('tab-monitor', this)"
+            class="tab-btn px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Monitor</button>
+        </div>
+        <div id="tab-terminal" class="tab-content active flex-1 flex flex-col overflow-hidden bg-black">
+          <div id="terminal-output" class="flex-1 overflow-y-auto p-3 font-mono text-[10px] leading-relaxed"></div>
+          <div class="p-2 border-t border-border flex items-center gap-2">
+            <span class="text-accent font-bold">$</span>
+            <input type="text" id="terminal-input" onkeypress="handleTerminalInput(event)"
+              class="flex-1 bg-transparent border-none outline-none text-white font-mono text-[11px]">
+          </div>
+        </div>
+        <div id="tab-monitor" class="tab-content flex-1 overflow-y-auto p-4 space-y-6">
+          <div class="space-y-2">
+            <h4 class="text-[10px] font-bold text-text-tertiary uppercase">GPU Thermal</h4>
+            <div class="flex justify-between text-xs mb-1"><span>Package Temp</span><span id="gpu-temp-val"
+                class="text-orange-400 font-bold">38°C</span></div>
+            <div class="h-1.5 bg-bg-primary rounded-full overflow-hidden border border-border">
+              <div id="gpu-temp-bar" class="h-full bg-orange-500" style="width: 38%"></div>
             </div>
-         </div>
-         <div id="tab-monitor" class="tab-content flex-1 overflow-y-auto p-4 space-y-6">
-            <div class="space-y-2">
-                <h4 class="text-[10px] font-bold text-text-tertiary uppercase">GPU Thermal</h4>
-                <div class="flex justify-between text-xs mb-1"><span>Package Temp</span><span id="gpu-temp-val" class="text-orange-400 font-bold">38°C</span></div>
-                <div class="h-1.5 bg-bg-primary rounded-full overflow-hidden border border-border"><div id="gpu-temp-bar" class="h-full bg-orange-500" style="width: 38%"></div></div>
-            </div>
-         </div>
+          </div>
+        </div>
       </aside>
 
     </main>
   </div>
 
   <!-- MODALS -->
-  <div id="hitl-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+  <div id="hitl-modal"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
     <div class="bg-bg-secondary border border-accent/20 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
       <h3 class="text-lg font-bold text-white mb-2">Manual Verification</h3>
       <p class="text-sm text-text-secondary mb-6">Agent is requesting authorization for a structural code change.</p>
       <div class="flex gap-3">
-        <button onclick="resolveHitl(false)" class="flex-1 py-2 rounded-xl border border-border text-white font-bold hover:bg-white/5 transition">Deny</button>
-        <button onclick="resolveHitl(true)" class="flex-1 py-2 rounded-xl bg-accent text-bg-primary font-bold hover:brightness-110 transition">Approve</button>
+        <button onclick="resolveHitl(false)"
+          class="flex-1 py-2 rounded-xl border border-border text-white font-bold hover:bg-white/5 transition">Deny</button>
+        <button onclick="resolveHitl(true)"
+          class="flex-1 py-2 rounded-xl bg-accent text-bg-primary font-bold hover:brightness-110 transition">Approve</button>
       </div>
     </div>
   </div>
@@ -251,8 +253,8 @@
   <!-- FLOATING TERMINAL (FAB) -->
   <div id="floating-terminal" class="floating-terminal-window">
     <div class="terminal-hdr">
-        <span class="text-[10px] font-mono text-text-secondary">agent-pipeline ~ sh</span>
-        <button onclick="toggleTerminal()" class="text-text-tertiary hover:text-white"><i class="ti ti-x"></i></button>
+      <span class="text-[10px] font-mono text-text-secondary">agent-pipeline ~ sh</span>
+      <button onclick="toggleTerminal()" class="text-text-tertiary hover:text-white"><i class="ti ti-x"></i></button>
     </div>
     <div id="fab-terminal-output" class="flex-1 overflow-y-auto p-3 font-mono text-[9px] bg-[#06080a]"></div>
   </div>

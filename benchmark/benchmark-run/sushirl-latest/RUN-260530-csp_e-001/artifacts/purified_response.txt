@@ -1,0 +1,18 @@
+I notice you've provided a code snippet with a request to "Perform;" but haven't specified what exactly you'd like me to do with it.
+
+The code appears to be a TypeScript implementation for a video synchronization system (likely for a trip carpooling app). It includes:
+
+1. A `TripRoom` interface defining the state of a shared video viewing session
+2. A `calculateSyncAction` function that determines synchronization strategy based on drift
+
+**What would you like me to perform?**
+
+Please clarify one of the following:
+
+- **Execute the logic** with specific input values (clientTime, serverTime, drift)?
+- **Explain** how the synchronization algorithm works?
+- **Debug** any issues in the code?
+- **Extend** the implementation with additional features?
+- **Something else entirely**?
+
+Once you provide the specific task and any necessary input data, I'll be happy to help!

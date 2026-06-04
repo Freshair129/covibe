@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Music2, Clock, Users, BarChart3, Home, RotateCw } from "lucide-react";
+import { FeedbackForm } from "./FeedbackForm";
 
 type TripSummaryData = {
   roomId: string;
@@ -117,6 +118,8 @@ export function TripSummary({
           ))}
         </div>
       </div>
+
+      <FeedbackForm roomId={data.roomId} serverBase={serverBase} />
 
       <button className="primary-action" type="button" onClick={onClose}>
         <Home aria-hidden="true" />

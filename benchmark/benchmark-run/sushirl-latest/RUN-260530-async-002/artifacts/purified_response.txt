@@ -1,0 +1,42 @@
+## Implementation
+
+The code you've provided appears to be a video synchronization system for a shared viewing experience (like a "trip room" where multiple users watch the same video together). The function `calculateSyncAction` determines how to handle synchronization drift between client and server.
+
+Here's the complete implementation:
+
+```typescript
+function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+    if (drift < 250) return 'ignore';
+    if (drift < 800) return 'adjust_rate';
+    return 'seek';
+}
+```
+
+### Logic Explanation:
+
+| Drift Range | Action | Reasoning |
+|-------------|--------|-----------|
+| `< 250ms` | `ignore` | Small drift is within acceptable tolerance; let natural clock drift handle it |
+| `250-800ms` | `adjust_rate` | Moderate drift requires adjusting playback speed to catch up |
+| `≥ 800ms` | `seek` | Large drift requires jumping to the correct position |
+
+### Complete Context:
+
+```typescript
+interface TripRoom {
+    id: string;
+    hostId: string;
+    passengers: string[];
+    currentVideoId: string;
+    isPlaying: boolean;
+    serverTime: number;
+}
+
+function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+    if (drift < 250) return 'ignore';
+    if (drift < 800) return 'adjust_rate';
+    return 'seek';
+}
+```
+
+The implementation is complete. The function takes the drift (difference between client and server time) and returns one of three sync strategies based on the magnitude of the drift.

@@ -1,0 +1,14 @@
+{
+  "benchmark_id": "bench_20260530_1323",
+  "run_id": "RUN-260530-async-002",
+  "session_id": "sess_manual_001",
+  "model": {
+    "name": "sushirl:latest"
+  },
+  "runtime": {
+    "runtime": "ollama"
+  },
+  "environment": {
+    "os": "Windows"
+  }
+}

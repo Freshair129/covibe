@@ -15,8 +15,8 @@ function useVoiceChat({
 }) {
   const localStreamRef = useRef<MediaStream | null>(null);
   const peersRef = useRef<Map<string, RTCPeerConnection>>(new Map());
-  const [enabled, setEnabled] = useState(false);
-  const [muted, setMuted] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceError, setVoiceError] = useState("");
   const [remoteStreams, setRemoteStreams] = useState<Record<string, MediaStream>>({});
 
@@ -99,34 +99,45 @@ function useVoiceChat({
         video: false
       });
       localStreamRef.current = stream;
-      setEnabled(true);
-      setMuted(false);
-      send({ type: "voice_status", enabled: true });
+      setIsConnected(true);
+      // Mute all audio tracks immediately (PTT behavior)
+      localStreamRef.current?.getAudioTracks().forEach((track) => {
+        track.enabled = false;
+      });
     } catch {
       setVoiceError("เปิดไมค์ไม่ได้ ตรวจ permission ของ browser อีกครั้ง");
     }
-  }, [send]);
+  }, []);
 
   const stopVoice = useCallback(() => {
     for (const remoteId of peersRef.current.keys()) closePeer(remoteId);
     localStreamRef.current?.getTracks().forEach((track) => track.stop());
     localStreamRef.current = null;
     setRemoteStreams({});
-    setEnabled(false);
-    setMuted(false);
+    setIsConnected(false);
+    setIsSpeaking(false);
     send({ type: "voice_status", enabled: false });
   }, [closePeer, send]);
 
-  const toggleMute = useCallback(() => {
-    const nextMuted = !muted;
+  const startSpeaking = useCallback(() => {
+    if (!isConnected) return;
     localStreamRef.current?.getAudioTracks().forEach((track) => {
-      track.enabled = !nextMuted;
+      track.enabled = true;
     });
-    setMuted(nextMuted);
-  }, [muted]);
+    setIsSpeaking(true);
+    send({ type: "voice_status", enabled: true });
+  }, [isConnected, send]);
+
+  const stopSpeaking = useCallback(() => {
+    localStreamRef.current?.getAudioTracks().forEach((track) => {
+      track.enabled = false;
+    });
+    setIsSpeaking(false);
+    send({ type: "voice_status", enabled: false });
+  }, [send]);
 
   useEffect(() => {
-    if (!enabled || !room) return;
+    if (!isConnected || !room) return;
     const activeRemoteIds = room.participants
       .filter((participant) => participant.id !== participantId && participant.voiceEnabled)
       .map((participant) => participant.id);
@@ -140,10 +151,10 @@ function useVoiceChat({
     for (const remoteId of peersRef.current.keys()) {
       if (!activeRemoteIds.includes(remoteId)) closePeer(remoteId);
     }
-  }, [closePeer, createOffer, enabled, participantId, room?.participants]);
+  }, [closePeer, createOffer, isConnected, participantId, room?.participants]);
 
   useEffect(() => {
-    if (!enabled || !incomingSignal) return;
+    if (!isConnected || !incomingSignal) return;
     const { fromId, signal } = incomingSignal;
     const peer = makePeer(fromId);
 
@@ -172,16 +183,17 @@ function useVoiceChat({
       setVoiceError("เชื่อมต่อเสียงไม่สำเร็จ ลองปิดแล้วเปิดไมค์ใหม่");
       closePeer(fromId);
     });
-  }, [closePeer, enabled, incomingSignal, makePeer, send]);
+  }, [closePeer, isConnected, incomingSignal, makePeer, send]);
 
   return {
-    enabled,
-    muted,
+    isConnected,
+    isSpeaking,
     voiceError,
     remoteStreams,
     startVoice,
     stopVoice,
-    toggleMute
+    startSpeaking,
+    stopSpeaking
   };
 }
 
@@ -196,7 +208,7 @@ export function VoicePanel({
   send: (message: ClientMessage) => void;
   incomingSignal: VoiceSignal | null;
 }) {
-  const { enabled, muted, voiceError, remoteStreams, startVoice, stopVoice, toggleMute } =
+  const { isConnected, isSpeaking, voiceError, remoteStreams, startVoice, stopVoice, startSpeaking, stopSpeaking } =
     useVoiceChat({ room, participantId, send, incomingSignal });
   const activeCount = room.participants.filter((participant) => participant.voiceEnabled).length;
 
@@ -206,19 +218,28 @@ export function VoicePanel({
         <Mic aria-hidden="true" />
         <h2>Voice chat</h2>
       </div>
-      <div className="voice-actions">
+      <div className="voice-actions" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <button
-          className={`voice-button ${enabled ? "active" : ""}`}
+          className={`voice-button ${isConnected ? "active" : ""}`}
           type="button"
-          onClick={enabled ? stopVoice : startVoice}
+          onClick={isConnected ? stopVoice : startVoice}
         >
-          {enabled ? <MicOff aria-hidden="true" /> : <Mic aria-hidden="true" />}
-          {enabled ? "ปิดไมค์" : "เปิดไมค์"}
+          {isConnected ? <MicOff aria-hidden="true" /> : <Mic aria-hidden="true" />}
+          {isConnected ? "ตัดการเชื่อมต่อ" : "เชื่อมต่อระบบเสียง (PTT)"}
         </button>
-        <button className="voice-button" type="button" onClick={toggleMute} disabled={!enabled}>
-          {muted ? <MicOff aria-hidden="true" /> : <Mic aria-hidden="true" />}
-          {muted ? "Unmute" : "Mute"}
-        </button>
+        {isConnected && (
+          <button 
+            className={`ptt-button ${isSpeaking ? "speaking" : ""}`} 
+            onPointerDown={startSpeaking} 
+            onPointerUp={stopSpeaking} 
+            onPointerLeave={stopSpeaking}
+            // Prevent default context menu on long press in mobile browsers
+            onContextMenu={(e) => e.preventDefault()}
+          >
+            <Mic aria-hidden="true" />
+            {isSpeaking ? "กำลังส่งเสียง..." : "กดค้างเพื่อพูด"}
+          </button>
+        )}
       </div>
       <p className="muted">ออนไลน์เสียง {activeCount} คน</p>
       {voiceError && <p className="error-line">{voiceError}</p>}

@@ -1,0 +1,71 @@
+<think>
+Let me analyze this request carefully:
+
+1. The user is asking me to "Implement" something
+2. They've provided a code snippet that appears to be TypeScript code for a video synchronization system
+3. The code includes:
+   - A `TripRoom` interface with properties for video sync state
+   - A `calculateSyncAction` function that determines sync strategy based on drift
+4. The code is repeated multiple times (appears to be a stress test pattern)
+5. The function is incomplete - it cuts off at `if (drift < 250) return 'ignore';`
+
+The actual implementation needed is the `calculateSyncAction` function logic. Let me implement this properly:
+
+```typescript
+function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+    if (drift < 250) return 'ignore';
+    if (drift < 800) return 'adjust_rate';
+    return 'seek';
+}
+```
+
+This is a simple threshold-based decision function:
+- If drift is small (< 250ms): ignore the drift, let natural sync happen
+- If drift is moderate (< 800ms): adjust playback rate to catch up
+- If drift is large (≥ 800ms): seek to the correct position
+
+The implementation is straightforward - just need to complete the function body.
+</think>
+
+## Implementation
+
+The code you've provided appears to be a video synchronization system for a shared viewing experience (like a "trip room" where multiple users watch the same video together). The function `calculateSyncAction` determines how to handle synchronization drift between client and server.
+
+Here's the complete implementation:
+
+```typescript
+function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+    if (drift < 250) return 'ignore';
+    if (drift < 800) return 'adjust_rate';
+    return 'seek';
+}
+```
+
+### Logic Explanation:
+
+| Drift Range | Action | Reasoning |
+|-------------|--------|-----------|
+| `< 250ms` | `ignore` | Small drift is within acceptable tolerance; let natural clock drift handle it |
+| `250-800ms` | `adjust_rate` | Moderate drift requires adjusting playback speed to catch up |
+| `≥ 800ms` | `seek` | Large drift requires jumping to the correct position |
+
+### Complete Context:
+
+```typescript
+interface TripRoom {
+    id: string;
+    hostId: string;
+    passengers: string[];
+    currentVideoId: string;
+    isPlaying: boolean;
+    serverTime: number;
+}
+
+function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+    if (drift < 250) return 'ignore';
+    if (drift < 800) return 'adjust_rate';
+    return 'seek';
+}
+```
+
+The implementation is complete. The function takes the drift (difference between client and server time) and returns one of three sync strategies based on the magnitude of the drift.

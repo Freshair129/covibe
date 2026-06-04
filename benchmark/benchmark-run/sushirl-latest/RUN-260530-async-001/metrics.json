@@ -1,0 +1,22 @@
+{
+  "status": "completed",
+  "tokens": {
+    "input": 8192,
+    "output": 601,
+    "total": 8793
+  },
+  "throughput": {
+    "avg_tps": 16.77
+  },
+  "latency": {
+    "ttft_ms": 8091
+  },
+  "gpu": {
+    "max_temp_c": 67,
+    "max_power_w": 151.14
+  },
+  "quality": {
+    "passed": true,
+    "rank": "verified"
+  }
+}

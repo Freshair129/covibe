@@ -1,0 +1,933 @@
+Perform a Root Cause Analysis (RCA) and propose a technical fix for the following scenario:
+
+[CONTEXT]
+A Python script extracts TypeScript code from an LLM response using: `re.search(r"```typescript\s*(.*?)\s*```", response, re.DOTALL)`.
+The LLM used is a Reasoning Model (Sushi RL) that outputs:
+1. A `<think>` block containing the original source code.
+2. A final output block containing the generated Unit Test.
+
+[PROBLEM]
+The script extracts the original source code instead of the Unit Test.
+
+[TASK]
+1. Identify the root cause.
+2. Propose a more robust Python regex or logic to ensure the correct block is extracted.
+
+
+[CONTEXT AMMUNITION]
+
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+        if (drift < 250) return 'ignore';
+        if (drift < 800) return 'adjust_rate';
+        return 'seek';
+    }
+    
+    // CoVibe Project Context Simulation
+    // Architecture: React + Vite + WebSocket + YouTube IFrame API
+    // This is a dummy context used to fill the context window for stress testing.
+    // The goal is to see how the model handles retrieval and logic when the KV cache is heavily populated.
+    
+    interface TripRoom {
+        id: string;
+        hostId: string;
+        passengers: string[];
+        currentVideoId: string;
+        isPlaying: boolean;
+        serverTime: number;
+    }
+    
+    function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {

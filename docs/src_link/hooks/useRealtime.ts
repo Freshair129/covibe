@@ -10,6 +10,7 @@ export function useRealtime() {
   const [participantId, setParticipantId] = useState(makeParticipantId);
   const [error, setError] = useState("");
   const [voiceSignal, setVoiceSignal] = useState<VoiceSignal | null>(null);
+  const [webrtcSignal, setWebrtcSignal] = useState<{ fromId: string; signalType: string; signal: any } | null>(null);
   const [hostNotification, setHostNotification] = useState("");
   const reconnectCountRef = useRef(0);
   const reconnectTimerRef = useRef<number | null>(null);
@@ -95,6 +96,9 @@ export function useRealtime() {
       if (message.type === "voice_signal") {
         setVoiceSignal({ fromId: message.fromId, signal: message.signal });
       }
+      if (message.type === "webrtc_signal") {
+        setWebrtcSignal({ fromId: message.fromId, signalType: message.signalType, signal: message.signal });
+      }
       if (message.type === "error") {
         if (message.message.includes("ไม่พบห้อง")) {
           localStorage.removeItem(ROOM_KEY);
@@ -137,5 +141,5 @@ export function useRealtime() {
     wsRef.current.send(JSON.stringify({ participantId, roomId: room?.roomId, ...message }));
   }, [participantId, room?.roomId, connect]);
 
-  return { status, room, participantId, error, setError, send, voiceSignal, hostNotification };
+  return { status, room, participantId, error, setError, send, voiceSignal, webrtcSignal, hostNotification };
 }

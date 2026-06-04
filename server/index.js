@@ -741,7 +741,7 @@ const server = createServer(async (req, res) => {
   // ---------------------------------------------------------------------------
   if (pathname === "/data/benchmarks.json" || pathname === "/dashboard/data/benchmarks.json") {
     try {
-      const filePath = join(COVIBE_ROOT, "benchmark", "ui", "data", "benchmarks.json");
+      const filePath = join(COVIBE_ROOT, "data", "benchmarks.json");
       if (existsSync(filePath)) {
         const content = await readFile(filePath);
         res.writeHead(200, { "content-type": "application/json" });

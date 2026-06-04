@@ -7,7 +7,8 @@ import {
   appendLog as _appendLog,
   upsertParticipant as _upsertParticipant,
   setPlayback as _setPlayback,
-  parseDuration as _parseDuration
+  parseDuration as _parseDuration,
+  markActivity as _markActivity
 } from "./lib.js";
 import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
@@ -60,6 +61,42 @@ const activeTasks = new Map();
 const analyticsStore = new Map(); // roomId -> events[]
 const searchCache = new Map(); // query -> { results, expiresAt }
 const hostHandoffTimers = new Map(); // roomId -> timer
+const rateLimitStore = new Map(); // clientId -> { timestamps: number[], lastSkipAt: number }
+
+const RATE_LIMIT_WINDOW_MS = 5000;
+const MAX_MESSAGES_PER_WINDOW = 12;
+const STRICT_COOLDOWN_MS = 2000; // for skip/add_track
+const HARD_LIMIT_COUNT = 50; // terminate if exceeded
+
+function isRateLimited(clientId, messageType) {
+  const now = Date.now();
+  if (!rateLimitStore.has(clientId)) {
+    rateLimitStore.set(clientId, { timestamps: [], lastStrictAt: 0 });
+  }
+
+  const record = rateLimitStore.get(clientId);
+  
+  // 1. Sliding Window Check
+  record.timestamps = record.timestamps.filter(t => now - t < RATE_LIMIT_WINDOW_MS);
+  
+  if (record.timestamps.length >= MAX_MESSAGES_PER_WINDOW) {
+    const isHardLimit = record.timestamps.length >= HARD_LIMIT_COUNT;
+    return { limited: true, reason: "ส่งข้อมูลเร็วเกินไป กรุณารอสักครู่", hardLimit: isHardLimit };
+  }
+
+  // 2. Strict Cooldown for Skip/Add
+  const isStrictAction = ["skip", "add_track"].includes(messageType);
+  if (isStrictAction) {
+    if (now - record.lastStrictAt < STRICT_COOLDOWN_MS) {
+      return { limited: true, reason: "ใจเย็นๆ... อย่าเพิ่งรีบข้ามเพลง", hardLimit: false };
+    }
+    record.lastStrictAt = now;
+  }
+
+  // 3. Update Record
+  record.timestamps.push(now);
+  return { limited: false };
+}
 
 // Real-time benchmark & telemetry states
 let activeBenchmarkProcess = null;
@@ -652,6 +689,42 @@ const server = createServer(async (req, res) => {
   }
 
   // ---------------------------------------------------------------------------
+  // Feedback API
+  // ---------------------------------------------------------------------------
+  if (pathname === "/api/feedback" && method === "POST") {
+    let body = "";
+    req.on("data", chunk => { body += chunk; });
+    req.on("end", () => {
+      try {
+        const feedback = JSON.parse(body);
+        if (!feedback.rating) {
+          res.writeHead(400, { "content-type": "application/json", "Access-Control-Allow-Origin": "*" });
+          res.end(JSON.stringify({ error: "Rating is required" }));
+          return;
+        }
+
+        const feedbackPath = path.join(process.cwd(), "data", "feedback.jsonl");
+        const entry = JSON.stringify({ ...feedback, serverTimestamp: Date.now() }) + "\n";
+        
+        fs.appendFile(feedbackPath, entry, (err) => {
+          if (err) {
+            console.error("[server] Failed to save feedback:", err);
+            res.writeHead(500, { "content-type": "application/json", "Access-Control-Allow-Origin": "*" });
+            res.end(JSON.stringify({ error: "Internal server error" }));
+            return;
+          }
+          res.writeHead(200, { "content-type": "application/json", "Access-Control-Allow-Origin": "*" });
+          res.end(JSON.stringify({ success: true }));
+        });
+      } catch (err) {
+        res.writeHead(400, { "content-type": "application/json", "Access-Control-Allow-Origin": "*" });
+        res.end(JSON.stringify({ error: "Invalid JSON" }));
+      }
+    });
+    return;
+  }
+
+  // ---------------------------------------------------------------------------
   // Analytics API
   // ---------------------------------------------------------------------------
   if (pathname.startsWith("/api/analytics/")) {
@@ -668,7 +741,7 @@ const server = createServer(async (req, res) => {
   // ---------------------------------------------------------------------------
   if (pathname === "/data/benchmarks.json" || pathname === "/dashboard/data/benchmarks.json") {
     try {
-      const filePath = join(COVIBE_ROOT, "benchmark", "ui", "data", "benchmarks.json");
+      const filePath = join(COVIBE_ROOT, "data", "benchmarks.json");
       if (existsSync(filePath)) {
         const content = await readFile(filePath);
         res.writeHead(200, { "content-type": "application/json" });
@@ -703,11 +776,19 @@ const server = createServer(async (req, res) => {
   }
 
   // Try to serve from public directory
-  const publicFile = join(COVIBE_ROOT, "public", pathname);
-  if (existsSync(publicFile)) {
+  let staticPath = pathname;
+  if (staticPath.startsWith("/public/")) {
+    staticPath = staticPath.slice(7); // Remove "/public" but keep leading slash for join or handle correctly
+  }
+  
+  // Clean path to prevent directory traversal and handle join correctly
+  const safePath = staticPath.replace(/^\/+/, ""); 
+  const publicFile = join(COVIBE_ROOT, "public", safePath);
+
+  if (existsSync(publicFile) && statSync(publicFile).isFile()) {
     try {
       const content = await readFile(publicFile);
-      const ext = pathname.split(".").pop();
+      const ext = safePath.split(".").pop();
       const mime = {
         js: "application/javascript",
         css: "text/css",
@@ -716,10 +797,15 @@ const server = createServer(async (req, res) => {
         webmanifest: "application/manifest+json"
       }[ext] || "text/plain";
       
-      res.writeHead(200, { "content-type": mime });
+      res.writeHead(200, { 
+        "content-type": mime,
+        "Access-Control-Allow-Origin": "*" 
+      });
       res.end(content);
       return;
-    } catch (e) {}
+    } catch (e) {
+        console.error("[server] Error serving public file:", e);
+    }
   }
 
   res.writeHead(404, { "content-type": "application/json" });
@@ -897,6 +983,9 @@ wss.on("connection", (ws) => {
   getTelemetryData().then(telemetry => send(ws, { type: "telemetry_update", telemetry })).catch(() => {});
 
   ws.on("message", (raw) => {
+    const client = clients.get(clientId);
+    if (!client) return;
+
     let data;
     try {
       data = JSON.parse(raw.toString());
@@ -905,8 +994,19 @@ wss.on("connection", (ws) => {
       return;
     }
 
-    const client = clients.get(clientId);
-    if (!client) return;
+    // 0. Rate Limiting Check
+    const skipTypes = ["ping", "pong", "sync_report"];
+    if (!skipTypes.includes(data.type)) {
+      const limit = isRateLimited(clientId, data.type);
+      if (limit.limited) {
+        send(ws, { type: "error", message: limit.reason });
+        if (limit.hardLimit) {
+          console.warn(`[security] Terminating flooding client: ${clientId}`);
+          ws.terminate();
+        }
+        return;
+      }
+    }
 
     if (data.type === "create_room") {
       const participantId = data.participantId || clientId;
@@ -1480,6 +1580,18 @@ wss.on("connection", (ws) => {
       return;
     }
 
+    if (data.type === "webrtc_signal") {
+      const targetId = String(data.targetId || "");
+      if (!targetId || !room.participants[targetId]) return;
+      sendToParticipant(room.roomId, targetId, {
+        type: "webrtc_signal",
+        signalType: data.signalType,
+        signal: data.signal,
+        fromId: data.fromId || actorId
+      });
+      return;
+    }
+
     if (data.type === "play") {
       setPlayback(room, {
         isPlaying: true,
@@ -1526,7 +1638,18 @@ wss.on("connection", (ws) => {
       const actualMs = Math.max(0, Number(data.positionMs) || 0);
       const driftMs = Math.round(actualMs - expectedMs);
       const latencyMs = Math.max(0, Date.now() - Number(data.clientSentAt || Date.now()));
+      
       upsertParticipant(room, actorId, { driftMs, latencyMs });
+      
+      // Log drift metric for performance auditing
+      appendLog(room, { 
+        type: "drift_sample", 
+        actorId, 
+        driftMs, 
+        latencyMs, 
+        trackId: room.currentTrack?.id 
+      });
+
       send(ws, {
         type: "sync_target",
         serverTime: Date.now(),
@@ -1544,6 +1667,7 @@ wss.on("connection", (ws) => {
   });
 
   ws.on("close", () => {
+    rateLimitStore.delete(clientId);
     const client = clients.get(clientId);
     clients.delete(clientId);
     if (!client?.roomId) return;
@@ -1582,11 +1706,26 @@ wss.on("connection", (ws) => {
 });
 
 setInterval(() => {
-  const cutoff = Date.now() - 1000 * 60 * 60 * 4;
+  const now = Date.now();
+  const INACTIVE_LIMIT = 1000 * 60 * 30; // 30 minutes
+  const LIFETIME_LIMIT = 1000 * 60 * 60 * 6; // 6 hours
+
   for (const [roomId, room] of rooms.entries()) {
-    if (room.lastActiveAt < cutoff) rooms.delete(roomId);
+    const isInactive = now - room.lastActiveAt > INACTIVE_LIMIT;
+    const isExpired = now - room.createdAt > LIFETIME_LIMIT;
+    const hasParticipants = Object.values(room.participants).some(p => p.connected);
+
+    if (isExpired || (isInactive && !hasParticipants)) {
+      console.log(`[cleanup] Removing room ${roomId} (Expired: ${isExpired}, Inactive: ${isInactive})`);
+      
+      // Notify remaining clients if any
+      broadcast(roomId, { type: "error", message: "ห้องหมดอายุหรือไม่มีความเคลื่อนไหวนานเกินไป" });
+      
+      rooms.delete(roomId);
+      analyticsStore.delete(roomId);
+    }
   }
-}, 1000 * 60 * 10);
+}, 1000 * 60 * 5);
 
 // Start the HTTP/WebSocket server with fallback port handling
 function startServer(port) {

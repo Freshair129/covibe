@@ -1,0 +1,67 @@
+<think>
+Let me analyze this request carefully:
+
+1. The user has provided a code snippet with TypeScript interfaces and a function
+2. The code is repeated multiple times (appears to be a stress test or context window filling attempt)
+3. The actual request is "Implement;" at the beginning
+
+The code defines:
+- `TripRoom` interface with properties: id, hostId, passengers, currentVideoId, isPlaying, serverTime
+- `calculateSyncAction` function that takes clientTime, serverTime, and drift, returning 'ignore', 'adjust_rate', or 'seek'
+
+The implementation logic is already present in the code. The function `calculateSyncAction` is already implemented with the logic:
+- If drift < 250: return 'ignore'
+- If drift < 800: return 'adjust_rate'
+- Otherwise: return 'seek'
+
+Since the implementation is already in the provided code, I should present this as the final answer, perhaps with some additional context or usage examples.
+</think>
+
+# Implementation Analysis
+
+Looking at the provided code, the implementation is already complete. The code defines:
+
+1. **`TripRoom` interface** - A data structure for a trip room with:
+   - `id`: string
+   - `hostId`: string  
+   - `passengers`: string[]
+   - `currentVideoId`: string
+   - `isPlaying`: boolean
+   - `serverTime`: number
+
+2. **`calculateSyncAction` function** - A synchronization logic function that:
+   - Returns `'ignore'` if drift < 250ms
+   - Returns `'adjust_rate'` if drift < 800ms
+   - Returns `'seek'` if drift ≥ 800ms
+
+## Final Implementation
+
+```typescript
+interface TripRoom {
+    id: string;
+    hostId: string;
+    passengers: string[];
+    currentVideoId: string;
+    isPlaying: boolean;
+    serverTime: number;
+}
+
+function calculateSyncAction(clientTime: number, serverTime: number, drift: number) {
+    if (drift < 250) return 'ignore';
+    if (drift < 800) return 'adjust_rate';
+    return 'seek';
+}
+```
+
+## Usage Example
+
+```typescript
+const clientTime = 1000;
+const serverTime = 1250;
+const drift = Math.abs(clientTime - serverTime); // 250
+
+const action = calculateSyncAction(clientTime, serverTime, drift);
+// Returns: 'ignore' (drift is exactly 250, which is not < 250)
+```
+
+The implementation is complete and ready for use in a WebSocket-based video synchronization system.

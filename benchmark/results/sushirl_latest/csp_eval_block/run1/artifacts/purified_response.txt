@@ -1,0 +1,12 @@
+I notice you've provided code snippets, but there's no specific question or task stated. The code appears to be related to a video synchronization system (possibly for a trip-sharing app), with:
+
+1. A `TripRoom` interface
+2. A `calculateSyncAction` function that determines sync strategy based on drift
+
+**Could you please clarify what you'd like me to do?** For example:
+- Solve a specific problem using this code?
+- Explain how the synchronization logic works?
+- Debug an issue?
+- Something else?
+
+Please provide the actual question or task, and I'll give you a detailed step-by-step solution with verification.

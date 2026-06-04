@@ -1,9 +1,15 @@
 export type Role = "rider" | "passenger";
 
+export type FileSyncPayload = 
+  | { action: "offer"; metadata: { hash: string; title: string; size: number } }
+  | { action: "chunk"; hash: string; chunk: ArrayBuffer; index: number; total: number }
+  | { action: "complete"; hash: string };
+
 export type Participant = {
   id: string;
   role: Role;
   displayName: string;
+  avatar?: string;
   connected: boolean;
   driftMs: number;
   latencyMs: number;
@@ -12,7 +18,7 @@ export type Participant = {
 
 export type Track = {
   id: string;
-  source: "youtube";
+  source: "youtube" | "local";
   sourceId: string;
   title: string;
   thumbnailUrl: string;
@@ -63,6 +69,7 @@ export type ServerMessage =
   | { type: "chat_message"; message: ChatMessage }
   | { type: "voice_status"; participantId: string; enabled: boolean }
   | { type: "voice_signal"; fromId: string; signal: VoiceSignal["signal"] }
+  | { type: "webrtc_signal"; fromId: string; signalType: string; signal: any }
   | {
       type: "sync_target";
       expectedMs: number;

@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import {
   Bike,
-  Bluetooth,
   CirclePause,
   CirclePlay,
   Copy,
   Headphones,
+  HelpCircle,
   Link as LinkIcon,
   Moon,
   Music2,
@@ -22,28 +22,114 @@ import {
   Volume2,
   Wifi,
   ChevronUp,
-  ChevronDown
+  ChevronDown,
+  Zap,
+  Flame,
+  Smile,
+  Heart,
+  Music
 } from "lucide-react";
 
 import { youtubeIdFromInput, thumbnailFor } from "./utils/youtube";
+import { getFile } from "./utils/db";
 import { useRealtime } from "./hooks/useRealtime";
+import { useWebRTC } from "./hooks/useWebRTC";
+import { useWakeLock } from "./hooks/useWakeLock";
+import { useIdleTimer } from "./hooks/useIdleTimer";
+import { useFileSync } from "./hooks/useFileSync";
+import { useRecentlyPlayed } from "./hooks/useRecentlyPlayed";
+
 import { YouTubeDeck } from "./components/YouTubeDeck";
+import { LocalAudioPlayer } from "./components/LocalAudioPlayer";
+import { HeroSection } from "./components/HeroSection";
+import { SupportPanel } from "./components/SupportPanel";
+import { Logo } from "./components/Logo";
+import { AvatarPicker } from "./components/AvatarPicker";
+import { OfflineBanner } from "./components/OfflineBanner";
 import { VoicePanel } from "./components/VoicePanel";
 import { ChatPanel } from "./components/ChatPanel";
 import { SearchPanel } from "./components/SearchPanel";
 import { TripSummary } from "./components/TripSummary";
+
 import { formatTime } from "./utils/time";
 import { trackEvent } from "./utils/analytics";
 import { Role } from "./types";
-import { NAME_KEY, ROOM_KEY } from "./constants";
+import { NAME_KEY, ROOM_KEY, AVATAR_KEY } from "./constants";
+
+const ICON_MAP: Record<string, any> = {
+  bike: Bike,
+  users: Users,
+  music: Music,
+  headphones: Headphones,
+  zap: Zap,
+  flame: Flame,
+  smile: Smile,
+  heart: Heart
+};
 
 export default function App() {
-  const { status, room, participantId, error, setError, send, voiceSignal, hostNotification } = useRealtime();
+  const { status, room, participantId, error, setError, send: wsSend, voiceSignal, webrtcSignal, hostNotification } = useRealtime();
+
   const roomFromUrl = new URLSearchParams(location.search).get("room") || "";
   const [role, setRole] = useState<Role>(roomFromUrl ? "passenger" : "rider");
   const [displayName, setDisplayName] = useState(
     localStorage.getItem(NAME_KEY) || (roomFromUrl ? "คนซ้อน" : "คนขับ")
   );
+  const [avatar, setAvatar] = useState(
+    localStorage.getItem(AVATAR_KEY) || "bike"
+  );
+  const [remoteCommand, setRemoteCommand] = useState<any>(null);
+
+  useEffect(() => {
+    localStorage.setItem(NAME_KEY, displayName);
+  }, [displayName]);
+
+  useEffect(() => {
+    localStorage.setItem(AVATAR_KEY, avatar);
+  }, [avatar]);
+
+  const { status: p2pStatus, handleSignal, sendP2P, createOffer } = useWebRTC({
+    roomId: room?.roomId || roomFromUrl || "",
+    participantId,
+    isRider: role === "rider",
+    onMessage: (data) => {
+      console.log("[P2P] Received:", data);
+      if (data.type === "SYNC_OP") {
+        setRemoteCommand(data.payload);
+      } else if (data.type === "FILE_SYNC") {
+        handleFileSync(data.payload);
+      }
+    },
+    sendSignal: (targetId, signalType, signal) => {
+      wsSend({ type: "webrtc_signal", targetId, signalType, signal });
+    }
+  });
+
+  const { sendFileSync, handleFileSync } = useFileSync(sendP2P);
+  const { history: trackHistory, saveTrack } = useRecentlyPlayed();
+
+  const send = useCallback((message: any) => {
+    wsSend(message);
+    if (message.type === "add_track" && message.track) {
+      saveTrack(message.track);
+    }
+    if (p2pStatus === "connected" && ["play", "pause", "seek"].includes(message.type)) {
+      const other = room?.participants.find(p => p.id !== participantId && p.connected);
+      if (other) sendP2P({ type: "SYNC_OP", payload: message });
+    }
+  }, [p2pStatus, room, participantId, sendP2P, wsSend, saveTrack]);
+
+  useEffect(() => {
+    if (webrtcSignal) handleSignal(webrtcSignal.fromId, webrtcSignal.signalType, webrtcSignal.signal);
+  }, [webrtcSignal, handleSignal]);
+
+  useEffect(() => {
+    if (role === "rider" && room && p2pStatus === "idle") {
+      const other = room.participants.find(p => p.id !== participantId && p.connected);
+      if (other) createOffer(other.id);
+    }
+  }, [role, room, participantId, p2pStatus, createOffer]);
+
   const [roomCode, setRoomCode] = useState(roomFromUrl);
   const [trackInput, setTrackInput] = useState("");
   const [trackTitle, setTrackTitle] = useState("");
@@ -51,6 +137,7 @@ export default function App() {
   const [durationMs, setDurationMs] = useState(0);
   const [saver, setSaver] = useState(false);
   const [mediaMode, setMediaMode] = useState<"music" | "video">("music");
+  const [showSupport, setShowSupport] = useState(false);
   const [showTripSummary, setShowTripSummary] = useState(false);
   const [tripRoomId, setTripRoomId] = useState("");
   const autoJoinedRef = useRef(false);
@@ -63,15 +150,24 @@ export default function App() {
   const currentPosition = room?.playback.positionMs || 0;
   const progress = durationMs ? Math.min(100, (currentPosition / durationMs) * 100) : 0;
 
+  // Keep screen awake while in a room
+  useWakeLock(!!room);
+
+  // Auto OLED saver for Riders after 60s of inactivity
+  useIdleTimer({
+    timeout: 60000,
+    onIdle: () => {
+      setSaver(true);
+      trackEvent(send, "saver_toggle", { enabled: true, auto: true });
+    },
+    isActive: role === "rider" && !!room && !saver
+  });
+
   const connectionLabel = useMemo(() => {
     if (status === "open") return "online";
     if (status === "connecting") return "connecting";
     return "offline";
   }, [status]);
-
-  useEffect(() => {
-    localStorage.setItem(NAME_KEY, displayName);
-  }, [displayName]);
 
   useEffect(() => {
     if (!roomFromUrl || room || status !== "open" || autoJoinedRef.current) return;
@@ -81,13 +177,14 @@ export default function App() {
       type: "join_room",
       roomId: roomFromUrl.trim().toUpperCase(),
       displayName,
+      avatar,
       role: "passenger"
     });
-  }, [displayName, room, roomFromUrl, send, status]);
+  }, [displayName, avatar, room, roomFromUrl, send, status]);
 
   function createRoom() {
     setRole("rider");
-    send({ type: "create_room", displayName });
+    send({ type: "create_room", displayName, avatar });
     trackEvent(send, "room_create");
   }
 
@@ -101,6 +198,7 @@ export default function App() {
       type: "join_room",
       roomId: roomCode.trim().toUpperCase(),
       displayName,
+      avatar,
       role: "passenger"
     });
     trackEvent(send, "room_join", { roomCode: roomCode.trim().toUpperCase() });
@@ -115,6 +213,7 @@ export default function App() {
     send({
       type: "add_track",
       track: {
+        source: "youtube",
         sourceId,
         title: trackTitle.trim() || `YouTube ${sourceId}`,
         thumbnailUrl: thumbnailFor(sourceId)
@@ -152,9 +251,14 @@ export default function App() {
     }
   }
 
+  function emergencyPause() {
+    if (!room?.currentTrack || !room.playback.isPlaying) return;
+    send({ type: "pause", positionMs: currentPosition });
+    trackEvent(send, "emergency_pause");
+  }
+
   function leaveRoom() {
     trackEvent(send, "leave_room", { roomId: room?.roomId });
-    // Show trip summary instead of immediately leaving
     if (room) {
       setTripRoomId(room.roomId);
       setShowTripSummary(true);
@@ -172,15 +276,26 @@ export default function App() {
   }
 
   function copyInvite() {
-    navigator.clipboard.writeText(joinUrl).then(() => {
-      alert("คัดลอกลิงก์เชิญแล้ว!");
-    }).catch(() => {
-      alert("ไม่สามารถคัดลอกลิงก์ได้");
-    });
+    const shareData = {
+      title: "มาร่วมทริป CoVibe กัน!",
+      text: `มาฟังเพลงและคุยกันบนมอไซค์ในห้อง ${room?.roomId} ผ่าน CoVibe!`,
+      url: joinUrl
+    };
+
+    if (navigator.share && navigator.canShare?.(shareData)) {
+      navigator.share(shareData).catch((err) => {
+        console.error("Error sharing:", err);
+      });
+    } else {
+      navigator.clipboard.writeText(joinUrl).then(() => {
+        alert("คัดลอกลิงก์เชิญแล้ว!");
+      }).catch(() => {
+        alert("ไม่สามารถคัดลอกลิงก์ได้");
+      });
+    }
   }
 
   if (showTripSummary && tripRoomId) {
-    // Determine server base URL
     const wsUrl = import.meta.env.VITE_COVIBE_WS_URL || "";
     let serverBase: string;
     if (wsUrl) {
@@ -193,7 +308,7 @@ export default function App() {
         <header className="topbar">
           <div className="brand-lockup">
             <div className="brand-mark">
-              <Bluetooth aria-hidden="true" />
+              <Logo size={28} />
             </div>
             <div>
               <h1>CoVibe</h1>
@@ -220,11 +335,12 @@ export default function App() {
   }
 
   return (
-    <main className="app-shell">
+    <main className={`app-shell ${role === "rider" ? "rider-mode" : ""}`}>
+      <OfflineBanner />
       <header className="topbar">
         <div className="brand-lockup">
           <div className="brand-mark">
-            <Bluetooth aria-hidden="true" />
+            <Logo size={28} />
           </div>
           <div>
             <h1>CoVibe</h1>
@@ -235,6 +351,20 @@ export default function App() {
           <RadioTower aria-hidden="true" />
           {connectionLabel}
         </div>
+        <button 
+          className="connection-pill" 
+          style={{ marginLeft: '8px', cursor: 'pointer', background: 'rgba(255, 255, 255, 0.05)' }}
+          onClick={() => setShowSupport(true)}
+        >
+          <HelpCircle size={16} />
+          ช่วยเหลือ
+        </button>
+        {p2pStatus === "connected" && (
+          <div className="status-badge">
+            <Wifi aria-hidden="true" />
+            P2P
+          </div>
+        )}
       </header>
 
       {hostNotification && (
@@ -244,79 +374,85 @@ export default function App() {
       )}
 
       {!room ? (
-        <section className="start-grid">
-          <div className="setup-panel">
-            <div className="section-title">
-              <Bike aria-hidden="true" />
-              <h2>เริ่มใช้งาน</h2>
-            </div>
-            <label htmlFor="display-name-input">
-              ชื่อในทริป
-              <input
-                id="display-name-input"
-                value={displayName}
-                onChange={(event) => setDisplayName(event.target.value)}
-                placeholder="เช่น เบส / แพรว"
-              />
-            </label>
-            <div className="role-tabs" role="tablist" aria-label="เลือกบทบาท">
-              <button
-                className={role === "rider" ? "active" : ""}
-                type="button"
-                onClick={() => setRole("rider")}
-              >
+        <>
+          <HeroSection />
+          <section className="start-grid">
+            <div className="setup-panel">
+              <div className="section-title">
                 <Bike aria-hidden="true" />
-                คนขับ
-              </button>
-              <button
-                className={role === "passenger" ? "active" : ""}
-                type="button"
-                onClick={() => setRole("passenger")}
-              >
-                <Users aria-hidden="true" />
-                คนซ้อน
-              </button>
-            </div>
+                <h2>เริ่มใช้งาน</h2>
+              </div>
+              <label htmlFor="display-name-input">
+                ชื่อในทริป
+                <input
+                  id="display-name-input"
+                  value={displayName}
+                  onChange={(event) => setDisplayName(event.target.value)}
+                  placeholder="เช่น เบส / แพรว"
+                />
+              </label>
+              
+              <AvatarPicker selected={avatar} onSelect={setAvatar} />
 
-            {role === "rider" ? (
-              <button className="primary-action" type="button" onClick={createRoom}>
-                <QrCode aria-hidden="true" />
-                สร้างห้องทริป
-              </button>
-            ) : (
-              <div className="join-box">
-                <label htmlFor="room-code-input">
-                  รหัสห้อง
-                  <input
-                    id="room-code-input"
-                    value={roomCode}
-                    onChange={(event) => setRoomCode(event.target.value.toUpperCase())}
-                    placeholder="เช่น A1B2C3"
-                  />
-                </label>
-                <button className="primary-action" type="button" onClick={joinRoom}>
-                  <Wifi aria-hidden="true" />
-                  เข้าร่วมห้อง
+              <div className="role-tabs" role="tablist" aria-label="เลือกบทบาท">
+                <button
+                  className={role === "rider" ? "active" : ""}
+                  type="button"
+                  onClick={() => setRole("rider")}
+                >
+                  <Bike aria-hidden="true" />
+                  คนขับ
+                </button>
+                <button
+                  className={role === "passenger" ? "active" : ""}
+                  type="button"
+                  onClick={() => setRole("passenger")}
+                >
+                  <Users aria-hidden="true" />
+                  คนซ้อน
                 </button>
               </div>
-            )}
-            {error && <p className="error-line">{error}</p>}
-          </div>
 
-          <div className="setup-panel compact">
-            <div className="section-title">
-              <Headphones aria-hidden="true" />
-              <h2>MVP ตอนนี้</h2>
+              {role === "rider" ? (
+                <button className="primary-action" type="button" onClick={createRoom}>
+                  <QrCode aria-hidden="true" />
+                  สร้างห้องทริป
+                </button>
+              ) : (
+                <div className="join-box">
+                  <label htmlFor="room-code-input">
+                    รหัสห้อง
+                    <input
+                      id="room-code-input"
+                      value={roomCode}
+                      onChange={(event) => setRoomCode(event.target.value.toUpperCase())}
+                      placeholder="เช่น A1B2C3"
+                    />
+                  </label>
+                  <button className="primary-action" type="button" onClick={joinRoom}>
+                    <Wifi aria-hidden="true" />
+                    เข้าร่วมห้อง
+                  </button>
+                </div>
+              )}
+              {error && <p className="error-line">{error}</p>}
             </div>
-            <ul className="capability-list">
-              <li>QR/link join</li>
-              <li>YouTube queue</li>
-              <li>play/pause/skip sync</li>
-              <li>drift correction</li>
-              <li>OLED saver</li>
-            </ul>
-          </div>
-        </section>
+
+            <div className="setup-panel compact">
+              <div className="section-title">
+                <Headphones aria-hidden="true" />
+                <h2>MVP ตอนนี้</h2>
+              </div>
+              <ul className="capability-list">
+                <li>QR/link join</li>
+                <li>YouTube queue</li>
+                <li>play/pause/skip sync</li>
+                <li>drift correction</li>
+                <li>OLED saver</li>
+              </ul>
+            </div>
+          </section>
+        </>
       ) : (
         <section className="ride-layout">
           <div className="now-panel">
@@ -326,14 +462,45 @@ export default function App() {
               <button className="leave-pill" onClick={leaveRoom}>ออกจากทริป</button>
             </div>
 
-            <YouTubeDeck
-              room={room}
-              role={role}
-              send={send}
-              volume={volume}
-              mediaMode={mediaMode}
-              onDuration={setDurationMs}
-            />
+            {room.currentTrack?.source === "local" ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <LocalAudioPlayer
+                  track={room.currentTrack}
+                  remoteCommand={remoteCommand}
+                  volume={volume}
+                  onDuration={setDurationMs}
+                />
+                {role === "rider" && p2pStatus === "connected" && (
+                  <button 
+                    className="voice-button" 
+                    style={{ background: 'rgba(120, 244, 191, 0.1)', color: '#78f4bf' }}
+                    onClick={async () => {
+                      const file = await getFile(room.currentTrack!.sourceId);
+                      if (file) {
+                        void sendFileSync(room.currentTrack!.sourceId, file.data, { 
+                          hash: room.currentTrack!.sourceId, 
+                          title: room.currentTrack!.title,
+                          size: file.data.byteLength
+                        });
+                      }
+                    }}
+                  >
+                    <RotateCw size={18} />
+                    Sync เพลงไปที่เครื่องคนซ้อน
+                  </button>
+                )}
+              </div>
+            ) : (
+              <YouTubeDeck
+                room={room}
+                role={role}
+                send={send}
+                volume={volume}
+                mediaMode={mediaMode}
+                onDuration={setDurationMs}
+                remoteCommand={remoteCommand}
+              />
+            )}
 
             <div className="mode-tabs" role="tablist" aria-label="เลือกโหมดเล่น">
               <button
@@ -354,7 +521,7 @@ export default function App() {
               </button>
             </div>
 
-            <div className="track-card">
+            <div className="track-card" onDoubleClick={emergencyPause}>
               {room.currentTrack ? (
                 <>
                   <img src={room.currentTrack.thumbnailUrl} alt="" />
@@ -442,10 +609,12 @@ export default function App() {
             />
 
             <SearchPanel
+              history={trackHistory}
               onAddTrack={(track) => {
                 send({
                   type: "add_track",
                   track: {
+                    source: track.source || "youtube",
                     sourceId: track.sourceId,
                     title: track.title,
                     thumbnailUrl: track.thumbnailUrl
@@ -540,20 +709,44 @@ export default function App() {
                 <h2>ผู้ร่วมทริป</h2>
               </div>
               <div className="people-list">
-                {room.participants.map((participant) => (
-                  <div key={participant.id}>
-                    <span className={participant.connected ? "dot on" : "dot"} />
-                    <strong>{participant.displayName}</strong>
-                    <small>
-                      {participant.role} · drift {Math.round(participant.driftMs)}ms
-                      {participant.voiceEnabled ? " · voice" : ""}
-                    </small>
-                  </div>
-                ))}
+                {room.participants.map((participant) => {
+                  const Icon = ICON_MAP[participant.avatar || "bike"] || Bike;
+                  return (
+                    <div key={participant.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                      <div className="avatar-circle" style={{ 
+                        background: participant.connected ? 'rgba(120, 244, 191, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                        color: participant.connected ? '#78f4bf' : '#a8b6b0',
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: `1px solid ${participant.connected ? 'rgba(120, 244, 191, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`
+                      }}>
+                        <Icon size={18} />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span className={participant.connected ? "dot on" : "dot"} />
+                          <strong>{participant.displayName}</strong>
+                        </div>
+                        <small>
+                          {participant.role} · drift {Math.round(participant.driftMs)}ms
+                          {participant.voiceEnabled ? " · voice" : ""}
+                        </small>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </aside>
         </section>
+      )}
+
+      {showSupport && (
+        <SupportPanel onClose={() => setShowSupport(false)} />
       )}
     </main>
   );

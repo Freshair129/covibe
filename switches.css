@@ -1,0 +1,34 @@
+/* Group 1 */
+
+position: absolute;
+width: 280.11px;
+height: 168.07px;
+left: 423.15px;
+top: 426px;
+
+
+
+/* Rectangle 40322 */
+
+position: absolute;
+width: 280.11px;
+height: 168.07px;
+left: calc(50% - 280.11px/2 - 236.8px);
+top: calc(50% - 168.07px/2 + 30.03px);
+
+background: #ED6C35;
+border-radius: 212.886px;
+
+
+/* Ellipse 193 */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 145.66px;
+height: 145.66px;
+left: 546.4px;
+top: 437.2px;
+
+background: #ECECEC;
+box-shadow: -1.12045px 15.6864px 20.1682px rgba(0, 0, 0, 0.35);

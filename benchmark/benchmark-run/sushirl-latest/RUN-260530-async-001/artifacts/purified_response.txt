@@ -1,0 +1,43 @@
+## Implementation
+
+Based on the provided code, here is the implementation of the `calculateSyncAction` function in TypeScript:
+
+```typescript
+/**
+ * Calculates the appropriate synchronization action based on the time drift
+ * between client and server.
+ * 
+ * @param clientTime - The current time on the client side
+ * @param serverTime - The current time on the server side
+ * @param drift - The absolute time difference between client and server
+ * @returns A string indicating the action: 'ignore', 'adjust_rate', or 'seek'
+ */
+function calculateSyncAction(clientTime: number, serverTime: number, drift: number): string {
+    if (drift < 250) {
+        return 'ignore';
+    }
+    if (drift < 800) {
+        return 'adjust_rate';
+    }
+    return 'seek';
+}
+```
+
+### Usage Example
+
+```typescript
+const clientTime = 1000;
+const serverTime = 1250;
+const drift = Math.abs(clientTime - serverTime); // 250
+
+const action = calculateSyncAction(clientTime, serverTime, drift);
+console.log(action); // Output: 'ignore'
+```
+
+### Logic Summary
+
+| Drift Range | Action | Description |
+|-------------|--------|-------------|
+| 0 - 250 ms | `ignore` | Drift is minimal; no action needed |
+| 250 - 800 ms | `adjust_rate` | Moderate drift; adjust playback rate |
+| ≥ 800 ms | `seek` | Large drift; seek to correct position |
