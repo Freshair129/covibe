@@ -17,7 +17,7 @@ export type Participant = {
 
 export type Track = {
   id: string;
-  source: "youtube";
+  source: "youtube" | "local";
   sourceId: string;
   title: string;
   thumbnailUrl: string;

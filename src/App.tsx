@@ -26,11 +26,14 @@ import {
 } from "lucide-react";
 
 import { youtubeIdFromInput, thumbnailFor } from "./utils/youtube";
+import { getFile } from "./utils/db";
 import { useRealtime } from "./hooks/useRealtime";
 import { useWebRTC } from "./hooks/useWebRTC";
 import { useWakeLock } from "./hooks/useWakeLock";
 import { useIdleTimer } from "./hooks/useIdleTimer";
+import { useFileSync } from "./hooks/useFileSync";
 import { YouTubeDeck } from "./components/YouTubeDeck";
+import { LocalAudioPlayer } from "./components/LocalAudioPlayer";
 import { VoicePanel } from "./components/VoicePanel";
 import { ChatPanel } from "./components/ChatPanel";
 import { SearchPanel } from "./components/SearchPanel";
@@ -173,6 +176,7 @@ export default function App() {
     send({
       type: "add_track",
       track: {
+        source: "youtube",
         sourceId,
         title: trackTitle.trim() || `YouTube ${sourceId}`,
         thumbnailUrl: thumbnailFor(sourceId)
@@ -396,15 +400,45 @@ export default function App() {
               <button className="leave-pill" onClick={leaveRoom}>ออกจากทริป</button>
             </div>
 
-            <YouTubeDeck
-              room={room}
-              role={role}
-              send={send}
-              volume={volume}
-              mediaMode={mediaMode}
-              onDuration={setDurationMs}
-              remoteCommand={remoteCommand}
-            />
+            {room.currentTrack?.source === "local" ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <LocalAudioPlayer
+                  track={room.currentTrack}
+                  remoteCommand={remoteCommand}
+                  volume={volume}
+                  onDuration={setDurationMs}
+                />
+                {role === "rider" && p2pStatus === "connected" && (
+                  <button 
+                    className="voice-button" 
+                    style={{ background: 'rgba(120, 244, 191, 0.1)', color: '#78f4bf' }}
+                    onClick={async () => {
+                      const file = await getFile(room.currentTrack!.sourceId);
+                      if (file) {
+                        void sendFileSync(room.currentTrack!.sourceId, file.data, { 
+                          hash: room.currentTrack!.sourceId, 
+                          title: room.currentTrack!.title,
+                          size: file.data.byteLength
+                        });
+                      }
+                    }}
+                  >
+                    <RotateCw size={18} />
+                    Sync เพลงไปที่เครื่องคนซ้อน
+                  </button>
+                )}
+              </div>
+            ) : (
+              <YouTubeDeck
+                room={room}
+                role={role}
+                send={send}
+                volume={volume}
+                mediaMode={mediaMode}
+                onDuration={setDurationMs}
+                remoteCommand={remoteCommand}
+              />
+            )}
 
             <div className="mode-tabs" role="tablist" aria-label="เลือกโหมดเล่น">
               <button
@@ -517,6 +551,7 @@ export default function App() {
                 send({
                   type: "add_track",
                   track: {
+                    source: track.source || "youtube",
                     sourceId: track.sourceId,
                     title: track.title,
                     thumbnailUrl: track.thumbnailUrl

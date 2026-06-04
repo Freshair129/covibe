@@ -77,7 +77,7 @@ export function SearchPanel({ onAddTrack }: SearchPanelProps) {
         await saveFile(hash, data, { title: file.name });
         onAddTrack({
           id: hash,
-          source: 'youtube', // keep existing type, but ID is hash
+          source: 'local',
           sourceId: hash,
           title: file.name,
           thumbnailUrl: '',
