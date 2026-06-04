@@ -5,6 +5,12 @@
   --color-text-primary-dim: #f3f7f4;
   --color-text-secondary-dim: #a8b6b0;
   --color-text-tertiary-dim: #6b7c75;
+  --color-accent: #78f4bf;
+  --color-accent-glow: rgba(120, 244, 191, 0.2);
+  --color-bg-primary: #0a0d10;
+  --color-bg-secondary: #101418;
+  --color-bg-tertiary: #1a1f24;
+  --color-border: rgba(255, 255, 255, 0.1);
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -92,7 +98,7 @@
 
 .phase-mini-fill {
   height: 100%;
-  background: #78f4bf;
+  background: var(--color-accent);
   width: 0%;
   border-radius: 99px;
   transition: width 0.6s ease;
@@ -107,7 +113,7 @@
 
 .phase-chevron.open {
   transform: rotate(180deg);
-  color: #78f4bf;
+  color: var(--color-accent);
 }
 
 .phase-body {
@@ -287,7 +293,7 @@
 
 .doc-chk,
 .code-chk {
-  accent-color: #78f4bf;
+  accent-color: var(--color-accent);
   cursor: pointer;
 }
 
@@ -298,9 +304,9 @@
 }
 
 body {
-  background-color: theme('colors.bg.primary');
+  background-color: var(--color-bg-primary);
   background-image: radial-gradient(circle at top, rgba(16, 20, 24, 0.9) 0%, rgba(10, 13, 16, 1) 100%);
-  color: theme('colors.text.primary');
+  color: var(--color-text-primary-dim);
   overflow: hidden;
 }
 
@@ -326,7 +332,7 @@ body {
 /* Canvas Grid */
 .bg-grid {
   background-size: 24px 24px;
-  background-image: radial-gradient(circle, theme('colors.border.DEFAULT') 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--color-border) 1px, transparent 1px);
 }
 
 /* =========================================================
@@ -352,7 +358,7 @@ body {
 
 .task-text {
   font-size: 0.85rem;
-  color: theme('colors.text.primary');
+  color: var(--color-text-primary-dim);
   display: flex;
   gap: 6px;
   align-items: center;
@@ -390,8 +396,8 @@ body {
 
 .task-item[data-state="done"] .status-done {
   display: inline-flex;
-  background: theme('colors.accent.dim');
-  color: theme('colors.accent.DEFAULT');
+  background: rgba(120, 244, 191, 0.1);
+  color: var(--color-accent);
   border: 1px solid rgba(120, 244, 191, 0.2);
 }
 
@@ -438,9 +444,9 @@ body {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #34d399 0%, theme('colors.accent.DEFAULT') 100%);
+  background: linear-gradient(90deg, #34d399 0%, var(--color-accent) 100%);
   transition: width 0.5s ease;
-  box-shadow: 0 0 10px theme('colors.accent.glow');
+  box-shadow: 0 0 10px var(--color-accent-glow);
 }
 
 /* =========================================================
@@ -451,7 +457,7 @@ body {
   width: 260px;
   background: rgba(16, 20, 24, 0.95);
   backdrop-filter: blur(12px);
-  border: 1px solid theme('colors.border.DEFAULT');
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   z-index: 10;
@@ -464,8 +470,8 @@ body {
 }
 
 .workflow-node.active-node {
-  border-color: theme('colors.accent.DEFAULT');
-  box-shadow: 0 0 15px theme('colors.accent.glow');
+  border-color: var(--color-accent);
+  box-shadow: 0 0 15px var(--color-accent-glow);
 }
 
 .workflow-node.waiting-node {
@@ -475,7 +481,7 @@ body {
 
 .node-header {
   padding: 10px 14px;
-  border-bottom: 1px solid theme('colors.border.DEFAULT');
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -488,7 +494,7 @@ body {
 .node-body {
   padding: 12px 14px;
   font-size: 0.8rem;
-  color: theme('colors.text.secondary');
+  color: var(--color-text-secondary-dim);
   line-height: 1.4;
 }
 
@@ -496,8 +502,8 @@ body {
   position: absolute;
   width: 10px;
   height: 10px;
-  background: theme('colors.bg.tertiary');
-  border: 1.5px solid theme('colors.text.tertiary');
+  background: var(--color-bg-tertiary);
+  border: 1.5px solid var(--color-text-tertiary-dim);
   border-radius: 50%;
   top: 50%;
   transform: translateY(-50%);
@@ -513,8 +519,8 @@ body {
 }
 
 .workflow-node.active-node .port {
-  border-color: theme('colors.accent.DEFAULT');
-  background: theme('colors.bg.secondary');
+  border-color: var(--color-accent);
+  background: var(--color-bg-secondary);
 }
 
 .edge-path {
@@ -525,8 +531,8 @@ body {
 }
 
 .edge-path.active {
-  stroke: theme('colors.accent.DEFAULT');
-  filter: drop-shadow(0 0 4px theme('colors.accent.DEFAULT'));
+  stroke: var(--color-accent);
+  filter: drop-shadow(0 0 4px var(--color-accent));
   stroke-dasharray: 8;
   animation: flow 1s linear infinite;
 }
@@ -557,20 +563,20 @@ body {
    4. RIGHT PANEL (Terminal & Telemetry)
    ========================================================= */
 .tab-btn {
-  color: theme('colors.text.secondary');
+  color: var(--color-text-secondary-dim);
   border-bottom: 2px solid transparent;
   transition: all 0.2s;
   background: transparent;
 }
 
 .tab-btn:hover {
-  color: theme('colors.text.primary');
+  color: var(--color-text-primary-dim);
   background: rgba(255, 255, 255, 0.03);
 }
 
 .tab-btn.active {
   color: #ffffff;
-  border-bottom-color: theme('colors.accent.DEFAULT');
+  border-bottom-color: var(--color-accent);
   font-weight: 700;
   background: rgba(255, 255, 255, 0.05);
 }
@@ -600,7 +606,7 @@ body {
   display: inline-block;
   width: 6px;
   height: 12px;
-  background-color: theme('colors.accent.DEFAULT');
+  background-color: var(--color-accent);
   animation: blink 1s step-end infinite;
   vertical-align: text-bottom;
   margin-left: 4px;

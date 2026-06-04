@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import {
   Bike,
+  Bluetooth,
   CirclePause,
   CirclePlay,
   Copy,
@@ -22,25 +23,8 @@ import {
   Volume2,
   Wifi,
   ChevronUp,
-  ChevronDown,
-  Bluetooth,
-  Zap,
-  Flame,
-  Smile,
-  Heart,
-  Music
+  ChevronDown
 } from "lucide-react";
-
-const ICON_MAP: Record<string, any> = {
-  bike: Bike,
-  users: Users,
-  music: Music,
-  headphones: Headphones,
-  zap: Zap,
-  flame: Flame,
-  smile: Smile,
-  heart: Heart
-};
 
 import { youtubeIdFromInput, thumbnailFor } from "./utils/youtube";
 import { getFile } from "./utils/db";
@@ -61,28 +45,13 @@ import { TripSummary } from "./components/TripSummary";
 import { formatTime } from "./utils/time";
 import { trackEvent } from "./utils/analytics";
 import { Role } from "./types";
-import { NAME_KEY, ROOM_KEY, AVATAR_KEY } from "./constants";
-import { AvatarPicker } from "./components/AvatarPicker";
+import { NAME_KEY, ROOM_KEY } from "./constants";
 
 export default function App() {
   const { status, room, participantId, error, setError, send: wsSend, voiceSignal, webrtcSignal, hostNotification } = useRealtime();
 
   const roomFromUrl = new URLSearchParams(location.search).get("room") || "";
   const [role, setRole] = useState<Role>(roomFromUrl ? "passenger" : "rider");
-  const [displayName, setDisplayName] = useState(
-    localStorage.getItem(NAME_KEY) || (roomFromUrl ? "คนซ้อน" : "คนขับ")
-  );
-  const [avatar, setAvatar] = useState(
-    localStorage.getItem(AVATAR_KEY) || "bike"
-  );
-
-  useEffect(() => {
-    localStorage.setItem(NAME_KEY, displayName);
-  }, [displayName]);
-
-  useEffect(() => {
-    localStorage.setItem(AVATAR_KEY, avatar);
-  }, [avatar]);
 
   const [remoteCommand, setRemoteCommand] = useState<any>(null);
 
@@ -128,6 +97,9 @@ export default function App() {
     }
   }, [role, room, participantId, p2pStatus, createOffer]);
 
+  const [displayName, setDisplayName] = useState(
+    localStorage.getItem(NAME_KEY) || (roomFromUrl ? "คนซ้อน" : "คนขับ")
+  );
   const [roomCode, setRoomCode] = useState(roomFromUrl);
   const [trackInput, setTrackInput] = useState("");
   const [trackTitle, setTrackTitle] = useState("");
@@ -168,6 +140,10 @@ export default function App() {
   }, [status]);
 
   useEffect(() => {
+    localStorage.setItem(NAME_KEY, displayName);
+  }, [displayName]);
+
+  useEffect(() => {
     if (!roomFromUrl || room || status !== "open" || autoJoinedRef.current) return;
     autoJoinedRef.current = true;
     setRole("passenger");
@@ -175,14 +151,13 @@ export default function App() {
       type: "join_room",
       roomId: roomFromUrl.trim().toUpperCase(),
       displayName,
-      avatar,
       role: "passenger"
     });
-  }, [displayName, avatar, room, roomFromUrl, send, status]);
+  }, [displayName, room, roomFromUrl, send, status]);
 
   function createRoom() {
     setRole("rider");
-    send({ type: "create_room", displayName, avatar });
+    send({ type: "create_room", displayName });
     trackEvent(send, "room_create");
   }
 
@@ -196,7 +171,6 @@ export default function App() {
       type: "join_room",
       roomId: roomCode.trim().toUpperCase(),
       displayName,
-      avatar,
       role: "passenger"
     });
     trackEvent(send, "room_join", { roomCode: roomCode.trim().toUpperCase() });
@@ -390,8 +364,6 @@ export default function App() {
                 placeholder="เช่น เบส / แพรว"
               />
             </label>
-            <AvatarPicker selected={avatar} onSelect={setAvatar} />
-
             <div className="role-tabs" role="tablist" aria-label="เลือกบทบาท">
               <button
                 className={role === "rider" ? "active" : ""}
@@ -707,36 +679,16 @@ export default function App() {
                 <h2>ผู้ร่วมทริป</h2>
               </div>
               <div className="people-list">
-                {room.participants.map((participant) => {
-                  const Icon = ICON_MAP[participant.avatar || "bike"] || Bike;
-                  return (
-                    <div key={participant.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                      <div className="avatar-circle" style={{ 
-                        background: participant.connected ? 'rgba(120, 244, 191, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-                        color: participant.connected ? '#78f4bf' : '#a8b6b0',
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        border: `1px solid ${participant.connected ? 'rgba(120, 244, 191, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`
-                      }}>
-                        <Icon size={18} />
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span className={participant.connected ? "dot on" : "dot"} />
-                          <strong>{participant.displayName}</strong>
-                        </div>
-                        <small>
-                          {participant.role} · drift {Math.round(participant.driftMs)}ms
-                          {participant.voiceEnabled ? " · voice" : ""}
-                        </small>
-                      </div>
-                    </div>
-                  );
-                })}
+                {room.participants.map((participant) => (
+                  <div key={participant.id}>
+                    <span className={participant.connected ? "dot on" : "dot"} />
+                    <strong>{participant.displayName}</strong>
+                    <small>
+                      {participant.role} · drift {Math.round(participant.driftMs)}ms
+                      {participant.voiceEnabled ? " · voice" : ""}
+                    </small>
+                  </div>
+                ))}
               </div>
             </div>
           </aside>

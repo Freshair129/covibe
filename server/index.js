@@ -776,11 +776,19 @@ const server = createServer(async (req, res) => {
   }
 
   // Try to serve from public directory
-  const publicFile = join(COVIBE_ROOT, "public", pathname);
-  if (existsSync(publicFile)) {
+  let staticPath = pathname;
+  if (staticPath.startsWith("/public/")) {
+    staticPath = staticPath.slice(7); // Remove "/public" but keep leading slash for join or handle correctly
+  }
+  
+  // Clean path to prevent directory traversal and handle join correctly
+  const safePath = staticPath.replace(/^\/+/, ""); 
+  const publicFile = join(COVIBE_ROOT, "public", safePath);
+
+  if (existsSync(publicFile) && statSync(publicFile).isFile()) {
     try {
       const content = await readFile(publicFile);
-      const ext = pathname.split(".").pop();
+      const ext = safePath.split(".").pop();
       const mime = {
         js: "application/javascript",
         css: "text/css",
@@ -789,10 +797,15 @@ const server = createServer(async (req, res) => {
         webmanifest: "application/manifest+json"
       }[ext] || "text/plain";
       
-      res.writeHead(200, { "content-type": mime });
+      res.writeHead(200, { 
+        "content-type": mime,
+        "Access-Control-Allow-Origin": "*" 
+      });
       res.end(content);
       return;
-    } catch (e) {}
+    } catch (e) {
+        console.error("[server] Error serving public file:", e);
+    }
   }
 
   res.writeHead(404, { "content-type": "application/json" });
