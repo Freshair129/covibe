@@ -32,8 +32,10 @@ import { useWebRTC } from "./hooks/useWebRTC";
 import { useWakeLock } from "./hooks/useWakeLock";
 import { useIdleTimer } from "./hooks/useIdleTimer";
 import { useFileSync } from "./hooks/useFileSync";
+import { useRecentlyPlayed } from "./hooks/useRecentlyPlayed";
 import { YouTubeDeck } from "./components/YouTubeDeck";
 import { LocalAudioPlayer } from "./components/LocalAudioPlayer";
+import { HeroSection } from "./components/HeroSection";
 import { VoicePanel } from "./components/VoicePanel";
 import { ChatPanel } from "./components/ChatPanel";
 import { SearchPanel } from "./components/SearchPanel";
@@ -69,9 +71,13 @@ export default function App() {
   });
 
   const { sendFileSync, handleFileSync } = useFileSync(sendP2P);
+  const { history: trackHistory, saveTrack } = useRecentlyPlayed();
 
   const send = useCallback((message: any) => {
     wsSend(message);
+    if (message.type === "add_track" && message.track) {
+      saveTrack(message.track);
+    }
     if (p2pStatus === "connected" && ["play", "pause", "seek"].includes(message.type)) {
       const other = room?.participants.find(p => p.id !== participantId && p.connected);
       if (other) sendP2P({ type: "SYNC_OP", payload: message });
@@ -240,11 +246,23 @@ export default function App() {
   }
 
   function copyInvite() {
-    navigator.clipboard.writeText(joinUrl).then(() => {
-      alert("คัดลอกลิงก์เชิญแล้ว!");
-    }).catch(() => {
-      alert("ไม่สามารถคัดลอกลิงก์ได้");
-    });
+    const shareData = {
+      title: "มาร่วมทริป CoVibe กัน!",
+      text: `มาฟังเพลงและคุยกันบนมอไซค์ในห้อง ${room?.roomId} ผ่าน CoVibe!`,
+      url: joinUrl
+    };
+
+    if (navigator.share && navigator.canShare?.(shareData)) {
+      navigator.share(shareData).catch((err) => {
+        console.error("Error sharing:", err);
+      });
+    } else {
+      navigator.clipboard.writeText(joinUrl).then(() => {
+        alert("คัดลอกลิงก์เชิญแล้ว!");
+      }).catch(() => {
+        alert("ไม่สามารถคัดลอกลิงก์ได้");
+      });
+    }
   }
 
   if (showTripSummary && tripRoomId) {
@@ -318,7 +336,9 @@ export default function App() {
       )}
 
       {!room ? (
-        <section className="start-grid">
+        <>
+          <HeroSection />
+          <section className="start-grid">
           <div className="setup-panel">
             <div className="section-title">
               <Bike aria-hidden="true" />
@@ -391,6 +411,7 @@ export default function App() {
             </ul>
           </div>
         </section>
+      </>
       ) : (
         <section className="ride-layout">
           <div className="now-panel">
@@ -547,6 +568,7 @@ export default function App() {
             />
 
             <SearchPanel
+              history={trackHistory}
               onAddTrack={(track) => {
                 send({
                   type: "add_track",

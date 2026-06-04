@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Search, Plus, Music2, RotateCw, AlertTriangle, Upload } from "lucide-react";
+import { Search, Plus, Music2, RotateCw, AlertTriangle, Upload, History } from "lucide-react";
 import { Track } from "../types";
 import { saveFile } from "../utils/db";
 
 interface SearchPanelProps {
   onAddTrack: (track: Partial<Track>) => void;
+  history?: Partial<Track>[];
 }
 
 function formatDurationMs(ms: number) {
@@ -15,7 +16,7 @@ function formatDurationMs(ms: number) {
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
-export function SearchPanel({ onAddTrack }: SearchPanelProps) {
+export function SearchPanel({ onAddTrack, history = [] }: SearchPanelProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Partial<Track & { channelTitle?: string }>[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -135,6 +136,34 @@ export function SearchPanel({ onAddTrack }: SearchPanelProps) {
           <div className="search-no-api">
             <AlertTriangle size={18} />
             <p>YouTube API key ยังไม่ได้ตั้งค่า</p>
+          </div>
+        )}
+
+        {!query && history.length > 0 && results.length === 0 && (
+          <div className="history-section">
+            <div className="section-subtitle" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', color: '#a8b6b0', fontSize: '0.9rem' }}>
+              <History size={16} />
+              เพลงที่เคยฟังล่าสุด
+            </div>
+            <ul className="queue-list">
+              {history.map((track) => (
+                <li key={track.sourceId} className="search-result-item">
+                  {track.thumbnailUrl && <img src={track.thumbnailUrl} alt={track.title} />}
+                  <div className="search-result-info">
+                    <span className="search-result-title" title={track.title}>{track.title}</span>
+                  </div>
+                  <div className="item-actions">
+                    <button 
+                      type="button"
+                      onClick={() => onAddTrack(track)}
+                      aria-label="เพิ่มลงคิว"
+                    >
+                      <Plus size={18} />
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 
