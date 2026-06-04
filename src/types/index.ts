@@ -9,6 +9,7 @@ export type Participant = {
   id: string;
   role: Role;
   displayName: string;
+  avatar?: string;
   connected: boolean;
   driftMs: number;
   latencyMs: number;

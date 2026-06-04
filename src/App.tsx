@@ -53,7 +53,6 @@ import { useRecentlyPlayed } from "./hooks/useRecentlyPlayed";
 import { YouTubeDeck } from "./components/YouTubeDeck";
 import { LocalAudioPlayer } from "./components/LocalAudioPlayer";
 import { HeroSection } from "./components/HeroSection";
-import { OnboardingFlow } from "./components/OnboardingFlow";
 import { SupportPanel } from "./components/SupportPanel";
 import { VoicePanel } from "./components/VoicePanel";
 import { ChatPanel } from "./components/ChatPanel";
@@ -129,9 +128,6 @@ export default function App() {
     }
   }, [role, room, participantId, p2pStatus, createOffer]);
 
-  const [displayName, setDisplayName] = useState(
-    localStorage.getItem(NAME_KEY) || (roomFromUrl ? "คนซ้อน" : "คนขับ")
-  );
   const [roomCode, setRoomCode] = useState(roomFromUrl);
   const [trackInput, setTrackInput] = useState("");
   const [trackTitle, setTrackTitle] = useState("");
@@ -142,7 +138,6 @@ export default function App() {
   const [showSupport, setShowSupport] = useState(false);
   const [showTripSummary, setShowTripSummary] = useState(false);
   const [tripRoomId, setTripRoomId] = useState("");
-  const [hasInteracted, setHasInteracted] = useState(false);
   const autoJoinedRef = useRef(false);
 
   const self = room?.participants.find((participant) => participant.id === participantId);
@@ -171,10 +166,6 @@ export default function App() {
     if (status === "connecting") return "connecting";
     return "offline";
   }, [status]);
-
-  useEffect(() => {
-    localStorage.setItem(NAME_KEY, displayName);
-  }, [displayName]);
 
   useEffect(() => {
     if (!roomFromUrl || room || status !== "open" || autoJoinedRef.current) return;
@@ -401,6 +392,25 @@ export default function App() {
             </label>
             <AvatarPicker selected={avatar} onSelect={setAvatar} />
 
+            <div className="role-tabs" role="tablist" aria-label="เลือกบทบาท">
+              <button
+                className={role === "rider" ? "active" : ""}
+                type="button"
+                onClick={() => setRole("rider")}
+              >
+                <Bike aria-hidden="true" />
+                คนขับ
+              </button>
+              <button
+                className={role === "passenger" ? "active" : ""}
+                type="button"
+                onClick={() => setRole("passenger")}
+              >
+                <Users aria-hidden="true" />
+                คนซ้อน
+              </button>
+            </div>
+
             {role === "rider" ? (
               <button className="primary-action" type="button" onClick={createRoom}>
                 <QrCode aria-hidden="true" />
@@ -441,8 +451,6 @@ export default function App() {
           </div>
         </section>
       </>
-      ) : !hasInteracted ? (
-        <OnboardingFlow onComplete={() => setHasInteracted(true)} />
       ) : (
         <section className="ride-layout">
           <div className="now-panel">
@@ -702,7 +710,7 @@ export default function App() {
                 {room.participants.map((participant) => {
                   const Icon = ICON_MAP[participant.avatar || "bike"] || Bike;
                   return (
-                    <div key={participant.id} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div key={participant.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
                       <div className="avatar-circle" style={{ 
                         background: participant.connected ? 'rgba(120, 244, 191, 0.1)' : 'rgba(255, 255, 255, 0.05)',
                         color: participant.connected ? '#78f4bf' : '#a8b6b0',
