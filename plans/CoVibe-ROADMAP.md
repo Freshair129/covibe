@@ -130,11 +130,11 @@ Features:
 - [x] Landing/app entry แบบเน้นใช้งานทันที
 - [x] Share invite ที่สวยขึ้น (Web Share API)
 - [x] Persistent playlist history
-- [ ] Account optional
-- [ ] Rate limit
-- [ ] Room expiration
+- [x] Account optional (Local Profiles)
+- [x] Rate limit
+- [x] Room expiration
 - [x] Thai copy polish
-- [ ] Basic support page
+- [x] Basic support page
 
 Success Criteria:
 - 500 rooms created

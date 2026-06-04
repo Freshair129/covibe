@@ -1,4 +1,5 @@
-import { Bluetooth, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import { Logo } from "./Logo";
 
 export function HeroSection() {
   const scrollToSetup = () => {
@@ -11,7 +12,7 @@ export function HeroSection() {
     <section className="hero-section">
       <div className="hero-content">
         <div className="hero-logo">
-          <Bluetooth size={64} aria-hidden="true" />
+          <Logo size={84} />
         </div>
         <h1 className="hero-title">CoVibe</h1>
         <p className="hero-subtitle">
