@@ -61,6 +61,42 @@ const activeTasks = new Map();
 const analyticsStore = new Map(); // roomId -> events[]
 const searchCache = new Map(); // query -> { results, expiresAt }
 const hostHandoffTimers = new Map(); // roomId -> timer
+const rateLimitStore = new Map(); // clientId -> { timestamps: number[], lastSkipAt: number }
+
+const RATE_LIMIT_WINDOW_MS = 5000;
+const MAX_MESSAGES_PER_WINDOW = 12;
+const STRICT_COOLDOWN_MS = 2000; // for skip/add_track
+const HARD_LIMIT_COUNT = 50; // terminate if exceeded
+
+function isRateLimited(clientId, messageType) {
+  const now = Date.now();
+  if (!rateLimitStore.has(clientId)) {
+    rateLimitStore.set(clientId, { timestamps: [], lastStrictAt: 0 });
+  }
+
+  const record = rateLimitStore.get(clientId);
+  
+  // 1. Sliding Window Check
+  record.timestamps = record.timestamps.filter(t => now - t < RATE_LIMIT_WINDOW_MS);
+  
+  if (record.timestamps.length >= MAX_MESSAGES_PER_WINDOW) {
+    const isHardLimit = record.timestamps.length >= HARD_LIMIT_COUNT;
+    return { limited: true, reason: "ส่งข้อมูลเร็วเกินไป กรุณารอสักครู่", hardLimit: isHardLimit };
+  }
+
+  // 2. Strict Cooldown for Skip/Add
+  const isStrictAction = ["skip", "add_track"].includes(messageType);
+  if (isStrictAction) {
+    if (now - record.lastStrictAt < STRICT_COOLDOWN_MS) {
+      return { limited: true, reason: "ใจเย็นๆ... อย่าเพิ่งรีบข้ามเพลง", hardLimit: false };
+    }
+    record.lastStrictAt = now;
+  }
+
+  // 3. Update Record
+  record.timestamps.push(now);
+  return { limited: false };
+}
 
 // Real-time benchmark & telemetry states
 let activeBenchmarkProcess = null;
@@ -898,6 +934,9 @@ wss.on("connection", (ws) => {
   getTelemetryData().then(telemetry => send(ws, { type: "telemetry_update", telemetry })).catch(() => {});
 
   ws.on("message", (raw) => {
+    const client = clients.get(clientId);
+    if (!client) return;
+
     let data;
     try {
       data = JSON.parse(raw.toString());
@@ -906,8 +945,19 @@ wss.on("connection", (ws) => {
       return;
     }
 
-    const client = clients.get(clientId);
-    if (!client) return;
+    // 0. Rate Limiting Check
+    const skipTypes = ["ping", "pong", "sync_report"];
+    if (!skipTypes.includes(data.type)) {
+      const limit = isRateLimited(clientId, data.type);
+      if (limit.limited) {
+        send(ws, { type: "error", message: limit.reason });
+        if (limit.hardLimit) {
+          console.warn(`[security] Terminating flooding client: ${clientId}`);
+          ws.terminate();
+        }
+        return;
+      }
+    }
 
     if (data.type === "create_room") {
       const participantId = data.participantId || clientId;
@@ -1568,6 +1618,7 @@ wss.on("connection", (ws) => {
   });
 
   ws.on("close", () => {
+    rateLimitStore.delete(clientId);
     const client = clients.get(clientId);
     clients.delete(clientId);
     if (!client?.roomId) return;
