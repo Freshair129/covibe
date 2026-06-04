@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Search, Plus, Music2, RotateCw, AlertTriangle } from "lucide-react";
+import { Search, Plus, Music2, RotateCw, AlertTriangle, Upload } from "lucide-react";
 import { Track } from "../types";
+import { saveFile } from "../utils/db";
 
 interface SearchPanelProps {
   onAddTrack: (track: Partial<Track>) => void;
@@ -32,7 +33,6 @@ export function SearchPanel({ onAddTrack }: SearchPanelProps) {
     setNoApiKey(false);
 
     try {
-      // Determine server base URL (same origin as WS, but HTTP)
       const wsUrl = import.meta.env.VITE_COVIBE_WS_URL || "";
       let serverBase: string;
       if (wsUrl) {
@@ -65,6 +65,30 @@ export function SearchPanel({ onAddTrack }: SearchPanelProps) {
     }
   };
 
+  const handleLocalFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const data = e.target?.result as ArrayBuffer;
+        const hash = `${file.name}-${file.size}`;
+        await saveFile(hash, data, { title: file.name });
+        onAddTrack({
+          id: hash,
+          source: 'youtube', // keep existing type, but ID is hash
+          sourceId: hash,
+          title: file.name,
+          thumbnailUrl: '',
+        });
+      };
+      reader.readAsArrayBuffer(file);
+    } catch (error) {
+      console.error("File upload error:", error);
+    }
+  };
+
   return (
     <div className="search-card">
       <div className="section-title">
@@ -86,6 +110,19 @@ export function SearchPanel({ onAddTrack }: SearchPanelProps) {
         </button>
       </form>
 
+      <div className="local-upload" style={{ marginTop: '16px' }}>
+        <label className="voice-button" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <Upload size={18} />
+          อัปโหลดไฟล์ MP3
+          <input
+            type="file"
+            accept=".mp3"
+            onChange={handleLocalFileUpload}
+            style={{ display: 'none' }}
+          />
+        </label>
+      </div>
+
       <div className="search-results-container" style={{ marginTop: '16px', maxHeight: '360px', overflowY: 'auto' }}>
         {searchError && (
           <div className="search-error-msg">
@@ -98,16 +135,9 @@ export function SearchPanel({ onAddTrack }: SearchPanelProps) {
           <div className="search-no-api">
             <AlertTriangle size={18} />
             <p>YouTube API key ยังไม่ได้ตั้งค่า</p>
-            <small className="muted">ใช้ช่อง "เพิ่มเพลง" ด้านล่างพร้อมวาง YouTube URL แทนได้เลย</small>
           </div>
         )}
 
-        {results.length === 0 && !isSearching && hasSearched && !searchError && !noApiKey && (
-          <p className="muted" style={{ textAlign: 'center', padding: '20px' }}>
-            ไม่พบผลลัพธ์ที่ตรงกัน
-          </p>
-        )}
-        
         {results.length > 0 && (
           <ul className="queue-list">
             {results.map((track) => (
@@ -134,13 +164,6 @@ export function SearchPanel({ onAddTrack }: SearchPanelProps) {
             ))}
           </ul>
         )}
-
-        {!hasSearched && (
-          <div className="empty-track" style={{ borderStyle: 'none', minHeight: '120px' }}>
-            <Music2 size={32} style={{ opacity: 0.3, marginBottom: '8px' }} />
-            <span className="muted">ค้นหาเพลงที่คุณชอบเพื่อเพิ่มลงคิว</span>
-          </div>
-        )}
       </div>
 
       <style>{`
@@ -153,9 +176,6 @@ export function SearchPanel({ onAddTrack }: SearchPanelProps) {
         .search-results-container::-webkit-scrollbar-thumb {
           background: rgba(255, 255, 255, 0.1);
           border-radius: 2px;
-        }
-        .search-results-container::-webkit-scrollbar-thumb:hover {
-          background: rgba(120, 244, 191, 0.3);
         }
         .spin {
           animation: spin-loader 1.2s linear infinite;
@@ -178,28 +198,6 @@ export function SearchPanel({ onAddTrack }: SearchPanelProps) {
         .search-result-meta {
           color: #a8b6b0;
           font-size: 0.8rem;
-        }
-        .search-error-msg {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 12px;
-          border-radius: 8px;
-          background: rgba(239, 68, 68, 0.1);
-          color: #ffaaa3;
-          font-size: 0.88rem;
-        }
-        .search-no-api {
-          display: grid;
-          place-items: center;
-          gap: 8px;
-          padding: 20px 16px;
-          text-align: center;
-          color: #f5ca78;
-        }
-        .search-no-api p {
-          font-weight: 700;
-          margin: 0;
         }
       `}</style>
     </div>

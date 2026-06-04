@@ -1,5 +1,10 @@
 export type Role = "rider" | "passenger";
 
+export type FileSyncPayload = 
+  | { action: "offer"; metadata: { hash: string; title: string; size: number } }
+  | { action: "chunk"; hash: string; chunk: ArrayBuffer; index: number; total: number }
+  | { action: "complete"; hash: string };
+
 export type Participant = {
   id: string;
   role: Role;

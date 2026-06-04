@@ -56,12 +56,16 @@ export default function App() {
       console.log("[P2P] Received:", data);
       if (data.type === "SYNC_OP") {
         setRemoteCommand(data.payload);
+      } else if (data.type === "FILE_SYNC") {
+        handleFileSync(data.payload);
       }
     },
     sendSignal: (targetId, signalType, signal) => {
       wsSend({ type: "webrtc_signal", targetId, signalType, signal });
     }
   });
+
+  const { sendFileSync, handleFileSync } = useFileSync(sendP2P);
 
   const send = useCallback((message: any) => {
     wsSend(message);
