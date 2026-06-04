@@ -445,6 +445,33 @@ input:focus {
   height: 28px;
 }
 
+/* Rider Mode Specific Overrides */
+.rider-mode .controls-grid .control-button {
+  min-height: 120px;
+  font-size: 1.2rem;
+}
+
+.rider-mode .controls-grid .control-button svg {
+  width: 42px;
+  height: 42px;
+  margin-bottom: 8px;
+}
+
+.rider-mode .search-panel,
+.rider-mode .chat-list,
+.rider-mode .chat-compose {
+  display: none;
+}
+
+.rider-mode .track-card img {
+  width: 160px;
+  height: 120px;
+}
+
+.rider-mode .track-card h2 {
+  font-size: 1.4rem;
+}
+
 .volume-control {
   display: grid;
   grid-template-columns: 1fr minmax(110px, 220px) 48px;

@@ -28,6 +28,8 @@ import {
 import { youtubeIdFromInput, thumbnailFor } from "./utils/youtube";
 import { useRealtime } from "./hooks/useRealtime";
 import { useWebRTC } from "./hooks/useWebRTC";
+import { useWakeLock } from "./hooks/useWakeLock";
+import { useIdleTimer } from "./hooks/useIdleTimer";
 import { YouTubeDeck } from "./components/YouTubeDeck";
 import { VoicePanel } from "./components/VoicePanel";
 import { ChatPanel } from "./components/ChatPanel";
@@ -101,6 +103,19 @@ export default function App() {
     : "";
   const currentPosition = room?.playback.positionMs || 0;
   const progress = durationMs ? Math.min(100, (currentPosition / durationMs) * 100) : 0;
+
+  // Keep screen awake while in a room
+  useWakeLock(!!room);
+
+  // Auto OLED saver for Riders after 60s of inactivity
+  useIdleTimer({
+    timeout: 60000,
+    onIdle: () => {
+      setSaver(true);
+      trackEvent(send, "saver_toggle", { enabled: true, auto: true });
+    },
+    isActive: role === "rider" && !!room && !saver
+  });
 
   const connectionLabel = useMemo(() => {
     if (status === "open") return "online";
@@ -191,6 +206,12 @@ export default function App() {
     }
   }
 
+  function emergencyPause() {
+    if (!room?.currentTrack || !room.playback.isPlaying) return;
+    send({ type: "pause", positionMs: currentPosition });
+    trackEvent(send, "emergency_pause");
+  }
+
   function leaveRoom() {
     trackEvent(send, "leave_room", { roomId: room?.roomId });
     // Show trip summary instead of immediately leaving
@@ -259,7 +280,7 @@ export default function App() {
   }
 
   return (
-    <main className="app-shell">
+    <main className={`app-shell ${role === "rider" ? "rider-mode" : ""}`}>
       <header className="topbar">
         <div className="brand-lockup">
           <div className="brand-mark">
@@ -400,7 +421,7 @@ export default function App() {
               </button>
             </div>
 
-            <div className="track-card">
+            <div className="track-card" onDoubleClick={emergencyPause}>
               {room.currentTrack ? (
                 <>
                   <img src={room.currentTrack.thumbnailUrl} alt="" />

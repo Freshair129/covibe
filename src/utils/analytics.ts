@@ -8,6 +8,7 @@ type AnalyticsEvent =
   | "track_search"
   | "playback_play"
   | "playback_pause"
+  | "emergency_pause"
   | "playback_skip"
   | "voice_toggle"
   | "saver_toggle"
