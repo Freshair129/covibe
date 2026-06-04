@@ -59,6 +59,13 @@ export function makeRoom(hostId, hostName) {
 }
 
 /**
+ * Update the last active timestamp of a room.
+ */
+export function markActivity(room) {
+  room.lastActiveAt = Date.now();
+}
+
+/**
  * Calculate the current playback position accounting for elapsed time and rate.
  */
 export function currentPosition(room) {

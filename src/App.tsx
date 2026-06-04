@@ -7,6 +7,7 @@ import {
   CirclePlay,
   Copy,
   Headphones,
+  HelpCircle,
   Link as LinkIcon,
   Moon,
   Music2,
@@ -36,6 +37,7 @@ import { useRecentlyPlayed } from "./hooks/useRecentlyPlayed";
 import { YouTubeDeck } from "./components/YouTubeDeck";
 import { LocalAudioPlayer } from "./components/LocalAudioPlayer";
 import { HeroSection } from "./components/HeroSection";
+import { SupportPanel } from "./components/SupportPanel";
 import { VoicePanel } from "./components/VoicePanel";
 import { ChatPanel } from "./components/ChatPanel";
 import { SearchPanel } from "./components/SearchPanel";
@@ -105,6 +107,7 @@ export default function App() {
   const [durationMs, setDurationMs] = useState(0);
   const [saver, setSaver] = useState(false);
   const [mediaMode, setMediaMode] = useState<"music" | "video">("music");
+  const [showSupport, setShowSupport] = useState(false);
   const [showTripSummary, setShowTripSummary] = useState(false);
   const [tripRoomId, setTripRoomId] = useState("");
   const autoJoinedRef = useRef(false);
@@ -321,6 +324,14 @@ export default function App() {
           <RadioTower aria-hidden="true" />
           {connectionLabel}
         </div>
+        <button 
+          className="connection-pill" 
+          style={{ marginLeft: '8px', cursor: 'pointer', background: 'rgba(255, 255, 255, 0.05)' }}
+          onClick={() => setShowSupport(true)}
+        >
+          <HelpCircle size={16} />
+          ช่วยเหลือ
+        </button>
         {p2pStatus === "connected" && (
           <div className="status-badge">
             <Wifi aria-hidden="true" />
@@ -682,6 +693,10 @@ export default function App() {
             </div>
           </aside>
         </section>
+      )}
+
+      {showSupport && (
+        <SupportPanel onClose={() => setShowSupport(false)} />
       )}
     </main>
   );

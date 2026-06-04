@@ -7,7 +7,8 @@ import {
   appendLog as _appendLog,
   upsertParticipant as _upsertParticipant,
   setPlayback as _setPlayback,
-  parseDuration as _parseDuration
+  parseDuration as _parseDuration,
+  markActivity as _markActivity
 } from "./lib.js";
 import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
@@ -1538,7 +1539,18 @@ wss.on("connection", (ws) => {
       const actualMs = Math.max(0, Number(data.positionMs) || 0);
       const driftMs = Math.round(actualMs - expectedMs);
       const latencyMs = Math.max(0, Date.now() - Number(data.clientSentAt || Date.now()));
+      
       upsertParticipant(room, actorId, { driftMs, latencyMs });
+      
+      // Log drift metric for performance auditing
+      appendLog(room, { 
+        type: "drift_sample", 
+        actorId, 
+        driftMs, 
+        latencyMs, 
+        trackId: room.currentTrack?.id 
+      });
+
       send(ws, {
         type: "sync_target",
         serverTime: Date.now(),
@@ -1594,11 +1606,26 @@ wss.on("connection", (ws) => {
 });
 
 setInterval(() => {
-  const cutoff = Date.now() - 1000 * 60 * 60 * 4;
+  const now = Date.now();
+  const INACTIVE_LIMIT = 1000 * 60 * 30; // 30 minutes
+  const LIFETIME_LIMIT = 1000 * 60 * 60 * 6; // 6 hours
+
   for (const [roomId, room] of rooms.entries()) {
-    if (room.lastActiveAt < cutoff) rooms.delete(roomId);
+    const isInactive = now - room.lastActiveAt > INACTIVE_LIMIT;
+    const isExpired = now - room.createdAt > LIFETIME_LIMIT;
+    const hasParticipants = Object.values(room.participants).some(p => p.connected);
+
+    if (isExpired || (isInactive && !hasParticipants)) {
+      console.log(`[cleanup] Removing room ${roomId} (Expired: ${isExpired}, Inactive: ${isInactive})`);
+      
+      // Notify remaining clients if any
+      broadcast(roomId, { type: "error", message: "ห้องหมดอายุหรือไม่มีความเคลื่อนไหวนานเกินไป" });
+      
+      rooms.delete(roomId);
+      analyticsStore.delete(roomId);
+    }
   }
-}, 1000 * 60 * 10);
+}, 1000 * 60 * 5);
 
 // Start the HTTP/WebSocket server with fallback port handling
 function startServer(port) {

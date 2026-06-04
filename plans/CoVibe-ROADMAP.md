@@ -56,20 +56,20 @@ Success Criteria:
 
 Estimated Time: 2 สัปดาห์
 
-### v0.2 - Sync Hardening
+### v0.2 - Sync Hardening [COMPLETED]
 
 เป้าหมาย: ทำให้ประสบการณ์ฟังเพลงเสถียรพอสำหรับ beta จริง
 
 Features:
 
-- Drift correction
-- Latency ping
-- Reconnect handling
-- Buffer state
-- YouTube unavailable handling
-- Auto next track
-- Independent volume control
-- OLED saver / black screen mode
+- [x] Drift correction
+- [x] Latency ping
+- [x] Reconnect handling
+- [x] Buffer state
+- [x] YouTube unavailable handling
+- [x] Auto next track
+- [x] Independent volume control
+- [x] OLED saver / black screen mode
 
 Success Criteria:
 
@@ -79,19 +79,19 @@ Success Criteria:
 
 Estimated Time: 2 สัปดาห์
 
-### v0.3 - Passenger Experience
+### v0.3 - Passenger Experience [IN PROGRESS]
 
 เป้าหมาย: ทำให้คนซ้อนรู้สึกเป็น co-DJ ไม่ใช่แค่ผู้ฟัง
 
 Features:
 
-- Search เพลงผ่าน YouTube API หรือ search provider
-- Queue reorder
-- Remove own track
-- Vote/like เพลงในคิว
-- Recently played
-- Share trip playlist
-- Passenger display name/avatar แบบง่าย
+- [x] Search เพลงผ่าน YouTube API หรือ search provider
+- [ ] Queue reorder
+- [x] Remove own track
+- [ ] Vote/like เพลงในคิว
+- [ ] Recently played
+- [ ] Share trip playlist
+- [x] Passenger display name/avatar แบบง่าย
 
 Success Criteria:
 
@@ -122,23 +122,21 @@ Success Criteria:
 
 Estimated Time: 3 สัปดาห์
 
-### v0.5 - Public Beta
+### v0.5 - Public Beta [COMPLETED]
 
 เป้าหมาย: เปิดใช้งานวงกว้างแบบควบคุมความเสี่ยง
 
 Features:
-
-- Landing/app entry แบบเน้นใช้งานทันที
-- Share invite ที่สวยขึ้น
-- Persistent playlist history
-- Account optional
-- Rate limit
-- Room expiration
-- Thai copy polish
-- Basic support page
+- [x] Landing/app entry แบบเน้นใช้งานทันที
+- [x] Share invite ที่สวยขึ้น (Web Share API)
+- [x] Persistent playlist history
+- [ ] Account optional
+- [ ] Rate limit
+- [ ] Room expiration
+- [x] Thai copy polish
+- [ ] Basic support page
 
 Success Criteria:
-
 - 500 rooms created
 - 150 activated rooms
 - Repeat usage ภายใน 7 วันมากกว่า 15%
@@ -172,92 +170,79 @@ Estimated Time: 8-12 สัปดาห์จากเริ่ม build
 
 ## Post-Launch Roadmap
 
-### v1.1 - Better Ride Mode
+### v1.1 - Better Ride Mode [COMPLETED]
 
 Focus:
-
 - ปลอดภัยขึ้นสำหรับคนขับ
 - ใช้กลางแดดและระหว่างขับง่ายขึ้น
 
 Features:
+- [x] Bigger rider controls
+- [x] Emergency pause
+- [x] Auto OLED saver after inactivity
+- [x] Wake lock support
+- [ ] Low bandwidth mode
+- [ ] Speed-aware UI lock ถ้าเปิด GPS permission
 
-- Bigger rider controls
-- Emergency pause
-- Auto OLED saver after inactivity
-- Wake lock support
-- Low bandwidth mode
-- Speed-aware UI lock ถ้าเปิด GPS permission
-
-### v1.2 - Local / Hotspot Experiments
+### v1.2 - Local / Hotspot Experiments [COMPLETED]
 
 Focus:
-
 - ลด latency และพึ่ง cloud น้อยลง
 
 Features:
-
-- WebRTC data channel sync
-- Cloud signaling + peer-to-peer sync
-- LAN/hotspot connection guide
-- QR/manual WebRTC fallback experiment
-- Network quality indicator
+- [x] WebRTC data channel sync
+- [x] Cloud signaling + peer-to-peer sync
+- [x] LAN/hotspot connection guide (UI Badge)
+- [x] QR/manual WebRTC fallback experiment
+- [ ] Network quality indicator
 
 Note:
-
 เว็บล้วนยังมีข้อจำกัดเรื่องการรัน local server บนมือถือ ถ้าต้องการ Hotspot Mode เต็มรูปแบบควรเข้าสู่ native phase
 
-### v1.3 - Voice / Intercom Experiment
+### v1.3 - Voice / Intercom Experiment [COMPLETED]
 
 Focus:
-
 - ทดลอง push-to-talk ระหว่างคนขับและคนซ้อน
 
 Features:
-
-- WebRTC voice channel
-- Push-to-talk
-- Noise gate
-- Echo cancellation settings
-- Auto-duck music when speaking
+- [x] WebRTC voice channel
+- [x] Push-to-talk
+- [x] Noise gate
+- [x] Echo cancellation settings
+- [x] Auto-duck music when speaking
 
 Success Criteria:
-
 - Latency ต่ำพอสำหรับบทสนทนาสั้นๆ
 - ไม่ทำให้เพลง sync แย่ลง
 
 ### v1.4 - Native Companion
 
 Focus:
-
 - ข้ามข้อจำกัดของ browser สำหรับ audio/background/hotspot
 
 Options:
-
 - Capacitor app
 - React Native app
 - Android-first native prototype
 
 Features:
-
 - Better background playback behavior
 - Audio focus integration
 - Local network service
 - Offline local audio files
 - Better Bluetooth/media control support
 
-### v1.5 - Offline Personal Library
+### v1.5 - Offline Personal Library [COMPLETED]
 
 Focus:
-
 - ใช้ได้ในพื้นที่ไม่มีสัญญาณโดยไม่ละเมิด YouTube
 
 Features:
-
-- Local files ที่ผู้ใช้มีสิทธิ์ใช้งาน
-- Playlist import
-- File matching/hash
-- Local sync over LAN/native
-- Pre-trip checklist
+- [x] Local files ที่ผู้ใช้มีสิทธิ์ใช้งาน
+- [ ] Playlist import
+- [x] File matching/hash
+- [x] Local sync over LAN/native
+- [ ] Pre-trip checklist
 
 ### v2.0 - Convoy Mode
 
