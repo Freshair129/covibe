@@ -579,97 +579,142 @@
                         <div class="bg-gradient-to-r from-emerald-500 to-indigo-500 h-full w-[53%]" id="global-progress-fill"></div>
                     </div>
 
-                    <div class="space-y-4 max-w-4xl mx-auto" id="roadmap-container">
-                        <!-- Dynamic rendered checklist in accordion format -->
-                        <!-- Phase 0 -->
-                        <div class="glass-panel rounded-2xl" id="p0">
-                            <div class="phase-header px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-white/5 select-none" onclick="togglePhase('p0')">
-                                <div class="flex items-center gap-4">
-                                    <span class="px-2.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-xs font-bold uppercase tracking-wider">Phase 0</span>
-                                    <h3 class="font-bold text-white text-base">Feasibility Spike — พิสูจน์ความเสถียร</h3>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <span class="text-xs text-cyber-muted font-mono" id="p0-progress-lbl">0%</span>
-                                    <i class="fa-solid fa-chevron-down phase-chevron text-xs text-cyber-muted" id="p0-ch"></i>
-                                </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start mt-6">
+                        <!-- Left Panel: Agent Roster (col-span-1) -->
+                        <div class="glass-panel p-5 rounded-2xl col-span-1 space-y-4">
+                            <div class="border-b border-white/5 pb-2">
+                                <h3 class="font-bold text-white text-sm tracking-wide">AI Assist Roster</h3>
+                                <p class="text-[10px] text-cyber-muted">Drag a card to assign an agent to a task</p>
                             </div>
-                            <div class="phase-body p-6 border-t border-white/5 hidden space-y-4" id="p0-body">
-                                <p class="text-sm text-cyber-muted leading-relaxed">ก่อนเริ่ม Sprint จริง ต้องพิสูจน์ให้ได้ว่าระบบ YouTube IFrame API ทำงานร่วมกับ WebSocket sync ในการดึงพิกัดเวลาของเพลงได้เสถียรบนมือถือ 2 เครื่อง และหาข้อจำกัดระบบ</p>
-                                <div class="tasks space-y-3" data-sprint="p0-s0">
-                                    <!-- Dynamic tasks lists with inputs -->
+                            <div class="flex flex-col gap-3">
+                                <!-- EVA Agent -->
+                                <div class="p-3 bg-white/5 border border-white/5 hover:border-emerald-500/30 rounded-xl flex items-center gap-3 cursor-grab active:cursor-grabbing transition-all select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'eva')">
+                                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=eva&backgroundColor=78f4bf" class="w-8 h-8 rounded-lg bg-black/40 p-0.5 border border-white/10 shrink-0" alt="EVA">
+                                    <div class="min-w-0">
+                                        <h4 class="text-xs font-bold text-white">EVA Agent</h4>
+                                        <span class="text-[9px] px-1 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono">eva</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Phase 1 -->
-                        <div class="glass-panel rounded-2xl" id="p1">
-                            <div class="phase-header px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-white/5 select-none" onclick="togglePhase('p1')">
-                                <div class="flex items-center gap-4">
-                                    <span class="px-2.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-xs font-bold uppercase tracking-wider">Phase 1</span>
-                                    <h3 class="font-bold text-white text-base">MVP Core — ฟังก์ชันห้องและการแชร์เพลง</h3>
+                                <!-- Qwen Coder -->
+                                <div class="p-3 bg-white/5 border border-white/5 hover:border-amber-500/30 rounded-xl flex items-center gap-3 cursor-grab active:cursor-grabbing transition-all select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'qwen')">
+                                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=qwen&backgroundColor=fbbf24" class="w-8 h-8 rounded-lg bg-black/40 p-0.5 border border-white/10 shrink-0" alt="Qwen">
+                                    <div class="min-w-0">
+                                        <h4 class="text-xs font-bold text-white">Qwen Coder</h4>
+                                        <span class="text-[9px] px-1 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono">qwen</span>
+                                    </div>
                                 </div>
-                                <div class="flex items-center gap-3">
-                                    <span class="text-xs text-cyber-muted font-mono" id="p1-progress-lbl">0%</span>
-                                    <i class="fa-solid fa-chevron-down phase-chevron text-xs text-cyber-muted" id="p1-ch"></i>
+                                <!-- UAT Agent -->
+                                <div class="p-3 bg-white/5 border border-white/5 hover:border-indigo-500/30 rounded-xl flex items-center gap-3 cursor-grab active:cursor-grabbing transition-all select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'uat')">
+                                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=uat&backgroundColor=818cf8" class="w-8 h-8 rounded-lg bg-black/40 p-0.5 border border-white/10 shrink-0" alt="UAT">
+                                    <div class="min-w-0">
+                                        <h4 class="text-xs font-bold text-white">UAT Agent</h4>
+                                        <span class="text-[9px] px-1 py-0.5 rounded bg-indigo-500/10 text-indigo-400 font-mono">uat</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="phase-body p-6 border-t border-white/5 hidden space-y-4" id="p1-body">
-                                <p class="text-sm text-cyber-muted leading-relaxed">วางรากฐานโครงสร้างระบบ Client และ Server ให้ Rider สามารถเปิดห้องและส่งต่อลิงก์ห้องให้ Passenger ร่วมใช้งานได้จริงบนระบบ Production</p>
-                                <div class="tasks space-y-3" data-sprint="p1-s1"></div>
-                            </div>
-                        </div>
-
-                        <!-- Phase 2 -->
-                        <div class="glass-panel rounded-2xl" id="p2">
-                            <div class="phase-header px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-white/5 select-none" onclick="togglePhase('p2')">
-                                <div class="flex items-center gap-4">
-                                    <span class="px-2.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-xs font-bold uppercase tracking-wider">Phase 2</span>
-                                    <h3 class="font-bold text-white text-base">Sync Calibration — จูนนิ่งความตรงระดับเสี้ยววิ</h3>
+                                <!-- Local Dev -->
+                                <div class="p-3 bg-white/5 border border-white/5 hover:border-sky-500/30 rounded-xl flex items-center gap-3 cursor-grab active:cursor-grabbing transition-all select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'local')">
+                                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=local&backgroundColor=38bdf8" class="w-8 h-8 rounded-lg bg-black/40 p-0.5 border border-white/10 shrink-0" alt="Local">
+                                    <div class="min-w-0">
+                                        <h4 class="text-xs font-bold text-white">Local Dev</h4>
+                                        <span class="text-[9px] px-1 py-0.5 rounded bg-sky-500/10 text-sky-400 font-mono">local</span>
+                                    </div>
                                 </div>
-                                <div class="flex items-center gap-3">
-                                    <span class="text-xs text-cyber-muted font-mono" id="p2-progress-lbl">0%</span>
-                                    <i class="fa-solid fa-chevron-down phase-chevron text-xs text-cyber-muted" id="p2-ch"></i>
-                                </div>
-                            </div>
-                            <div class="phase-body p-6 border-t border-white/5 hidden space-y-4" id="p2-body">
-                                <p class="text-sm text-cyber-muted leading-relaxed">จูนนิ่งระดับความเสถียรระหว่าง Rider-Passenger และแก้สภาวะ Autoplay บล็อก หรือแอปหลับขณะปิดหน้าจอขับขี่จริง</p>
-                                <div class="tasks space-y-3" data-sprint="p2-s2"></div>
                             </div>
                         </div>
 
-                        <!-- Phase 3 -->
-                        <div class="glass-panel rounded-2xl" id="p3">
-                            <div class="phase-header px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-white/5 select-none" onclick="togglePhase('p3')">
-                                <div class="flex items-center gap-4">
-                                    <span class="px-2.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-xs font-bold uppercase tracking-wider">Phase 3</span>
-                                    <h3 class="font-bold text-white text-base">Beta Test & rider feedback — นำทางจริงบนบอร์ด</h3>
+                        <!-- Right Panel: Accordion Lists (col-span-3) -->
+                        <div class="space-y-4 lg:col-span-3 w-full" id="roadmap-container">
+                            <!-- Dynamic rendered checklist in accordion format -->
+                            <!-- Phase 0 -->
+                            <div class="glass-panel rounded-2xl" id="p0">
+                                <div class="phase-header px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-white/5 select-none" onclick="togglePhase('p0')">
+                                    <div class="flex items-center gap-4">
+                                        <span class="px-2.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-xs font-bold uppercase tracking-wider">Phase 0</span>
+                                        <h3 class="font-bold text-white text-base">Feasibility Spike — พิสูจน์ความเสถียร</h3>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-xs text-cyber-muted font-mono" id="p0-progress-lbl">0%</span>
+                                        <i class="fa-solid fa-chevron-down phase-chevron text-xs text-cyber-muted" id="p0-ch"></i>
+                                    </div>
                                 </div>
-                                <div class="flex items-center gap-3">
-                                    <span class="text-xs text-cyber-muted font-mono" id="p3-progress-lbl">0%</span>
-                                    <i class="fa-solid fa-chevron-down phase-chevron text-xs text-cyber-muted" id="p3-ch"></i>
+                                <div class="phase-body p-6 border-t border-white/5 hidden space-y-4" id="p0-body">
+                                    <p class="text-sm text-cyber-muted leading-relaxed">ก่อนเริ่ม Sprint จริง ต้องพิสูจน์ให้ได้ว่าระบบ YouTube IFrame API ทำงานร่วมกับ WebSocket sync ในการดึงพิกัดเวลาของเพลงได้เสถียรบนมือถือ 2 เครื่อง และหาข้อจำกัดระบบ</p>
+                                    <div class="tasks space-y-3" data-sprint="p0-s0">
+                                        <!-- Dynamic tasks lists with inputs -->
+                                    </div>
                                 </div>
                             </div>
-                            <div class="phase-body p-6 border-t border-white/5 hidden space-y-4" id="p3-body">
-                                <p class="text-sm text-cyber-muted leading-relaxed">รวบรวม Bugs และดึง Feedback จริงมาประเมินผลความเสถียรของเครื่องเล่น YouTube ซิงค์ และระบบเสียง</p>
-                                <div class="tasks space-y-3" data-sprint="p3-s3"></div>
-                            </div>
-                        </div>
 
-                        <!-- Phase 4 -->
-                        <div class="glass-panel rounded-2xl" id="p4">
-                            <div class="phase-header px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-white/5 select-none" onclick="togglePhase('p4')">
-                                <div class="flex items-center gap-4">
-                                    <span class="px-2.5 py-0.5 rounded bg-white/5 text-cyber-muted text-xs font-bold uppercase tracking-wider">Phase 4</span>
-                                    <h3 class="font-bold text-cyber-muted text-base">Future Backlog — ส่วนเสริมอนาคต</h3>
+                            <!-- Phase 1 -->
+                            <div class="glass-panel rounded-2xl" id="p1">
+                                <div class="phase-header px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-white/5 select-none" onclick="togglePhase('p1')">
+                                    <div class="flex items-center gap-4">
+                                        <span class="px-2.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-xs font-bold uppercase tracking-wider">Phase 1</span>
+                                        <h3 class="font-bold text-white text-base">MVP Core — ฟังก์ชันห้องและการแชร์เพลง</h3>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-xs text-cyber-muted font-mono" id="p1-progress-lbl">0%</span>
+                                        <i class="fa-solid fa-chevron-down phase-chevron text-xs text-cyber-muted" id="p1-ch"></i>
+                                    </div>
                                 </div>
-                                <div class="flex items-center gap-3">
-                                    <span class="text-xs text-cyber-muted font-mono" id="p4-progress-lbl">0%</span>
-                                    <i class="fa-solid fa-chevron-down phase-chevron text-xs text-cyber-muted" id="p4-ch"></i>
+                                <div class="phase-body p-6 border-t border-white/5 hidden space-y-4" id="p1-body">
+                                    <p class="text-sm text-cyber-muted leading-relaxed">วางรากฐานโครงสร้างระบบ Client และ Server ให้ Rider สามารถเปิดห้องและส่งต่อลิงก์ห้องให้ Passenger ร่วมใช้งานได้จริงบนระบบ Production</p>
+                                    <div class="tasks space-y-3" data-sprint="p1-s1"></div>
                                 </div>
                             </div>
-                            <div class="phase-body p-6 border-t border-white/5 hidden space-y-4" id="p4-body">
-                                <p class="text-sm text-cyber-muted leading-relaxed">รายการฟีเจอร์ย่อยที่อยู่นอกขอบเขตของ MVP Roadmap แรก เช่น การซิงค์ตรงโดยไม่พึ่งเน็ต หรือคุยอินเตอร์คอมแชร์ GPS</p>
-                                <div class="tasks space-y-3" data-sprint="p4-s4"></div>
+
+                            <!-- Phase 2 -->
+                            <div class="glass-panel rounded-2xl" id="p2">
+                                <div class="phase-header px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-white/5 select-none" onclick="togglePhase('p2')">
+                                    <div class="flex items-center gap-4">
+                                        <span class="px-2.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-xs font-bold uppercase tracking-wider">Phase 2</span>
+                                        <h3 class="font-bold text-white text-base">Sync Calibration — จูนนิ่งความตรงระดับเสี้ยววิ</h3>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-xs text-cyber-muted font-mono" id="p2-progress-lbl">0%</span>
+                                        <i class="fa-solid fa-chevron-down phase-chevron text-xs text-cyber-muted" id="p2-ch"></i>
+                                    </div>
+                                </div>
+                                <div class="phase-body p-6 border-t border-white/5 hidden space-y-4" id="p2-body">
+                                    <p class="text-sm text-cyber-muted leading-relaxed">จูนนิ่งระดับความเสถียรระหว่าง Rider-Passenger และแก้สภาวะ Autoplay บล็อก หรือแอปหลับขณะปิดหน้าจอขับขี่จริง</p>
+                                    <div class="tasks space-y-3" data-sprint="p2-s2"></div>
+                                </div>
+                            </div>
+
+                            <!-- Phase 3 -->
+                            <div class="glass-panel rounded-2xl" id="p3">
+                                <div class="phase-header px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-white/5 select-none" onclick="togglePhase('p3')">
+                                    <div class="flex items-center gap-4">
+                                        <span class="px-2.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-xs font-bold uppercase tracking-wider">Phase 3</span>
+                                        <h3 class="font-bold text-white text-base">Beta Test & rider feedback — นำทางจริงบนบอร์ด</h3>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-xs text-cyber-muted font-mono" id="p3-progress-lbl">0%</span>
+                                        <i class="fa-solid fa-chevron-down phase-chevron text-xs text-cyber-muted" id="p3-ch"></i>
+                                    </div>
+                                </div>
+                                <div class="phase-body p-6 border-t border-white/5 hidden space-y-4" id="p3-body">
+                                    <p class="text-sm text-cyber-muted leading-relaxed">รวบรวม Bugs และดึง Feedback จริงมาประเมินผลความเสถียรของเครื่องเล่น YouTube ซิงค์ และระบบเสียง</p>
+                                    <div class="tasks space-y-3" data-sprint="p3-s3"></div>
+                                </div>
+                            </div>
+
+                            <!-- Phase 4 -->
+                            <div class="glass-panel rounded-2xl" id="p4">
+                                <div class="phase-header px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-white/5 select-none" onclick="togglePhase('p4')">
+                                    <div class="flex items-center gap-4">
+                                        <span class="px-2.5 py-0.5 rounded bg-white/5 text-cyber-muted text-xs font-bold uppercase tracking-wider">Phase 4</span>
+                                        <h3 class="font-bold text-cyber-muted text-base">Future Backlog — ส่วนเสริมอนาคต</h3>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-xs text-cyber-muted font-mono" id="p4-progress-lbl">0%</span>
+                                        <i class="fa-solid fa-chevron-down phase-chevron text-xs text-cyber-muted" id="p4-ch"></i>
+                                    </div>
+                                </div>
+                                <div class="phase-body p-6 border-t border-white/5 hidden space-y-4" id="p4-body">
+                                    <p class="text-sm text-cyber-muted leading-relaxed">รายการฟีเจอร์ย่อยที่อยู่นอกขอบเขตของ MVP Roadmap แรก เช่น การซิงค์ตรงโดยไม่พึ่งเน็ต หรือคุยอินเตอร์คอมแชร์ GPS</p>
+                                    <div class="tasks space-y-3" data-sprint="p4-s4"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1782,6 +1827,35 @@
                             system_prompt: document.getElementById('system-prompt') ? document.getElementById('system-prompt').value : '',
                             workspace_path: document.getElementById('workspace-path') ? document.getElementById('workspace-path').value : ''
                         }));
+                    });
+
+                    // Drag & Drop event listeners
+                    taskItem.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                    });
+
+                    taskItem.addEventListener('dragenter', (e) => {
+                        e.preventDefault();
+                        taskItem.classList.add('border-emerald-500/50', 'bg-emerald-500/5', 'scale-[1.01]');
+                    });
+
+                    taskItem.addEventListener('dragleave', () => {
+                        taskItem.classList.remove('border-emerald-500/50', 'bg-emerald-500/5', 'scale-[1.01]');
+                    });
+
+                    taskItem.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        taskItem.classList.remove('border-emerald-500/50', 'bg-emerald-500/5', 'scale-[1.01]');
+                        const agentId = e.dataTransfer.getData('text/plain');
+                        if (agentId) {
+                            const selectEl = taskItem.querySelector('.assist-to-select');
+                            if (selectEl) {
+                                selectEl.value = agentId;
+                                saveStateToStorage();
+                                calculateRoadmapProgress();
+                                logTerminal('sys', `Assigned agent '${agentId}' to task: "${task.text}"`);
+                            }
+                        }
                     });
 
                     container.appendChild(taskItem);
