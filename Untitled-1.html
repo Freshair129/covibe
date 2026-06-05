@@ -518,6 +518,65 @@
             transition: transform 0.15s ease-out;
         }
         
+        /* Premium Switch Toggles */
+        .switch-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .switch-input {
+            display: none;
+        }
+        .switch-track {
+            width: 2.25rem;
+            height: 1.25rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 9999px;
+            transition: background-color 0.3s ease;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .switch-handle {
+            width: 1rem;
+            height: 1rem;
+            background-color: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 1px;
+            left: 2px;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+        .switch-input:checked + .switch-track {
+            background-color: #FF6363;
+        }
+        .switch-input:checked + .switch-track .switch-handle {
+            transform: translateX(1rem);
+        }
+
+        /* Model Source Tab Controls */
+        .tab-btn {
+            flex: 1;
+            padding: 4px 8px;
+            font-size: 10px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            background: transparent;
+            border: 1px solid transparent;
+        }
+        .tab-btn.active {
+            background-color: rgba(255, 99, 99, 0.15);
+            color: #fff;
+            border: 1px solid rgba(255, 99, 99, 0.3);
+        }
+        .tab-btn.inactive {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .tab-btn.inactive:hover {
+            color: #fff;
+        }
+        
         .shine-overlay {
             position: absolute;
             inset: 0;
@@ -852,39 +911,122 @@
                                         <!-- BACK FACE -->
                                         <div class="absolute inset-0 backface-hidden rotate-y-180 bg-neutral-950 border border-white/10 rounded-2xl p-4 flex flex-col justify-between h-full select-none text-xs">
                                             <div class="flex flex-col gap-2 h-full justify-between">
-                                                <div class="flex justify-between items-center border-b border-white/5 pb-1.5">
-                                                    <span class="font-bold text-white font-mono text-[10px] uppercase">CONFIG — EVA</span>
-                                                    <button class="flip-back-btn text-[10px] text-cyber-muted hover:text-white transition-colors" data-agent="eva"><i class="fa-solid fa-xmark"></i></button>
+                                                <div class="flex justify-between items-center border-b border-white/5 pb-1.5 shrink-0">
+                                                    <span class="font-bold text-white font-mono text-[10px] uppercase flex items-center gap-1">
+                                                        <i class="fa-solid fa-sliders text-raycast-coral"></i> CONFIG — EVA
+                                                    </span>
+                                                    <button class="flip-back-btn text-[10px] text-cyber-muted hover:text-white transition-colors" data-agent="eva">
+                                                        <i class="fa-solid fa-xmark"></i>
+                                                    </button>
                                                 </div>
-                                                <div class="flex-1 overflow-y-auto space-y-2 pr-1 scroll-custom text-[10px]">
+                                                <div class="flex-1 overflow-y-auto space-y-3.5 pr-1 scroll-custom text-[10px]">
                                                     <div>
-                                                        <label class="block text-cyber-muted mb-0.5">Model Engine</label>
-                                                        <select class="w-full bg-black/50 border border-white/10 rounded px-1.5 py-1 text-[9px] text-white">
-                                                            <option>GPT-4.5 Turbo</option>
+                                                        <label class="block text-cyber-muted mb-1 uppercase tracking-wider text-[8px] font-bold">System Prompt</label>
+                                                        <textarea class="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-white/80 focus:outline-none focus:border-raycast-coral/50 resize-none h-12" placeholder="You are EVA, an autonomous assistant..."></textarea>
+                                                    </div>
+
+                                                    <div>
+                                                        <label class="block text-cyber-muted mb-1 uppercase tracking-wider text-[8px] font-bold">Model Source</label>
+                                                        <div class="flex rounded-lg bg-black/40 p-0.5 border border-white/10">
+                                                            <button type="button" class="tab-btn active" data-agent="eva" data-source="cloud">Cloud API</button>
+                                                            <button type="button" class="tab-btn inactive" data-agent="eva" data-source="local">Local Server</button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <label class="block text-cyber-muted mb-1 uppercase tracking-wider text-[8px] font-bold">Select Model</label>
+                                                        <select class="w-full bg-black/50 border border-white/10 rounded-lg px-2 py-1.5 text-white/85 focus:outline-none model-select">
                                                             <option>Gemini 2.5 Flash</option>
+                                                            <option>GPT-4o Base</option>
                                                             <option>Claude 3.5 Sonnet</option>
                                                         </select>
                                                     </div>
-                                                    <div>
-                                                        <div class="flex justify-between text-cyber-muted mb-0.5">
-                                                            <span>Creativity (Temp)</span>
-                                                            <span class="text-raycast-coral">0.7</span>
+
+                                                    <div class="cloud-cred-sec">
+                                                        <div class="flex justify-between items-center mb-1">
+                                                            <span class="text-cyber-muted uppercase tracking-wider text-[8px] font-bold">API Credentials</span>
+                                                            <button type="button" class="text-[8px] text-cyber-muted hover:text-white flex items-center gap-0.5 key-toggle-btn"><i class="fa-solid fa-eye"></i> Show</button>
                                                         </div>
-                                                        <input type="range" min="0" max="1" step="0.1" value="0.7" class="w-full h-1 bg-white/10 rounded appearance-none cursor-pointer accent-raycast-coral">
+                                                        <input type="password" class="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-white/80 focus:outline-none" value="xai-**********************">
                                                     </div>
-                                                    <div class="space-y-1.5 pt-1">
-                                                        <div class="flex items-center justify-between">
-                                                            <span class="text-white">Plan Mode</span>
-                                                            <input type="checkbox" checked class="accent-raycast-coral">
+
+                                                    <div class="local-cred-sec hidden">
+                                                        <span class="block text-cyber-muted uppercase tracking-wider text-[8px] font-bold mb-1">Local Endpoint URL</span>
+                                                        <input type="text" class="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-white/80 focus:outline-none" value="http://localhost:11434">
+                                                    </div>
+
+                                                    <div>
+                                                        <div class="flex justify-between text-cyber-muted mb-1">
+                                                            <span class="uppercase tracking-wider text-[8px] font-bold">Context Window</span>
+                                                            <span class="text-raycast-coral font-bold slider-val">128k Tokens</span>
                                                         </div>
-                                                        <div class="flex items-center justify-between">
-                                                            <span class="text-white">File Access</span>
-                                                            <input type="checkbox" checked class="accent-raycast-coral">
+                                                        <input type="range" class="w-full h-1 bg-white/10 rounded appearance-none cursor-pointer accent-raycast-coral context-slider" min="8" max="256" value="128">
+                                                    </div>
+
+                                                    <div>
+                                                        <div class="flex justify-between text-cyber-muted mb-1">
+                                                            <span class="uppercase tracking-wider text-[8px] font-bold">Creativity (Temp)</span>
+                                                            <span class="text-raycast-coral font-bold slider-val">0.7</span>
+                                                        </div>
+                                                        <input type="range" class="w-full h-1 bg-white/10 rounded appearance-none cursor-pointer accent-raycast-coral temp-slider" min="0" max="1" step="0.1" value="0.7">
+                                                    </div>
+
+                                                    <!-- Genesis Knowledge Box -->
+                                                    <div class="p-2.5 rounded-lg bg-black/40 border border-white/10 relative overflow-hidden">
+                                                        <div class="flex justify-between items-center mb-2">
+                                                            <div class="flex items-center gap-1 font-bold text-white uppercase text-[8px]">
+                                                                <i class="fa-solid fa-database text-raycast-coral"></i> Genesis Knowledge
+                                                            </div>
+                                                            <span class="px-1 py-0.5 rounded bg-raycast-coral/10 text-raycast-coral text-[8px] font-mono">GenesisDB</span>
+                                                        </div>
+                                                        <button type="button" class="w-full py-1.5 rounded bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-[9px] text-white/80 flex items-center justify-center gap-1">
+                                                            <i class="fa-solid fa-file-circle-plus"></i> Add File to Knowledge
+                                                        </button>
+                                                        <div class="flex justify-between text-[8px] text-cyber-muted font-mono mt-2">
+                                                            <span>Indexed: 1.2M Vectors</span>
+                                                            <span>Auto-Sync: ON</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="space-y-1.5">
+                                                        <label class="block text-cyber-muted uppercase tracking-wider text-[8px] font-bold">Agent Behaviors</label>
+                                                        <div class="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-white/5">
+                                                            <span class="text-white flex items-center gap-1"><i class="fa-solid fa-brain text-white/50 text-[10px]"></i> Plan Mode</span>
+                                                            <label class="switch-container">
+                                                                <input type="checkbox" checked class="switch-input">
+                                                                <span class="switch-track"><span class="switch-handle"></span></span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-white/5">
+                                                            <span class="text-white flex items-center gap-1"><i class="fa-solid fa-bolt text-white/50 text-[10px]"></i> Auto-Execute Tasks</span>
+                                                            <label class="switch-container">
+                                                                <input type="checkbox" class="switch-input">
+                                                                <span class="switch-track"><span class="switch-handle"></span></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="space-y-1.5">
+                                                        <label class="block text-cyber-muted uppercase tracking-wider text-[8px] font-bold">System Access</label>
+                                                        <div class="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-white/5">
+                                                            <span class="text-white flex items-center gap-1"><i class="fa-solid fa-folder text-white/50 text-[10px]"></i> Local File Access</span>
+                                                            <label class="switch-container">
+                                                                <input type="checkbox" checked class="switch-input">
+                                                                <span class="switch-track"><span class="switch-handle"></span></span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-white/5">
+                                                            <span class="text-white flex items-center gap-1"><i class="fa-solid fa-terminal text-white/50 text-[10px]"></i> Shell Command Runner</span>
+                                                            <label class="switch-container">
+                                                                <input type="checkbox" class="switch-input">
+                                                                <span class="switch-track"><span class="switch-handle"></span></span>
+                                                            </label>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="border-t border-white/5 pt-1.5 text-center text-[9px] text-cyber-muted">
-                                                    Changes auto-saved
+                                                <div class="flex justify-end gap-2 border-t border-white/5 pt-2 shrink-0">
+                                                    <button class="px-2.5 py-1 text-cyber-muted hover:text-white transition-colors text-[9px] font-bold" type="button">Reset</button>
+                                                    <button class="px-3 py-1 bg-raycast-coral hover:bg-raycast-coral/80 text-white rounded-md transition-colors text-[9px] font-bold" type="button">Save Changes</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -957,39 +1099,122 @@
                                         <!-- BACK FACE -->
                                         <div class="absolute inset-0 backface-hidden rotate-y-180 bg-neutral-950 border border-white/10 rounded-2xl p-4 flex flex-col justify-between h-full select-none text-xs">
                                             <div class="flex flex-col gap-2 h-full justify-between">
-                                                <div class="flex justify-between items-center border-b border-white/5 pb-1.5">
-                                                    <span class="font-bold text-white font-mono text-[10px] uppercase">CONFIG — QWEN</span>
-                                                    <button class="flip-back-btn text-[10px] text-cyber-muted hover:text-white transition-colors" data-agent="qwen"><i class="fa-solid fa-xmark"></i></button>
+                                                <div class="flex justify-between items-center border-b border-white/5 pb-1.5 shrink-0">
+                                                    <span class="font-bold text-white font-mono text-[10px] uppercase flex items-center gap-1">
+                                                        <i class="fa-solid fa-sliders text-raycast-coral"></i> CONFIG — QWEN
+                                                    </span>
+                                                    <button class="flip-back-btn text-[10px] text-cyber-muted hover:text-white transition-colors" data-agent="qwen">
+                                                        <i class="fa-solid fa-xmark"></i>
+                                                    </button>
                                                 </div>
-                                                <div class="flex-1 overflow-y-auto space-y-2 pr-1 scroll-custom text-[10px]">
+                                                <div class="flex-1 overflow-y-auto space-y-3.5 pr-1 scroll-custom text-[10px]">
                                                     <div>
-                                                        <label class="block text-cyber-muted mb-0.5">Model Engine</label>
-                                                        <select class="w-full bg-black/50 border border-white/10 rounded px-1.5 py-1 text-[9px] text-white">
-                                                            <option>Qwen2.5-Coder</option>
-                                                            <option>Llama 3 (Ollama)</option>
-                                                            <option>Mistral 7B</option>
+                                                        <label class="block text-cyber-muted mb-1 uppercase tracking-wider text-[8px] font-bold">System Prompt</label>
+                                                        <textarea class="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-white/80 focus:outline-none focus:border-raycast-coral/50 resize-none h-12" placeholder="You are Qwen Coder, a specialized coding AI assistant..."></textarea>
+                                                    </div>
+
+                                                    <div>
+                                                        <label class="block text-cyber-muted mb-1 uppercase tracking-wider text-[8px] font-bold">Model Source</label>
+                                                        <div class="flex rounded-lg bg-black/40 p-0.5 border border-white/10">
+                                                            <button type="button" class="tab-btn active" data-agent="qwen" data-source="cloud">Cloud API</button>
+                                                            <button type="button" class="tab-btn inactive" data-agent="qwen" data-source="local">Local Server</button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <label class="block text-cyber-muted mb-1 uppercase tracking-wider text-[8px] font-bold">Select Model</label>
+                                                        <select class="w-full bg-black/50 border border-white/10 rounded-lg px-2 py-1.5 text-white/85 focus:outline-none model-select">
+                                                            <option>GPT-4o</option>
+                                                            <option>Claude 3.5 Sonnet</option>
+                                                            <option>Gemini 2.5 Flash</option>
                                                         </select>
                                                     </div>
-                                                    <div>
-                                                        <div class="flex justify-between text-cyber-muted mb-0.5">
-                                                            <span>Creativity (Temp)</span>
-                                                            <span class="text-raycast-coral">0.2</span>
+
+                                                    <div class="cloud-cred-sec">
+                                                        <div class="flex justify-between items-center mb-1">
+                                                            <span class="text-cyber-muted uppercase tracking-wider text-[8px] font-bold">API Credentials</span>
+                                                            <button type="button" class="text-[8px] text-cyber-muted hover:text-white flex items-center gap-0.5 key-toggle-btn"><i class="fa-solid fa-eye"></i> Show</button>
                                                         </div>
-                                                        <input type="range" min="0" max="1" step="0.1" value="0.2" class="w-full h-1 bg-white/10 rounded appearance-none cursor-pointer accent-raycast-coral">
+                                                        <input type="password" class="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-white/80 focus:outline-none" value="xai-**********************">
                                                     </div>
-                                                    <div class="space-y-1.5 pt-1">
-                                                        <div class="flex items-center justify-between">
-                                                            <span class="text-white">Plan Mode</span>
-                                                            <input type="checkbox" checked class="accent-raycast-coral">
+
+                                                    <div class="local-cred-sec hidden">
+                                                        <span class="block text-cyber-muted uppercase tracking-wider text-[8px] font-bold mb-1">Local Endpoint URL</span>
+                                                        <input type="text" class="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-white/80 focus:outline-none" value="http://localhost:11434">
+                                                    </div>
+
+                                                    <div>
+                                                        <div class="flex justify-between text-cyber-muted mb-1">
+                                                            <span class="uppercase tracking-wider text-[8px] font-bold">Context Window</span>
+                                                            <span class="text-raycast-coral font-bold slider-val">96k Tokens</span>
                                                         </div>
-                                                        <div class="flex items-center justify-between">
-                                                            <span class="text-white">Shell Command</span>
-                                                            <input type="checkbox" checked class="accent-raycast-coral">
+                                                        <input type="range" class="w-full h-1 bg-white/10 rounded appearance-none cursor-pointer accent-raycast-coral context-slider" min="8" max="256" value="96">
+                                                    </div>
+
+                                                    <div>
+                                                        <div class="flex justify-between text-cyber-muted mb-1">
+                                                            <span class="uppercase tracking-wider text-[8px] font-bold">Creativity (Temp)</span>
+                                                            <span class="text-raycast-coral font-bold slider-val">0.2</span>
+                                                        </div>
+                                                        <input type="range" class="w-full h-1 bg-white/10 rounded appearance-none cursor-pointer accent-raycast-coral temp-slider" min="0" max="1" step="0.1" value="0.2">
+                                                    </div>
+
+                                                    <!-- Genesis Knowledge Box -->
+                                                    <div class="p-2.5 rounded-lg bg-black/40 border border-white/10 relative overflow-hidden">
+                                                        <div class="flex justify-between items-center mb-2">
+                                                            <div class="flex items-center gap-1 font-bold text-white uppercase text-[8px]">
+                                                                <i class="fa-solid fa-database text-raycast-coral"></i> Genesis Knowledge
+                                                            </div>
+                                                            <span class="px-1 py-0.5 rounded bg-raycast-coral/10 text-raycast-coral text-[8px] font-mono">GenesisDB</span>
+                                                        </div>
+                                                        <button type="button" class="w-full py-1.5 rounded bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-[9px] text-white/80 flex items-center justify-center gap-1">
+                                                            <i class="fa-solid fa-file-circle-plus"></i> Add File to Knowledge
+                                                        </button>
+                                                        <div class="flex justify-between text-[8px] text-cyber-muted font-mono mt-2">
+                                                            <span>Indexed: 1.2M Vectors</span>
+                                                            <span>Auto-Sync: ON</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="space-y-1.5">
+                                                        <label class="block text-cyber-muted uppercase tracking-wider text-[8px] font-bold">Agent Behaviors</label>
+                                                        <div class="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-white/5">
+                                                            <span class="text-white flex items-center gap-1"><i class="fa-solid fa-brain text-white/50 text-[10px]"></i> Plan Mode</span>
+                                                            <label class="switch-container">
+                                                                <input type="checkbox" checked class="switch-input">
+                                                                <span class="switch-track"><span class="switch-handle"></span></span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-white/5">
+                                                            <span class="text-white flex items-center gap-1"><i class="fa-solid fa-bolt text-white/50 text-[10px]"></i> Auto-Execute Tasks</span>
+                                                            <label class="switch-container">
+                                                                <input type="checkbox" class="switch-input">
+                                                                <span class="switch-track"><span class="switch-handle"></span></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="space-y-1.5">
+                                                        <label class="block text-cyber-muted uppercase tracking-wider text-[8px] font-bold">System Access</label>
+                                                        <div class="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-white/5">
+                                                            <span class="text-white flex items-center gap-1"><i class="fa-solid fa-folder text-white/50 text-[10px]"></i> Local File Access</span>
+                                                            <label class="switch-container">
+                                                                <input type="checkbox" checked class="switch-input">
+                                                                <span class="switch-track"><span class="switch-handle"></span></span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-white/5">
+                                                            <span class="text-white flex items-center gap-1"><i class="fa-solid fa-terminal text-white/50 text-[10px]"></i> Shell Command Runner</span>
+                                                            <label class="switch-container">
+                                                                <input type="checkbox" checked class="switch-input">
+                                                                <span class="switch-track"><span class="switch-handle"></span></span>
+                                                            </label>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="border-t border-white/5 pt-1.5 text-center text-[9px] text-cyber-muted">
-                                                    Changes auto-saved
+                                                <div class="flex justify-end gap-2 border-t border-white/5 pt-2 shrink-0">
+                                                    <button class="px-2.5 py-1 text-cyber-muted hover:text-white transition-colors text-[9px] font-bold" type="button">Reset</button>
+                                                    <button class="px-3 py-1 bg-raycast-coral hover:bg-raycast-coral/80 text-white rounded-md transition-colors text-[9px] font-bold" type="button">Save Changes</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -1062,39 +1287,122 @@
                                         <!-- BACK FACE -->
                                         <div class="absolute inset-0 backface-hidden rotate-y-180 bg-neutral-950 border border-white/10 rounded-2xl p-4 flex flex-col justify-between h-full select-none text-xs">
                                             <div class="flex flex-col gap-2 h-full justify-between">
-                                                <div class="flex justify-between items-center border-b border-white/5 pb-1.5">
-                                                    <span class="font-bold text-white font-mono text-[10px] uppercase">CONFIG — UAT</span>
-                                                    <button class="flip-back-btn text-[10px] text-cyber-muted hover:text-white transition-colors" data-agent="uat"><i class="fa-solid fa-xmark"></i></button>
+                                                <div class="flex justify-between items-center border-b border-white/5 pb-1.5 shrink-0">
+                                                    <span class="font-bold text-white font-mono text-[10px] uppercase flex items-center gap-1">
+                                                        <i class="fa-solid fa-sliders text-raycast-coral"></i> CONFIG — UAT
+                                                    </span>
+                                                    <button class="flip-back-btn text-[10px] text-cyber-muted hover:text-white transition-colors" data-agent="uat">
+                                                        <i class="fa-solid fa-xmark"></i>
+                                                    </button>
                                                 </div>
-                                                <div class="flex-1 overflow-y-auto space-y-2 pr-1 scroll-custom text-[10px]">
+                                                <div class="flex-1 overflow-y-auto space-y-3.5 pr-1 scroll-custom text-[10px]">
                                                     <div>
-                                                        <label class="block text-cyber-muted mb-0.5">Model Engine</label>
-                                                        <select class="w-full bg-black/50 border border-white/10 rounded px-1.5 py-1 text-[9px] text-white">
+                                                        <label class="block text-cyber-muted mb-1 uppercase tracking-wider text-[8px] font-bold">System Prompt</label>
+                                                        <textarea class="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-white/80 focus:outline-none focus:border-raycast-coral/50 resize-none h-12" placeholder="You are UAT Agent, validating features and tests..."></textarea>
+                                                    </div>
+
+                                                    <div>
+                                                        <label class="block text-cyber-muted mb-1 uppercase tracking-wider text-[8px] font-bold">Model Source</label>
+                                                        <div class="flex rounded-lg bg-black/40 p-0.5 border border-white/10">
+                                                            <button type="button" class="tab-btn active" data-agent="uat" data-source="cloud">Cloud API</button>
+                                                            <button type="button" class="tab-btn inactive" data-agent="uat" data-source="local">Local Server</button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <label class="block text-cyber-muted mb-1 uppercase tracking-wider text-[8px] font-bold">Select Model</label>
+                                                        <select class="w-full bg-black/50 border border-white/10 rounded-lg px-2 py-1.5 text-white/85 focus:outline-none model-select">
                                                             <option>GPT-4o</option>
                                                             <option>Claude 3.5 Sonnet</option>
-                                                            <option>GPT-4.5 Turbo</option>
+                                                            <option>Gemini 2.5 Flash</option>
                                                         </select>
                                                     </div>
-                                                    <div>
-                                                        <div class="flex justify-between text-cyber-muted mb-0.5">
-                                                            <span>Creativity (Temp)</span>
-                                                            <span class="text-raycast-coral">0.5</span>
+
+                                                    <div class="cloud-cred-sec">
+                                                        <div class="flex justify-between items-center mb-1">
+                                                            <span class="text-cyber-muted uppercase tracking-wider text-[8px] font-bold">API Credentials</span>
+                                                            <button type="button" class="text-[8px] text-cyber-muted hover:text-white flex items-center gap-0.5 key-toggle-btn"><i class="fa-solid fa-eye"></i> Show</button>
                                                         </div>
-                                                        <input type="range" min="0" max="1" step="0.1" value="0.5" class="w-full h-1 bg-white/10 rounded appearance-none cursor-pointer accent-raycast-coral">
+                                                        <input type="password" class="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-white/80 focus:outline-none" value="xai-**********************">
                                                     </div>
-                                                    <div class="space-y-1.5 pt-1">
-                                                        <div class="flex items-center justify-between">
-                                                            <span class="text-white">Plan Mode</span>
-                                                            <input type="checkbox" checked class="accent-raycast-coral">
+
+                                                    <div class="local-cred-sec hidden">
+                                                        <span class="block text-cyber-muted uppercase tracking-wider text-[8px] font-bold mb-1">Local Endpoint URL</span>
+                                                        <input type="text" class="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-white/80 focus:outline-none" value="http://localhost:11434">
+                                                    </div>
+
+                                                    <div>
+                                                        <div class="flex justify-between text-cyber-muted mb-1">
+                                                            <span class="uppercase tracking-wider text-[8px] font-bold">Context Window</span>
+                                                            <span class="text-raycast-coral font-bold slider-val">128k Tokens</span>
                                                         </div>
-                                                        <div class="flex items-center justify-between">
-                                                            <span class="text-white">File Access</span>
-                                                            <input type="checkbox" checked class="accent-raycast-coral">
+                                                        <input type="range" class="w-full h-1 bg-white/10 rounded appearance-none cursor-pointer accent-raycast-coral context-slider" min="8" max="256" value="128">
+                                                    </div>
+
+                                                    <div>
+                                                        <div class="flex justify-between text-cyber-muted mb-1">
+                                                            <span class="uppercase tracking-wider text-[8px] font-bold">Creativity (Temp)</span>
+                                                            <span class="text-raycast-coral font-bold slider-val">0.5</span>
+                                                        </div>
+                                                        <input type="range" class="w-full h-1 bg-white/10 rounded appearance-none cursor-pointer accent-raycast-coral temp-slider" min="0" max="1" step="0.1" value="0.5">
+                                                    </div>
+
+                                                    <!-- Genesis Knowledge Box -->
+                                                    <div class="p-2.5 rounded-lg bg-black/40 border border-white/10 relative overflow-hidden">
+                                                        <div class="flex justify-between items-center mb-2">
+                                                            <div class="flex items-center gap-1 font-bold text-white uppercase text-[8px]">
+                                                                <i class="fa-solid fa-database text-raycast-coral"></i> Genesis Knowledge
+                                                            </div>
+                                                            <span class="px-1 py-0.5 rounded bg-raycast-coral/10 text-raycast-coral text-[8px] font-mono">GenesisDB</span>
+                                                        </div>
+                                                        <button type="button" class="w-full py-1.5 rounded bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-[9px] text-white/80 flex items-center justify-center gap-1">
+                                                            <i class="fa-solid fa-file-circle-plus"></i> Add File to Knowledge
+                                                        </button>
+                                                        <div class="flex justify-between text-[8px] text-cyber-muted font-mono mt-2">
+                                                            <span>Indexed: 1.2M Vectors</span>
+                                                            <span>Auto-Sync: ON</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="space-y-1.5">
+                                                        <label class="block text-cyber-muted uppercase tracking-wider text-[8px] font-bold">Agent Behaviors</label>
+                                                        <div class="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-white/5">
+                                                            <span class="text-white flex items-center gap-1"><i class="fa-solid fa-brain text-white/50 text-[10px]"></i> Plan Mode</span>
+                                                            <label class="switch-container">
+                                                                <input type="checkbox" checked class="switch-input">
+                                                                <span class="switch-track"><span class="switch-handle"></span></span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-white/5">
+                                                            <span class="text-white flex items-center gap-1"><i class="fa-solid fa-bolt text-white/50 text-[10px]"></i> Auto-Execute Tasks</span>
+                                                            <label class="switch-container">
+                                                                <input type="checkbox" checked class="switch-input">
+                                                                <span class="switch-track"><span class="switch-handle"></span></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="space-y-1.5">
+                                                        <label class="block text-cyber-muted uppercase tracking-wider text-[8px] font-bold">System Access</label>
+                                                        <div class="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-white/5">
+                                                            <span class="text-white flex items-center gap-1"><i class="fa-solid fa-folder text-white/50 text-[10px]"></i> Local File Access</span>
+                                                            <label class="switch-container">
+                                                                <input type="checkbox" checked class="switch-input">
+                                                                <span class="switch-track"><span class="switch-handle"></span></span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-white/5">
+                                                            <span class="text-white flex items-center gap-1"><i class="fa-solid fa-terminal text-white/50 text-[10px]"></i> Shell Command Runner</span>
+                                                            <label class="switch-container">
+                                                                <input type="checkbox" class="switch-input">
+                                                                <span class="switch-track"><span class="switch-handle"></span></span>
+                                                            </label>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="border-t border-white/5 pt-1.5 text-center text-[9px] text-cyber-muted">
-                                                    Changes auto-saved
+                                                <div class="flex justify-end gap-2 border-t border-white/5 pt-2 shrink-0">
+                                                    <button class="px-2.5 py-1 text-cyber-muted hover:text-white transition-colors text-[9px] font-bold" type="button">Reset</button>
+                                                    <button class="px-3 py-1 bg-raycast-coral hover:bg-raycast-coral/80 text-white rounded-md transition-colors text-[9px] font-bold" type="button">Save Changes</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -1164,39 +1472,104 @@
                                         <!-- BACK FACE -->
                                         <div class="absolute inset-0 backface-hidden rotate-y-180 bg-neutral-950 border border-white/10 rounded-2xl p-4 flex flex-col justify-between h-full select-none text-xs">
                                             <div class="flex flex-col gap-2 h-full justify-between">
-                                                <div class="flex justify-between items-center border-b border-white/5 pb-1.5">
-                                                    <span class="font-bold text-white font-mono text-[10px] uppercase">CONFIG — LOCAL</span>
-                                                    <button class="flip-back-btn text-[10px] text-cyber-muted hover:text-white transition-colors" data-agent="local"><i class="fa-solid fa-xmark"></i></button>
+                                                <div class="flex justify-between items-center border-b border-white/5 pb-1.5 shrink-0">
+                                                    <span class="font-bold text-white font-mono text-[10px] uppercase flex items-center gap-1">
+                                                        <i class="fa-solid fa-sliders text-raycast-coral"></i> CONFIG — LOCAL
+                                                    </span>
+                                                    <button class="flip-back-btn text-[10px] text-cyber-muted hover:text-white transition-colors" data-agent="local">
+                                                        <i class="fa-solid fa-xmark"></i>
+                                                    </button>
                                                 </div>
-                                                <div class="flex-1 overflow-y-auto space-y-2 pr-1 scroll-custom text-[10px]">
+                                                <div class="flex-1 overflow-y-auto space-y-3.5 pr-1 scroll-custom text-[10px]">
                                                     <div>
-                                                        <label class="block text-cyber-muted mb-0.5">Execution Shell</label>
-                                                        <select class="w-full bg-black/50 border border-white/10 rounded px-1.5 py-1 text-[9px] text-white">
-                                                            <option>PowerShell</option>
-                                                            <option>CMD</option>
-                                                            <option>Bash (WSL)</option>
+                                                        <label class="block text-cyber-muted mb-1 uppercase tracking-wider text-[8px] font-bold">System Prompt</label>
+                                                        <textarea class="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-white/80 focus:outline-none focus:border-raycast-coral/50 resize-none h-12" placeholder="You are Local Dev, executing tasks locally..."></textarea>
+                                                    </div>
+
+                                                    <div>
+                                                        <label class="block text-cyber-muted mb-1 uppercase tracking-wider text-[8px] font-bold">Model Source</label>
+                                                        <div class="flex rounded-lg bg-black/40 p-0.5 border border-white/10">
+                                                            <button type="button" class="tab-btn inactive" data-agent="local" data-source="cloud">Cloud API</button>
+                                                            <button type="button" class="tab-btn active" data-agent="local" data-source="local">Local Server</button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <label class="block text-cyber-muted mb-1 uppercase tracking-wider text-[8px] font-bold">Select Model</label>
+                                                        <select class="w-full bg-black/50 border border-white/10 rounded-lg px-2 py-1.5 text-white/85 focus:outline-none model-select">
+                                                            <option>Llama 3 (Ollama)</option>
+                                                            <option>Mistral 7B (LM Studio)</option>
+                                                            <option>Phi-3 Medium</option>
                                                         </select>
                                                     </div>
-                                                    <div>
-                                                        <div class="flex justify-between text-cyber-muted mb-0.5">
-                                                            <span>Keyboard Latency</span>
-                                                            <span class="text-raycast-coral">150ms</span>
+
+                                                    <div class="cloud-cred-sec hidden">
+                                                        <div class="flex justify-between items-center mb-1">
+                                                            <span class="text-cyber-muted uppercase tracking-wider text-[8px] font-bold">API Credentials</span>
+                                                            <button type="button" class="text-[8px] text-cyber-muted hover:text-white flex items-center gap-0.5 key-toggle-btn"><i class="fa-solid fa-eye"></i> Show</button>
                                                         </div>
-                                                        <input type="range" min="50" max="500" step="50" value="150" class="w-full h-1 bg-white/10 rounded appearance-none cursor-pointer accent-raycast-coral">
+                                                        <input type="password" class="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-white/80 focus:outline-none" value="xai-**********************">
                                                     </div>
-                                                    <div class="space-y-1.5 pt-1">
-                                                        <div class="flex items-center justify-between">
-                                                            <span class="text-white">Workspace Sync</span>
-                                                            <input type="checkbox" checked class="accent-raycast-coral">
+
+                                                    <div class="local-cred-sec">
+                                                        <span class="block text-cyber-muted uppercase tracking-wider text-[8px] font-bold mb-1">Local Endpoint URL</span>
+                                                        <input type="text" class="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-white/80 focus:outline-none" value="http://localhost:11434">
+                                                    </div>
+
+                                                    <div>
+                                                        <div class="flex justify-between text-cyber-muted mb-1">
+                                                            <span class="uppercase tracking-wider text-[8px] font-bold">Keyboard Latency</span>
+                                                            <span class="text-raycast-coral font-bold slider-val">150ms</span>
                                                         </div>
-                                                        <div class="flex items-center justify-between">
-                                                            <span class="text-white">Local Server Run</span>
-                                                            <input type="checkbox" checked class="accent-raycast-coral">
+                                                        <input type="range" class="w-full h-1 bg-white/10 rounded appearance-none cursor-pointer accent-raycast-coral latency-slider" min="50" max="500" step="50" value="150">
+                                                    </div>
+
+                                                    <div>
+                                                        <div class="flex justify-between text-cyber-muted mb-1">
+                                                            <span class="uppercase tracking-wider text-[8px] font-bold">Creativity (Temp)</span>
+                                                            <span class="text-raycast-coral font-bold slider-val">0.7</span>
+                                                        </div>
+                                                        <input type="range" class="w-full h-1 bg-white/10 rounded appearance-none cursor-pointer accent-raycast-coral temp-slider" min="0" max="1" step="0.1" value="0.7">
+                                                    </div>
+
+                                                    <!-- Genesis Knowledge Box -->
+                                                    <div class="p-2.5 rounded-lg bg-black/40 border border-white/10 relative overflow-hidden">
+                                                        <div class="flex justify-between items-center mb-2">
+                                                            <div class="flex items-center gap-1 font-bold text-white uppercase text-[8px]">
+                                                                <i class="fa-solid fa-database text-raycast-coral"></i> Genesis Knowledge
+                                                            </div>
+                                                            <span class="px-1 py-0.5 rounded bg-raycast-coral/10 text-raycast-coral text-[8px] font-mono">GenesisDB</span>
+                                                        </div>
+                                                        <button type="button" class="w-full py-1.5 rounded bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-[9px] text-white/80 flex items-center justify-center gap-1">
+                                                            <i class="fa-solid fa-file-circle-plus"></i> Add File to Knowledge
+                                                        </button>
+                                                        <div class="flex justify-between text-[8px] text-cyber-muted font-mono mt-2">
+                                                            <span>Indexed: 1.2M Vectors</span>
+                                                            <span>Auto-Sync: ON</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="space-y-1.5">
+                                                        <label class="block text-cyber-muted uppercase tracking-wider text-[8px] font-bold">Agent Behaviors</label>
+                                                        <div class="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-white/5">
+                                                            <span class="text-white flex items-center gap-1"><i class="fa-solid fa-brain text-white/50 text-[10px]"></i> Workspace Sync</span>
+                                                            <label class="switch-container">
+                                                                <input type="checkbox" checked class="switch-input">
+                                                                <span class="switch-track"><span class="switch-handle"></span></span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-white/5">
+                                                            <span class="text-white flex items-center gap-1"><i class="fa-solid fa-bolt text-white/50 text-[10px]"></i> Local Server Run</span>
+                                                            <label class="switch-container">
+                                                                <input type="checkbox" checked class="switch-input">
+                                                                <span class="switch-track"><span class="switch-handle"></span></span>
+                                                            </label>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="border-t border-white/5 pt-1.5 text-center text-[9px] text-cyber-muted">
-                                                    Changes auto-saved
+                                                <div class="flex justify-end gap-2 border-t border-white/5 pt-2 shrink-0">
+                                                    <button class="px-2.5 py-1 text-cyber-muted hover:text-white transition-colors text-[9px] font-bold" type="button">Reset</button>
+                                                    <button class="px-3 py-1 bg-raycast-coral hover:bg-raycast-coral/80 text-white rounded-md transition-colors text-[9px] font-bold" type="button">Save Changes</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -3784,6 +4157,107 @@ ${formatTaskDoD(task)}
                     const flipper = document.getElementById(`${agent}-flipper`);
                     if (flipper) flipper.classList.remove('rotate-y-180');
                 });
+            });
+
+            // Tab button handlers for back card model sources
+            const modelOptions = {
+                eva: {
+                    cloud: ['Gemini 2.5 Flash', 'GPT-4o Base', 'Claude 3.5 Sonnet'],
+                    local: ['Llama 3 (Ollama)', 'Mistral 7B (LM Studio)', 'Phi-3 Medium']
+                },
+                qwen: {
+                    cloud: ['GPT-4o', 'Claude 3.5 Sonnet', 'Gemini 2.5 Flash'],
+                    local: ['Qwen 2.5 Coder', 'Llama 3 (Ollama)', 'Mistral 7B']
+                },
+                uat: {
+                    cloud: ['GPT-4o', 'Claude 3.5 Sonnet', 'Gemini 2.5 Flash'],
+                    local: ['Mistral 7B', 'Llama 3 (Ollama)', 'Phi-3']
+                },
+                local: {
+                    cloud: ['Gemini 2.5 Flash', 'GPT-4o Base', 'Claude 3.5 Sonnet'],
+                    local: ['Llama 3 (Ollama)', 'Mistral 7B (LM Studio)', 'Phi-3 Medium']
+                }
+            };
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const agent = btn.dataset.agent;
+                    const source = btn.dataset.source;
+                    const cardContainer = btn.closest('.backface-hidden');
+                    
+                    // Switch tab active classes
+                    cardContainer.querySelectorAll(`.tab-btn[data-agent="${agent}"]`).forEach(b => {
+                        b.classList.remove('active');
+                        b.classList.add('inactive');
+                    });
+                    btn.classList.add('active');
+                    btn.classList.remove('inactive');
+
+                    // Toggle API Credentials vs Local Endpoint URL inputs
+                    const cloudCred = cardContainer.querySelector('.cloud-cred-sec');
+                    const localCred = cardContainer.querySelector('.local-cred-sec');
+                    if (source === 'cloud') {
+                        if (cloudCred) cloudCred.classList.remove('hidden');
+                        if (localCred) localCred.classList.add('hidden');
+                    } else {
+                        if (cloudCred) cloudCred.classList.add('hidden');
+                        if (localCred) localCred.classList.remove('hidden');
+                    }
+
+                    // Dynamically update model options
+                    const select = cardContainer.querySelector('select.model-select');
+                    if (select && modelOptions[agent] && modelOptions[agent][source]) {
+                        select.innerHTML = '';
+                        modelOptions[agent][source].forEach(modelName => {
+                            const option = document.createElement('option');
+                            option.value = modelName;
+                            option.textContent = modelName;
+                            select.appendChild(option);
+                        });
+                    }
+                });
+            });
+
+            // Show/Hide password key toggler
+            document.querySelectorAll('.key-toggle-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const input = btn.closest('.cloud-cred-sec').querySelector('input');
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Hide';
+                    } else {
+                        input.type = 'password';
+                        btn.innerHTML = '<i class="fa-solid fa-eye"></i> Show';
+                    }
+                });
+            });
+
+            // Sync slider labels
+            document.querySelectorAll('input[type="range"]').forEach(slider => {
+                slider.addEventListener('input', () => {
+                    const valEl = slider.parentElement.querySelector('.slider-val');
+                    if (valEl) {
+                        if (slider.classList.contains('temp-slider')) {
+                            valEl.textContent = parseFloat(slider.value).toFixed(1);
+                        } else if (slider.classList.contains('context-slider')) {
+                            valEl.textContent = `${slider.value}k Tokens`;
+                        } else if (slider.classList.contains('latency-slider')) {
+                            valEl.textContent = `${slider.value}ms`;
+                        }
+                    }
+                });
+            });
+
+            // Config card Action buttons (Reset & Save Changes)
+            document.querySelectorAll('.backface-hidden button').forEach(btn => {
+                if (btn.textContent.trim() === 'Reset' || btn.textContent.trim() === 'Save Changes') {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        // Find the closest flipper wrapper and flip back
+                        const flipper = btn.closest('.flipper-wrapper');
+                        if (flipper) flipper.classList.remove('rotate-y-180');
+                    });
+                }
             });
 
             // Raycast 3D Card tilt and glare effect
