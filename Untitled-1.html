@@ -599,25 +599,32 @@
         /* Agent Management Carousel (view-A5)          */
         /* ============================================ */
         .am-carousel-viewport {
+            position: relative;
+            height: 650px;
+            width: 100%;
+            overflow-x: clip;
+            overflow-y: visible;
             display: flex;
-            gap: 2rem;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            scroll-behavior: smooth;
-            padding: 2rem 1rem;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
+            justify-content: center;
+            align-items: center;
+            perspective: 1200px;
+            padding: 2rem 0;
+            margin: 0 auto;
         }
-        .am-carousel-viewport::-webkit-scrollbar { display: none; }
 
         .am-card-slot {
-            flex: 0 0 400px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 400px;
             height: 600px;
-            scroll-snap-align: center;
-            perspective: 1000px;
+            transform-origin: center center;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.25, 1), opacity 0.6s ease, z-index 0.6s step-end;
         }
         @media (max-width: 480px) {
-            .am-card-slot { flex: 0 0 92vw; height: 560px; }
+            .am-carousel-viewport { height: 580px; }
+            .am-card-slot { width: 320px; height: 520px; }
         }
 
         .am-tilt-wrapper {
@@ -4898,11 +4905,46 @@ ${formatTaskDoD(task)}
             const cards = viewport.querySelectorAll('.am-card-slot');
             let currentIdx = 0;
 
+            function updateCarouselLayout() {
+                const isMobile = window.innerWidth <= 480;
+                // Adjust offsets for mobile vs desktop
+                const xOffset = isMobile ? 80 : 130;
+                const zOffset = isMobile ? -100 : -150;
+                const scaleStep = isMobile ? 0.12 : 0.15;
+                const rotateStep = isMobile ? 12 : 15;
+
+                cards.forEach((card, i) => {
+                    const diff = i - currentIdx;
+                    const absDiff = Math.abs(diff);
+
+                    // 1. Calculations
+                    const zIndex = 100 - absDiff;
+                    const opacity = Math.max(0, 1 - absDiff * 0.25);
+                    const scale = 1 - absDiff * scaleStep;
+                    const translateX = diff * xOffset;
+                    const translateZ = absDiff * zOffset;
+                    const rotateY = diff < 0 ? rotateStep : (diff > 0 ? -rotateStep : 0);
+
+                    // 2. Apply styling
+                    card.style.zIndex = zIndex;
+                    card.style.opacity = opacity;
+                    card.style.transform = `translate(-50%, -50%) translate3d(${translateX}px, 0, ${translateZ}px) scale(${scale}) rotateY(${rotateY}deg)`;
+                    
+                    // Enable/disable active class
+                    if (diff === 0) {
+                        card.classList.add('am-card-active');
+                    } else {
+                        card.classList.remove('am-card-active');
+                    }
+                });
+
+                updateDots();
+            }
+
             function scrollToCard(idx) {
                 if (idx < 0 || idx >= cards.length) return;
                 currentIdx = idx;
-                cards[idx].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                updateDots();
+                updateCarouselLayout();
             }
 
             function updateDots() {
@@ -4920,30 +4962,29 @@ ${formatTaskDoD(task)}
                 });
             }
 
-            // Sync dot indicators on scroll
-            let scrollTimer;
-            viewport.addEventListener('scroll', () => {
-                clearTimeout(scrollTimer);
-                scrollTimer = setTimeout(() => {
-                    const vRect = viewport.getBoundingClientRect();
-                    const center = vRect.left + vRect.width / 2;
-                    let closest = 0, minDist = Infinity;
-                    cards.forEach((c, i) => {
-                        const cRect = c.getBoundingClientRect();
-                        const dist = Math.abs(cRect.left + cRect.width / 2 - center);
-                        if (dist < minDist) { minDist = dist; closest = i; }
-                    });
-                    currentIdx = closest;
-                    updateDots();
-                }, 100);
+            // Click card to make it active if it is not
+            cards.forEach((card, i) => {
+                card.addEventListener('click', (e) => {
+                    if (i !== currentIdx) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        scrollToCard(i);
+                    }
+                }, true); // Use capture phase so we intercept clicks on children
             });
 
-            // 3D Tilt + Shine per card
+            // Initialize layout
+            updateCarouselLayout();
+
+            // 3D Tilt + Shine per card (only active when card is active)
             cards.forEach(slot => {
                 const tiltW = slot.querySelector('.am-tilt-wrapper');
                 if (!tiltW) return;
 
                 slot.addEventListener('mousemove', e => {
+                    // Only apply tilt to the active card
+                    if (!slot.classList.contains('am-card-active')) return;
+
                     const rect = slot.getBoundingClientRect();
                     const x = e.clientX - rect.left;
                     const y = e.clientY - rect.top;
@@ -4966,26 +5007,42 @@ ${formatTaskDoD(task)}
             document.querySelectorAll('#view-A5 .am-config-btn').forEach(btn => {
                 btn.addEventListener('click', e => {
                     e.stopPropagation();
-                    const flipper = btn.closest('.am-card-slot').querySelector('.am-flipper');
+                    const cardSlot = btn.closest('.am-card-slot');
+                    if (!cardSlot || !cardSlot.classList.contains('am-card-active')) return;
+                    const flipper = cardSlot.querySelector('.am-flipper');
                     if (flipper) flipper.classList.add('am-flipped');
                 });
             });
             document.querySelectorAll('#view-A5 .am-close-btn').forEach(btn => {
                 btn.addEventListener('click', e => {
                     e.stopPropagation();
-                    const flipper = btn.closest('.am-card-slot').querySelector('.am-flipper');
+                    const cardSlot = btn.closest('.am-card-slot');
+                    if (!cardSlot || !cardSlot.classList.contains('am-card-active')) return;
+                    const flipper = cardSlot.querySelector('.am-flipper');
                     if (flipper) flipper.classList.remove('am-flipped');
                 });
             });
 
-            // Toggle tracks
+            // Toggle tracks (only active card)
             document.querySelectorAll('#view-A5 .am-toggle-track').forEach(track => {
-                track.addEventListener('click', () => track.classList.toggle('on'));
+                track.addEventListener('click', (e) => {
+                    const cardSlot = track.closest('.am-card-slot');
+                    if (cardSlot && !cardSlot.classList.contains('am-card-active')) {
+                        e.stopPropagation();
+                        return;
+                    }
+                    track.classList.toggle('on');
+                });
             });
 
-            // Model Source tab buttons
+            // Model Source tab buttons (only active card)
             document.querySelectorAll('#view-A5 .am-src-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', (e) => {
+                    const cardSlot = btn.closest('.am-card-slot');
+                    if (cardSlot && !cardSlot.classList.contains('am-card-active')) {
+                        e.stopPropagation();
+                        return;
+                    }
                     const parent = btn.parentElement;
                     parent.querySelectorAll('.am-src-btn').forEach(b => {
                         b.classList.remove('bg-[#FF6363]/20', 'bg-amber-400/20', 'bg-violet-400/20', 'bg-cyan-400/20');
@@ -4995,11 +5052,14 @@ ${formatTaskDoD(task)}
                     btn.classList.remove('text-white/50');
                     btn.classList.add('text-white');
                     // Detect agent color from closest card
-                    const agent = btn.closest('.am-card-slot')?.dataset.amAgent;
+                    const agent = cardSlot?.dataset.amAgent;
                     const colorMap = { eva: 'bg-[#FF6363]/20', qwen: 'bg-amber-400/20', uat: 'bg-violet-400/20', local: 'bg-cyan-400/20' };
                     btn.classList.add(colorMap[agent] || 'bg-[#FF6363]/20');
                 });
             });
+
+            // Re-calculate on window resize
+            window.addEventListener('resize', updateCarouselLayout);
         }
 
         // Initialize when A5 view is shown
