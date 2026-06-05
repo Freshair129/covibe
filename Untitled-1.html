@@ -635,7 +635,7 @@
                             <div class="flex flex-col gap-3">
                                 <!-- EVA Agent -->
                                 <div class="raycast-perspective-container">
-                                    <div class="raycast-agent-card p-4 flex flex-col justify-between h-[150px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'eva')">
+                                    <div class="raycast-agent-card p-4 flex flex-col justify-between h-[160px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'eva')">
                                         <!-- Shine overlay tracking mouse -->
                                         <div class="card-shine"></div>
                                         
@@ -646,6 +646,17 @@
                                                 <span class="brand-title text-xs font-bold text-white">EVA Agent</span>
                                             </div>
                                             <span class="ext-badge text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono font-bold uppercase">Active</span>
+                                        </div>
+
+                                        <!-- Token Limit Section -->
+                                        <div class="token-limit-sec flex flex-col gap-1 w-full mt-1.5 z-10" style="transform: translateZ(20px);">
+                                            <div class="flex justify-between items-center text-[9px] text-cyber-muted font-mono">
+                                                <span>Tokens Used</span>
+                                                <span>45.2k / 100k</span>
+                                            </div>
+                                            <div class="token-bar-container w-full bg-black/40 h-1 rounded-full overflow-hidden border border-white/5">
+                                                <div class="bg-gradient-to-r from-emerald-400 to-teal-500 h-full rounded-full" style="width: 45.2%;"></div>
+                                            </div>
                                         </div>
 
                                         <!-- Floating Accent Logo -->
@@ -664,7 +675,7 @@
                                 </div>
                                 <!-- Qwen Coder -->
                                 <div class="raycast-perspective-container">
-                                    <div class="raycast-agent-card p-4 flex flex-col justify-between h-[150px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'qwen')">
+                                    <div class="raycast-agent-card p-4 flex flex-col justify-between h-[160px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'qwen')">
                                         <!-- Shine overlay tracking mouse -->
                                         <div class="card-shine"></div>
                                         
@@ -675,6 +686,17 @@
                                                 <span class="brand-title text-xs font-bold text-white">Qwen Coder</span>
                                             </div>
                                             <span class="ext-badge text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono font-bold uppercase">Ready</span>
+                                        </div>
+
+                                        <!-- Token Limit Section -->
+                                        <div class="token-limit-sec flex flex-col gap-1 w-full mt-1.5 z-10" style="transform: translateZ(20px);">
+                                            <div class="flex justify-between items-center text-[9px] text-cyber-muted font-mono">
+                                                <span>Tokens Used</span>
+                                                <span>82.4k / 100k</span>
+                                            </div>
+                                            <div class="token-bar-container w-full bg-black/40 h-1 rounded-full overflow-hidden border border-white/5">
+                                                <div class="bg-gradient-to-r from-amber-400 to-orange-500 h-full rounded-full" style="width: 82.4%;"></div>
+                                            </div>
                                         </div>
 
                                         <!-- Floating Accent Logo -->
@@ -693,7 +715,7 @@
                                 </div>
                                 <!-- UAT Agent -->
                                 <div class="raycast-perspective-container">
-                                    <div class="raycast-agent-card p-4 flex flex-col justify-between h-[150px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'uat')">
+                                    <div class="raycast-agent-card p-4 flex flex-col justify-between h-[160px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'uat')">
                                         <!-- Shine overlay tracking mouse -->
                                         <div class="card-shine"></div>
                                         
@@ -704,6 +726,17 @@
                                                 <span class="brand-title text-xs font-bold text-white">UAT Agent</span>
                                             </div>
                                             <span class="ext-badge text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 font-mono font-bold uppercase">Ready</span>
+                                        </div>
+
+                                        <!-- Token Limit Section -->
+                                        <div class="token-limit-sec flex flex-col gap-1 w-full mt-1.5 z-10" style="transform: translateZ(20px);">
+                                            <div class="flex justify-between items-center text-[9px] text-cyber-muted font-mono">
+                                                <span>Tokens Used</span>
+                                                <span>15.0k / 100k</span>
+                                            </div>
+                                            <div class="token-bar-container w-full bg-black/40 h-1 rounded-full overflow-hidden border border-white/5">
+                                                <div class="bg-gradient-to-r from-indigo-400 to-purple-500 h-full rounded-full" style="width: 15%;"></div>
+                                            </div>
                                         </div>
 
                                         <!-- Floating Accent Logo -->
@@ -722,7 +755,7 @@
                                 </div>
                                 <!-- Local Dev -->
                                 <div class="raycast-perspective-container">
-                                    <div class="raycast-agent-card p-4 flex flex-col justify-between h-[150px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'local')">
+                                    <div class="raycast-agent-card p-4 flex flex-col justify-between h-[160px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'local')">
                                         <!-- Shine overlay tracking mouse -->
                                         <div class="card-shine"></div>
                                         
@@ -733,6 +766,17 @@
                                                 <span class="brand-title text-xs font-bold text-white">Local Dev</span>
                                             </div>
                                             <span class="ext-badge text-[9px] px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-400 font-mono font-bold uppercase">Idle</span>
+                                        </div>
+
+                                        <!-- Token Limit Section -->
+                                        <div class="token-limit-sec flex flex-col gap-1 w-full mt-1.5 z-10" style="transform: translateZ(20px);">
+                                            <div class="flex justify-between items-center text-[9px] text-cyber-muted font-mono">
+                                                <span>Tokens Used</span>
+                                                <span>0 / 100k</span>
+                                            </div>
+                                            <div class="token-bar-container w-full bg-black/40 h-1 rounded-full overflow-hidden border border-white/5">
+                                                <div class="bg-gradient-to-r from-sky-400 to-blue-500 h-full rounded-full" style="width: 0%;"></div>
+                                            </div>
                                         </div>
 
                                         <!-- Floating Accent Logo -->
