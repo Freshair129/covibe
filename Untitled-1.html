@@ -227,6 +227,52 @@
             opacity: 1;
         }
 
+        /* Raycast 3D Card styles */
+        .raycast-perspective-container {
+            perspective: 1000px;
+        }
+        .raycast-agent-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.15s ease-out, border-color 0.4s ease, box-shadow 0.4s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+        .raycast-agent-card:hover {
+            box-shadow: 
+                0 25px 60px -15px rgba(0, 0, 0, 0.6),
+                0 0 25px 0 rgba(255, 255, 255, 0.05);
+        }
+        .raycast-agent-card .card-shine {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle 120px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.09), transparent 70%);
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .raycast-agent-card:hover .card-shine {
+            opacity: 1;
+        }
+        .raycast-agent-card img,
+        .raycast-agent-card h4,
+        .raycast-agent-card span,
+        .raycast-agent-card .brand-title,
+        .raycast-agent-card .ext-badge,
+        .raycast-agent-card .floating-logo,
+        .raycast-agent-card .card-footer {
+            transform: translateZ(20px);
+        }
+        .raycast-agent-card .config:hover i {
+            transform: translateX(4px);
+        }
+
         .fade-in {
             animation: fadeIn 0.5s ease-out forwards;
         }
@@ -588,35 +634,119 @@
                             </div>
                             <div class="flex flex-col gap-3">
                                 <!-- EVA Agent -->
-                                <div class="p-3 bg-white/5 border border-white/5 hover:border-emerald-500/30 rounded-xl flex items-center gap-3 cursor-grab active:cursor-grabbing transition-all select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'eva')">
-                                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=eva&backgroundColor=78f4bf" class="w-8 h-8 rounded-lg bg-black/40 p-0.5 border border-white/10 shrink-0" alt="EVA">
-                                    <div class="min-w-0">
-                                        <h4 class="text-xs font-bold text-white">EVA Agent</h4>
-                                        <span class="text-[9px] px-1 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono">eva</span>
+                                <div class="raycast-perspective-container">
+                                    <div class="raycast-agent-card p-4 flex flex-col justify-between h-[150px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'eva')">
+                                        <!-- Shine overlay tracking mouse -->
+                                        <div class="card-shine"></div>
+                                        
+                                        <!-- Card Header -->
+                                        <div class="card-hdr flex justify-between items-center z-10">
+                                            <div class="brand-info flex items-center gap-2">
+                                                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=eva&backgroundColor=78f4bf" alt="agent Icon" class="brand-icon w-6 h-6 rounded bg-black/40 p-0.5 border border-white/10 shrink-0">
+                                                <span class="brand-title text-xs font-bold text-white">EVA Agent</span>
+                                            </div>
+                                            <span class="ext-badge text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono font-bold uppercase">Active</span>
+                                        </div>
+
+                                        <!-- Floating Accent Logo -->
+                                        <div class="floating-logo absolute right-4 bottom-10 text-white/5 text-4xl pointer-events-none transition-transform duration-300" style="transform: translateZ(30px) rotate(10deg);">
+                                            <i class="fa-solid fa-brain"></i>
+                                        </div>
+
+                                        <!-- Card Footer -->
+                                        <div class="card-footer border-t border-white/5 pt-2 flex justify-between items-center z-10">
+                                            <div class="config flex items-center gap-1.5 text-[10px] text-cyber-muted hover:text-white transition-colors cursor-pointer">
+                                                <span>config</span>
+                                                <i class="fas fa-arrow-right text-[8px] transition-transform duration-200"></i>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <!-- Qwen Coder -->
-                                <div class="p-3 bg-white/5 border border-white/5 hover:border-amber-500/30 rounded-xl flex items-center gap-3 cursor-grab active:cursor-grabbing transition-all select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'qwen')">
-                                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=qwen&backgroundColor=fbbf24" class="w-8 h-8 rounded-lg bg-black/40 p-0.5 border border-white/10 shrink-0" alt="Qwen">
-                                    <div class="min-w-0">
-                                        <h4 class="text-xs font-bold text-white">Qwen Coder</h4>
-                                        <span class="text-[9px] px-1 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono">qwen</span>
+                                <div class="raycast-perspective-container">
+                                    <div class="raycast-agent-card p-4 flex flex-col justify-between h-[150px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'qwen')">
+                                        <!-- Shine overlay tracking mouse -->
+                                        <div class="card-shine"></div>
+                                        
+                                        <!-- Card Header -->
+                                        <div class="card-hdr flex justify-between items-center z-10">
+                                            <div class="brand-info flex items-center gap-2">
+                                                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=qwen&backgroundColor=fbbf24" alt="agent Icon" class="brand-icon w-6 h-6 rounded bg-black/40 p-0.5 border border-white/10 shrink-0">
+                                                <span class="brand-title text-xs font-bold text-white">Qwen Coder</span>
+                                            </div>
+                                            <span class="ext-badge text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono font-bold uppercase">Ready</span>
+                                        </div>
+
+                                        <!-- Floating Accent Logo -->
+                                        <div class="floating-logo absolute right-4 bottom-10 text-white/5 text-4xl pointer-events-none transition-transform duration-300" style="transform: translateZ(30px) rotate(-15deg);">
+                                            <i class="fa-solid fa-code"></i>
+                                        </div>
+
+                                        <!-- Card Footer -->
+                                        <div class="card-footer border-t border-white/5 pt-2 flex justify-between items-center z-10">
+                                            <div class="config flex items-center gap-1.5 text-[10px] text-cyber-muted hover:text-white transition-colors cursor-pointer">
+                                                <span>config</span>
+                                                <i class="fas fa-arrow-right text-[8px] transition-transform duration-200"></i>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <!-- UAT Agent -->
-                                <div class="p-3 bg-white/5 border border-white/5 hover:border-indigo-500/30 rounded-xl flex items-center gap-3 cursor-grab active:cursor-grabbing transition-all select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'uat')">
-                                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=uat&backgroundColor=818cf8" class="w-8 h-8 rounded-lg bg-black/40 p-0.5 border border-white/10 shrink-0" alt="UAT">
-                                    <div class="min-w-0">
-                                        <h4 class="text-xs font-bold text-white">UAT Agent</h4>
-                                        <span class="text-[9px] px-1 py-0.5 rounded bg-indigo-500/10 text-indigo-400 font-mono">uat</span>
+                                <div class="raycast-perspective-container">
+                                    <div class="raycast-agent-card p-4 flex flex-col justify-between h-[150px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'uat')">
+                                        <!-- Shine overlay tracking mouse -->
+                                        <div class="card-shine"></div>
+                                        
+                                        <!-- Card Header -->
+                                        <div class="card-hdr flex justify-between items-center z-10">
+                                            <div class="brand-info flex items-center gap-2">
+                                                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=uat&backgroundColor=818cf8" alt="agent Icon" class="brand-icon w-6 h-6 rounded bg-black/40 p-0.5 border border-white/10 shrink-0">
+                                                <span class="brand-title text-xs font-bold text-white">UAT Agent</span>
+                                            </div>
+                                            <span class="ext-badge text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 font-mono font-bold uppercase">Ready</span>
+                                        </div>
+
+                                        <!-- Floating Accent Logo -->
+                                        <div class="floating-logo absolute right-4 bottom-10 text-white/5 text-4xl pointer-events-none transition-transform duration-300" style="transform: translateZ(30px) rotate(5deg);">
+                                            <i class="fa-solid fa-shield-halved"></i>
+                                        </div>
+
+                                        <!-- Card Footer -->
+                                        <div class="card-footer border-t border-white/5 pt-2 flex justify-between items-center z-10">
+                                            <div class="config flex items-center gap-1.5 text-[10px] text-cyber-muted hover:text-white transition-colors cursor-pointer">
+                                                <span>config</span>
+                                                <i class="fas fa-arrow-right text-[8px] transition-transform duration-200"></i>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <!-- Local Dev -->
-                                <div class="p-3 bg-white/5 border border-white/5 hover:border-sky-500/30 rounded-xl flex items-center gap-3 cursor-grab active:cursor-grabbing transition-all select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'local')">
-                                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=local&backgroundColor=38bdf8" class="w-8 h-8 rounded-lg bg-black/40 p-0.5 border border-white/10 shrink-0" alt="Local">
-                                    <div class="min-w-0">
-                                        <h4 class="text-xs font-bold text-white">Local Dev</h4>
-                                        <span class="text-[9px] px-1 py-0.5 rounded bg-sky-500/10 text-sky-400 font-mono">local</span>
+                                <div class="raycast-perspective-container">
+                                    <div class="raycast-agent-card p-4 flex flex-col justify-between h-[150px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'local')">
+                                        <!-- Shine overlay tracking mouse -->
+                                        <div class="card-shine"></div>
+                                        
+                                        <!-- Card Header -->
+                                        <div class="card-hdr flex justify-between items-center z-10">
+                                            <div class="brand-info flex items-center gap-2">
+                                                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=local&backgroundColor=38bdf8" alt="agent Icon" class="brand-icon w-6 h-6 rounded bg-black/40 p-0.5 border border-white/10 shrink-0">
+                                                <span class="brand-title text-xs font-bold text-white">Local Dev</span>
+                                            </div>
+                                            <span class="ext-badge text-[9px] px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-400 font-mono font-bold uppercase">Idle</span>
+                                        </div>
+
+                                        <!-- Floating Accent Logo -->
+                                        <div class="floating-logo absolute right-4 bottom-10 text-white/5 text-4xl pointer-events-none transition-transform duration-300" style="transform: translateZ(30px) rotate(-8deg);">
+                                            <i class="fa-solid fa-cube"></i>
+                                        </div>
+
+                                        <!-- Card Footer -->
+                                        <div class="card-footer border-t border-white/5 pt-2 flex justify-between items-center z-10">
+                                            <div class="config flex items-center gap-1.5 text-[10px] text-cyber-muted hover:text-white transition-colors cursor-pointer">
+                                                <span>config</span>
+                                                <i class="fas fa-arrow-right text-[8px] transition-transform duration-200"></i>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -2517,6 +2647,31 @@
                     const y = e.clientY - rect.top;
                     card.style.setProperty('--mouse-x', `${x}px`);
                     card.style.setProperty('--mouse-y', `${y}px`);
+                });
+            });
+
+            // Raycast 3D Card tilt and glare effect
+            document.querySelectorAll('.raycast-agent-card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    card.style.setProperty('--mouse-x', `${x}px`);
+                    card.style.setProperty('--mouse-y', `${y}px`);
+
+                    const cardWidth = rect.width;
+                    const cardHeight = rect.height;
+                    const centerX = cardWidth / 2;
+                    const centerY = cardHeight / 2;
+                    const rotateX = ((centerY - y) / centerY) * 15; // tilt max 15 deg
+                    const rotateY = ((x - centerX) / centerX) * 15;
+
+                    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.04)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = `rotateX(0deg) rotateY(0deg) scale(1)`;
+                    card.style.setProperty('--mouse-x', `50%`);
+                    card.style.setProperty('--mouse-y', `50%`);
                 });
             });
         });
