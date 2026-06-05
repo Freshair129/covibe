@@ -248,6 +248,30 @@
                 0 25px 60px -15px rgba(0, 0, 0, 0.6),
                 0 0 25px 0 rgba(255, 255, 255, 0.05);
         }
+        .raycast-agent-card.eva-card:hover {
+            border-color: rgba(16, 185, 129, 0.45);
+            box-shadow: 
+                0 0 25px rgba(16, 185, 129, 0.25),
+                0 25px 60px -15px rgba(0, 0, 0, 0.65);
+        }
+        .raycast-agent-card.qwen-card:hover {
+            border-color: rgba(245, 158, 11, 0.45);
+            box-shadow: 
+                0 0 25px rgba(245, 158, 11, 0.25),
+                0 25px 60px -15px rgba(0, 0, 0, 0.65);
+        }
+        .raycast-agent-card.uat-card:hover {
+            border-color: rgba(99, 102, 241, 0.45);
+            box-shadow: 
+                0 0 25px rgba(99, 102, 241, 0.25),
+                0 25px 60px -15px rgba(0, 0, 0, 0.65);
+        }
+        .raycast-agent-card.local-card:hover {
+            border-color: rgba(14, 165, 233, 0.45);
+            box-shadow: 
+                0 0 25px rgba(14, 165, 233, 0.25),
+                0 25px 60px -15px rgba(0, 0, 0, 0.65);
+        }
         .raycast-agent-card .card-shine {
             position: absolute;
             inset: 0;
@@ -635,7 +659,7 @@
                             <div class="flex flex-col gap-3">
                                 <!-- EVA Agent -->
                                 <div class="raycast-perspective-container">
-                                    <div class="raycast-agent-card p-4 flex flex-col justify-between h-[160px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'eva')">
+                                    <div class="raycast-agent-card eva-card p-4 flex flex-col justify-between h-[160px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'eva')">
                                         <!-- Shine overlay tracking mouse -->
                                         <div class="card-shine"></div>
                                         
@@ -675,7 +699,7 @@
                                 </div>
                                 <!-- Qwen Coder -->
                                 <div class="raycast-perspective-container">
-                                    <div class="raycast-agent-card p-4 flex flex-col justify-between h-[160px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'qwen')">
+                                    <div class="raycast-agent-card qwen-card p-4 flex flex-col justify-between h-[160px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'qwen')">
                                         <!-- Shine overlay tracking mouse -->
                                         <div class="card-shine"></div>
                                         
@@ -715,7 +739,7 @@
                                 </div>
                                 <!-- UAT Agent -->
                                 <div class="raycast-perspective-container">
-                                    <div class="raycast-agent-card p-4 flex flex-col justify-between h-[160px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'uat')">
+                                    <div class="raycast-agent-card uat-card p-4 flex flex-col justify-between h-[160px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'uat')">
                                         <!-- Shine overlay tracking mouse -->
                                         <div class="card-shine"></div>
                                         
@@ -755,7 +779,7 @@
                                 </div>
                                 <!-- Local Dev -->
                                 <div class="raycast-perspective-container">
-                                    <div class="raycast-agent-card p-4 flex flex-col justify-between h-[160px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'local')">
+                                    <div class="raycast-agent-card local-card p-4 flex flex-col justify-between h-[160px] cursor-grab active:cursor-grabbing select-none" draggable="true" ondragstart="event.dataTransfer.setData('text/plain', 'local')">
                                         <!-- Shine overlay tracking mouse -->
                                         <div class="card-shine"></div>
                                         
@@ -2718,6 +2742,46 @@
                     card.style.setProperty('--mouse-y', `50%`);
                 });
             });
+
+            // Custom dragging ghost logic
+            const dragGhost = document.getElementById('drag-ghost');
+            
+            document.querySelectorAll('.raycast-agent-card').forEach(card => {
+                card.addEventListener('dragstart', (e) => {
+                    const img = new Image();
+                    img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+                    if (e.dataTransfer.setDragImage) {
+                        e.dataTransfer.setDragImage(img, 0, 0);
+                    }
+                    
+                    dragGhost.innerHTML = '';
+                    const clone = card.cloneNode(true);
+                    
+                    clone.style.transform = 'rotate(-4deg) scale(0.95)';
+                    clone.style.boxShadow = '0 20px 50px rgba(0, 0, 0, 0.5)';
+                    clone.style.width = card.offsetWidth + 'px';
+                    clone.style.height = card.offsetHeight + 'px';
+                    clone.style.opacity = '0.9';
+                    
+                    dragGhost.appendChild(clone);
+                    dragGhost.classList.remove('hidden');
+                    
+                    dragGhost.style.left = `${e.clientX - 10}px`;
+                    dragGhost.style.top = `${e.clientY - 10}px`;
+                });
+                
+                card.addEventListener('dragend', () => {
+                    dragGhost.classList.add('hidden');
+                    dragGhost.innerHTML = '';
+                });
+            });
+            
+            document.addEventListener('dragover', (e) => {
+                if (!dragGhost.classList.contains('hidden') && e.clientX > 0 && e.clientY > 0) {
+                    dragGhost.style.left = `${e.clientX - 10}px`;
+                    dragGhost.style.top = `${e.clientY - 10}px`;
+                }
+            });
         });
 
         window.addEventListener('resize', () => {
@@ -2730,5 +2794,6 @@
             }
         });
     </script>
+    <div id="drag-ghost" class="fixed pointer-events-none z-[9999] hidden"></div>
 </body>
 </html>
