@@ -594,6 +594,195 @@
         .raycast-agent-card {
             transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.4s ease, box-shadow 0.4s ease;
         }
+
+        /* ============================================ */
+        /* Agent Management Carousel (view-A5)          */
+        /* ============================================ */
+        .am-carousel-viewport {
+            display: flex;
+            gap: 2rem;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            padding: 2rem 1rem;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .am-carousel-viewport::-webkit-scrollbar { display: none; }
+
+        .am-card-slot {
+            flex: 0 0 400px;
+            height: 600px;
+            scroll-snap-align: center;
+            perspective: 1000px;
+        }
+        @media (max-width: 480px) {
+            .am-card-slot { flex: 0 0 92vw; height: 560px; }
+        }
+
+        .am-tilt-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.15s ease-out;
+        }
+
+        .am-flipper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-style: preserve-3d;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+        }
+        .am-flipper.am-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .am-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 28px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .am-face-front {
+            background: rgba(10, 10, 10, 0.55);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
+        }
+
+        .am-face-back {
+            transform: rotateY(180deg);
+            background: rgba(10, 10, 10, 0.55);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
+        }
+
+        .am-shine {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            pointer-events: none;
+            border-radius: inherit;
+            background:
+                radial-gradient(800px circle at var(--am-mx) var(--am-my), rgba(255,99,99,0.1), transparent 40%),
+                radial-gradient(400px circle at var(--am-mx) var(--am-my), rgba(255,255,255,0.06), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .am-card-slot:hover .am-shine { opacity: 1; }
+
+        /* Border glow */
+        .am-face-front::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 28px;
+            padding: 1px;
+            background: radial-gradient(600px circle at var(--am-mx) var(--am-my), rgba(255,99,99,0.5), transparent 40%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 10;
+        }
+        .am-card-slot:hover .am-face-front::before { opacity: 1; }
+
+        /* Neon backdrop halo */
+        .am-halo {
+            position: absolute;
+            inset: -4px;
+            background: rgba(255,99,99,0.15);
+            border-radius: 32px;
+            filter: blur(24px);
+            opacity: 0;
+            transition: opacity 0.7s ease-out;
+            pointer-events: none;
+        }
+        .am-card-slot:hover .am-halo { opacity: 1; }
+
+        .am-text-glow { text-shadow: 0 0 12px rgba(255, 99, 99, 0.4); }
+
+        /* Carousel Navigation */
+        .am-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(10,10,10,0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 20;
+            font-size: 18px;
+        }
+        .am-nav-btn:hover {
+            background: rgba(255,99,99,0.2);
+            border-color: rgba(255,99,99,0.4);
+            color: #fff;
+        }
+        .am-nav-prev { left: 0; }
+        .am-nav-next { right: 0; }
+
+        /* Dot indicators */
+        .am-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+        .am-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .am-dot.active {
+            background: #FF6363;
+            box-shadow: 0 0 12px rgba(255,99,99,0.6);
+            border-color: rgba(255,99,99,0.5);
+        }
+
+        /* Custom scrollbar for AM back face */
+        .am-scroll-area::-webkit-scrollbar { width: 4px; }
+        .am-scroll-area::-webkit-scrollbar-track { background: transparent; }
+        .am-scroll-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        .am-scroll-area::-webkit-scrollbar-thumb:hover { background: rgba(255,99,99,0.5); }
+
+        .am-toggle-track {
+            width: 32px; height: 16px; background: rgba(255,255,255,0.1); border-radius: 9999px;
+            position: relative; transition: background 0.3s ease; cursor: pointer;
+        }
+        .am-toggle-track::after {
+            content: ''; position: absolute; width: 12px; height: 12px; background: #fff;
+            border-radius: 50%; top: 2px; left: 2px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+        .am-toggle-track.on { background: #FF6363; }
+        .am-toggle-track.on::after { transform: translateX(16px); }
     </style>
 </head>
 
@@ -1831,6 +2020,303 @@
                     </div>
                 </div>
 
+                <!-- [A5] Agent Management Carousel -->
+                <div id="view-A5" class="space-y-6 hidden view-block">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest">COVIBE OVERVIEW</span>
+                            <h2 class="text-3xl font-extrabold text-white mt-1">Agent Management</h2>
+                            <p class="text-xs text-cyber-muted mt-1">Manage, configure and monitor your AI agent fleet</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-white/70 font-bold">
+                                <i class="fa-solid fa-robot mr-1"></i> 4 Agents
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Carousel Wrapper -->
+                    <div class="relative" id="am-carousel-wrapper">
+                        <button class="am-nav-btn am-nav-prev" id="am-prev" title="Previous Agent"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button class="am-nav-btn am-nav-next" id="am-next" title="Next Agent"><i class="fa-solid fa-chevron-right"></i></button>
+
+                        <div class="am-carousel-viewport" id="am-viewport">
+
+                            <!-- ===== CARD 1: EVA ===== -->
+                            <div class="am-card-slot" data-am-agent="eva">
+                                <div class="am-halo"></div>
+                                <div class="am-tilt-wrapper">
+                                    <div class="am-flipper">
+                                        <!-- FRONT -->
+                                        <div class="am-face am-face-front">
+                                            <div class="am-shine"></div>
+                                            <div class="relative z-20 flex flex-col h-full p-8">
+                                                <div class="flex justify-between items-start mb-8">
+                                                    <div class="relative">
+                                                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-gray-800 via-gray-900 to-black border border-white/10 flex items-center justify-center shadow-inner">
+                                                            <i class="fa-solid fa-satellite text-2xl text-[#FF6363] drop-shadow-[0_0_8px_rgba(255,99,99,0.5)]"></i>
+                                                        </div>
+                                                        <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-[#0a0a0a] rounded-full flex items-center justify-center">
+                                                            <i class="fa-solid fa-circle-check text-[14px] text-[#FF6363]"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/5 backdrop-blur-md shadow-sm">
+                                                        <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span>
+                                                        <span class="text-xs font-medium text-white/70 tracking-wide uppercase">Active</span>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-8">
+                                                    <h1 class="text-4xl font-semibold tracking-tight text-white mb-1">EVA</h1>
+                                                    <p class="text-sm text-white/50 font-medium mb-3">Executive Virtual Autonomous Agent</p>
+                                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/10 text-xs text-white/70"><i class="fa-solid fa-microchip"></i><span>Model: GPT-4.5 Turbo</span></div>
+                                                </div>
+                                                <div class="mt-auto">
+                                                    <div class="grid grid-cols-2 gap-4 mb-6">
+                                                        <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"><div class="flex items-center gap-2 text-white/40 mb-1"><i class="fa-solid fa-square-check"></i><span class="text-[10px] uppercase tracking-widest font-semibold">Tasks</span></div><div class="text-2xl font-medium text-white">12.4k</div></div>
+                                                        <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"><div class="flex items-center gap-2 text-white/40 mb-1"><i class="fa-solid fa-crosshairs"></i><span class="text-[10px] uppercase tracking-widest font-semibold">Accuracy</span></div><div class="text-2xl font-medium am-text-glow">99.8%</div></div>
+                                                    </div>
+                                                    <div class="mb-6">
+                                                        <div class="flex justify-between items-center text-xs mb-2"><span class="text-white/50 font-medium">Token Limit / Quota</span><span class="text-[#FF6363] font-medium">78k / 100k</span></div>
+                                                        <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-[#FF6363]/60 to-[#FF6363] rounded-full relative" style="width:78%"><div class="absolute top-0 right-0 bottom-0 w-4 bg-white/30 blur-[2px]"></div></div></div>
+                                                        <div class="flex justify-between text-[10px] text-white/30 mt-1"><span>Remaining: 78,000 tokens</span><span>Quota: 100,000 / hr</span></div>
+                                                    </div>
+                                                    <div class="flex flex-wrap gap-2 mb-6">
+                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-globe"></i> Web Search</span>
+                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-eye"></i> Vision</span>
+                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-code"></i> Code</span>
+                                                    </div>
+                                                    <div class="pt-6 border-t border-white/10 flex items-center justify-between">
+                                                        <button class="text-xs text-white/40 hover:text-white/80 transition-colors flex items-center gap-1.5 group"><kbd class="px-1.5 py-0.5 rounded bg-white/10 text-[10px] font-mono group-hover:bg-[#FF6363]/20 group-hover:text-[#FF6363] transition-colors">⌘K</kbd> Command</button>
+                                                        <button class="am-config-btn flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 text-white border border-white/10 backdrop-blur-md text-sm font-medium hover:bg-white/10 transition-all group"><i class="fa-solid fa-sliders group-hover:rotate-90 transition-transform duration-300"></i> Config</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- BACK -->
+                                        <div class="am-face am-face-back">
+                                            <div class="am-shine"></div>
+                                            <div class="relative z-20 flex flex-col h-full p-8">
+                                                <div class="flex items-center justify-between mb-6"><h2 class="text-lg font-semibold text-white flex items-center gap-2"><i class="fa-solid fa-sliders text-[#FF6363]"></i> Configuration — EVA</h2><button class="am-close-btn p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors"><i class="fa-solid fa-xmark"></i></button></div>
+                                                <div class="flex-1 overflow-y-auto pr-2 space-y-5 am-scroll-area">
+                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-2">System Prompt</label><textarea class="w-full bg-white/[0.02] border border-white/10 rounded-xl p-3 text-sm text-white/80 focus:outline-none focus:border-[#FF6363]/50 resize-none h-20" placeholder="You are EVA, an autonomous agent..."></textarea></div>
+                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-2">Model Source</label><div class="flex rounded-lg bg-white/[0.02] p-1 border border-white/10"><button class="am-src-btn flex-1 py-1.5 text-xs font-medium rounded-md bg-[#FF6363]/20 text-white" data-source="cloud">Cloud API</button><button class="am-src-btn flex-1 py-1.5 text-xs font-medium rounded-md text-white/50 hover:text-white" data-source="local">Local Server</button></div></div>
+                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Select Model</label><div class="relative"><select class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-3 py-2 text-xs text-white/80 focus:outline-none appearance-none cursor-pointer"><option>Gemini 2.5 Flash</option><option>GPT-4o Base</option><option>Claude 3.5 Sonnet</option></select><i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i></div></div>
+                                                    <div><div class="flex justify-between items-center mb-1.5"><label class="text-[10px] uppercase tracking-widest text-white/40">Context Window</label><span class="text-xs text-[#FF6363] font-medium">128k Tokens</span></div><input type="range" min="8" max="256" step="8" value="128" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#FF6363]"></div>
+                                                    <div><div class="flex justify-between items-center mb-1.5"><label class="text-[10px] uppercase tracking-widest text-white/40">Creativity (Temp)</label><span class="text-xs text-[#FF6363]">0.7</span></div><input type="range" min="0" max="1" step="0.1" value="0.7" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#FF6363]"></div>
+                                                    <div class="p-3.5 rounded-xl bg-white/[0.02] border border-[#FF6363]/20 relative overflow-hidden"><div class="absolute -top-4 -right-4 w-24 h-24 bg-[#FF6363]/10 blur-2xl rounded-full pointer-events-none"></div><div class="flex justify-between items-center mb-3"><div class="flex items-center gap-1.5"><i class="fa-solid fa-database text-[#FF6363]"></i><label class="text-[10px] uppercase tracking-widest text-white/80 font-semibold">Genesis Knowledge</label></div><span class="px-2 py-0.5 rounded bg-[#FF6363]/10 text-[#FF6363] text-[9px] font-mono border border-[#FF6363]/20">GenesisDB</span></div><div class="flex justify-between text-[9px] text-white/40 font-mono"><span>Indexed: 1.2M Vectors</span><span>Auto-Sync: ON</span></div></div>
+                                                    <div class="space-y-2"><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Agent Behaviors</label><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-chess text-white/50"></i> Plan Mode</span><div class="am-toggle-track on"></div></div><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-bolt text-white/50"></i> Auto-Execute Tasks</span><div class="am-toggle-track"></div></div></div>
+                                                    <div class="space-y-2"><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">System Access</label><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-folder text-white/50"></i> Local File Access</span><div class="am-toggle-track on"></div></div><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-terminal text-white/50"></i> Shell Command Runner</span><div class="am-toggle-track"></div></div></div>
+                                                </div>
+                                                <div class="pt-4 mt-auto border-t border-white/10 text-center"><p class="text-[10px] text-white/30 uppercase tracking-widest">Changes auto-save &amp; sync</p></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ===== CARD 2: QWEN ===== -->
+                            <div class="am-card-slot" data-am-agent="qwen">
+                                <div class="am-halo" style="background:rgba(251,191,36,0.12)"></div>
+                                <div class="am-tilt-wrapper">
+                                    <div class="am-flipper">
+                                        <div class="am-face am-face-front">
+                                            <div class="am-shine"></div>
+                                            <div class="relative z-20 flex flex-col h-full p-8">
+                                                <div class="flex justify-between items-start mb-8">
+                                                    <div class="relative">
+                                                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-gray-800 via-gray-900 to-black border border-white/10 flex items-center justify-center shadow-inner"><i class="fa-solid fa-code text-2xl text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]"></i></div>
+                                                        <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-[#0a0a0a] rounded-full flex items-center justify-center"><i class="fa-solid fa-circle-check text-[14px] text-amber-400"></i></div>
+                                                    </div>
+                                                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/5 backdrop-blur-md shadow-sm">
+                                                        <span class="relative flex h-2 w-2"><span class="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span></span>
+                                                        <span class="text-xs font-medium text-white/70 tracking-wide uppercase">Ready</span>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-8">
+                                                    <h1 class="text-4xl font-semibold tracking-tight text-white mb-1">Qwen Coder</h1>
+                                                    <p class="text-sm text-white/50 font-medium mb-3">Quantized Code-Specialist Agent</p>
+                                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/10 text-xs text-white/70"><i class="fa-solid fa-microchip"></i><span>Model: Qwen2.5-Coder</span></div>
+                                                </div>
+                                                <div class="mt-auto">
+                                                    <div class="grid grid-cols-2 gap-4 mb-6">
+                                                        <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"><div class="flex items-center gap-2 text-white/40 mb-1"><i class="fa-solid fa-square-check"></i><span class="text-[10px] uppercase tracking-widest font-semibold">Tasks</span></div><div class="text-2xl font-medium text-white">8.2k</div></div>
+                                                        <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"><div class="flex items-center gap-2 text-white/40 mb-1"><i class="fa-solid fa-crosshairs"></i><span class="text-[10px] uppercase tracking-widest font-semibold">Accuracy</span></div><div class="text-2xl font-medium am-text-glow">99.5%</div></div>
+                                                    </div>
+                                                    <div class="mb-6">
+                                                        <div class="flex justify-between items-center text-xs mb-2"><span class="text-white/50 font-medium">Token Limit / Quota</span><span class="text-amber-400 font-medium">17.6k / 100k</span></div>
+                                                        <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-amber-400/60 to-orange-500 rounded-full" style="width:17.6%"></div></div>
+                                                        <div class="flex justify-between text-[10px] text-white/30 mt-1"><span>Remaining: 17,600 tokens</span><span>Quota: 100,000 / hr</span></div>
+                                                    </div>
+                                                    <div class="flex flex-wrap gap-2 mb-6">
+                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-code"></i> Code</span>
+                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-terminal"></i> Bash</span>
+                                                    </div>
+                                                    <div class="pt-6 border-t border-white/10 flex items-center justify-between">
+                                                        <button class="text-xs text-white/40 hover:text-white/80 transition-colors flex items-center gap-1.5 group"><kbd class="px-1.5 py-0.5 rounded bg-white/10 text-[10px] font-mono group-hover:bg-amber-400/20 group-hover:text-amber-400 transition-colors">⌘K</kbd> Command</button>
+                                                        <button class="am-config-btn flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 text-white border border-white/10 backdrop-blur-md text-sm font-medium hover:bg-white/10 transition-all group"><i class="fa-solid fa-sliders group-hover:rotate-90 transition-transform duration-300"></i> Config</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="am-face am-face-back">
+                                            <div class="am-shine"></div>
+                                            <div class="relative z-20 flex flex-col h-full p-8">
+                                                <div class="flex items-center justify-between mb-6"><h2 class="text-lg font-semibold text-white flex items-center gap-2"><i class="fa-solid fa-sliders text-amber-400"></i> Configuration — Qwen</h2><button class="am-close-btn p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors"><i class="fa-solid fa-xmark"></i></button></div>
+                                                <div class="flex-1 overflow-y-auto pr-2 space-y-5 am-scroll-area">
+                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-2">System Prompt</label><textarea class="w-full bg-white/[0.02] border border-white/10 rounded-xl p-3 text-sm text-white/80 focus:outline-none focus:border-amber-400/50 resize-none h-20" placeholder="You are Qwen, a code-specialist agent..."></textarea></div>
+                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-2">Model Source</label><div class="flex rounded-lg bg-white/[0.02] p-1 border border-white/10"><button class="am-src-btn flex-1 py-1.5 text-xs font-medium rounded-md bg-amber-400/20 text-white" data-source="cloud">Cloud API</button><button class="am-src-btn flex-1 py-1.5 text-xs font-medium rounded-md text-white/50 hover:text-white" data-source="local">Local Server</button></div></div>
+                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Select Model</label><div class="relative"><select class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-3 py-2 text-xs text-white/80 focus:outline-none appearance-none cursor-pointer"><option>Qwen2.5-Coder 32B</option><option>Qwen2.5-Coder 7B</option></select><i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i></div></div>
+                                                    <div><div class="flex justify-between items-center mb-1.5"><label class="text-[10px] uppercase tracking-widest text-white/40">Context Window</label><span class="text-xs text-amber-400 font-medium">32k Tokens</span></div><input type="range" min="8" max="128" step="8" value="32" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-amber-400"></div>
+                                                    <div><div class="flex justify-between items-center mb-1.5"><label class="text-[10px] uppercase tracking-widest text-white/40">Creativity (Temp)</label><span class="text-xs text-amber-400">0.3</span></div><input type="range" min="0" max="1" step="0.1" value="0.3" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-amber-400"></div>
+                                                    <div class="space-y-2"><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Agent Behaviors</label><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-chess text-white/50"></i> Plan Mode</span><div class="am-toggle-track on"></div></div><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-bolt text-white/50"></i> Auto-Execute Tasks</span><div class="am-toggle-track on"></div></div></div>
+                                                </div>
+                                                <div class="pt-4 mt-auto border-t border-white/10 text-center"><p class="text-[10px] text-white/30 uppercase tracking-widest">Changes auto-save &amp; sync</p></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ===== CARD 3: UAT ===== -->
+                            <div class="am-card-slot" data-am-agent="uat">
+                                <div class="am-halo" style="background:rgba(139,92,246,0.12)"></div>
+                                <div class="am-tilt-wrapper">
+                                    <div class="am-flipper">
+                                        <div class="am-face am-face-front">
+                                            <div class="am-shine"></div>
+                                            <div class="relative z-20 flex flex-col h-full p-8">
+                                                <div class="flex justify-between items-start mb-8">
+                                                    <div class="relative">
+                                                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-gray-800 via-gray-900 to-black border border-white/10 flex items-center justify-center shadow-inner"><i class="fa-solid fa-vial text-2xl text-violet-400 drop-shadow-[0_0_8px_rgba(139,92,246,0.5)]"></i></div>
+                                                        <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-[#0a0a0a] rounded-full flex items-center justify-center"><i class="fa-solid fa-circle-check text-[14px] text-violet-400"></i></div>
+                                                    </div>
+                                                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/5 backdrop-blur-md shadow-sm">
+                                                        <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-violet-400"></span></span>
+                                                        <span class="text-xs font-medium text-white/70 tracking-wide uppercase">Active</span>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-8">
+                                                    <h1 class="text-4xl font-semibold tracking-tight text-white mb-1">UAT Agent</h1>
+                                                    <p class="text-sm text-white/50 font-medium mb-3">Universal Acceptance Testing Agent</p>
+                                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/10 text-xs text-white/70"><i class="fa-solid fa-microchip"></i><span>Model: Gemini 2.5 Flash</span></div>
+                                                </div>
+                                                <div class="mt-auto">
+                                                    <div class="grid grid-cols-2 gap-4 mb-6">
+                                                        <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"><div class="flex items-center gap-2 text-white/40 mb-1"><i class="fa-solid fa-square-check"></i><span class="text-[10px] uppercase tracking-widest font-semibold">Tasks</span></div><div class="text-2xl font-medium text-white">3.1k</div></div>
+                                                        <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"><div class="flex items-center gap-2 text-white/40 mb-1"><i class="fa-solid fa-crosshairs"></i><span class="text-[10px] uppercase tracking-widest font-semibold">Accuracy</span></div><div class="text-2xl font-medium am-text-glow">97.2%</div></div>
+                                                    </div>
+                                                    <div class="mb-6">
+                                                        <div class="flex justify-between items-center text-xs mb-2"><span class="text-white/50 font-medium">Token Limit / Quota</span><span class="text-violet-400 font-medium">45k / 100k</span></div>
+                                                        <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-violet-400/60 to-violet-500 rounded-full" style="width:45%"></div></div>
+                                                        <div class="flex justify-between text-[10px] text-white/30 mt-1"><span>Remaining: 45,000 tokens</span><span>Quota: 100,000 / hr</span></div>
+                                                    </div>
+                                                    <div class="flex flex-wrap gap-2 mb-6">
+                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-vial"></i> E2E Testing</span>
+                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-brands fa-chrome"></i> Playwright</span>
+                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-bug"></i> QA</span>
+                                                    </div>
+                                                    <div class="pt-6 border-t border-white/10 flex items-center justify-between">
+                                                        <button class="text-xs text-white/40 hover:text-white/80 transition-colors flex items-center gap-1.5 group"><kbd class="px-1.5 py-0.5 rounded bg-white/10 text-[10px] font-mono group-hover:bg-violet-400/20 group-hover:text-violet-400 transition-colors">⌘K</kbd> Command</button>
+                                                        <button class="am-config-btn flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 text-white border border-white/10 backdrop-blur-md text-sm font-medium hover:bg-white/10 transition-all group"><i class="fa-solid fa-sliders group-hover:rotate-90 transition-transform duration-300"></i> Config</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="am-face am-face-back">
+                                            <div class="am-shine"></div>
+                                            <div class="relative z-20 flex flex-col h-full p-8">
+                                                <div class="flex items-center justify-between mb-6"><h2 class="text-lg font-semibold text-white flex items-center gap-2"><i class="fa-solid fa-sliders text-violet-400"></i> Configuration — UAT</h2><button class="am-close-btn p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors"><i class="fa-solid fa-xmark"></i></button></div>
+                                                <div class="flex-1 overflow-y-auto pr-2 space-y-5 am-scroll-area">
+                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-2">System Prompt</label><textarea class="w-full bg-white/[0.02] border border-white/10 rounded-xl p-3 text-sm text-white/80 focus:outline-none focus:border-violet-400/50 resize-none h-20" placeholder="You are a UAT agent running Playwright tests..."></textarea></div>
+                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-2">Model Source</label><div class="flex rounded-lg bg-white/[0.02] p-1 border border-white/10"><button class="am-src-btn flex-1 py-1.5 text-xs font-medium rounded-md bg-violet-400/20 text-white" data-source="cloud">Cloud API</button><button class="am-src-btn flex-1 py-1.5 text-xs font-medium rounded-md text-white/50 hover:text-white" data-source="local">Local Server</button></div></div>
+                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Select Model</label><div class="relative"><select class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-3 py-2 text-xs text-white/80 focus:outline-none appearance-none cursor-pointer"><option>Gemini 2.5 Flash</option><option>GPT-4o Base</option></select><i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i></div></div>
+                                                    <div><div class="flex justify-between items-center mb-1.5"><label class="text-[10px] uppercase tracking-widest text-white/40">Context Window</label><span class="text-xs text-violet-400 font-medium">64k Tokens</span></div><input type="range" min="8" max="256" step="8" value="64" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-violet-400"></div>
+                                                    <div><div class="flex justify-between items-center mb-1.5"><label class="text-[10px] uppercase tracking-widest text-white/40">Creativity (Temp)</label><span class="text-xs text-violet-400">0.4</span></div><input type="range" min="0" max="1" step="0.1" value="0.4" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-violet-400"></div>
+                                                    <div class="space-y-2"><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Agent Behaviors</label><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-chess text-white/50"></i> Plan Mode</span><div class="am-toggle-track"></div></div><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-bolt text-white/50"></i> Auto-Execute Tasks</span><div class="am-toggle-track on"></div></div></div>
+                                                </div>
+                                                <div class="pt-4 mt-auto border-t border-white/10 text-center"><p class="text-[10px] text-white/30 uppercase tracking-widest">Changes auto-save &amp; sync</p></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ===== CARD 4: LOCAL ===== -->
+                            <div class="am-card-slot" data-am-agent="local">
+                                <div class="am-halo" style="background:rgba(6,182,212,0.12)"></div>
+                                <div class="am-tilt-wrapper">
+                                    <div class="am-flipper">
+                                        <div class="am-face am-face-front">
+                                            <div class="am-shine"></div>
+                                            <div class="relative z-20 flex flex-col h-full p-8">
+                                                <div class="flex justify-between items-start mb-8">
+                                                    <div class="relative">
+                                                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-gray-800 via-gray-900 to-black border border-white/10 flex items-center justify-center shadow-inner"><i class="fa-solid fa-server text-2xl text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]"></i></div>
+                                                        <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-[#0a0a0a] rounded-full flex items-center justify-center"><i class="fa-solid fa-circle-check text-[14px] text-cyan-400"></i></div>
+                                                    </div>
+                                                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/5 backdrop-blur-md shadow-sm">
+                                                        <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span></span>
+                                                        <span class="text-xs font-medium text-white/70 tracking-wide uppercase">Online</span>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-8">
+                                                    <h1 class="text-4xl font-semibold tracking-tight text-white mb-1">Local Agent</h1>
+                                                    <p class="text-sm text-white/50 font-medium mb-3">On-Premise Ollama Runtime Agent</p>
+                                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/10 text-xs text-white/70"><i class="fa-solid fa-microchip"></i><span>Model: Llama 3 (Ollama)</span></div>
+                                                </div>
+                                                <div class="mt-auto">
+                                                    <div class="grid grid-cols-2 gap-4 mb-6">
+                                                        <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"><div class="flex items-center gap-2 text-white/40 mb-1"><i class="fa-solid fa-square-check"></i><span class="text-[10px] uppercase tracking-widest font-semibold">Tasks</span></div><div class="text-2xl font-medium text-white">1.8k</div></div>
+                                                        <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"><div class="flex items-center gap-2 text-white/40 mb-1"><i class="fa-solid fa-crosshairs"></i><span class="text-[10px] uppercase tracking-widest font-semibold">Accuracy</span></div><div class="text-2xl font-medium am-text-glow">94.6%</div></div>
+                                                    </div>
+                                                    <div class="mb-6">
+                                                        <div class="flex justify-between items-center text-xs mb-2"><span class="text-white/50 font-medium">Token Limit / Quota</span><span class="text-cyan-400 font-medium">∞ Local</span></div>
+                                                        <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-cyan-400/60 to-cyan-500 rounded-full" style="width:100%"></div></div>
+                                                        <div class="flex justify-between text-[10px] text-white/30 mt-1"><span>Unlimited (On-Premise)</span><span>Ollama Runtime</span></div>
+                                                    </div>
+                                                    <div class="flex flex-wrap gap-2 mb-6">
+                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-code"></i> Code</span>
+                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-terminal"></i> Bash</span>
+                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-lock"></i> Private</span>
+                                                    </div>
+                                                    <div class="pt-6 border-t border-white/10 flex items-center justify-between">
+                                                        <button class="text-xs text-white/40 hover:text-white/80 transition-colors flex items-center gap-1.5 group"><kbd class="px-1.5 py-0.5 rounded bg-white/10 text-[10px] font-mono group-hover:bg-cyan-400/20 group-hover:text-cyan-400 transition-colors">⌘K</kbd> Command</button>
+                                                        <button class="am-config-btn flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 text-white border border-white/10 backdrop-blur-md text-sm font-medium hover:bg-white/10 transition-all group"><i class="fa-solid fa-sliders group-hover:rotate-90 transition-transform duration-300"></i> Config</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="am-face am-face-back">
+                                            <div class="am-shine"></div>
+                                            <div class="relative z-20 flex flex-col h-full p-8">
+                                                <div class="flex items-center justify-between mb-6"><h2 class="text-lg font-semibold text-white flex items-center gap-2"><i class="fa-solid fa-sliders text-cyan-400"></i> Configuration — Local</h2><button class="am-close-btn p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors"><i class="fa-solid fa-xmark"></i></button></div>
+                                                <div class="flex-1 overflow-y-auto pr-2 space-y-5 am-scroll-area">
+                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-2">System Prompt</label><textarea class="w-full bg-white/[0.02] border border-white/10 rounded-xl p-3 text-sm text-white/80 focus:outline-none focus:border-cyan-400/50 resize-none h-20" placeholder="You are a local LLM agent..."></textarea></div>
+                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-2">Local Endpoint</label><input type="text" value="http://localhost:11434" class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-3 py-2 text-sm text-white/80 focus:outline-none focus:border-cyan-400/50"></div>
+                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Select Model</label><div class="relative"><select class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-3 py-2 text-xs text-white/80 focus:outline-none appearance-none cursor-pointer"><option>Llama 3 (Ollama)</option><option>Mistral 7B (LM Studio)</option><option>Phi-3 Medium</option></select><i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i></div></div>
+                                                    <div><div class="flex justify-between items-center mb-1.5"><label class="text-[10px] uppercase tracking-widest text-white/40">Context Window</label><span class="text-xs text-cyan-400 font-medium">8k Tokens</span></div><input type="range" min="4" max="128" step="4" value="8" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyan-400"></div>
+                                                    <div><div class="flex justify-between items-center mb-1.5"><label class="text-[10px] uppercase tracking-widest text-white/40">Creativity (Temp)</label><span class="text-xs text-cyan-400">0.5</span></div><input type="range" min="0" max="1" step="0.1" value="0.5" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyan-400"></div>
+                                                    <div class="space-y-2"><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Agent Behaviors</label><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-chess text-white/50"></i> Plan Mode</span><div class="am-toggle-track on"></div></div><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-bolt text-white/50"></i> Auto-Execute Tasks</span><div class="am-toggle-track"></div></div></div>
+                                                </div>
+                                                <div class="pt-4 mt-auto border-t border-white/10 text-center"><p class="text-[10px] text-white/30 uppercase tracking-widest">Changes auto-save &amp; sync</p></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div><!-- end viewport -->
+
+                        <!-- Dot Indicators -->
+                        <div class="am-dots" id="am-dots">
+                            <div class="am-dot active" data-idx="0"></div>
+                            <div class="am-dot" data-idx="1"></div>
+                            <div class="am-dot" data-idx="2"></div>
+                            <div class="am-dot" data-idx="3"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- DOMAIN B: GENESIS KNOWLEDGE SYSTEM -->
 
                 <!-- [B1] AST Explorer -->
@@ -2322,7 +2808,8 @@
                     { id: "A1", name: "Real-time Dashboard", icon: "fa-chart-pie" },
                     { id: "A2", name: "Roadmap Board", icon: "fa-timeline" },
                     { id: "A3", name: "Capability Plugins", icon: "fa-plug" },
-                    { id: "A4", name: "Brain & Config", icon: "fa-brain" }
+                    { id: "A4", name: "Brain & Config", icon: "fa-brain" },
+                    { id: "A5", name: "Agent Management", icon: "fa-robot" }
                 ]
             },
             B: {
@@ -4396,6 +4883,131 @@ ${formatTaskDoD(task)}
                     document.body.style.userSelect = '';
                 });
             })();
+        });
+
+        // ============================================
+        // Agent Management Carousel & Card Interactions
+        // ============================================
+        function initAgentManagement() {
+            const viewport = document.getElementById('am-viewport');
+            const prevBtn = document.getElementById('am-prev');
+            const nextBtn = document.getElementById('am-next');
+            const dotsContainer = document.getElementById('am-dots');
+            if (!viewport) return;
+
+            const cards = viewport.querySelectorAll('.am-card-slot');
+            let currentIdx = 0;
+
+            function scrollToCard(idx) {
+                if (idx < 0 || idx >= cards.length) return;
+                currentIdx = idx;
+                cards[idx].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                updateDots();
+            }
+
+            function updateDots() {
+                if (!dotsContainer) return;
+                dotsContainer.querySelectorAll('.am-dot').forEach((dot, i) => {
+                    dot.classList.toggle('active', i === currentIdx);
+                });
+            }
+
+            if (prevBtn) prevBtn.addEventListener('click', () => scrollToCard(currentIdx - 1));
+            if (nextBtn) nextBtn.addEventListener('click', () => scrollToCard(currentIdx + 1));
+            if (dotsContainer) {
+                dotsContainer.querySelectorAll('.am-dot').forEach(dot => {
+                    dot.addEventListener('click', () => scrollToCard(parseInt(dot.dataset.idx)));
+                });
+            }
+
+            // Sync dot indicators on scroll
+            let scrollTimer;
+            viewport.addEventListener('scroll', () => {
+                clearTimeout(scrollTimer);
+                scrollTimer = setTimeout(() => {
+                    const vRect = viewport.getBoundingClientRect();
+                    const center = vRect.left + vRect.width / 2;
+                    let closest = 0, minDist = Infinity;
+                    cards.forEach((c, i) => {
+                        const cRect = c.getBoundingClientRect();
+                        const dist = Math.abs(cRect.left + cRect.width / 2 - center);
+                        if (dist < minDist) { minDist = dist; closest = i; }
+                    });
+                    currentIdx = closest;
+                    updateDots();
+                }, 100);
+            });
+
+            // 3D Tilt + Shine per card
+            cards.forEach(slot => {
+                const tiltW = slot.querySelector('.am-tilt-wrapper');
+                if (!tiltW) return;
+
+                slot.addEventListener('mousemove', e => {
+                    const rect = slot.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -8;
+                    const rotateY = ((x - centerX) / centerX) * 8;
+                    tiltW.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                    // Shine & border glow CSS vars
+                    slot.style.setProperty('--am-mx', x + 'px');
+                    slot.style.setProperty('--am-my', y + 'px');
+                });
+
+                slot.addEventListener('mouseleave', () => {
+                    tiltW.style.transform = 'rotateX(0) rotateY(0)';
+                });
+            });
+
+            // 3D Flip — Config button opens back, X button closes
+            document.querySelectorAll('#view-A5 .am-config-btn').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    const flipper = btn.closest('.am-card-slot').querySelector('.am-flipper');
+                    if (flipper) flipper.classList.add('am-flipped');
+                });
+            });
+            document.querySelectorAll('#view-A5 .am-close-btn').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    const flipper = btn.closest('.am-card-slot').querySelector('.am-flipper');
+                    if (flipper) flipper.classList.remove('am-flipped');
+                });
+            });
+
+            // Toggle tracks
+            document.querySelectorAll('#view-A5 .am-toggle-track').forEach(track => {
+                track.addEventListener('click', () => track.classList.toggle('on'));
+            });
+
+            // Model Source tab buttons
+            document.querySelectorAll('#view-A5 .am-src-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const parent = btn.parentElement;
+                    parent.querySelectorAll('.am-src-btn').forEach(b => {
+                        b.classList.remove('bg-[#FF6363]/20', 'bg-amber-400/20', 'bg-violet-400/20', 'bg-cyan-400/20');
+                        b.classList.add('text-white/50');
+                        b.classList.remove('text-white');
+                    });
+                    btn.classList.remove('text-white/50');
+                    btn.classList.add('text-white');
+                    // Detect agent color from closest card
+                    const agent = btn.closest('.am-card-slot')?.dataset.amAgent;
+                    const colorMap = { eva: 'bg-[#FF6363]/20', qwen: 'bg-amber-400/20', uat: 'bg-violet-400/20', local: 'bg-cyan-400/20' };
+                    btn.classList.add(colorMap[agent] || 'bg-[#FF6363]/20');
+                });
+            });
+        }
+
+        // Initialize when A5 view is shown
+        const _origSwitchMainView = typeof switchMainView === 'function' ? switchMainView : null;
+        // We hook into DOMContentLoaded to also init
+        document.addEventListener('DOMContentLoaded', () => {
+            // Delay init so DOM is ready
+            setTimeout(initAgentManagement, 500);
         });
 
         window.addEventListener('resize', () => {
