@@ -1093,6 +1093,32 @@ wss.on("connection", (ws) => {
           cp = spawn("python", ["g:/qwen-cli/qwen.py", taskText], {
             cwd: "g:/covibe"
           });
+        } else if (agent === "uat") {
+          let spec = "";
+          const taskIdLower = (taskId || "").toLowerCase();
+          const taskTextLower = (taskText || "").toLowerCase();
+          if (taskTextLower.includes("background") || taskIdLower.includes("background") || taskIdLower.includes("saver")) {
+            spec = "e2e/mobile/background-tab.spec.ts";
+          } else if (taskTextLower.includes("call") || taskIdLower.includes("call") || taskIdLower.includes("presence")) {
+            spec = "e2e/mobile/incoming-call.spec.ts";
+          } else if (taskTextLower.includes("network") || taskTextLower.includes("reconnect") || taskIdLower.includes("reconnect") || taskIdLower.includes("network")) {
+            spec = "e2e/mobile/network-resilience.spec.ts";
+          } else if (taskTextLower.includes("ui") || taskTextLower.includes("layout") || taskIdLower.includes("ui") || taskIdLower.includes("layout") || taskIdLower.includes("rider")) {
+            spec = "e2e/mobile/responsive-ui.spec.ts";
+          }
+
+          send(ws, {
+            type: "agent_log",
+            taskId,
+            stream: "system",
+            text: `[UAT Orchestrator] Mapping task to Playwright spec: "${spec || "All Specs"}"`
+          });
+
+          const args = ["-NoProfile", "-Command", `npx playwright test ${spec}`.trim()];
+          cp = spawn("powershell.exe", args, {
+            cwd: "g:/covibe",
+            env: { ...process.env, FORCE_COLOR: "1" }
+          });
         } else {
           send(ws, {
             type: "agent_log",
