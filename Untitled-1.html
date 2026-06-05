@@ -678,22 +678,59 @@
 
                 <!-- [A2] Roadmap Tracker View (Detailed accordion checklist) -->
                 <div id="view-A2" class="space-y-6 hidden view-block">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest">COVIBE OVERVIEW</span>
-                            <h2 class="text-3xl font-extrabold text-white mt-1">Roadmap Tracker</h2>
+                    <!-- CoVibe Development Roadmap Header Card -->
+                    <div class="relative glass-panel rounded-2xl p-6 border-l-4 border-l-cyan-500" id="roadmap-header-card">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <h2 class="text-2xl font-extrabold text-white tracking-tight">CoVibe Development Roadmap</h2>
+                                <p class="text-xs text-cyber-muted mt-1">แผนการพัฒนาและติดตามผลความคืบหน้าของฟีเจอร์</p>
+                            </div>
+                            <div class="text-left sm:text-right shrink-0">
+                                <span class="text-[10px] text-cyber-muted font-bold uppercase tracking-wider block">ความคืบหน้ารวมโครงการ</span>
+                                <span class="text-3xl font-black text-emerald-400 leading-none" id="global-percent-text">53%</span>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm font-bold text-emerald-400" id="global-percent-text">53%</span>
-                            <button id="reset-btn" class="px-3 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-lg text-xs font-bold transition-all">
-                                <i class="fa-solid fa-rotate-right mr-1.5"></i> Reset Board
-                            </button>
-                        </div>
-                    </div>
 
-                    <!-- Progress bar -->
-                    <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-                        <div class="bg-gradient-to-r from-emerald-500 to-indigo-500 h-full w-[53%]" id="global-progress-fill"></div>
+                        <!-- Progress bar container -->
+                        <div class="w-full bg-white/5 h-2.5 rounded-full overflow-hidden mt-4">
+                            <div class="bg-gradient-to-r from-cyan-500 via-emerald-500 to-indigo-500 h-full w-[53%]" id="global-progress-fill"></div>
+                        </div>
+
+                        <hr class="border-t border-white/5 my-5">
+
+                        <!-- Footer stats and control row -->
+                        <div class="flex flex-wrap items-center justify-between gap-4">
+                            <div class="flex items-center gap-8 font-mono">
+                                <div>
+                                    <div class="text-xl font-bold text-cyber-muted" id="stats-total-tasks">36</div>
+                                    <div class="text-[10px] text-cyber-muted font-sans font-semibold">งานทั้งหมด</div>
+                                </div>
+                                <div>
+                                    <div class="text-xl font-bold text-emerald-400" id="stats-completed-tasks">19</div>
+                                    <div class="text-[10px] text-cyber-muted font-sans font-semibold">ทำเสร็จแล้ว</div>
+                                </div>
+                                <div>
+                                    <div class="text-xl font-bold text-amber-500" id="stats-pending-tasks">17</div>
+                                    <div class="text-[10px] text-cyber-muted font-sans font-semibold">รอดำเนินการ</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <!-- Roadmap Export Dropdown -->
+                                <div class="relative inline-block text-left" id="export-roadmap-dropdown">
+                                    <button onclick="event.stopPropagation(); toggleExportMenu('roadmap')" class="px-3 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
+                                        <i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-chevron-down text-[9px] text-cyber-muted"></i>
+                                    </button>
+                                    <div id="export-menu-roadmap" class="hidden absolute right-0 mt-2 w-32 rounded-xl bg-neutral-900 border border-white/10 shadow-2xl py-1 z-50 font-mono text-[10px]">
+                                        <button class="w-full text-left px-3.5 py-2 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('roadmap', 'json')">JSON</button>
+                                        <button class="w-full text-left px-3.5 py-2 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('roadmap', 'yaml')">YAML</button>
+                                        <button class="w-full text-left px-3.5 py-2 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('roadmap', 'md')">Markdown</button>
+                                    </div>
+                                </div>
+                                <button id="reset-btn" class="px-3 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-lg text-xs font-bold transition-all">
+                                    <i class="fa-solid fa-rotate-right mr-1.5"></i> Reset Board
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start mt-6">
@@ -878,7 +915,22 @@
                                         <h3 class="font-bold text-white text-base">Feasibility Spike — พิสูจน์ความเสถียร</h3>
                                     </div>
                                     <div class="flex items-center gap-3">
+                                        <span class="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-cyber-muted font-mono font-bold text-[9px] hidden sm:inline-block">Duration: 1 week</span>
+                                        <div class="w-16 bg-white/5 h-1.5 rounded-full overflow-hidden hidden sm:block">
+                                            <div id="p0-mini-fill" class="bg-gradient-to-r from-emerald-500 to-indigo-500 h-full w-[0%]" style="width: 0%;"></div>
+                                        </div>
                                         <span class="text-xs text-cyber-muted font-mono" id="p0-progress-lbl">0%</span>
+                                        <!-- Phase Export Dropdown -->
+                                        <div class="relative inline-block text-left" onclick="event.stopPropagation()">
+                                            <button class="p-1.5 text-cyber-muted hover:text-white transition-colors rounded-lg hover:bg-white/5 flex items-center justify-center" onclick="event.stopPropagation(); toggleExportMenu('p0')">
+                                                <i class="fa-solid fa-download text-[10px]"></i>
+                                            </button>
+                                            <div id="export-menu-p0" class="hidden absolute right-0 mt-1 w-24 rounded-lg bg-neutral-900 border border-white/10 shadow-lg py-1 z-50 text-[10px] font-mono">
+                                                <button class="w-full text-left px-3 py-1 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('phase', 'json', 'p0')">JSON</button>
+                                                <button class="w-full text-left px-3 py-1 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('phase', 'yaml', 'p0')">YAML</button>
+                                                <button class="w-full text-left px-3 py-1 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('phase', 'md', 'p0')">Markdown</button>
+                                            </div>
+                                        </div>
                                         <i class="fa-solid fa-chevron-down phase-chevron text-xs text-cyber-muted" id="p0-ch"></i>
                                     </div>
                                 </div>
@@ -898,7 +950,22 @@
                                         <h3 class="font-bold text-white text-base">MVP Core — ฟังก์ชันห้องและการแชร์เพลง</h3>
                                     </div>
                                     <div class="flex items-center gap-3">
+                                        <span class="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-cyber-muted font-mono font-bold text-[9px] hidden sm:inline-block">Duration: 4 weeks</span>
+                                        <div class="w-16 bg-white/5 h-1.5 rounded-full overflow-hidden hidden sm:block">
+                                            <div id="p1-mini-fill" class="bg-gradient-to-r from-emerald-500 to-indigo-500 h-full w-[0%]" style="width: 0%;"></div>
+                                        </div>
                                         <span class="text-xs text-cyber-muted font-mono" id="p1-progress-lbl">0%</span>
+                                        <!-- Phase Export Dropdown -->
+                                        <div class="relative inline-block text-left" onclick="event.stopPropagation()">
+                                            <button class="p-1.5 text-cyber-muted hover:text-white transition-colors rounded-lg hover:bg-white/5 flex items-center justify-center" onclick="event.stopPropagation(); toggleExportMenu('p1')">
+                                                <i class="fa-solid fa-download text-[10px]"></i>
+                                            </button>
+                                            <div id="export-menu-p1" class="hidden absolute right-0 mt-1 w-24 rounded-lg bg-neutral-900 border border-white/10 shadow-lg py-1 z-50 text-[10px] font-mono">
+                                                <button class="w-full text-left px-3 py-1 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('phase', 'json', 'p1')">JSON</button>
+                                                <button class="w-full text-left px-3 py-1 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('phase', 'yaml', 'p1')">YAML</button>
+                                                <button class="w-full text-left px-3 py-1 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('phase', 'md', 'p1')">Markdown</button>
+                                            </div>
+                                        </div>
                                         <i class="fa-solid fa-chevron-down phase-chevron text-xs text-cyber-muted" id="p1-ch"></i>
                                     </div>
                                 </div>
@@ -916,7 +983,22 @@
                                         <h3 class="font-bold text-white text-base">Sync Calibration — จูนนิ่งความตรงระดับเสี้ยววิ</h3>
                                     </div>
                                     <div class="flex items-center gap-3">
+                                        <span class="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-cyber-muted font-mono font-bold text-[9px] hidden sm:inline-block">Duration: 3 weeks</span>
+                                        <div class="w-16 bg-white/5 h-1.5 rounded-full overflow-hidden hidden sm:block">
+                                            <div id="p2-mini-fill" class="bg-gradient-to-r from-emerald-500 to-indigo-500 h-full w-[0%]" style="width: 0%;"></div>
+                                        </div>
                                         <span class="text-xs text-cyber-muted font-mono" id="p2-progress-lbl">0%</span>
+                                        <!-- Phase Export Dropdown -->
+                                        <div class="relative inline-block text-left" onclick="event.stopPropagation()">
+                                            <button class="p-1.5 text-cyber-muted hover:text-white transition-colors rounded-lg hover:bg-white/5 flex items-center justify-center" onclick="event.stopPropagation(); toggleExportMenu('p2')">
+                                                <i class="fa-solid fa-download text-[10px]"></i>
+                                            </button>
+                                            <div id="export-menu-p2" class="hidden absolute right-0 mt-1 w-24 rounded-lg bg-neutral-900 border border-white/10 shadow-lg py-1 z-50 text-[10px] font-mono">
+                                                <button class="w-full text-left px-3 py-1 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('phase', 'json', 'p2')">JSON</button>
+                                                <button class="w-full text-left px-3 py-1 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('phase', 'yaml', 'p2')">YAML</button>
+                                                <button class="w-full text-left px-3 py-1 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('phase', 'md', 'p2')">Markdown</button>
+                                            </div>
+                                        </div>
                                         <i class="fa-solid fa-chevron-down phase-chevron text-xs text-cyber-muted" id="p2-ch"></i>
                                     </div>
                                 </div>
@@ -934,7 +1016,22 @@
                                         <h3 class="font-bold text-white text-base">Beta Test & rider feedback — นำทางจริงบนบอร์ด</h3>
                                     </div>
                                     <div class="flex items-center gap-3">
+                                        <span class="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-cyber-muted font-mono font-bold text-[9px] hidden sm:inline-block">Duration: 2 weeks</span>
+                                        <div class="w-16 bg-white/5 h-1.5 rounded-full overflow-hidden hidden sm:block">
+                                            <div id="p3-mini-fill" class="bg-gradient-to-r from-emerald-500 to-indigo-500 h-full w-[0%]" style="width: 0%;"></div>
+                                        </div>
                                         <span class="text-xs text-cyber-muted font-mono" id="p3-progress-lbl">0%</span>
+                                        <!-- Phase Export Dropdown -->
+                                        <div class="relative inline-block text-left" onclick="event.stopPropagation()">
+                                            <button class="p-1.5 text-cyber-muted hover:text-white transition-colors rounded-lg hover:bg-white/5 flex items-center justify-center" onclick="event.stopPropagation(); toggleExportMenu('p3')">
+                                                <i class="fa-solid fa-download text-[10px]"></i>
+                                            </button>
+                                            <div id="export-menu-p3" class="hidden absolute right-0 mt-1 w-24 rounded-lg bg-neutral-900 border border-white/10 shadow-lg py-1 z-50 text-[10px] font-mono">
+                                                <button class="w-full text-left px-3 py-1 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('phase', 'json', 'p3')">JSON</button>
+                                                <button class="w-full text-left px-3 py-1 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('phase', 'yaml', 'p3')">YAML</button>
+                                                <button class="w-full text-left px-3 py-1 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('phase', 'md', 'p3')">Markdown</button>
+                                            </div>
+                                        </div>
                                         <i class="fa-solid fa-chevron-down phase-chevron text-xs text-cyber-muted" id="p3-ch"></i>
                                     </div>
                                 </div>
@@ -952,7 +1049,22 @@
                                         <h3 class="font-bold text-cyber-muted text-base">Future Backlog — ส่วนเสริมอนาคต</h3>
                                     </div>
                                     <div class="flex items-center gap-3">
+                                        <span class="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-cyber-muted font-mono font-bold text-[9px] hidden sm:inline-block">Duration: Future</span>
+                                        <div class="w-16 bg-white/5 h-1.5 rounded-full overflow-hidden hidden sm:block">
+                                            <div id="p4-mini-fill" class="bg-gradient-to-r from-emerald-500 to-indigo-500 h-full w-[0%]" style="width: 0%;"></div>
+                                        </div>
                                         <span class="text-xs text-cyber-muted font-mono" id="p4-progress-lbl">0%</span>
+                                        <!-- Phase Export Dropdown -->
+                                        <div class="relative inline-block text-left" onclick="event.stopPropagation()">
+                                            <button class="p-1.5 text-cyber-muted hover:text-white transition-colors rounded-lg hover:bg-white/5 flex items-center justify-center" onclick="event.stopPropagation(); toggleExportMenu('p4')">
+                                                <i class="fa-solid fa-download text-[10px]"></i>
+                                            </button>
+                                            <div id="export-menu-p4" class="hidden absolute right-0 mt-1 w-24 rounded-lg bg-neutral-900 border border-white/10 shadow-lg py-1 z-50 text-[10px] font-mono">
+                                                <button class="w-full text-left px-3 py-1 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('phase', 'json', 'p4')">JSON</button>
+                                                <button class="w-full text-left px-3 py-1 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('phase', 'yaml', 'p4')">YAML</button>
+                                                <button class="w-full text-left px-3 py-1 text-stone-300 hover:bg-white/5 hover:text-white transition-colors" onclick="event.stopPropagation(); exportData('phase', 'md', 'p4')">Markdown</button>
+                                            </div>
+                                        </div>
                                         <i class="fa-solid fa-chevron-down phase-chevron text-xs text-cyber-muted" id="p4-ch"></i>
                                     </div>
                                 </div>
@@ -1626,7 +1738,9 @@
                         logTerminal('sys', `Task ${data.taskId} status: ${data.status}`);
                         const taskItem = document.querySelector(`.task-item[data-task-id="${data.taskId}"]`);
                         if (taskItem) {
-                            setTaskItemState(taskItem, data.status === 'success' ? 'done' : 'todo');
+                            const selectEl = taskItem.querySelector('.assist-to-select');
+                            const currentAssignee = selectEl ? selectEl.value : 'none';
+                            setTaskItemState(taskItem, data.status === 'success' ? { doc: true, code: true, test: true, assignee: currentAssignee } : 'todo');
                             saveStateToStorage();
                             calculateRoadmapProgress();
                         }
@@ -1828,60 +1942,60 @@
 
         const taskDefinitions = {
             "p0": [
-                { id: "p0-s0-1", text: "Prototype YouTube IFrame Player บน 2 clients พร้อมกัน" },
-                { id: "p0-s0-2", text: "WebSocket room ขั้นต่ำ: สร้างห้อง / join / broadcast event" },
-                { id: "p0-s0-3", text: "Play / Pause / Seek sync เบื้องต้น" },
-                { id: "p0-s0-4", text: "วัด drift จริงระหว่าง 2 เครื่อง" },
-                { id: "p0-s0-5", text: "ทดสอบบน iOS Safari + Android Chrome" },
-                { id: "p0-s0-6", text: "ระบุข้อจำกัด autoplay / background playback / wake lock" }
+                { id: "p0-s0-1", code: "TSK-CVB01P00010", text: "Prototype YouTube IFrame Player บน 2 clients พร้อมกัน", symbolLink: "src/App.tsx", complexity: "high", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T09:00:00+07:00,EVA Agent,a3f2b1c", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Added iframe configuration sandbox; resolved background autoplay restrictions.", tokensUsed: 12040 },
+                { id: "p0-s0-2", code: "TSK-CVB01P00020", text: "WebSocket room ขั้นต่ำ: สร้างห้อง / join / broadcast event", symbolLink: "server/index.js", complexity: "nomal", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T09:10:00+07:00,Qwen Coder,b4e5f6g", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Implemented memory-backed room state storage on WebSocket server.", tokensUsed: 9800 },
+                { id: "p0-s0-3", code: "TSK-CVB01P00030", text: "Play / Pause / Seek sync เบื้องต้น", symbolLink: "src/App.tsx", complexity: "nomal", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T09:15:00+07:00,EVA Agent,c5f6g7h", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Wired play state change broadcast hooks to YouTube IFrame API.", tokensUsed: 10400 },
+                { id: "p0-s0-4", code: "TSK-CVB01P00040", text: "วัด drift จริงระหว่าง 2 เครื่อง", symbolLink: "src/App.tsx", complexity: "high", type: "NFR", status: "stable", version: "1.0.0", created_at: "2026-06-05T09:20:00+07:00,UAT Agent,d6g7h8i", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Logged latency samples of WebSocket transport during sync phase.", tokensUsed: 11200 },
+                { id: "p0-s0-5", code: "TSK-CVB01P00050", text: "ทดสอบบน iOS Safari + Android Chrome", symbolLink: "docs/compatibility_report.md", complexity: "high", type: "NFR", status: "stable", version: "1.0.0", created_at: "2026-06-05T09:25:00+07:00,UAT Agent,e7h8i9j", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Added compatibility notes regarding Safari background execution blocks.", tokensUsed: 7500 },
+                { id: "p0-s0-6", code: "TSK-CVB01P00060", text: "ระบุข้อจำกัด autoplay / background playback / wake lock", symbolLink: "docs/compatibility_report.md", complexity: "nomal", type: "NFR", status: "stable", version: "1.0.0", created_at: "2026-06-05T09:30:00+07:00,EVA Agent,f8i9j0k", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Drafted OLED Saver mode specification as a workaround for autoplay blocks.", tokensUsed: 8400 }
             ],
             "p1": [
-                { id: "p1-s1a-1", text: "ตั้งโปรเจกต์ React + Vite (PWA manifest, service worker shell)" },
-                { id: "p1-s1a-2", text: "Backend Node.js + TypeScript + WebSocket room state ในเมมโมรี่" },
-                { id: "p1-s1a-3", text: "Rider: สร้างห้อง → รับ roomId → แสดง QR code" },
-                { id: "p1-s1a-4", text: "QR generator + share link" },
-                { id: "p1-s1a-5", text: "Passenger: สแกน QR → ใส่ชื่อ → join ห้อง" },
-                { id: "p1-s1a-6", text: "Participant presence (connected / disconnected)" },
-                { id: "p1-s1a-7", text: "Thai UI ขั้นพื้นฐาน, dark mode, mobile-first layout" },
-                { id: "p1-s1b-1", text: "YouTube link parser + YouTube IFrame API integration" },
-                { id: "p1-s1b-2", text: "Queue เพลง: add / remove / reorder" },
-                { id: "p1-s1b-3", text: "Current track state บน server (trackId, positionMs, serverStartedAt)" },
-                { id: "p1-s1b-4", text: "Play / Pause / Skip / Seek ซิงค์ผ่าน WebSocket" },
-                { id: "p1-s1b-5", text: "Auto-next เมื่อเพลงจบ" },
-                { id: "p1-s1b-6", text: "Volume control แยกแต่ละ device" }
+                { id: "p1-s1a-1", code: "TSK-CVB01P0101A", text: "ตั้งโปรเจกต์ React + Vite (PWA manifest, service worker shell)", symbolLink: "package.json", complexity: "nomal", type: "NFR", status: "stable", version: "1.0.0", created_at: "2026-06-05T09:35:00+07:00,Qwen Coder,g9j0k1l", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Initialized project directory structure with Vite React template.", tokensUsed: 9400 },
+                { id: "p1-s1a-2", code: "TSK-CVB01P0102A", text: "Backend Node.js + TypeScript + WebSocket room state ในเมมโมรี่", symbolLink: "server/index.js", complexity: "high", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T09:40:00+07:00,Qwen Coder,h0k1l2m", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Setup TS environment and basic router for room creation commands.", tokensUsed: 11000 },
+                { id: "p1-s1a-3", code: "TSK-CVB01P0103A", dependency: "p0-s0-2", text: "Rider: สร้างห้อง → รับ roomId → แสดง QR code", symbolLink: "src/App.tsx", complexity: "nomal", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T09:45:00+07:00,EVA Agent,i1l2m3n", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Integrated QR generation library and dynamic URL link bindings.", tokensUsed: 8900 },
+                { id: "p1-s1a-4", code: "TSK-CVB01P0104A", text: "QR generator + share link", symbolLink: "src/App.tsx", complexity: "low", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T09:50:00+07:00,EVA Agent,j2m3n4o", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Added navigator.share fallback compatibility for mobile clients.", tokensUsed: 5400 },
+                { id: "p1-s1a-5", code: "TSK-CVB01P0105A", text: "Passenger: สแกน QR → ใส่ชื่อ → join ห้อง", symbolLink: "src/App.tsx", complexity: "nomal", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T09:55:00+07:00,EVA Agent,k3n4o5p", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Added input controls for Passenger session initialization.", tokensUsed: 9200 },
+                { id: "p1-s1a-6", code: "TSK-CVB01P0106A", text: "Participant presence (connected / disconnected)", symbolLink: "server/index.js", complexity: "low", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T10:00:00+07:00,Qwen Coder,l4o5p6q", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Implemented connection heartbeats for stale participant pruning.", tokensUsed: 7800 },
+                { id: "p1-s1a-7", code: "TSK-CVB01P0107A", text: "Thai UI ขั้นพื้นฐาน, dark mode, mobile-first layout", symbolLink: "src/styles.css", complexity: "nomal", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T10:05:00+07:00,EVA Agent,m5p6q7r", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Styled mobile responsive screens; added dark theme variables.", tokensUsed: 10500 },
+                { id: "p1-s1b-1", code: "TSK-CVB01P0108B", text: "YouTube link parser + YouTube IFrame API integration", symbolLink: "src/App.tsx", complexity: "nomal", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T10:10:00+07:00,EVA Agent,n6q7r8s", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Setup regex mapping to support shorts/standard YouTube URLs.", tokensUsed: 9100 },
+                { id: "p1-s1b-2", code: "TSK-CVB01P0109B", text: "Queue เพลง: add / remove / reorder", symbolLink: "src/App.tsx", complexity: "high", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T10:15:00+07:00,Qwen Coder,o7r8s9t", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Created state reducer tracking mutations in play queue array.", tokensUsed: 11500 },
+                { id: "p1-s1b-3", code: "TSK-CVB01P0110B", text: "Current track state บน server (trackId, positionMs, serverStartedAt)", symbolLink: "server/index.js", complexity: "nomal", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T10:20:00+07:00,Qwen Coder,p8s9t0u", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Added server timestamp offsets tracking when track transitions happen.", tokensUsed: 8300 },
+                { id: "p1-s1b-4", code: "TSK-CVB01P0111B", text: "Play / Pause / Skip / Seek ซิงค์ผ่าน WebSocket", symbolLink: "src/App.tsx", complexity: "high", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T10:25:00+07:00,Qwen Coder,q9t0u1v", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Synchronized participant seeking controls to prevent loop feedback.", tokensUsed: 12500 },
+                { id: "p1-s1b-5", code: "TSK-CVB01P0112B", text: "Auto-next เมื่อเพลงจบ", symbolLink: "src/App.tsx", complexity: "low", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T10:30:00+07:00,EVA Agent,r0u1v2w", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Added playState callbacks updating play status in queue reducer.", tokensUsed: 6200 },
+                { id: "p1-s1b-6", code: "TSK-CVB01P0113B", text: "Volume control แยกแต่ละ device", symbolLink: "src/App.tsx", complexity: "less", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T10:35:00+07:00,EVA Agent,s1v2w3x", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Added HTML5 range slider mapping device-specific sound levels.", tokensUsed: 4500 }
             ],
             "p2": [
-                { id: "p2-s2a-1", text: "Drift correction algorithm (<250ms ปล่อย / 250-800ms ปรับ rate / >800ms seek)" },
-                { id: "p2-s2a-2", text: "Latency ping ทุก 3 วินาที + clock sync กับ server" },
-                { id: "p2-s2a-3", text: "Reconnect อัตโนมัติหลังเน็ตหลุด + resync position" },
-                { id: "p2-s2a-4", text: "Buffer state handling + แจ้งเตือนผู้ใช้เมื่อเน็ตช้า" },
-                { id: "p2-s2a-5", text: "Host handoff fallback เมื่อผู้เปิดห้องตัดการเชื่อมต่อ" },
-                { id: "p2-s2a-6", text: "Drift metric logging เพื่อใช้ในการ debug พฤติกรรมการซิงค์" },
-                { id: "p2-s2b-1", text: "Rider dashboard ปุ่มใหญ่ (Play/Pause/Skip) แตะง่าย" },
-                { id: "p2-s2b-2", text: "OLED Saver / Black Screen mode ประหยัดพลังงาน" },
-                { id: "p2-s2b-3", text: "Passenger remote: ค้นหา YouTube + เพิ่มเพลง" },
-                { id: "p2-s2b-4", text: "Trip summary หน้าสรุปรายละเอียดการเดินทาง" },
-                { id: "p2-s2b-5", text: "Analytics events (กิจกรรมห้อง, อัตราดริฟต์เฉลี่ย)" },
-                { id: "p2-s2b-6", text: "Error tracking integration (รายงาน crash)" },
-                { id: "p2-s2b-7", text: "CoDev Command Center architecture refactor (Full Modularization)" }
+                { id: "p2-s2a-1", code: "TSK-CVB01P0201A", dependency: "p0-s0-4", text: "Drift correction algorithm (<250ms ปล่อย / 250-800ms ปรับ rate / >800ms seek)", symbolLink: "src/App.tsx", complexity: "extream", type: "NFR", status: "stable", version: "1.0.0", created_at: "2026-06-05T10:40:00+07:00,Qwen Coder,t2w3x4y", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Designed drift correction logic: adjusts rate to 0.95x/1.05x dynamically.", tokensUsed: 16800 },
+                { id: "p2-s2a-2", code: "TSK-CVB01P0202A", text: "Latency ping ทุก 3 วินาที + clock sync กับ server", symbolLink: "src/App.tsx", complexity: "high", type: "NFR", status: "stable", version: "1.0.0", created_at: "2026-06-05T10:45:00+07:00,Qwen Coder,u3x4y5z", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Setup round-trip-time offset estimator inside transport controller.", tokensUsed: 13200 },
+                { id: "p2-s2a-3", code: "TSK-CVB01P0203A", text: "Reconnect อัตโนมัติหลังเน็ตหลุด + resync position", symbolLink: "src/App.tsx", complexity: "high", type: "NFR", status: "stable", version: "1.0.0", created_at: "2026-06-05T10:50:00+07:00,Qwen Coder,v4y5z6a", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Added auto-reconnecting WebSocket client wrappers with expo-backoff.", tokensUsed: 12000 },
+                { id: "p2-s2a-4", code: "TSK-CVB01P0204A", text: "Buffer state handling + แจ้งเตือนผู้ใช้เมื่อเน็ตช้า", symbolLink: "src/App.tsx", complexity: "nomal", type: "NFR", status: "stable", version: "1.0.0", created_at: "2026-06-05T10:55:00+07:00,Qwen Coder,w5z6a7b", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Added slow transport alert indicators overlaying main player.", tokensUsed: 9600 },
+                { id: "p2-s2a-5", code: "TSK-CVB01P0205A", text: "Host handoff fallback เมื่อผู้เปิดห้องตัดการเชื่อมต่อ", symbolLink: "server/index.js", complexity: "high", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T11:00:00+07:00,Qwen Coder,x6a7b8c", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Implemented room ownership migration triggers during rider offline states.", tokensUsed: 11000 },
+                { id: "p2-s2a-6", code: "TSK-CVB01P0206A", text: "Drift metric logging เพื่อใช้ในการ debug พฤติกรรมการซิงค์", symbolLink: "server/index.js", complexity: "nomal", type: "NFR", status: "stable", version: "1.0.0", created_at: "2026-06-05T11:05:00+07:00,Qwen Coder,y7b8c9d", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Integrated drift sampling telemetry pipelines broadcasted to control centers.", tokensUsed: 9200 },
+                { id: "p2-s2b-1", code: "TSK-CVB01P0207B", text: "Rider dashboard ปุ่มใหญ่ (Play/Pause/Skip) แตะง่าย", symbolLink: "src/App.tsx", complexity: "nomal", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T11:10:00+07:00,EVA Agent,z8c9d0e", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Created high-contrast Rider layout panels with expanded touchscreen zones.", tokensUsed: 10400 },
+                { id: "p2-s2b-2", code: "TSK-CVB01P0208B", text: "OLED Saver / Black Screen mode ประหยัดพลังงาน", symbolLink: "src/App.tsx", complexity: "low", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T11:15:00+07:00,EVA Agent,a9d0e1f", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Added full screen black overlay keeping system wake locks active.", tokensUsed: 7800 },
+                { id: "p2-s2b-3", code: "TSK-CVB01P0209B", text: "Passenger remote: ค้นหา YouTube + เพิ่มเพลง", symbolLink: "src/App.tsx", complexity: "high", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T11:20:00+07:00,Qwen Coder,b0e1f2g", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Wired search proxy querying public YouTube search endpoints.", tokensUsed: 13500 },
+                { id: "p2-s2b-4", code: "TSK-CVB01P0210B", text: "Trip summary หน้าสรุปรายละเอียดการเดินทาง", symbolLink: "src/App.tsx", complexity: "low", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T11:25:00+07:00,EVA Agent,c1f2g3h", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Added stats screen summarizing tracks played and total travel time.", tokensUsed: 8500 },
+                { id: "p2-s2b-5", code: "TSK-CVB01P0211B", text: "Analytics events (กิจกรรมห้อง, อัตราดริฟต์เฉลี่ย)", symbolLink: "server/index.js", complexity: "nomal", type: "NFR", status: "stable", version: "1.0.0", created_at: "2026-06-05T11:30:00+07:00,Qwen Coder,d2g3h4i", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Setup local data persistence for analytical sync tracking summaries.", tokensUsed: 10100 },
+                { id: "p2-s2b-6", code: "TSK-CVB01P0212B", text: "Error tracking integration (รายงาน crash)", symbolLink: "src/main.tsx", complexity: "low", type: "NFR", status: "stable", version: "1.0.0", created_at: "2026-06-05T11:35:00+07:00,Qwen Coder,e3h4i5j", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Wired central event logger boundaries around React app context tree.", tokensUsed: 8000 },
+                { id: "p2-s2b-7", code: "TSK-CVB01P0213B", text: "CoDev Command Center architecture refactor (Full Modularization)", symbolLink: "codev_dashboard.html", complexity: "extream", type: "NFR", status: "stable", version: "1.0.0", created_at: "2026-06-05T11:40:00+07:00,Qwen Coder,f4i5j6k", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Consolidated isolated views inside responsive dashboard containers.", tokensUsed: 19400 }
             ],
             "p3": [
-                { id: "p3-s3a-1", text: "Beta onboarding flow อธิบาย autoplay + วิธีเชื่อมต่อ" },
-                { id: "p3-s3a-2", text: "In-app feedback form + rating ประเมินหลังเดินทาง" },
-                { id: "p3-s3a-3", text: "รับสมัครกลุ่มผู้ขี่มอเตอร์ไซค์ 20-50 คู่มาร่วมทดสอบ" },
-                { id: "p3-s3a-4", text: "ทำสื่อคลิปสั้นอธิบายระบบลง Reels/TikTok" },
-                { id: "p3-s3a-5", text: "ผลิตสื่อ QR Code ประชาสัมพันธ์ติดร้านบิ๊กไบค์" },
-                { id: "p3-s3b-1", text: "Usage Dashboard: ตรวจสอบความถี่และชั่วโมงการเปิดซิงค์เพลง" },
-                { id: "p3-s3b-2", text: "Retention tracking: อัตราการกลับมาเปิดเล่นซ้ำใน 7 วัน" },
-                { id: "p3-s3b-3", text: "รวบรวม Bugs ยอดฮิต 5 อันดับแรกเพื่อจัดคิวแก้ไข" },
-                { id: "p3-s3b-4", text: "สรุป Persona ผู้ใช้ที่ชอบฟีเจอร์นี้มากที่สุด" },
-                { id: "p3-s3b-5", text: "เปิดอัปเดต Quick-fix แก้ปัญหาเร่งด่วนตามเสียงตอบรับ" }
+                { id: "p3-s3a-1", code: "TSK-CVB01P0301A", text: "Beta onboarding flow อธิบาย autoplay + วิธีเชื่อมต่อ", symbolLink: "src/App.tsx", complexity: "nomal", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T11:45:00+07:00,EVA Agent,g5j6k7l", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Implemented interactive multi-step wizard describing playback rules.", tokensUsed: 9800 },
+                { id: "p3-s3a-2", code: "TSK-CVB01P0302A", text: "In-app feedback form + rating ประเมินหลังเดินทาง", symbolLink: "src/App.tsx", complexity: "nomal", type: "FR", status: "stable", version: "1.0.0", created_at: "2026-06-05T11:50:00+07:00,EVA Agent,h6k7l8m", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Added star ratings and text feedback inputs saving post-trip notes.", tokensUsed: 10200 },
+                { id: "p3-s3a-3", code: "TSK-CVB01P0303A", text: "รับสมัครกลุ่มผู้ขี่มอเตอร์ไซค์ 20-50 คู่มาร่วมทดสอบ", symbolLink: "docs/compatibility_report.md", complexity: "low", type: "NFR", status: "Active(beta)", version: "0.1.0b", created_at: "2026-06-05T11:55:00+07:00,Local Dev,i7l8m9n", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Drafted user recruitment forms and onboarding procedures checklist.", tokensUsed: 5200 },
+                { id: "p3-s3a-4", code: "TSK-CVB01P0304A", text: "ทำสื่อคลิปสั้นอธิบายระบบลง Reels/TikTok", symbolLink: "docs/compatibility_report.md", complexity: "less", type: "NFR", status: "candidate", version: "0.1.0", created_at: "2026-06-05T12:00:00+07:00,Local Dev,j8m9n0o", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Uploaded demo walkthrough showing device sync during live driving test.", tokensUsed: 4000 },
+                { id: "p3-s3a-5", code: "TSK-CVB01P0305A", text: "ผลิตสื่อ QR Code ประชาสัมพันธ์ติดร้านบิ๊กไบค์", symbolLink: "docs/compatibility_report.md", complexity: "less", type: "NFR", status: "candidate", version: "0.1.0", created_at: "2026-06-05T12:05:00+07:00,Local Dev,k9n0o1p", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Designed flyer layout containing scan links to the beta signups app.", tokensUsed: 4200 },
+                { id: "p3-s3b-1", code: "TSK-CVB01P0306B", text: "Usage Dashboard: ตรวจสอบความถี่และชั่วโมงการเปิดซิงค์เพลง", symbolLink: "server/index.js", complexity: "nomal", type: "FR", status: "under review", version: "0.1.0b", created_at: "2026-06-05T12:10:00+07:00,Qwen Coder,l0o1p2q", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Constructed analytics dashboard modules parsing backend log files.", tokensUsed: 9600 },
+                { id: "p3-s3b-2", code: "TSK-CVB01P0307B", text: "Retention tracking: อัตราการกลับมาเปิดเล่นซ้ำใน 7 วัน", symbolLink: "server/index.js", complexity: "nomal", type: "NFR", status: "under review", version: "0.1.0b", created_at: "2026-06-05T12:15:00+07:00,Qwen Coder,m1p2q3r", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Calculated active participant cohort ratios comparing week-over-week logs.", tokensUsed: 9800 },
+                { id: "p3-s3b-3", code: "TSK-CVB01P0308B", text: "รวบรวม Bugs ยอดฮิต 5 อันดับแรกเพื่อจัดคิวแก้ไข", symbolLink: "docs/compatibility_report.md", complexity: "low", type: "NFR", status: "draft", version: "0.1.0", created_at: "2026-06-05T12:20:00+07:00,Local Dev,n2q3r4s", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Aggregated crashlytics counts into actionable high priority bug cards.", tokensUsed: 4800 },
+                { id: "p3-s3b-4", code: "TSK-CVB01P0309B", text: "สรุป Persona ผู้ใช้ที่ชอบฟีเจอร์นี้มากที่สุด", symbolLink: "docs/compatibility_report.md", complexity: "less", type: "NFR", status: "draft", version: "0.1.0", created_at: "2026-06-05T12:25:00+07:00,Local Dev,o3r4s5t", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Categorized user segments based on average trip distance stats.", tokensUsed: 3600 },
+                { id: "p3-s3b-5", code: "TSK-CVB01P0310B", text: "เปิดอัปเดต Quick-fix แก้ปัญหาเร่งด่วนตามเสียงตอบรับ", symbolLink: "src/App.tsx", complexity: "nomal", type: "FR", status: "draft", version: "0.1.0", created_at: "2026-06-05T12:30:00+07:00,Local Dev,p4s5t6u", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Prepared micro patch pipeline handling critical audio exceptions.", tokensUsed: 8600 }
             ],
             "p4": [
-                { id: "p4-task-1", text: "Hotspot / Local WebSocket (ซิงค์ตรงโดยไม่พึ่งอินเทอร์เน็ต)" },
-                { id: "p4-task-2", text: "Intercom voice chat สนทนาเสียงแบบสายตรงในแอป" },
-                { id: "p4-task-3", text: "Convoy GPS tracking ติดตามแผนที่ของเพื่อนร่วมคาราวาน" },
-                { id: "p4-task-4", text: "Voice command สั่งงานระบบคิวเพลงด้วยเสียง" }
+                { id: "p4-task-1", code: "TSK-CVB01P04010", text: "Hotspot / Local WebSocket (ซิงค์ตรงโดยไม่พึ่งอินเทอร์เน็ต)", symbolLink: "server/index.js", complexity: "extream", type: "NFR", status: "draft", version: "0.1.0", created_at: "2026-06-05T12:35:00+07:00,Qwen Coder,q5t6u7v", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Proposed architecture utilizing device hotspot peer connections.", tokensUsed: 15400 },
+                { id: "p4-task-2", code: "TSK-CVB01P04020", text: "Intercom voice chat สนทนาเสียงแบบสายตรงในแอป", symbolLink: "src/App.tsx", complexity: "extream", type: "FR", status: "draft", version: "0.1.0", created_at: "2026-06-05T12:40:00+07:00,EVA Agent,r6u7v8w", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Analyzed WebRTC signalling flow for P2P local voice networks.", tokensUsed: 14800 },
+                { id: "p4-task-3", code: "TSK-CVB01P04030", text: "Convoy GPS tracking ติดตามแผนที่ของเพื่อนร่วมคาราวาน", symbolLink: "src/App.tsx", complexity: "high", type: "FR", status: "draft", version: "0.1.0", created_at: "2026-06-05T12:45:00+07:00,Local Dev,s7v8w9x", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Drafted geolocation interval tracking APIs mapped to Leaflet graphs.", tokensUsed: 11000 },
+                { id: "p4-task-4", code: "TSK-CVB01P04040", text: "Voice command สั่งงานระบบคิวเพลงด้วยเสียง", symbolLink: "src/App.tsx", complexity: "high", type: "FR", status: "draft", version: "0.1.0", created_at: "2026-06-05T12:50:00+07:00,Local Dev,t8w9x0y", last_update: "2026-06-05T16:22:00+07:00,Rwang,d4e5f6g", changelog: "Added speech-to-text libraries capturing driver override actions.", tokensUsed: 12200 }
             ]
         };
 
@@ -1933,13 +2047,276 @@
             localStorage.setItem('covibe_roadmap_states_v3', JSON.stringify(currentState));
         }
 
+        // Export functionality helpers
+        function toggleExportMenu(menuId) {
+            const menu = document.getElementById(`export-menu-${menuId}`);
+            if (!menu) return;
+            const isHidden = menu.classList.contains('hidden');
+            // Hide all other export menus first
+            document.querySelectorAll('[id^="export-menu-"]').forEach(m => m.classList.add('hidden'));
+            if (isHidden) {
+                menu.classList.remove('hidden');
+            }
+        }
+
+        // Close dropdowns on click-away
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('.relative')) {
+                document.querySelectorAll('[id^="export-menu-"]').forEach(m => m.classList.add('hidden'));
+            }
+        });
+
+        // Helper to stringify Javascript objects to YAML
+        function toYAML(obj, indent = 0) {
+            const pad = '  '.repeat(indent);
+            if (obj === null) return 'null';
+            if (typeof obj === 'undefined') return '';
+            if (typeof obj !== 'object') {
+                if (typeof obj === 'string') {
+                    if (obj.includes('\n') || obj.includes(':') || obj.includes('-') || obj.includes('"') || obj.includes("'")) {
+                        return JSON.stringify(obj);
+                    }
+                    return obj;
+                }
+                return String(obj);
+            }
+            if (Array.isArray(obj)) {
+                if (obj.length === 0) return '[]';
+                let res = '';
+                obj.forEach(item => {
+                    if (typeof item === 'object') {
+                        res += `\n${pad}- ` + toYAML(item, indent + 1).trimStart();
+                    } else {
+                        res += `\n${pad}- ${toYAML(item, indent + 1)}`;
+                    }
+                });
+                return res;
+            }
+            let res = '';
+            Object.entries(obj).forEach(([key, val]) => {
+                if (typeof val === 'object' && val !== null) {
+                    res += `\n${pad}${key}:` + toYAML(val, indent + 1);
+                } else {
+                    res += `\n${pad}${key}: ${toYAML(val, indent + 1)}`;
+                }
+            });
+            return res;
+        }
+
+        // Main data resolver for export
+        function getExportPayload(target, targetId) {
+            const savedStates = loadState();
+            const getTaskDetails = (task) => {
+                const state = savedStates[task.id] || { doc: false, code: false, test: false, assignee: 'none' };
+                // Resolve dependencies
+                let dependencyStatus = 'N/A';
+                let dependencyCode = '';
+                if (task.dependency) {
+                    const depTask = Object.values(taskDefinitions).flat().find(t => t.id === task.dependency);
+                    dependencyCode = depTask ? (depTask.code || depTask.id) : task.dependency;
+                    const depState = savedStates[task.dependency];
+                    const depResolved = depState && depState.doc && depState.code && depState.test;
+                    dependencyStatus = depResolved ? 'Resolved' : 'Blocking';
+                }
+                return {
+                    id: task.id,
+                    code: task.code || '',
+                    text: task.text,
+                    symbolLink: task.symbolLink,
+                    complexity: task.complexity,
+                    type: task.type,
+                    status: task.status || 'draft',
+                    version: task.version || '1.0.0',
+                    created_at: task.created_at || '',
+                    last_update: task.last_update || '',
+                    changelog: task.changelog || '',
+                    tokensUsed: task.tokensUsed || 0,
+                    assignee: state.assignee,
+                    completionState: {
+                        doc: !!state.doc,
+                        code: !!state.code,
+                        test: !!state.test,
+                        overall: !!(state.doc && state.code && state.test)
+                    },
+                    dependency: task.dependency || '',
+                    dependencyCode: dependencyCode,
+                    dependencyStatus: dependencyStatus,
+                    definitionOfDone: {
+                        acceptanceCriteria: [
+                            { criterion: "Spec approved", checked: !!state.doc },
+                            { criterion: "Docs updated", checked: !!state.doc }
+                        ],
+                        successCriteria: [
+                            { criterion: "Code complete", checked: !!state.code },
+                            { criterion: "Lints clean", checked: !!state.code }
+                        ],
+                        exitCriteria: [
+                            { criterion: "Tests passed", checked: !!state.test },
+                            { criterion: "Regression free", checked: !!state.test }
+                        ]
+                    }
+                };
+            };
+
+            const payload = {
+                exportedAt: new Date().toISOString(),
+                exportType: target
+            };
+
+            if (target === 'roadmap') {
+                payload.title = "CoVibe Implementation Roadmap";
+                payload.phases = {};
+                Object.keys(taskDefinitions).forEach(phaseKey => {
+                    const phaseTitle = getPhaseTitle(phaseKey);
+                    payload.phases[phaseKey] = {
+                        title: phaseTitle,
+                        tasks: taskDefinitions[phaseKey].map(getTaskDetails)
+                    };
+                });
+            } else if (target === 'phase') {
+                const phaseTitle = getPhaseTitle(targetId);
+                payload.phaseId = targetId;
+                payload.phaseTitle = phaseTitle;
+                payload.tasks = (taskDefinitions[targetId] || []).map(getTaskDetails);
+            } else if (target === 'task') {
+                const allTasks = Object.values(taskDefinitions).flat();
+                const task = allTasks.find(t => t.id === targetId);
+                if (!task) return null;
+                payload.task = getTaskDetails(task);
+            }
+            return payload;
+        }
+
+        function getPhaseTitle(phaseKey) {
+            const titles = {
+                p0: "Feasibility Spike — พิสูจน์ความเสถียร",
+                p1: "MVP Core — ฟังก์ชันห้องและการแชร์เพลง",
+                p2: "Sync Calibration — จูนนิ่งความตรงระดับเสี้ยววิ",
+                p3: "Beta Test & rider feedback — นำทางจริงบนบอร์ด",
+                p4: "Future Backlog — ส่วนเสริมอนาคต"
+            };
+            return titles[phaseKey] || phaseKey;
+        }
+
+        // Generator for Markdown formatting
+        function generateMarkdown(payload) {
+            const formatTaskDoD = (task) => {
+                const formatCheck = (checked) => checked ? '[x]' : '[ ]';
+                return `**Definition of Done (DoD):**
+- **Acceptance Criteria**
+  - ${formatCheck(task.completionState.doc)} Spec approved
+  - ${formatCheck(task.completionState.doc)} Docs updated
+- **Success Criteria**
+  - ${formatCheck(task.completionState.code)} Code complete
+  - ${formatCheck(task.completionState.code)} Lints clean
+- **Exit Criteria**
+  - ${formatCheck(task.completionState.test)} Tests passed
+  - ${formatCheck(task.completionState.test)} Regression free`;
+            };
+
+            const formatTaskBlock = (task) => {
+                const depLine = task.dependency ? `\n- **Dependency:** ${task.dependencyStatus} (Depends on: \`${task.dependencyCode}\`)` : '';
+                return `### [${task.code || task.id}] ${task.text}
+- **Symbol Link:** \`${task.symbolLink}\`
+- **Assignee:** ${task.assignee === 'none' ? 'Unassigned' : task.assignee.toUpperCase()}
+- **Complexity:** ${task.complexity.toUpperCase()} | **Type:** ${task.type} | **Status:** ${task.status} | **Version:** ${task.version}
+- **Tokens Used:** ${task.tokensUsed.toLocaleString()}${depLine}
+
+${formatTaskDoD(task)}
+
+**Changelog:**
+\`\`\`
+[${task.version}] - ${task.changelog.replace(/;/g, '\n' + ' '.repeat(task.version.length + 5))}
+[Updated: ${task.last_update}]
+\`\`\`
+
+- **Created:** ${task.created_at}
+`;
+            };
+
+            let md = `# ${payload.title || 'Export'}\n`;
+            md += `*Exported At: ${payload.exportedAt}*\n\n`;
+
+            if (payload.exportType === 'roadmap') {
+                Object.keys(payload.phases).forEach(phaseKey => {
+                    const phase = payload.phases[phaseKey];
+                    md += `## ${phase.title} (${phaseKey.toUpperCase()})\n\n`;
+                    phase.tasks.forEach(task => {
+                        md += formatTaskBlock(task) + `\n---\n\n`;
+                    });
+                });
+            } else if (payload.exportType === 'phase') {
+                md += `## Phase: ${payload.phaseTitle} (${payload.phaseId.toUpperCase()})\n\n`;
+                payload.tasks.forEach(task => {
+                    md += formatTaskBlock(task) + `\n---\n\n`;
+                });
+            } else if (payload.exportType === 'task') {
+                md += formatTaskBlock(payload.task);
+            }
+            return md;
+        }
+
+        // Trigger download
+        function exportData(target, format, targetId) {
+            const payload = getExportPayload(target, targetId);
+            if (!payload) {
+                alert("Failed to gather export data.");
+                return;
+            }
+
+            let fileContent = "";
+            let fileType = "";
+            let fileExtension = "";
+
+            if (format === 'json') {
+                fileContent = JSON.stringify(payload, null, 2);
+                fileType = "application/json";
+                fileExtension = "json";
+            } else if (format === 'yaml') {
+                fileContent = toYAML(payload).trim();
+                fileType = "text/yaml";
+                fileExtension = "yaml";
+            } else if (format === 'md') {
+                fileContent = generateMarkdown(payload);
+                fileType = "text/markdown";
+                fileExtension = "md";
+            }
+
+            let filename = "";
+            if (target === 'roadmap') {
+                filename = `covibe-roadmap-export.${fileExtension}`;
+            } else if (target === 'phase') {
+                const nameSlug = getPhaseTitle(targetId).toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-');
+                filename = `${targetId}-${nameSlug}.${fileExtension}`;
+            } else if (target === 'task') {
+                const taskCode = payload.task.code || targetId;
+                filename = `${taskCode}-task.${fileExtension}`;
+            }
+
+            const blob = new Blob([fileContent], { type: `${fileType};charset=utf-8;` });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            // Hide export dropdowns
+            document.querySelectorAll('[id^="export-menu-"]').forEach(m => m.classList.add('hidden'));
+        }
+
         function setTaskItemState(taskItem, stateData) {
             let doc = false, code = false, test = false;
+            let assignee = 'none';
             if (typeof stateData === 'string') {
                 if (stateData === 'done') { doc = true; code = true; test = true; }
                 else if (stateData === 'pending') { doc = true; code = false; test = false; }
             } else if (stateData) {
                 doc = !!stateData.doc; code = !!stateData.code; test = !!stateData.test;
+                assignee = stateData.assignee || 'none';
             }
 
             let state = 'todo';
@@ -1978,10 +2355,119 @@
                 }
             }
 
+            const assignLbl = taskItem.querySelector('.assign-lbl');
+            const selectEl = taskItem.querySelector('.assist-to-select');
+            const completedLbl = taskItem.querySelector('.completed-by-lbl');
+
+            if (state === 'done') {
+                if (assignLbl) assignLbl.classList.add('hidden');
+                if (selectEl) {
+                    selectEl.classList.add('hidden');
+                    if (assignee === 'none') assignee = selectEl.value;
+                }
+                if (completedLbl) {
+                    const agentNames = { 
+                        none: 'Unassigned', 
+                        eva: 'EVA Agent (Gemini 3.5 Flash)', 
+                        qwen: 'Qwen Coder (Qwen2.5-Coder)', 
+                        uat: 'UAT Agent (GPT-4o)', 
+                        local: 'Local Dev (Human)' 
+                    };
+                    completedLbl.innerText = `Completed by: ${agentNames[assignee] || assignee}`;
+                    completedLbl.classList.remove('hidden');
+                }
+            } else {
+                if (assignLbl) assignLbl.classList.remove('hidden');
+                if (selectEl) {
+                    selectEl.classList.remove('hidden');
+                    if (assignee !== 'none') selectEl.value = assignee;
+                }
+                if (completedLbl) completedLbl.classList.add('hidden');
+            }
+
+            // Toggle Not Implement badge
+            const notImplBadge = taskItem.querySelector('.not-impl-badge');
+            if (notImplBadge) {
+                if (state === 'done') {
+                    notImplBadge.classList.add('hidden');
+                } else {
+                    notImplBadge.classList.remove('hidden');
+                }
+            }
+
+            // Update DoD checkboxes
+            const docChecks = taskItem.querySelectorAll('.dod-doc-check-1, .dod-doc-check-2');
+            const codeChecks = taskItem.querySelectorAll('.dod-code-check-1, .dod-code-check-2');
+            const testChecks = taskItem.querySelectorAll('.dod-test-check-1, .dod-test-check-2');
+            docChecks.forEach(c => c.checked = doc);
+            codeChecks.forEach(c => c.checked = code);
+            testChecks.forEach(c => c.checked = test);
+
+            // Status updates for verif-icon-btn buttons are handled above.
+
             taskItem.dataset.doc = doc ? 'true' : 'false';
             taskItem.dataset.code = code ? 'true' : 'false';
             taskItem.dataset.test = test ? 'true' : 'false';
         }
+
+        function updateAllDependencyBadges() {
+            document.querySelectorAll('#roadmap-view .task-item').forEach(taskItem => {
+                const depBlock = taskItem.querySelector('.dependency-block');
+                if (!depBlock) return;
+                const taskId = taskItem.getAttribute('data-task-id');
+                const taskDef = Object.values(taskDefinitions).flat().find(t => t.id === taskId);
+                if (taskDef && taskDef.dependency) {
+                    const depTaskEl = document.querySelector(`[data-task-id="${taskDef.dependency}"]`);
+                    const isDepDone = depTaskEl && depTaskEl.getAttribute('data-state') === 'done';
+                    const depBadge = depBlock.querySelector('.dep-badge');
+                    if (depBadge) {
+                        if (isDepDone) {
+                            depBadge.innerText = 'Resolved';
+                            depBadge.className = 'px-1.5 py-0.5 rounded font-bold uppercase dep-badge text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+                        } else {
+                            depBadge.innerText = 'Blocking';
+                            depBadge.className = 'px-1.5 py-0.5 rounded font-bold uppercase dep-badge text-[9px] bg-red-500/10 text-red-400 border border-red-500/20';
+                        }
+                    }
+                }
+            });
+        }
+
+        window.toggleTaskInfo = function(taskId) {
+            const panel = document.getElementById(taskId + '-info-panel');
+            const chevron = document.getElementById(taskId + '-chevron');
+            if (panel && chevron) {
+                const isHidden = panel.classList.contains('hidden');
+                if (isHidden) {
+                    panel.classList.remove('hidden');
+                    chevron.style.transform = 'rotate(90deg)';
+                } else {
+                    panel.classList.add('hidden');
+                    chevron.style.transform = 'rotate(0deg)';
+                }
+            }
+        };
+
+        const sprintDefinitions = {
+            "p0": [
+                { id: "p0-s0", code: "SPRINT 0", text: "Feasibility Spike", duration: "1 week" }
+            ],
+            "p1": [
+                { id: "p1-s1a", code: "SPRINT 1A", text: "WebSocket & Core Architecture", duration: "2 weeks" },
+                { id: "p1-s1b", code: "SPRINT 1B", text: "YouTube IFrame & Queue Playback", duration: "2 weeks" }
+            ],
+            "p2": [
+                { id: "p2-s2a", code: "SPRINT 2A", text: "Sync Hardening", duration: "1.5 weeks" },
+                { id: "p2-s2b", code: "SPRINT 2B", text: "Rider & Passenger UX", duration: "1.5 weeks" }
+            ],
+            "p3": [
+                { id: "p3-s3a", code: "SPRINT 3A", text: "Recruitment & Beta Release", duration: "1 week" },
+                { id: "p3-s3b", code: "SPRINT 3B", text: "Analytics & Metrics Feedback", duration: "1 week" }
+            ],
+            "p4": [
+                { id: "p4-task", code: "BACKLOG", text: "Future Backlog Items", duration: "Future" }
+            ]
+        };
 
         function initRoadmapList() {
             const savedStates = loadState();
@@ -1992,28 +2478,206 @@
                 if (!container) return;
                 container.innerHTML = '';
 
+                // Render Sprints inside phase body
+                const sprints = sprintDefinitions[phaseKey] || [];
+                const sprintContainers = {};
+
+                sprints.forEach(sprint => {
+                    const sprintDiv = document.createElement('div');
+                    sprintDiv.className = "sprint-block bg-white/5 border border-white/5 rounded-xl p-4 mb-4";
+                    sprintDiv.id = sprint.id;
+                    sprintDiv.innerHTML = `
+                        <div class="flex items-center justify-between mb-3 text-xs select-none">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded border border-white/10 bg-white/5 text-stone-300 font-mono font-bold">${sprint.code}</span>
+                                <span class="font-bold text-white font-sans">${sprint.text}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-cyber-muted font-mono font-bold text-[9px]">Duration: ${sprint.duration}</span>
+                                <span class="sprint-progress px-1.5 py-0.5 rounded border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 font-mono font-bold" id="${sprint.id}-progress">0%</span>
+                            </div>
+                        </div>
+                        <div class="sprint-tasks space-y-3"></div>
+                    `;
+                    container.appendChild(sprintDiv);
+                    sprintContainers[sprint.id] = sprintDiv.querySelector('.sprint-tasks');
+                });
+
                 taskDefinitions[phaseKey].forEach(task => {
                     const taskItem = document.createElement('div');
-                    taskItem.className = "task-item p-3.5 bg-white/5 border border-white/5 hover:border-white/10 rounded-xl flex items-center justify-between gap-4 transition-all duration-300 cursor-pointer";
+                    taskItem.className = "task-item p-3.5 bg-white/5 border border-white/5 hover:border-white/10 rounded-xl flex flex-col gap-1.5 transition-all duration-300 cursor-pointer";
                     taskItem.setAttribute('data-task-id', task.id);
+                    
+                    const complexityColors = {
+                        extream: 'bg-red-500/10 text-red-400 border border-red-500/20',
+                        high: 'bg-orange-500/10 text-orange-400 border border-orange-500/20',
+                        nomal: 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
+                        low: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+                        less: 'bg-white/5 text-stone-400 border border-white/10'
+                    };
+                    const compClass = complexityColors[task.complexity] || 'bg-white/5 text-stone-300 border border-white/10';
+                    
+                    let depHtml = '';
+                    if (task.dependency) {
+                        const depTask = Object.values(taskDefinitions).flat().find(t => t.id === task.dependency);
+                        const depCode = depTask ? (depTask.code || depTask.id) : task.dependency;
+                        const depText = depTask ? depTask.text : 'Unknown Task';
+                        depHtml = `
+                            <div class="mt-3 pt-3 border-t border-white/5 flex flex-col gap-1.5 dependency-block">
+                                <span class="font-bold text-white font-mono text-[10px] uppercase tracking-wider">Dependency:</span>
+                                <div class="flex items-center gap-2 font-mono text-[11px]">
+                                    <span class="px-1.5 py-0.5 rounded font-bold uppercase dep-badge text-[9px] bg-red-500/10 text-red-400 border border-red-500/20">Blocking</span>
+                                    <span class="text-stone-300">Depends on: <span class="text-indigo-400 font-bold">${depCode}</span> - ${depText}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    const changelogHtml = (() => {
+                        const detail = task.changelog || 'No recent changes logged.';
+                        const parts = detail.split(';').map(p => p.trim()).filter(Boolean);
+                        const versionPrefix = `[${task.version || '1.0.0'}] - `;
+                        const indentSpaces = '&nbsp;'.repeat(versionPrefix.length);
+                        
+                        let formattedText = `${versionPrefix}${parts[0]}${parts.length > 1 ? ';' : ''}`;
+                        for (let i = 1; i < parts.length; i++) {
+                            const isLast = i === parts.length - 1;
+                            const suffix = (!isLast || detail.endsWith(';')) ? ';' : '';
+                            formattedText += `<br>${indentSpaces}${parts[i]}${suffix}`;
+                        }
+                        formattedText += `<br>${indentSpaces}[Updated: ${task.last_update || 'N/A'}]`;
+                        return formattedText;
+                    })();
+
                     taskItem.innerHTML = `
-                        <div class="flex items-center gap-3 min-w-0 flex-1">
-                            <span class="task-status-indicator shrink-0"></span>
-                            <span class="text-sm font-semibold truncate text-white leading-none">${task.text}</span>
+                        <div class="flex items-center justify-between gap-4 w-full">
+                            <div class="flex items-start gap-3 min-w-0 flex-1">
+                                <span class="task-status-indicator shrink-0 mt-0.5"></span>
+                                <button class="info-toggle-btn text-cyber-muted hover:text-white transition-colors shrink-0 mt-0.5" onclick="event.stopPropagation(); toggleTaskInfo('${task.id}')">
+                                    <i class="fa-solid fa-chevron-right info-chevron text-[10px] transition-transform duration-200" id="${task.id}-chevron"></i>
+                                </button>
+                                <div class="flex flex-col gap-1.5 min-w-0 flex-1">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <span class="text-sm font-semibold truncate text-white leading-none">${task.text}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 flex-wrap" onclick="event.stopPropagation()">
+                                        <span class="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase ${task.type === 'FR' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'} shrink-0">${task.type}</span>
+                                        <span class="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold capitalize ${compClass} shrink-0">${task.complexity}</span>
+                                        <button class="verif-icon-btn doc-btn" title="Doc Check"><i class="fa-solid fa-file-invoice"></i></button>
+                                        <button class="verif-icon-btn code-btn" title="Code Check"><i class="fa-solid fa-code"></i></button>
+                                        <button class="verif-icon-btn test-btn" title="Test Check"><i class="fa-solid fa-flask"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 shrink-0" onclick="event.stopPropagation()">
+                                <span class="text-[10px] text-cyber-muted font-bold font-mono uppercase assign-lbl">Assign To:</span>
+                                <select class="assist-to-select bg-black/40 border border-cyber-border rounded px-1.5 py-0.5 text-xs text-white focus:outline-none" onchange="saveStateToStorage()">
+                                    <option value="none">Unassigned</option>
+                                    <option value="eva">EVA Agent (Gemini 3.5 Flash)</option>
+                                    <option value="qwen">Qwen Coder (Qwen2.5-Coder)</option>
+                                    <option value="uat">UAT Agent (GPT-4o)</option>
+                                    <option value="local">Local Dev (Human)</option>
+                                </select>
+                                <span class="completed-by-lbl text-xs text-emerald-400 font-bold hidden"></span>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-3 shrink-0" onclick="event.stopPropagation()">
-                            <span class="text-[10px] text-cyber-muted font-bold font-mono uppercase">Assist:</span>
-                            <select class="assist-to-select bg-black/40 border border-cyber-border rounded px-1.5 py-0.5 text-xs text-white focus:outline-none" onchange="saveStateToStorage()">
-                                <option value="none">Unassigned</option>
-                                <option value="eva">EVA Agent</option>
-                                <option value="qwen">Qwen Coder</option>
-                                <option value="uat">UAT Agent (Playwright)</option>
-                                <option value="local">Local Dev</option>
-                            </select>
-                            <div class="flex items-center gap-1.5">
-                                <button class="verif-icon-btn doc-btn" title="Doc Check"><i class="fa-solid fa-file-invoice"></i></button>
-                                <button class="verif-icon-btn code-btn" title="Code Check"><i class="fa-solid fa-code"></i></button>
-                                <button class="verif-icon-btn test-btn" title="Test Check"><i class="fa-solid fa-flask"></i></button>
+                        <div class="task-info-panel mt-3 pt-3 border-t border-white/5 text-xs text-cyber-muted space-y-3 hidden w-full" id="${task.id}-info-panel" onclick="event.stopPropagation()">
+                            <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                                <span class="font-bold text-white font-mono text-[10px] uppercase tracking-wider">Symbol Links</span>
+                                <span class="not-impl-badge px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-red-500/10 text-red-400 border border-red-500/20 shrink-0">Not Implement</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-white/5 pb-3">
+                                <div class="flex flex-col gap-1">
+                                    <span class="font-bold text-white font-mono text-[10px] uppercase tracking-wider">Code Link:</span>
+                                    <a href="file:///${task.codeLink || task.symbolLink || 'src/App.tsx'}" class="text-indigo-400 hover:underline font-mono break-all text-[11px]">${task.codeLink || task.symbolLink || 'src/App.tsx'}</a>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <span class="font-bold text-white font-mono text-[10px] uppercase tracking-wider">Doc Link:</span>
+                                    <a href="file:///${task.docLink || (phaseKey === 'p0' ? 'docs/compatibility_report.md' : 'GEMINI.md')}" class="text-indigo-400 hover:underline font-mono break-all text-[11px]">${task.docLink || (phaseKey === 'p0' ? 'docs/compatibility_report.md' : 'GEMINI.md')}</a>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <span class="font-bold text-white font-mono text-[10px] uppercase tracking-wider">Test Link:</span>
+                                    <a href="file:///${task.testLink || (task.id.includes('server') ? 'server/index.js' : 'tests/sync.test.js')}" class="text-indigo-400 hover:underline font-mono break-all text-[11px]">${task.testLink || (task.id.includes('server') ? 'server/index.js' : 'tests/sync.test.js')}</a>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-5 gap-4">
+                                <div>
+                                    <span class="font-bold text-white font-mono text-[10px] uppercase tracking-wider block mb-1">Version:</span>
+                                    <span class="px-2 py-0.5 rounded bg-white/5 border border-white/5 font-mono text-[10px] text-stone-300 font-bold">${task.version || '1.0.0'}</span>
+                                </div>
+                                <div>
+                                    <span class="font-bold text-white font-mono text-[10px] uppercase tracking-wider block mb-1">Complexity:</span>
+                                    <span class="px-2 py-0.5 rounded font-mono text-[10px] capitalize ${compClass}">${task.complexity}</span>
+                                </div>
+                                <div>
+                                    <span class="font-bold text-white font-mono text-[10px] uppercase tracking-wider block mb-1">Type:</span>
+                                    <span class="px-2 py-0.5 rounded bg-white/5 border border-white/5 font-mono text-[10px] uppercase text-stone-300">${task.type}</span>
+                                </div>
+                                <div>
+                                    <span class="font-bold text-white font-mono text-[10px] uppercase tracking-wider block mb-1">Status:</span>
+                                    <span class="px-2 py-0.5 rounded bg-white/5 border border-white/5 font-mono text-[10px] text-stone-300">${task.status || 'draft'}</span>
+                                </div>
+                                <div>
+                                    <span class="font-bold text-white font-mono text-[10px] uppercase tracking-wider block mb-1">Tokens Used:</span>
+                                    <span class="px-2 py-0.5 rounded bg-white/5 border border-white/5 font-mono text-[10px] text-stone-300 font-bold">${task.tokensUsed ? task.tokensUsed.toLocaleString() : '0'}</span>
+                                </div>
+                            </div>
+                            <div class="mt-3 pt-3 border-t border-white/5 flex flex-col gap-1.5">
+                                <span class="font-bold text-white font-mono text-[10px] uppercase tracking-wider">Definition of Done (DoD):</span>
+                                <div class="grid grid-cols-3 gap-4 text-[10px] text-stone-300 font-mono">
+                                    <div class="flex flex-col gap-1.5">
+                                        <span class="font-bold text-emerald-400 text-[9px] uppercase tracking-wider">Acceptance Criteria</span>
+                                        <label class="flex items-center gap-1.5">
+                                            <input type="checkbox" class="dod-doc-check-1 rounded bg-black/40 border border-cyber-border focus:ring-0 text-emerald-500 w-3 h-3 pointer-events-none" disabled />
+                                            <span>Spec approved</span>
+                                        </label>
+                                        <label class="flex items-center gap-1.5">
+                                            <input type="checkbox" class="dod-doc-check-2 rounded bg-black/40 border border-cyber-border focus:ring-0 text-emerald-500 w-3 h-3 pointer-events-none" disabled />
+                                            <span>Docs updated</span>
+                                        </label>
+                                    </div>
+                                    <div class="flex flex-col gap-1.5">
+                                        <span class="font-bold text-emerald-400 text-[9px] uppercase tracking-wider">Success Criteria</span>
+                                        <label class="flex items-center gap-1.5">
+                                            <input type="checkbox" class="dod-code-check-1 rounded bg-black/40 border border-cyber-border focus:ring-0 text-emerald-500 w-3 h-3 pointer-events-none" disabled />
+                                            <span>Code complete</span>
+                                        </label>
+                                        <label class="flex items-center gap-1.5">
+                                            <input type="checkbox" class="dod-code-check-2 rounded bg-black/40 border border-cyber-border focus:ring-0 text-emerald-500 w-3 h-3 pointer-events-none" disabled />
+                                            <span>Lints clean</span>
+                                        </label>
+                                    </div>
+                                    <div class="flex flex-col gap-1.5">
+                                        <span class="font-bold text-emerald-400 text-[9px] uppercase tracking-wider">Exit Criteria</span>
+                                        <label class="flex items-center gap-1.5">
+                                            <input type="checkbox" class="dod-test-check-1 rounded bg-black/40 border border-cyber-border focus:ring-0 text-emerald-500 w-3 h-3 pointer-events-none" disabled />
+                                            <span>Tests passed</span>
+                                        </label>
+                                        <label class="flex items-center gap-1.5">
+                                            <input type="checkbox" class="dod-test-check-2 rounded bg-black/40 border border-cyber-border focus:ring-0 text-emerald-500 w-3 h-3 pointer-events-none" disabled />
+                                            <span>Regression free</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            ${depHtml}
+                            <div class="mt-3 pt-3 border-t border-white/5 flex flex-col gap-1.5">
+                                <span class="font-bold text-white font-mono text-[10px] uppercase tracking-wider">Changelog:</span>
+                                <div class="bg-black/80 border border-emerald-500/20 p-2.5 rounded-lg font-mono text-[11px] text-emerald-400 leading-relaxed shadow-inner">
+                                    ${changelogHtml}
+                                </div>
+                            </div>
+                            <div class="mt-3 pt-3 border-t border-white/5 flex items-center justify-between text-[10px] text-cyber-muted font-mono">
+                                <div>
+                                    <div>Created: ${task.created_at || 'N/A'}</div>
+                                    <div class="mt-1 font-bold text-white uppercase text-[9px] tracking-wider">Task ID: <span class="text-indigo-400">${task.code || task.id}</span></div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-white uppercase text-[9px] tracking-wider">Export Task:</span>
+                                    <button onclick="event.stopPropagation(); exportData('task', 'json', '${task.id}')" class="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 hover:bg-white/10 text-stone-300 hover:text-white transition-all text-[9px] font-bold">JSON</button>
+                                    <button onclick="event.stopPropagation(); exportData('task', 'yaml', '${task.id}')" class="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 hover:bg-white/10 text-stone-300 hover:text-white transition-all text-[9px] font-bold">YAML</button>
+                                    <button onclick="event.stopPropagation(); exportData('task', 'md', '${task.id}')" class="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 hover:bg-white/10 text-stone-300 hover:text-white transition-all text-[9px] font-bold">Markdown</button>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -2030,25 +2694,28 @@
 
                     docBtn.addEventListener('click', () => {
                         const currentDoc = taskItem.dataset.doc === 'true';
-                        setTaskItemState(taskItem, { doc: !currentDoc, code: false, test: false });
+                        setTaskItemState(taskItem, { doc: !currentDoc, code: false, test: false, assignee: selectEl.value });
                         saveStateToStorage();
                         calculateRoadmapProgress();
+                        updateAllDependencyBadges();
                     });
 
                     codeBtn.addEventListener('click', () => {
                         if (taskItem.dataset.doc !== 'true') return;
                         const currentCode = taskItem.dataset.code === 'true';
-                        setTaskItemState(taskItem, { doc: true, code: !currentCode, test: false });
+                        setTaskItemState(taskItem, { doc: true, code: !currentCode, test: false, assignee: selectEl.value });
                         saveStateToStorage();
                         calculateRoadmapProgress();
+                        updateAllDependencyBadges();
                     });
 
                     testBtn.addEventListener('click', () => {
                         if (taskItem.dataset.code !== 'true') return;
                         const currentTest = taskItem.dataset.test === 'true';
-                        setTaskItemState(taskItem, { doc: true, code: true, test: !currentTest });
+                        setTaskItemState(taskItem, { doc: true, code: true, test: !currentTest, assignee: selectEl.value });
                         saveStateToStorage();
                         calculateRoadmapProgress();
+                        updateAllDependencyBadges();
                     });
 
                     taskItem.addEventListener('click', () => {
@@ -2060,9 +2727,10 @@
                             return;
                         }
                         activeTaskId = task.id;
-                        setTaskItemState(taskItem, 'pending');
+                        setTaskItemState(taskItem, { doc: true, code: false, test: false, assignee: selectEl ? selectEl.value : 'none' });
                         saveStateToStorage();
                         calculateRoadmapProgress();
+                        updateAllDependencyBadges();
 
                         socket.send(JSON.stringify({
                             type: 'run_agent_task',
@@ -2103,10 +2771,20 @@
                         }
                     });
 
-                    container.appendChild(taskItem);
+                    // Find matching sprint
+                    let matchedSprintId = null;
+                    sprints.forEach(sprint => {
+                        if (task.id.startsWith(sprint.id)) {
+                            matchedSprintId = sprint.id;
+                        }
+                    });
+
+                    const targetSubContainer = matchedSprintId ? sprintContainers[matchedSprintId] : container;
+                    targetSubContainer.appendChild(taskItem);
                 });
             });
             calculateRoadmapProgress();
+            updateAllDependencyBadges();
         }
 
         function calculateRoadmapProgress() {
@@ -2122,6 +2800,14 @@
             if (pctText) pctText.innerText = pct + '%';
             if (pctFill) pctFill.style.width = pct + '%';
 
+            // Update stats indicators
+            const statsTotal = document.getElementById('stats-total-tasks');
+            const statsCompleted = document.getElementById('stats-completed-tasks');
+            const statsPending = document.getElementById('stats-pending-tasks');
+            if (statsTotal) statsTotal.innerText = total;
+            if (statsCompleted) statsCompleted.innerText = done;
+            if (statsPending) statsPending.innerText = (total - done);
+
             // Phase percentages
             ['p0', 'p1', 'p2', 'p3', 'p4'].forEach(id => {
                 const phaseEl = document.getElementById(id);
@@ -2136,8 +2822,23 @@
                 const fill = document.getElementById(id + '-mini-fill');
                 if (lbl) lbl.innerText = pPct + '%';
                 if (fill) fill.style.width = pPct + '%';
+
+                // Sprint percentages
+                const sprintBlocks = phaseEl.querySelectorAll('.sprint-block');
+                sprintBlocks.forEach(sprintBlock => {
+                    const sId = sprintBlock.id;
+                    const sTasks = sprintBlock.querySelectorAll('.task-item');
+                    let sTotal = sTasks.length, sDone = 0;
+                    sTasks.forEach(t => {
+                        if (t.getAttribute('data-state') === 'done') sDone++;
+                    });
+                    const sPct = sTotal > 0 ? Math.round((sDone / sTotal) * 100) : 0;
+                    const sProgress = document.getElementById(sId + '-progress');
+                    if (sProgress) sProgress.innerText = sPct + '%';
+                });
             });
         }
+
 
         // --- AST Tree Lines drawing ---
         function updateEdges() {
