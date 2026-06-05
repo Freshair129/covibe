@@ -2031,12 +2031,12 @@
                             <h3 class="font-bold text-white text-lg">💡 EVA Agent configuration</h3>
                             <div class="space-y-4 text-xs">
                                 <div>
-                                    <label class="block text-cyber-muted mb-1">System Prompt</label>
-                                    <textarea id="system-prompt" class="w-full h-24 bg-black/40 border border-cyber-border rounded-lg p-2.5 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-white font-mono">You are an autonomous AI pairing assistant helping configure YouTube room states...</textarea>
+                                    <label for="system-prompt" class="block text-cyber-muted mb-1">System Prompt</label>
+                                     <textarea id="system-prompt" name="system-prompt" class="w-full h-24 bg-black/40 border border-cyber-border rounded-lg p-2.5 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-white font-mono">You are an autonomous AI pairing assistant helping configure YouTube room states...</textarea>
                                 </div>
                                 <div>
-                                    <label class="block text-cyber-muted mb-1">Workspace Path</label>
-                                    <input type="text" id="workspace-path" class="w-full bg-black/40 border border-cyber-border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-white font-mono" value="/workspace/covibe-app">
+                                    <label for="workspace-path" class="block text-cyber-muted mb-1">Workspace Path</label>
+                                     <input type="text" id="workspace-path" name="workspace-path" class="w-full bg-black/40 border border-cyber-border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-white font-mono" value="/workspace/covibe-app">
                                 </div>
                             </div>
                         </div>
@@ -2046,21 +2046,21 @@
                             <div class="space-y-4 text-xs">
                                 <div>
                                     <div class="flex justify-between items-center mb-1">
-                                        <span class="text-cyber-muted">Telemetry Poll Interval</span>
+                                        <label for="setting-refresh-interval" class="text-cyber-muted">Telemetry Poll Interval</label>
                                         <span class="text-emerald-400 font-mono" id="setting-refresh-val">2s</span>
                                     </div>
-                                    <input type="range" id="setting-refresh-interval" min="2" max="30" step="1" value="2" class="w-full accent-cyber-emerald" oninput="updateRefreshInterval(this.value)">
+                                    <input type="range" id="setting-refresh-interval" name="setting-refresh-interval" min="2" max="30" step="1" value="2" class="w-full accent-cyber-emerald" oninput="updateRefreshInterval(this.value)">
                                 </div>
                                 <div>
-                                    <span class="block text-cyber-muted mb-1">Thermal Caution Limit (°C)</span>
-                                    <input type="number" id="setting-thermal-limit" min="50" max="90" value="71" class="w-full bg-black/40 border border-cyber-border rounded-lg p-2 focus:outline-none text-white font-mono" onchange="updateThermalLimit(this.value)">
+                                    <label for="setting-thermal-limit" class="block text-cyber-muted mb-1">Thermal Caution Limit (°C)</label>
+                                     <input type="number" id="setting-thermal-limit" name="setting-thermal-limit" min="50" max="90" value="71" class="w-full bg-black/40 border border-cyber-border rounded-lg p-2 focus:outline-none text-white font-mono" onchange="updateThermalLimit(this.value)">
                                 </div>
                                 <div>
                                     <div class="flex justify-between items-center mb-1">
-                                        <span class="text-cyber-muted">Synthesizer Volume</span>
+                                        <label for="setting-synth-vol" class="text-cyber-muted">Synthesizer Volume</label>
                                         <span class="text-emerald-400 font-mono" id="setting-synth-val">40%</span>
                                     </div>
-                                    <input type="range" id="setting-synth-vol" min="0" max="100" step="5" value="40" class="w-full accent-cyber-emerald" oninput="updateSynthVolume(this.value)">
+                                    <input type="range" id="setting-synth-vol" name="setting-synth-vol" min="0" max="100" step="5" value="40" class="w-full accent-cyber-emerald" oninput="updateSynthVolume(this.value)">
                                 </div>
                             </div>
                         </div>
@@ -5231,19 +5231,19 @@ ${formatTaskDoD(task)}
 
                                             <div class="flex-1 overflow-y-auto pr-2 space-y-4 am-scroll-area">
                                                 <div>
-                                                    <label class="block text-[9px] uppercase tracking-widest text-white/40 mb-1">System Prompt</label>
-                                                    <textarea class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl p-2.5 text-xs text-white/80 focus:outline-none focus:border-cyan-400/50 resize-none h-16">${mod.config.prompt}</textarea>
+                                                    <label for="prompt-${mod.id}" class="block text-[9px] uppercase tracking-widest text-white/40 mb-1">System Prompt</label>
+                                                     <textarea id="prompt-${mod.id}" name="prompt-${mod.id}" class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl p-2.5 text-xs text-white/80 focus:outline-none focus:border-cyan-400/50 resize-none h-16">${mod.config.prompt}</textarea>
                                                 </div>
 
                                                 <div>
-                                                    <label class="block text-[9px] uppercase tracking-widest text-white/40 mb-1">Workspace Path</label>
-                                                    <input type="text" value="${mod.config.workspace}" class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white/80 focus:outline-none focus:border-cyan-400/50">
+                                                    <label for="workspace-${mod.id}" class="block text-[9px] uppercase tracking-widest text-white/40 mb-1">Workspace Path</label>
+                                                     <input type="text" id="workspace-${mod.id}" name="workspace-${mod.id}" value="${mod.config.workspace}" class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white/80 focus:outline-none focus:border-cyan-400/50">
                                                 </div>
 
                                                 <div>
-                                                    <label class="block text-[9px] uppercase tracking-widest text-white/40 mb-1.5">Model Options</label>
-                                                    <div class="relative">
-                                                        <select class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-2.5 py-1.5 text-[11px] text-white/80 focus:outline-none appearance-none cursor-pointer">
+                                                    <label for="model-${mod.id}" class="block text-[9px] uppercase tracking-widest text-white/40 mb-1.5">Model Options</label>
+                                                     <div class="relative">
+                                                         <select id="model-${mod.id}" name="model-${mod.id}" class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-2.5 py-1.5 text-[11px] text-white/80 focus:outline-none appearance-none cursor-pointer">
                                                             ${modelsHTML}
                                                         </select>
                                                         <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i>
@@ -5252,18 +5252,18 @@ ${formatTaskDoD(task)}
 
                                                 <div>
                                                     <div class="flex justify-between items-center mb-1">
-                                                        <label class="text-[9px] uppercase tracking-widest text-white/40">${mod.config.volLabel}</label>
-                                                        <span class="text-xs font-medium" style="color:${cardColor}">${mod.config.volVal}</span>
-                                                    </div>
-                                                    <input type="range" min="${mod.config.volMin}" max="${mod.config.volMax}" step="${mod.config.volStep}" value="${mod.config.volMin}" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer" style="accent-color:${cardColor}">
+                                                        <label for="volume-${mod.id}" class="text-[9px] uppercase tracking-widest text-white/40">${mod.config.volLabel}</label>
+                                                         <span class="text-xs font-medium" style="color:${cardColor}">${mod.config.volVal}</span>
+                                                     </div>
+                                                     <input type="range" id="volume-${mod.id}" name="volume-${mod.id}" min="${mod.config.volMin}" max="${mod.config.volMax}" step="${mod.config.volStep}" value="${mod.config.volMin}" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer" style="accent-color:${cardColor}">
                                                 </div>
 
                                                 <div>
                                                     <div class="flex justify-between items-center mb-1">
-                                                        <label class="text-[9px] uppercase tracking-widest text-white/40">${mod.config.tempLabel}</label>
-                                                        <span class="text-xs" style="color:${cardColor}">${mod.config.tempVal}</span>
-                                                    </div>
-                                                    <input type="range" min="${mod.config.tempMin}" max="${mod.config.tempMax}" step="${mod.config.tempStep}" value="${mod.config.tempMin}" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer" style="accent-color:${cardColor}">
+                                                        <label for="temp-${mod.id}" class="text-[9px] uppercase tracking-widest text-white/40">${mod.config.tempLabel}</label>
+                                                         <span class="text-xs" style="color:${cardColor}">${mod.config.tempVal}</span>
+                                                     </div>
+                                                     <input type="range" id="temp-${mod.id}" name="temp-${mod.id}" min="${mod.config.tempMin}" max="${mod.config.tempMax}" step="${mod.config.tempStep}" value="${mod.config.tempMin}" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer" style="accent-color:${cardColor}">
                                                 </div>
 
                                                 <div class="space-y-1.5">
