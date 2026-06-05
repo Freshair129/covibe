@@ -169,27 +169,24 @@ Organizes CoVibe features into phase-based accordions:
 
 ## 4. Top-Nav to Side-Nav State Dependency (ความสัมพันธ์การทำงานของเมนูด้านบนและเมนูด้านข้าง)
 
-ระบบจะควบคุมการแสดงผลของแถบเมนูด้านข้าง (Side Nav / Left Sidebar) และคอมโพเนนต์ย่อยด้านใน (Child components) ตามตัวเลือกที่ถูกเปิดใช้งานบนแถบสวิตช์มุมมองด้านบน (Top Nav View Switcher) ผ่านฟังก์ชัน `switchMainView(view)` โดยมีความสัมพันธ์เชิงตรรกะ (Logical State Dependency) ดังนี้:
+ระบบใช้ความสัมพันธ์เชิงตรรกะแบบ **Parent-Child Router** โดยผู้ใช้เลือก Domain หลัก (Parent) บน Top Navigation Bar แล้วแถบเมนูด้านข้าง (Left Sidebar) จะอัปเดตแสดงเฉพาะปุ่มฟังก์ชันย่อย (Child Sub-modules) ของ Domain นั้นโดยอัตโนมัติ เพื่อรักษาความเป็นสัดส่วนและประหยัดพื้นที่หน้าจอ:
 
-### ตารางความเกี่ยวข้องการแสดงผล (State Mapping Table)
+### ตารางความเกี่ยวข้องการแสดงผลระดับโดเมน (Domain State Mapping Table)
 
-| Top Nav View (Parent) | Left Sidebar State | Sidebar Active Stack (Child) | Content View Panel |
-| :--- | :--- | :--- | :--- |
-| **Roadmap** | 🟢 แสดงผล (`block`) | `#left-sidebar-roadmap` | `#roadmap-view` |
-| **AST (Explorer)** | 🔴 ซ่อน (`hidden`) | *ไม่มี* | `#workflow-canvas` |
-| **Call Graph** | 🔴 ซ่อน (`hidden`) | *ไม่มี* | `#callgraph-view` |
-| **Database** | 🔴 ซ่อน (`hidden`) | *ไม่มี* | `#database-view` |
-| **Vector Store** | 🔴 ซ่อน (`hidden`) | *ไม่มี* | `#vector-view` |
-| **Benchmark** | 🟢 แสดงผล (`block`) | `#left-sidebar-benchmark` | `#benchmark-view` |
+| Top Nav Domain (Parent) | Left Sidebar Sub-modules (Child) | Action & View triggered |
+| :--- | :--- | :--- |
+| **Domain A: Project Overview** | A1: Dashboard <br> A2: Roadmap Board <br> A4: Agent Hub | `#benchmark-view` <br> `#roadmap-view` <br> กางบอร์ด/แผงประมวลผลเอเจนต์ด้านข้าง |
+| **Domain B: Genesis Knowledge System** | B1: AST Explorer <br> B3: Call Graph | `#workflow-canvas` <br> `#callgraph-view` |
+| **Domain C: Genesis Block DB** | C1: Database ERD Schema <br> C2: Vector Store (HNSW) | `#database-view` <br> `#vector-view` |
 
-### รายละเอียดการซิงค์ตรรกะ (Logical Sync Behavior)
+### รายละเอียดการทำงานของการแสดงผลแบบ Dynamic Sidebar
 
-1. **การควบคุมการซ่อน/แสดงแผงข้าง (Left Sidebar Toggle)**
-   - เมื่อสลับไปยังมุมมอง **Roadmap** หรือ **Benchmark**: ระบบจะเรียก `leftSidebar.classList.remove('hidden')` เพื่อกางแผงควบคุมฝั่งซ้ายออก
-   - เมื่อสลับไปยังมุมมองด้านความสัมพันธ์หรือทางเทคนิคอื่นๆ (**AST, Call Graph, Database, Vector Store**): ระบบจะปิดพื้นที่แผงข้างด้วย `leftSidebar.classList.add('hidden')` เพื่อเพิ่มขนาดความกว้างให้กับหน้าต่างทำกิจกรรมหลัก (Interactive Canvas)
-2. **การสับเปลี่ยนชุดข้อมูลในแผงข้าง (Sidebar Child Stack)**
-   - **เมื่อกางแผงในมุมมอง Roadmap**: ตัวควบคุมหลักจะทำการปิดมุมมองแผงฝั่ง Benchmark และเปิดแสดงเฉพาะ `#left-sidebar-roadmap` ซึ่งบรรจุระบบติดตามความคืบหน้าโครงการและแท็บการประเมินผล EVA/Qwen Coder
-   - **เมื่อกางแผงในมุมมอง Benchmark**: ตัวควบคุมจะปิดการแสดงแผง Roadmap และดึงเฉพาะชุดข้อมูลตรวจสอบเซ็นเซอร์ฮาร์ดแวร์และการรันคะแนนโมเดล AI ขึ้นมาแสดง
+1. **การคลิกปุ่ม Domain บน Top Nav (Parent Selection):**
+   - เมื่อคลิกเลือก Domain A, B, หรือ C: แถบ Sidebar ทางซ้ายจะถูกกรองและเปลี่ยนไอคอน + ข้อความเมนูเป็นชุด Sub-modules ของโดเมนนั้นทันที
+   - แถบเมนูด้านข้าง (Left Sidebar) จะถูกบังคับให้กางออกหรือปรับความกว้างให้เหมาะสม
+2. **การสับเปลี่ยนหน้าทำกิจกรรมหลัก (Content Syncing):**
+   - การคลิก Sub-modules ในเมนูด้านข้างจะเป็นตัวสั่งคำสั่งเปลี่ยนหน้า Canvas หรือแสดงผล Panel ตามวัตถุประสงค์ย่อยจริง (เช่น การคลิก A2: Roadmap Board จะสับเปลี่ยนหน้าหลักไปที่ `#roadmap-view` เป็นต้น)
+
 
 ---
 
@@ -272,5 +269,74 @@ Organizes CoVibe features into phase-based accordions:
 - [ ] **NVIDIA Management Library (NVML) Integration**: เชื่อมโยง Library ของการ์ดจอเพื่อดึงค่า GPU Temp, Power Watt, VRAM Load ออกมาจากตัวระบบจริง (ลบระบบสุ่มค่าจำลองออก)
 - [ ] **Ollama Model Orchestrator**: พัฒนา API ควบคุมหลังบ้านเพื่อสั่งสตาร์ตและปิดโมเดล Local LLM (เช่น `ollama run` และ `keep_alive: 0`)
 - [ ] **Trace Logs Exporter**: พัฒนาเครื่องมือบันทึกประวัติการเรียกใช้งาน (Trace history) ออกมาเป็นตาราง CSV/JSON สำหรับส่งออกข้อมูลวัดผล EABS-01
+
+---
+
+## 7. Dashboard Design System (ระบบการออกแบบและโทเค็นสี)
+
+หน้าระบบควบคุม **CoDev - Agent Command Center** ได้รับการพัฒนาภายใต้ทฤษฎีการออกแบบ UI สไตล์ Cyberpunk/Sci-Fi Dark Mode ที่ทันสมัย สวยงาม และช่วยประหยัดแบตเตอรี่ (OLED Friendly) โดยมีระบบโทเค็นการออกแบบ (Design Tokens) ดังต่อไปนี้:
+
+### 7.1 ระบบฟอนต์ (Typography)
+- **ฟอนต์หลัก (Sans-serif)**: `Plus Jakarta Sans`, `Inter`, `sans-serif` (ใช้สำหรับหัวข้อ ข้อความทั่วไป และตารางข้อมูล)
+- **ฟอนต์โค้ด (Monospace)**: `JetBrains Mono`, `monospace` (ใช้สำหรับตัวเลขสถิติ, ข้อมูล Token, โค้ดโปรแกรม และการทำ Terminal Trace)
+
+### 7.2 ชุดโทเค็นสีตามธีม (Theme Token Palettes)
+
+ระบบรองรับการสลับธีม 4 รูปแบบหลัก โดยจะเปลี่ยนคลาสระดับรากผ่าน CSS Variables (`:root` หรือ `.theme-name`):
+
+| Token Name | Midnight Slate (Default) | OLED Black | Cyberpunk Orange | Forest Sage |
+| :--- | :--- | :--- | :--- | :--- |
+| **`--color-bg-primary`** | `#0a0d10` (น้ำเงินเข้มหม่น) | `#000000` (ดำสนิท) | `#0f051d` (ม่วงนีออนเข้ม) | `#0d1a14` (เขียวป่าชื้นเข้ม) |
+| **`--color-bg-secondary`** | `#101418` | `#0a0a0a` | `#1a0b36` | `#13261c` |
+| **`--color-bg-tertiary`** | `#171d24` | `#121212` | `#27124d` | `#193325` |
+| **`--color-accent`** | `#78f4bf` (เขียวมินต์สว่าง) | `#38bdf8` (ฟ้าสกายบลู) | `#f97316` (ส้มนีออนสว่าง) | `#34d399` (เขียวมรกต) |
+| **`--color-border-default`** | `rgba(255,255,255,0.15)` | `rgba(255,255,255,0.25)` | `rgba(249,115,22,0.3)` | `rgba(120,244,191,0.2)` |
+| **`--color-text-primary`** | `#ffffff` | `#ffffff` | `#ffffff` | `#e6f4ea` |
+| **`--color-text-secondary`** | `#c2d1cb` | `#e0e0e0` | `#fcd34d` (ทองนีออน) | `#a3c4bc` |
+
+### 7.3 ระบบความโค้งมนและขนาดขอบ (Borders & Radius)
+- ** Phase Card (Accordion)**: `border-radius: 16px (1rem)` สำหรับหน้าต่างงานหลัก
+- **Workflow Node / ERD Table / Vector Card**: `border-radius: 12px` สำหรับการแสดงรายละเอียดพิกัด
+- **Action Buttons / Tab Switches**: `border-radius: 8px (0.5rem)` หรือ `rounded-lg` เพื่อความกลมกลืนแบบโมเดิร์น
+- **Borders Style**: ติดตั้ง `border: 1px solid var(--color-border-default)` เสมอเพื่อเพิ่มมิติความตัดกันของขอบในสไตล์กระจกเงาเข้ม (Glassmorphism)
+
+### 7.4 ชุดแอนิเมชันและเอฟเฟกต์แสง (Animations & Glow Effects)
+- **`flow` (เลเซอร์ส่งสัญญาณในระบบ AST)**: เอฟเฟกต์การยิงลำแสงวิ่งผ่านเส้น SVG เชื่อมโยง (`stroke-dasharray: 8` และขยับ `stroke-dashoffset` แบบวนลูปอนันต์)
+- **`pulseBorder` (ขอบไฟลอยรอบกล่องรอคำสั่ง)**: ขยายแสงลอยออกสีฟ้าเมื่อมีการรออนุมัติแบบ HITL (`box-shadow: 0 0 0 8px rgba(96,165,250,0)`)
+- **`blink` (เคอร์เซอร์พริบตาใน Terminal)**: เคอร์เซอร์กะพริบทุกๆ 1 วินาทีใน Shell จำลอง
+- **`pulse-orange` (ไฟบอกสถานะโมเดลแครช)**: การเฟดความโปร่งใส (Opacity 0.5 - 1.2) ของป้าย Warning เพื่อกระตุ้นความสนใจ
+- **Interactive Hover Glow**: เมื่อนำเมาส์ไปชี้ปุ่มหรือการ์ดตาราง ขอบจะสว่างขึ้นด้วยเงาจาง (`box-shadow: 0 0 15px var(--color-accent-glow)`)
+
+### 7.5 Modern Glass Sidebar Specification (ข้อกำหนดการออกแบบเมนูข้างแบบกระจกยืดขยาย)
+ระบบเมนูด้านซ้ายสุดได้รับการออกแบบให้ขยายตัวอัตโนมัติเมื่อเมาส์โฮเวอร์ (Hover-to-Expand) และใช้เทคนิค Glassmorphism ที่กลมกลืนกับธีมต่างๆ:
+- **โครงสร้างและการเปลี่ยนรูป (Structure & Transition)**:
+  - ขนาดความกว้างเริ่มต้น (Collapsed): `64px` (แสดงเฉพาะไอคอนและสัญลักษณ์ที่จำเป็น)
+  - ขนาดความกว้างขณะโฮเวอร์ (Expanded): `260px` (แสดงไอคอนพร้อมข้อความกำกับอย่างเต็มรูปแบบ)
+  - ความเร็วการเปลี่ยนความกว้าง: `0.4s` ควบคุมด้วย Easing Curve `cubic-bezier(0.25, 0.8, 0.25, 1)` เพื่อความลื่นไหลระดับพรีเมียม
+- **เอฟเฟกต์กระจกโปร่งแสง (Glassmorphism Effect)**:
+  - พื้นหลังโปร่งแสง: `background: rgba(16, 20, 24, 0.6)`
+  - เอฟเฟกต์เบลอหลังฉาก: `backdrop-filter: blur(12px)` และ `-webkit-backdrop-filter: blur(12px)`
+  - ขอบแนวตั้งด้านขวา: `border-right: 1px solid rgba(255, 255, 255, 0.1)`
+- **แอนิเมชันของข้อความและโลโก้ (Text Fade & Slide Animation)**:
+  - ชื่อแอปพลิเคชันและข้อความในแต่ละปุ่มจะตั้งค่าเริ่มต้น `opacity: 0` และ `transform: translateX(-10px)`
+  - เมื่อเกิดสถานะ `:hover` ที่ตัว Sidebar ตัวหนังสือทั้งหมดจะทรานซิชันนุ่มนวลไปที่ `opacity: 1` และ `transform: translateX(0)` (มี Transition-delay เล็กน้อยเพื่อความเป็นระเบียบ)
+- **ระบบป้ายแนะนำเครื่องมือ (Tooltip Behavior)**:
+  - เมื่อปิดโหมดโฮเวอร์ (Collapsed Mode) และเมาส์ชี้ที่ปุ่มเมนูใดๆ ระบบจะแสดง Tooltip ชี้แจงชื่อเมนูทางขวามือ (`left: 70px`) พร้อมจางหายไปอัตโนมัติเมื่อผู้ใช้ขยายแถบเมนูหลักออก
+
+### 7.6 Premium Interactive Card Design (ข้อกำหนดการออกแบบการ์ดแบบ 3D Interactive - Card03)
+การ์ดข้อมูลส่วนสำคัญ (เช่น Phase Cards, Benchmark Model Cards, และ telemetry widget) ได้รับการออกแบบให้สอดคล้องกับโครงสร้างของ **Raycast Notion Extension Card (Card03)**:
+- **มิติการเอียงแบบ 3D (3D Parallax Perspective Tilt)**:
+  - การจัดรูปแบบ Container ให้ใช้ `perspective: 1200px` และตัวการ์ดใช้ `transform-style: preserve-3d`
+  - เชื่อมโยง Event `mousemove` เพื่อคำนวณพิกัดมุมเอียงตามตำแหน่งเมาส์: เอียงสูงสุด 12 องศา (`rotateX` และ `rotateY`) และขยายขนาดเล็กน้อย (`scale(1.02)`)
+  - คืนค่ามุมเอียงเป็นศูนย์เมื่อเมาส์เลื่อนออก (`mouseleave`)
+- **การสะท้อนของแสงเงา (Card Shine Overlay)**:
+  - เพิ่มเลเยอร์สะท้อนแสงกระจก `.card-shine` ด้วยคุณสมบัติ `radial-gradient(circle 250px at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.035), transparent 70%)`
+  - ติดตามพิกัดเมาส์แบบเรียลไทม์เพื่อเปลี่ยนทิศทางการสะท้อนแสงตามพิกัดจริง
+- **สัดส่วนและการจัดวางเลเยอร์ซ้อนกัน (Layered Z-axis Separation)**:
+  - องค์ประกอบย่อยภายในการ์ดแยกความสูงด้วยระดับ Z-axis เพื่อความลึกแบบพาราแลกซ์ (เช่น หัวข้อใช้ `transform: translateZ(20px)`, คำอธิบายใช้ `translateZ(25px)`, และเลเยอร์ลอยใช้ `translateZ(40px)`)
+  - โครงสร้างปุ่มไอคอนแบรนด์และป้าย Badge ได้รับการปรับแต่งขอบโค้งมน (`border-radius: 8px` และ `12px`) และขอบกระจกใส
+
+
+
 
 
