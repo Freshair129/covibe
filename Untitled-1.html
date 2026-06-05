@@ -598,9 +598,59 @@
         /* ============================================ */
         /* Agent Management Carousel (view-A5)          */
         /* ============================================ */
-        .am-carousel-viewport {
+        /* Parent Carousel (Vertical, Left) */
+        .am-parent-viewport {
             position: relative;
-            height: 650px;
+            height: 520px;
+            width: 300px;
+            overflow-y: clip;
+            overflow-x: visible;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1200px;
+            margin: 0 auto;
+        }
+
+        .am-parent-slot {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 280px;
+            height: 120px;
+            transform-origin: center center;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.25, 1), opacity 0.6s ease;
+            cursor: pointer;
+        }
+
+        /* Parent Card Styles */
+        .am-parent-card {
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 15, 15, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.03);
+        }
+
+        .am-parent-slot.am-parent-active .am-parent-card {
+            border-color: rgba(255, 99, 99, 0.3);
+            background: rgba(25, 20, 20, 0.75);
+            box-shadow: 0 15px 35px -5px rgba(255, 99, 99, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+        }
+
+        /* Child Carousel (Horizontal, Center) */
+        .am-child-viewport {
+            position: relative;
+            height: 540px;
             width: 100%;
             overflow-x: clip;
             overflow-y: visible;
@@ -608,23 +658,18 @@
             justify-content: center;
             align-items: center;
             perspective: 1200px;
-            padding: 2rem 0;
             margin: 0 auto;
         }
 
-        .am-card-slot {
+        .am-child-slot {
             position: absolute;
             left: 50%;
             top: 50%;
-            width: 400px;
-            height: 600px;
+            width: 340px;
+            height: 480px;
             transform-origin: center center;
             transform-style: preserve-3d;
-            transition: transform 0.6s cubic-bezier(0.25, 1, 0.25, 1), opacity 0.6s ease, z-index 0.6s step-end;
-        }
-        @media (max-width: 480px) {
-            .am-carousel-viewport { height: 580px; }
-            .am-card-slot { width: 320px; height: 520px; }
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.25, 1), opacity 0.6s ease;
         }
 
         .am-tilt-wrapper {
@@ -688,7 +733,7 @@
             opacity: 0;
             transition: opacity 0.5s ease;
         }
-        .am-card-slot:hover .am-shine { opacity: 1; }
+        .am-child-slot:hover .am-shine { opacity: 1; }
 
         /* Border glow */
         .am-face-front::before {
@@ -706,7 +751,7 @@
             transition: opacity 0.5s ease;
             z-index: 10;
         }
-        .am-card-slot:hover .am-face-front::before { opacity: 1; }
+        .am-child-slot:hover .am-face-front::before { opacity: 1; }
 
         /* Neon backdrop halo */
         .am-halo {
@@ -719,17 +764,14 @@
             transition: opacity 0.7s ease-out;
             pointer-events: none;
         }
-        .am-card-slot:hover .am-halo { opacity: 1; }
+        .am-child-slot:hover .am-halo { opacity: 1; }
 
         .am-text-glow { text-shadow: 0 0 12px rgba(255, 99, 99, 0.4); }
 
-        /* Carousel Navigation */
+        /* Nav Controls */
         .am-nav-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 48px;
-            height: 48px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: rgba(10,10,10,0.7);
             backdrop-filter: blur(12px);
@@ -740,27 +782,24 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-size: 16px;
             z-index: 20;
-            font-size: 18px;
         }
         .am-nav-btn:hover {
             background: rgba(255,99,99,0.2);
             border-color: rgba(255,99,99,0.4);
             color: #fff;
         }
-        .am-nav-prev { left: 0; }
-        .am-nav-next { right: 0; }
 
-        /* Dot indicators */
+        /* Dots */
         .am-dots {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-top: 1rem;
+            gap: 8px;
         }
         .am-dot {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: rgba(255,255,255,0.15);
             border: 1px solid rgba(255,255,255,0.1);
@@ -769,10 +808,11 @@
         }
         .am-dot.active {
             background: #FF6363;
-            box-shadow: 0 0 12px rgba(255,99,99,0.6);
-            border-color: rgba(255,99,99,0.5);
+            box-shadow: 0 0 8px rgba(255,99,99,0.5);
+            border-color: #FF6363;
+            transform: scale(1.25);
         }
-
+        
         /* Custom scrollbar for AM back face */
         .am-scroll-area::-webkit-scrollbar { width: 4px; }
         .am-scroll-area::-webkit-scrollbar-track { background: transparent; }
@@ -2042,288 +2082,110 @@
                         </div>
                     </div>
 
-                    <!-- Carousel Wrapper -->
-                    <div class="relative" id="am-carousel-wrapper">
-                        <button class="am-nav-btn am-nav-prev" id="am-prev" title="Previous Agent"><i class="fa-solid fa-chevron-left"></i></button>
-                        <button class="am-nav-btn am-nav-next" id="am-next" title="Next Agent"><i class="fa-solid fa-chevron-right"></i></button>
-
-                        <div class="am-carousel-viewport" id="am-viewport">
-
-                            <!-- ===== CARD 1: EVA ===== -->
-                            <div class="am-card-slot" data-am-agent="eva">
-                                <div class="am-halo"></div>
-                                <div class="am-tilt-wrapper">
-                                    <div class="am-flipper">
-                                        <!-- FRONT -->
-                                        <div class="am-face am-face-front">
-                                            <div class="am-shine"></div>
-                                            <div class="relative z-20 flex flex-col h-full p-8">
-                                                <div class="flex justify-between items-start mb-8">
-                                                    <div class="relative">
-                                                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-gray-800 via-gray-900 to-black border border-white/10 flex items-center justify-center shadow-inner">
-                                                            <i class="fa-solid fa-satellite text-2xl text-[#FF6363] drop-shadow-[0_0_8px_rgba(255,99,99,0.5)]"></i>
-                                                        </div>
-                                                        <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-[#0a0a0a] rounded-full flex items-center justify-center">
-                                                            <i class="fa-solid fa-circle-check text-[14px] text-[#FF6363]"></i>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/5 backdrop-blur-md shadow-sm">
-                                                        <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span>
-                                                        <span class="text-xs font-medium text-white/70 tracking-wide uppercase">Active</span>
-                                                    </div>
-                                                </div>
-                                                <div class="mb-8">
-                                                    <h1 class="text-4xl font-semibold tracking-tight text-white mb-1">EVA</h1>
-                                                    <p class="text-sm text-white/50 font-medium mb-3">Executive Virtual Autonomous Agent</p>
-                                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/10 text-xs text-white/70"><i class="fa-solid fa-microchip"></i><span>Model: GPT-4.5 Turbo</span></div>
-                                                </div>
-                                                <div class="mt-auto">
-                                                    <div class="grid grid-cols-2 gap-4 mb-6">
-                                                        <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"><div class="flex items-center gap-2 text-white/40 mb-1"><i class="fa-solid fa-square-check"></i><span class="text-[10px] uppercase tracking-widest font-semibold">Tasks</span></div><div class="text-2xl font-medium text-white">12.4k</div></div>
-                                                        <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"><div class="flex items-center gap-2 text-white/40 mb-1"><i class="fa-solid fa-crosshairs"></i><span class="text-[10px] uppercase tracking-widest font-semibold">Accuracy</span></div><div class="text-2xl font-medium am-text-glow">99.8%</div></div>
-                                                    </div>
-                                                    <div class="mb-6">
-                                                        <div class="flex justify-between items-center text-xs mb-2"><span class="text-white/50 font-medium">Token Limit / Quota</span><span class="text-[#FF6363] font-medium">78k / 100k</span></div>
-                                                        <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-[#FF6363]/60 to-[#FF6363] rounded-full relative" style="width:78%"><div class="absolute top-0 right-0 bottom-0 w-4 bg-white/30 blur-[2px]"></div></div></div>
-                                                        <div class="flex justify-between text-[10px] text-white/30 mt-1"><span>Remaining: 78,000 tokens</span><span>Quota: 100,000 / hr</span></div>
-                                                    </div>
-                                                    <div class="flex flex-wrap gap-2 mb-6">
-                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-globe"></i> Web Search</span>
-                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-eye"></i> Vision</span>
-                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-code"></i> Code</span>
-                                                    </div>
-                                                    <div class="pt-6 border-t border-white/10 flex items-center justify-between">
-                                                        <button class="text-xs text-white/40 hover:text-white/80 transition-colors flex items-center gap-1.5 group"><kbd class="px-1.5 py-0.5 rounded bg-white/10 text-[10px] font-mono group-hover:bg-[#FF6363]/20 group-hover:text-[#FF6363] transition-colors">⌘K</kbd> Command</button>
-                                                        <button class="am-config-btn flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 text-white border border-white/10 backdrop-blur-md text-sm font-medium hover:bg-white/10 transition-all group"><i class="fa-solid fa-sliders group-hover:rotate-90 transition-transform duration-300"></i> Config</button>
-                                                    </div>
-                                                </div>
+                    <!-- Dual Split Layout -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch min-h-[600px] relative">
+                        <!-- Left Column: Parent Vertical Carousel (4 cols) -->
+                        <div class="lg:col-span-4 flex flex-col items-center justify-center relative min-h-[580px] bg-white/[0.01] border border-white/5 rounded-3xl p-6">
+                            <h3 class="text-xs font-bold text-white/40 mb-6 uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-layer-group text-[#FF6363]"></i> Parent Agents</h3>
+                            
+                            <div class="relative w-full flex items-center justify-center">
+                                <!-- Up Arrow -->
+                                <button class="am-nav-btn absolute top-[-50px] z-20" id="am-p-prev" title="Previous Agent">
+                                    <i class="fa-solid fa-chevron-up"></i>
+                                </button>
+                                
+                                <div class="am-parent-viewport" id="am-parent-viewport">
+                                    <!-- EVA CARD -->
+                                    <div class="am-parent-slot am-parent-active" data-idx="0">
+                                        <div class="am-parent-card">
+                                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-800 to-black border border-white/10 flex items-center justify-center">
+                                                <i class="fa-solid fa-satellite text-lg text-[#FF6363]"></i>
                                             </div>
+                                            <div>
+                                                <h4 class="text-base font-bold text-white leading-tight">EVA Agent</h4>
+                                                <p class="text-xs text-white/40">Executive Virtual autonomous</p>
+                                            </div>
+                                            <div class="ml-auto w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                                         </div>
-                                        <!-- BACK -->
-                                        <div class="am-face am-face-back">
-                                            <div class="am-shine"></div>
-                                            <div class="relative z-20 flex flex-col h-full p-8">
-                                                <div class="flex items-center justify-between mb-6"><h2 class="text-lg font-semibold text-white flex items-center gap-2"><i class="fa-solid fa-sliders text-[#FF6363]"></i> Configuration — EVA</h2><button class="am-close-btn p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors"><i class="fa-solid fa-xmark"></i></button></div>
-                                                <div class="flex-1 overflow-y-auto pr-2 space-y-5 am-scroll-area">
-                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-2">System Prompt</label><textarea class="w-full bg-white/[0.02] border border-white/10 rounded-xl p-3 text-sm text-white/80 focus:outline-none focus:border-[#FF6363]/50 resize-none h-20" placeholder="You are EVA, an autonomous agent..."></textarea></div>
-                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-2">Model Source</label><div class="flex rounded-lg bg-white/[0.02] p-1 border border-white/10"><button class="am-src-btn flex-1 py-1.5 text-xs font-medium rounded-md bg-[#FF6363]/20 text-white" data-source="cloud">Cloud API</button><button class="am-src-btn flex-1 py-1.5 text-xs font-medium rounded-md text-white/50 hover:text-white" data-source="local">Local Server</button></div></div>
-                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Select Model</label><div class="relative"><select class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-3 py-2 text-xs text-white/80 focus:outline-none appearance-none cursor-pointer"><option>Gemini 2.5 Flash</option><option>GPT-4o Base</option><option>Claude 3.5 Sonnet</option></select><i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i></div></div>
-                                                    <div><div class="flex justify-between items-center mb-1.5"><label class="text-[10px] uppercase tracking-widest text-white/40">Context Window</label><span class="text-xs text-[#FF6363] font-medium">128k Tokens</span></div><input type="range" min="8" max="256" step="8" value="128" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#FF6363]"></div>
-                                                    <div><div class="flex justify-between items-center mb-1.5"><label class="text-[10px] uppercase tracking-widest text-white/40">Creativity (Temp)</label><span class="text-xs text-[#FF6363]">0.7</span></div><input type="range" min="0" max="1" step="0.1" value="0.7" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#FF6363]"></div>
-                                                    <div class="p-3.5 rounded-xl bg-white/[0.02] border border-[#FF6363]/20 relative overflow-hidden"><div class="absolute -top-4 -right-4 w-24 h-24 bg-[#FF6363]/10 blur-2xl rounded-full pointer-events-none"></div><div class="flex justify-between items-center mb-3"><div class="flex items-center gap-1.5"><i class="fa-solid fa-database text-[#FF6363]"></i><label class="text-[10px] uppercase tracking-widest text-white/80 font-semibold">Genesis Knowledge</label></div><span class="px-2 py-0.5 rounded bg-[#FF6363]/10 text-[#FF6363] text-[9px] font-mono border border-[#FF6363]/20">GenesisDB</span></div><div class="flex justify-between text-[9px] text-white/40 font-mono"><span>Indexed: 1.2M Vectors</span><span>Auto-Sync: ON</span></div></div>
-                                                    <div class="space-y-2"><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Agent Behaviors</label><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-chess text-white/50"></i> Plan Mode</span><div class="am-toggle-track on"></div></div><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-bolt text-white/50"></i> Auto-Execute Tasks</span><div class="am-toggle-track"></div></div></div>
-                                                    <div class="space-y-2"><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">System Access</label><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-folder text-white/50"></i> Local File Access</span><div class="am-toggle-track on"></div></div><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-terminal text-white/50"></i> Shell Command Runner</span><div class="am-toggle-track"></div></div></div>
-                                                </div>
-                                                <div class="pt-4 mt-auto border-t border-white/10 text-center"><p class="text-[10px] text-white/30 uppercase tracking-widest">Changes auto-save &amp; sync</p></div>
+                                    </div>
+                                    <!-- QWEN CARD -->
+                                    <div class="am-parent-slot" data-idx="1">
+                                        <div class="am-parent-card">
+                                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-800 to-black border border-white/10 flex items-center justify-center">
+                                                <i class="fa-solid fa-robot text-lg text-amber-400"></i>
                                             </div>
+                                            <div>
+                                                <h4 class="text-base font-bold text-white leading-tight">Qwen Coder</h4>
+                                                <p class="text-xs text-white/40">Expert developer AI assistant</p>
+                                            </div>
+                                            <div class="ml-auto w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                        </div>
+                                    </div>
+                                    <!-- UAT CARD -->
+                                    <div class="am-parent-slot" data-idx="2">
+                                        <div class="am-parent-card">
+                                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-800 to-black border border-white/10 flex items-center justify-center">
+                                                <i class="fa-solid fa-shield-halved text-lg text-violet-400"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-base font-bold text-white leading-tight">UAT Agent</h4>
+                                                <p class="text-xs text-white/40">Quality & compliance check</p>
+                                            </div>
+                                            <div class="ml-auto w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                        </div>
+                                    </div>
+                                    <!-- LOCAL CARD -->
+                                    <div class="am-parent-slot" data-idx="3">
+                                        <div class="am-parent-card">
+                                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-800 to-black border border-white/10 flex items-center justify-center">
+                                                <i class="fa-solid fa-terminal text-lg text-cyan-400"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-base font-bold text-white leading-tight">Local Dev</h4>
+                                                <p class="text-xs text-white/40">Local offline sandbox ops</p>
+                                            </div>
+                                            <div class="ml-auto w-2 h-2 bg-yellow-500 rounded-full"></div>
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Down Arrow -->
+                                <button class="am-nav-btn absolute bottom-[-50px] z-20" id="am-p-next" title="Next Agent">
+                                    <i class="fa-solid fa-chevron-down"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Right/Center Column: Child Horizontal Coverflow Carousel (8 cols) -->
+                        <div class="lg:col-span-8 flex flex-col items-center justify-center relative min-h-[580px] bg-white/[0.01] border border-white/5 rounded-3xl p-6">
+                            <h3 class="text-xs font-bold text-white/40 mb-6 uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-diagram-project text-[#FF6363]"></i> Sub-Modules (Horizontal)</h3>
+                            
+                            <div class="relative w-full flex items-center justify-center overflow-visible">
+                                <!-- Prev Arrow -->
+                                <button class="am-nav-btn absolute left-[-20px] z-20" id="am-c-prev" title="Previous Module">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+                                
+                                <div class="am-child-viewport" id="am-child-viewport">
+                                    <!-- Child Cards will be dynamically injected here by JS -->
+                                </div>
+
+                                <!-- Next Arrow -->
+                                <button class="am-nav-btn absolute right-[-20px] z-20" id="am-c-next" title="Next Module">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
                             </div>
 
-                            <!-- ===== CARD 2: QWEN ===== -->
-                            <div class="am-card-slot" data-am-agent="qwen">
-                                <div class="am-halo" style="background:rgba(251,191,36,0.12)"></div>
-                                <div class="am-tilt-wrapper">
-                                    <div class="am-flipper">
-                                        <div class="am-face am-face-front">
-                                            <div class="am-shine"></div>
-                                            <div class="relative z-20 flex flex-col h-full p-8">
-                                                <div class="flex justify-between items-start mb-8">
-                                                    <div class="relative">
-                                                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-gray-800 via-gray-900 to-black border border-white/10 flex items-center justify-center shadow-inner"><i class="fa-solid fa-code text-2xl text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]"></i></div>
-                                                        <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-[#0a0a0a] rounded-full flex items-center justify-center"><i class="fa-solid fa-circle-check text-[14px] text-amber-400"></i></div>
-                                                    </div>
-                                                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/5 backdrop-blur-md shadow-sm">
-                                                        <span class="relative flex h-2 w-2"><span class="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span></span>
-                                                        <span class="text-xs font-medium text-white/70 tracking-wide uppercase">Ready</span>
-                                                    </div>
-                                                </div>
-                                                <div class="mb-8">
-                                                    <h1 class="text-4xl font-semibold tracking-tight text-white mb-1">Qwen Coder</h1>
-                                                    <p class="text-sm text-white/50 font-medium mb-3">Quantized Code-Specialist Agent</p>
-                                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/10 text-xs text-white/70"><i class="fa-solid fa-microchip"></i><span>Model: Qwen2.5-Coder</span></div>
-                                                </div>
-                                                <div class="mt-auto">
-                                                    <div class="grid grid-cols-2 gap-4 mb-6">
-                                                        <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"><div class="flex items-center gap-2 text-white/40 mb-1"><i class="fa-solid fa-square-check"></i><span class="text-[10px] uppercase tracking-widest font-semibold">Tasks</span></div><div class="text-2xl font-medium text-white">8.2k</div></div>
-                                                        <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"><div class="flex items-center gap-2 text-white/40 mb-1"><i class="fa-solid fa-crosshairs"></i><span class="text-[10px] uppercase tracking-widest font-semibold">Accuracy</span></div><div class="text-2xl font-medium am-text-glow">99.5%</div></div>
-                                                    </div>
-                                                    <div class="mb-6">
-                                                        <div class="flex justify-between items-center text-xs mb-2"><span class="text-white/50 font-medium">Token Limit / Quota</span><span class="text-amber-400 font-medium">17.6k / 100k</span></div>
-                                                        <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-amber-400/60 to-orange-500 rounded-full" style="width:17.6%"></div></div>
-                                                        <div class="flex justify-between text-[10px] text-white/30 mt-1"><span>Remaining: 17,600 tokens</span><span>Quota: 100,000 / hr</span></div>
-                                                    </div>
-                                                    <div class="flex flex-wrap gap-2 mb-6">
-                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-code"></i> Code</span>
-                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-terminal"></i> Bash</span>
-                                                    </div>
-                                                    <div class="pt-6 border-t border-white/10 flex items-center justify-between">
-                                                        <button class="text-xs text-white/40 hover:text-white/80 transition-colors flex items-center gap-1.5 group"><kbd class="px-1.5 py-0.5 rounded bg-white/10 text-[10px] font-mono group-hover:bg-amber-400/20 group-hover:text-amber-400 transition-colors">⌘K</kbd> Command</button>
-                                                        <button class="am-config-btn flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 text-white border border-white/10 backdrop-blur-md text-sm font-medium hover:bg-white/10 transition-all group"><i class="fa-solid fa-sliders group-hover:rotate-90 transition-transform duration-300"></i> Config</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="am-face am-face-back">
-                                            <div class="am-shine"></div>
-                                            <div class="relative z-20 flex flex-col h-full p-8">
-                                                <div class="flex items-center justify-between mb-6"><h2 class="text-lg font-semibold text-white flex items-center gap-2"><i class="fa-solid fa-sliders text-amber-400"></i> Configuration — Qwen</h2><button class="am-close-btn p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors"><i class="fa-solid fa-xmark"></i></button></div>
-                                                <div class="flex-1 overflow-y-auto pr-2 space-y-5 am-scroll-area">
-                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-2">System Prompt</label><textarea class="w-full bg-white/[0.02] border border-white/10 rounded-xl p-3 text-sm text-white/80 focus:outline-none focus:border-amber-400/50 resize-none h-20" placeholder="You are Qwen, a code-specialist agent..."></textarea></div>
-                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-2">Model Source</label><div class="flex rounded-lg bg-white/[0.02] p-1 border border-white/10"><button class="am-src-btn flex-1 py-1.5 text-xs font-medium rounded-md bg-amber-400/20 text-white" data-source="cloud">Cloud API</button><button class="am-src-btn flex-1 py-1.5 text-xs font-medium rounded-md text-white/50 hover:text-white" data-source="local">Local Server</button></div></div>
-                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Select Model</label><div class="relative"><select class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-3 py-2 text-xs text-white/80 focus:outline-none appearance-none cursor-pointer"><option>Qwen2.5-Coder 32B</option><option>Qwen2.5-Coder 7B</option></select><i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i></div></div>
-                                                    <div><div class="flex justify-between items-center mb-1.5"><label class="text-[10px] uppercase tracking-widest text-white/40">Context Window</label><span class="text-xs text-amber-400 font-medium">32k Tokens</span></div><input type="range" min="8" max="128" step="8" value="32" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-amber-400"></div>
-                                                    <div><div class="flex justify-between items-center mb-1.5"><label class="text-[10px] uppercase tracking-widest text-white/40">Creativity (Temp)</label><span class="text-xs text-amber-400">0.3</span></div><input type="range" min="0" max="1" step="0.1" value="0.3" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-amber-400"></div>
-                                                    <div class="space-y-2"><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Agent Behaviors</label><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-chess text-white/50"></i> Plan Mode</span><div class="am-toggle-track on"></div></div><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-bolt text-white/50"></i> Auto-Execute Tasks</span><div class="am-toggle-track on"></div></div></div>
-                                                </div>
-                                                <div class="pt-4 mt-auto border-t border-white/10 text-center"><p class="text-[10px] text-white/30 uppercase tracking-widest">Changes auto-save &amp; sync</p></div>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <!-- Dots and Indicators -->
+                            <div class="mt-6" id="am-child-dots-container">
+                                <div class="am-dots" id="am-c-dots">
+                                    <!-- Child dots injected here by JS -->
                                 </div>
                             </div>
-
-                            <!-- ===== CARD 3: UAT ===== -->
-                            <div class="am-card-slot" data-am-agent="uat">
-                                <div class="am-halo" style="background:rgba(139,92,246,0.12)"></div>
-                                <div class="am-tilt-wrapper">
-                                    <div class="am-flipper">
-                                        <div class="am-face am-face-front">
-                                            <div class="am-shine"></div>
-                                            <div class="relative z-20 flex flex-col h-full p-8">
-                                                <div class="flex justify-between items-start mb-8">
-                                                    <div class="relative">
-                                                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-gray-800 via-gray-900 to-black border border-white/10 flex items-center justify-center shadow-inner"><i class="fa-solid fa-vial text-2xl text-violet-400 drop-shadow-[0_0_8px_rgba(139,92,246,0.5)]"></i></div>
-                                                        <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-[#0a0a0a] rounded-full flex items-center justify-center"><i class="fa-solid fa-circle-check text-[14px] text-violet-400"></i></div>
-                                                    </div>
-                                                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/5 backdrop-blur-md shadow-sm">
-                                                        <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-violet-400"></span></span>
-                                                        <span class="text-xs font-medium text-white/70 tracking-wide uppercase">Active</span>
-                                                    </div>
-                                                </div>
-                                                <div class="mb-8">
-                                                    <h1 class="text-4xl font-semibold tracking-tight text-white mb-1">UAT Agent</h1>
-                                                    <p class="text-sm text-white/50 font-medium mb-3">Universal Acceptance Testing Agent</p>
-                                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/10 text-xs text-white/70"><i class="fa-solid fa-microchip"></i><span>Model: Gemini 2.5 Flash</span></div>
-                                                </div>
-                                                <div class="mt-auto">
-                                                    <div class="grid grid-cols-2 gap-4 mb-6">
-                                                        <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"><div class="flex items-center gap-2 text-white/40 mb-1"><i class="fa-solid fa-square-check"></i><span class="text-[10px] uppercase tracking-widest font-semibold">Tasks</span></div><div class="text-2xl font-medium text-white">3.1k</div></div>
-                                                        <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"><div class="flex items-center gap-2 text-white/40 mb-1"><i class="fa-solid fa-crosshairs"></i><span class="text-[10px] uppercase tracking-widest font-semibold">Accuracy</span></div><div class="text-2xl font-medium am-text-glow">97.2%</div></div>
-                                                    </div>
-                                                    <div class="mb-6">
-                                                        <div class="flex justify-between items-center text-xs mb-2"><span class="text-white/50 font-medium">Token Limit / Quota</span><span class="text-violet-400 font-medium">45k / 100k</span></div>
-                                                        <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-violet-400/60 to-violet-500 rounded-full" style="width:45%"></div></div>
-                                                        <div class="flex justify-between text-[10px] text-white/30 mt-1"><span>Remaining: 45,000 tokens</span><span>Quota: 100,000 / hr</span></div>
-                                                    </div>
-                                                    <div class="flex flex-wrap gap-2 mb-6">
-                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-vial"></i> E2E Testing</span>
-                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-brands fa-chrome"></i> Playwright</span>
-                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-bug"></i> QA</span>
-                                                    </div>
-                                                    <div class="pt-6 border-t border-white/10 flex items-center justify-between">
-                                                        <button class="text-xs text-white/40 hover:text-white/80 transition-colors flex items-center gap-1.5 group"><kbd class="px-1.5 py-0.5 rounded bg-white/10 text-[10px] font-mono group-hover:bg-violet-400/20 group-hover:text-violet-400 transition-colors">⌘K</kbd> Command</button>
-                                                        <button class="am-config-btn flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 text-white border border-white/10 backdrop-blur-md text-sm font-medium hover:bg-white/10 transition-all group"><i class="fa-solid fa-sliders group-hover:rotate-90 transition-transform duration-300"></i> Config</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="am-face am-face-back">
-                                            <div class="am-shine"></div>
-                                            <div class="relative z-20 flex flex-col h-full p-8">
-                                                <div class="flex items-center justify-between mb-6"><h2 class="text-lg font-semibold text-white flex items-center gap-2"><i class="fa-solid fa-sliders text-violet-400"></i> Configuration — UAT</h2><button class="am-close-btn p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors"><i class="fa-solid fa-xmark"></i></button></div>
-                                                <div class="flex-1 overflow-y-auto pr-2 space-y-5 am-scroll-area">
-                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-2">System Prompt</label><textarea class="w-full bg-white/[0.02] border border-white/10 rounded-xl p-3 text-sm text-white/80 focus:outline-none focus:border-violet-400/50 resize-none h-20" placeholder="You are a UAT agent running Playwright tests..."></textarea></div>
-                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-2">Model Source</label><div class="flex rounded-lg bg-white/[0.02] p-1 border border-white/10"><button class="am-src-btn flex-1 py-1.5 text-xs font-medium rounded-md bg-violet-400/20 text-white" data-source="cloud">Cloud API</button><button class="am-src-btn flex-1 py-1.5 text-xs font-medium rounded-md text-white/50 hover:text-white" data-source="local">Local Server</button></div></div>
-                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Select Model</label><div class="relative"><select class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-3 py-2 text-xs text-white/80 focus:outline-none appearance-none cursor-pointer"><option>Gemini 2.5 Flash</option><option>GPT-4o Base</option></select><i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i></div></div>
-                                                    <div><div class="flex justify-between items-center mb-1.5"><label class="text-[10px] uppercase tracking-widest text-white/40">Context Window</label><span class="text-xs text-violet-400 font-medium">64k Tokens</span></div><input type="range" min="8" max="256" step="8" value="64" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-violet-400"></div>
-                                                    <div><div class="flex justify-between items-center mb-1.5"><label class="text-[10px] uppercase tracking-widest text-white/40">Creativity (Temp)</label><span class="text-xs text-violet-400">0.4</span></div><input type="range" min="0" max="1" step="0.1" value="0.4" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-violet-400"></div>
-                                                    <div class="space-y-2"><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Agent Behaviors</label><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-chess text-white/50"></i> Plan Mode</span><div class="am-toggle-track"></div></div><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-bolt text-white/50"></i> Auto-Execute Tasks</span><div class="am-toggle-track on"></div></div></div>
-                                                </div>
-                                                <div class="pt-4 mt-auto border-t border-white/10 text-center"><p class="text-[10px] text-white/30 uppercase tracking-widest">Changes auto-save &amp; sync</p></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- ===== CARD 4: LOCAL ===== -->
-                            <div class="am-card-slot" data-am-agent="local">
-                                <div class="am-halo" style="background:rgba(6,182,212,0.12)"></div>
-                                <div class="am-tilt-wrapper">
-                                    <div class="am-flipper">
-                                        <div class="am-face am-face-front">
-                                            <div class="am-shine"></div>
-                                            <div class="relative z-20 flex flex-col h-full p-8">
-                                                <div class="flex justify-between items-start mb-8">
-                                                    <div class="relative">
-                                                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-gray-800 via-gray-900 to-black border border-white/10 flex items-center justify-center shadow-inner"><i class="fa-solid fa-server text-2xl text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]"></i></div>
-                                                        <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-[#0a0a0a] rounded-full flex items-center justify-center"><i class="fa-solid fa-circle-check text-[14px] text-cyan-400"></i></div>
-                                                    </div>
-                                                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/5 backdrop-blur-md shadow-sm">
-                                                        <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span></span>
-                                                        <span class="text-xs font-medium text-white/70 tracking-wide uppercase">Online</span>
-                                                    </div>
-                                                </div>
-                                                <div class="mb-8">
-                                                    <h1 class="text-4xl font-semibold tracking-tight text-white mb-1">Local Agent</h1>
-                                                    <p class="text-sm text-white/50 font-medium mb-3">On-Premise Ollama Runtime Agent</p>
-                                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/10 text-xs text-white/70"><i class="fa-solid fa-microchip"></i><span>Model: Llama 3 (Ollama)</span></div>
-                                                </div>
-                                                <div class="mt-auto">
-                                                    <div class="grid grid-cols-2 gap-4 mb-6">
-                                                        <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"><div class="flex items-center gap-2 text-white/40 mb-1"><i class="fa-solid fa-square-check"></i><span class="text-[10px] uppercase tracking-widest font-semibold">Tasks</span></div><div class="text-2xl font-medium text-white">1.8k</div></div>
-                                                        <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"><div class="flex items-center gap-2 text-white/40 mb-1"><i class="fa-solid fa-crosshairs"></i><span class="text-[10px] uppercase tracking-widest font-semibold">Accuracy</span></div><div class="text-2xl font-medium am-text-glow">94.6%</div></div>
-                                                    </div>
-                                                    <div class="mb-6">
-                                                        <div class="flex justify-between items-center text-xs mb-2"><span class="text-white/50 font-medium">Token Limit / Quota</span><span class="text-cyan-400 font-medium">∞ Local</span></div>
-                                                        <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-cyan-400/60 to-cyan-500 rounded-full" style="width:100%"></div></div>
-                                                        <div class="flex justify-between text-[10px] text-white/30 mt-1"><span>Unlimited (On-Premise)</span><span>Ollama Runtime</span></div>
-                                                    </div>
-                                                    <div class="flex flex-wrap gap-2 mb-6">
-                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-code"></i> Code</span>
-                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-terminal"></i> Bash</span>
-                                                        <span class="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-white/70 flex items-center gap-1.5"><i class="fa-solid fa-lock"></i> Private</span>
-                                                    </div>
-                                                    <div class="pt-6 border-t border-white/10 flex items-center justify-between">
-                                                        <button class="text-xs text-white/40 hover:text-white/80 transition-colors flex items-center gap-1.5 group"><kbd class="px-1.5 py-0.5 rounded bg-white/10 text-[10px] font-mono group-hover:bg-cyan-400/20 group-hover:text-cyan-400 transition-colors">⌘K</kbd> Command</button>
-                                                        <button class="am-config-btn flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 text-white border border-white/10 backdrop-blur-md text-sm font-medium hover:bg-white/10 transition-all group"><i class="fa-solid fa-sliders group-hover:rotate-90 transition-transform duration-300"></i> Config</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="am-face am-face-back">
-                                            <div class="am-shine"></div>
-                                            <div class="relative z-20 flex flex-col h-full p-8">
-                                                <div class="flex items-center justify-between mb-6"><h2 class="text-lg font-semibold text-white flex items-center gap-2"><i class="fa-solid fa-sliders text-cyan-400"></i> Configuration — Local</h2><button class="am-close-btn p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors"><i class="fa-solid fa-xmark"></i></button></div>
-                                                <div class="flex-1 overflow-y-auto pr-2 space-y-5 am-scroll-area">
-                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-2">System Prompt</label><textarea class="w-full bg-white/[0.02] border border-white/10 rounded-xl p-3 text-sm text-white/80 focus:outline-none focus:border-cyan-400/50 resize-none h-20" placeholder="You are a local LLM agent..."></textarea></div>
-                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-2">Local Endpoint</label><input type="text" value="http://localhost:11434" class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-3 py-2 text-sm text-white/80 focus:outline-none focus:border-cyan-400/50"></div>
-                                                    <div><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Select Model</label><div class="relative"><select class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-3 py-2 text-xs text-white/80 focus:outline-none appearance-none cursor-pointer"><option>Llama 3 (Ollama)</option><option>Mistral 7B (LM Studio)</option><option>Phi-3 Medium</option></select><i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i></div></div>
-                                                    <div><div class="flex justify-between items-center mb-1.5"><label class="text-[10px] uppercase tracking-widest text-white/40">Context Window</label><span class="text-xs text-cyan-400 font-medium">8k Tokens</span></div><input type="range" min="4" max="128" step="4" value="8" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyan-400"></div>
-                                                    <div><div class="flex justify-between items-center mb-1.5"><label class="text-[10px] uppercase tracking-widest text-white/40">Creativity (Temp)</label><span class="text-xs text-cyan-400">0.5</span></div><input type="range" min="0" max="1" step="0.1" value="0.5" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyan-400"></div>
-                                                    <div class="space-y-2"><label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1.5">Agent Behaviors</label><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-chess text-white/50"></i> Plan Mode</span><div class="am-toggle-track on"></div></div><div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5"><span class="text-xs text-white/80 flex items-center gap-2"><i class="fa-solid fa-bolt text-white/50"></i> Auto-Execute Tasks</span><div class="am-toggle-track"></div></div></div>
-                                                </div>
-                                                <div class="pt-4 mt-auto border-t border-white/10 text-center"><p class="text-[10px] text-white/30 uppercase tracking-widest">Changes auto-save &amp; sync</p></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div><!-- end viewport -->
-
-                        <!-- Dot Indicators -->
-                        <div class="am-dots" id="am-dots">
-                            <div class="am-dot active" data-idx="0"></div>
-                            <div class="am-dot" data-idx="1"></div>
-                            <div class="am-dot" data-idx="2"></div>
-                            <div class="am-dot" data-idx="3"></div>
                         </div>
                     </div>
                 </div>
-
+                
                 <!-- DOMAIN B: GENESIS KNOWLEDGE SYSTEM -->
 
                 <!-- [B1] AST Explorer -->
@@ -4896,41 +4758,665 @@ ${formatTaskDoD(task)}
         // Agent Management Carousel & Card Interactions
         // ============================================
         function initAgentManagement() {
-            const viewport = document.getElementById('am-viewport');
-            const prevBtn = document.getElementById('am-prev');
-            const nextBtn = document.getElementById('am-next');
-            const dotsContainer = document.getElementById('am-dots');
-            if (!viewport) return;
+            // ============================================
+            // Data Model for Child Sub-Modules
+            // ============================================
+            const agentSubModules = {
+                eva: [
+                    {
+                        id: "eva-queue",
+                        title: "Task Queue Scheduler",
+                        role: "Core Sync & Queue Management",
+                        icon: "fa-list-check",
+                        color: "#FF6363",
+                        status: "Running",
+                        stats: [ { label: "Queue Load", val: "14%" }, { label: "Sync Rate", val: "99.9%" } ],
+                        barLabel: "CPU Utilization",
+                        barVal: 24,
+                        badges: ["FIFO", "Concurrency", "Sync"],
+                        config: {
+                            prompt: "Manage and synchronize Rider/Passenger playback queues in real-time, enforcing active autoplay guards...",
+                            workspace: "/queue/manager",
+                            models: ["Fast FIFO Queue", "Priority Queue Processor", "Weighted Round-Robin"],
+                            volLabel: "Auto-save Interval",
+                            volVal: "5s",
+                            volMin: 1,
+                            volMax: 15,
+                            volStep: 1,
+                            tempLabel: "Max Retry Limit",
+                            tempVal: 3,
+                            tempMin: 1,
+                            tempMax: 10,
+                            tempStep: 1,
+                            behaviors: [ { label: "Plan Mode", on: true }, { label: "Auto-Execute Tasks", on: true } ]
+                        }
+                    },
+                    {
+                        id: "eva-plugins",
+                        title: "Plugin Manager",
+                        role: "Capability Extension Hub",
+                        icon: "fa-plug",
+                        color: "#FF6363",
+                        status: "Active",
+                        stats: [ { label: "Active Plugins", val: "3" }, { label: "Mem Footprint", val: "48MB" } ],
+                        barLabel: "VRAM Used",
+                        barVal: 12,
+                        badges: ["Web Search", "Vision", "Code Interpreter"],
+                        config: {
+                            prompt: "Orchestrate extension integrations. Toggle capabilities on demand to fulfill high-level user tasks...",
+                            workspace: "/extensions/v1",
+                            models: ["GPT-4o Integration", "Claude Sonnet v3.5", "Gemini Pro 1.5"],
+                            volLabel: "Keep-alive Cache",
+                            volVal: "60s",
+                            volMin: 10,
+                            volMax: 300,
+                            volStep: 10,
+                            tempLabel: "Access Token Expiry",
+                            tempVal: "2h",
+                            tempMin: 1,
+                            tempMax: 24,
+                            tempStep: 1,
+                            behaviors: [ { label: "Dynamic Import", on: true }, { label: "Isolation Sandbox", on: false } ]
+                        }
+                    },
+                    {
+                        id: "eva-prompts",
+                        title: "Prompt Knowledge Sync",
+                        role: "Genesis Vector Search",
+                        icon: "fa-passport",
+                        color: "#FF6363",
+                        status: "Synchronized",
+                        stats: [ { label: "Vector Index", val: "1.2M" }, { label: "Accuracy", val: "99.8%" } ],
+                        barLabel: "Sync Status",
+                        barVal: 98,
+                        badges: ["Knowledge Sync", "LLM Guardrails", "Embedding"],
+                        config: {
+                            prompt: "Enforce safety boundaries, align inputs against thermal limit logs, and resolve user context paths...",
+                            workspace: "/genesis/db",
+                            models: ["Vector Embedding v2", "Claude 3.5 Sonnet", "Gemini 1.5 Flash"],
+                            volLabel: "Search Top-K",
+                            volVal: "5 items",
+                            volMin: 1,
+                            volMax: 20,
+                            volStep: 1,
+                            tempLabel: "Similarity Threshold",
+                            tempVal: 0.75,
+                            tempMin: 0.1,
+                            tempMax: 1.0,
+                            tempStep: 0.05,
+                            behaviors: [ { label: "Plan Mode", on: true }, { label: "Genesis Vector Search", on: true } ]
+                        }
+                    }
+                ],
+                qwen: [
+                    {
+                        id: "qwen-ast",
+                        title: "AST Code Parser",
+                        role: "Syntactic Tree Analyzer",
+                        icon: "fa-sitemap",
+                        color: "rgb(251,191,36)",
+                        status: "Scan Completed",
+                        stats: [ { label: "Files Scanned", val: "128" }, { label: "Nodes Scanned", val: "34.5k" } ],
+                        barLabel: "Parser Speed",
+                        barVal: 85,
+                        badges: ["Babel/ESTree", "Semantic", "Fast Parser"],
+                        config: {
+                            prompt: "Parse modern JavaScript/TypeScript codebase into AST nodes, checking import references...",
+                            workspace: "/ast/compiler",
+                            models: ["ESTree Standard", "TypeScript Compiler SDK", "Babel Core Parser"],
+                            volLabel: "Cache Lifetime",
+                            volVal: "10 mins",
+                            volMin: 5,
+                            volMax: 120,
+                            volStep: 5,
+                            tempLabel: "Max Depth Target",
+                            tempVal: 24,
+                            tempMin: 5,
+                            tempMax: 100,
+                            tempStep: 5,
+                            behaviors: [ { label: "Plan Mode", on: true }, { label: "Recursive Search", on: true } ]
+                        }
+                    },
+                    {
+                        id: "qwen-lint",
+                        title: "Linter Guard",
+                        role: "Style & Error Enforcement",
+                        icon: "fa-shield-halved",
+                        color: "rgb(251,191,36)",
+                        status: "Running",
+                        stats: [ { label: "Rules Bound", val: "42" }, { label: "Auto-Fix Ratio", val: "94.2%" } ],
+                        barLabel: "CPU Load",
+                        barVal: 45,
+                        badges: ["ESLint", "Prettier", "Strict Mode"],
+                        config: {
+                            prompt: "Audit code format, capture syntax bugs, and trigger hotfix unifications automatically...",
+                            workspace: "/lint/linter",
+                            models: ["ESLint Strict Preset", "ESLint Recommended", "Custom Governance Rules"],
+                            volLabel: "Warning Threshold",
+                            volVal: "20 errors",
+                            volMin: 5,
+                            volMax: 100,
+                            volStep: 5,
+                            tempLabel: "Lint Level Mode",
+                            tempVal: 0.8,
+                            tempMin: 0.1,
+                            tempMax: 1.0,
+                            tempStep: 0.1,
+                            behaviors: [ { label: "Auto-Fix", on: true }, { label: "Strict Check", on: false } ]
+                        }
+                    },
+                    {
+                        id: "qwen-git",
+                        title: "Git Commit Helper",
+                        role: "Repository Version Controls",
+                        icon: "fa-code-branch",
+                        color: "rgb(251,191,36)",
+                        status: "Up-to-date",
+                        stats: [ { label: "Sync Branch", val: "main" }, { label: "Local Commits", val: "0" } ],
+                        barLabel: "Transfer Speed",
+                        barVal: 92,
+                        badges: ["Commit", "Auto-Push", "Remote Hook"],
+                        config: {
+                            prompt: "Synchronize local project workspaces with remote origins. Execute automated git commit & push routines...",
+                            workspace: "/git/controller",
+                            models: ["Standard Git Wrapper", "Custom Commits Engine"],
+                            volLabel: "Auto-Push Interval",
+                            volVal: "10 mins",
+                            volMin: 1,
+                            volMax: 60,
+                            volStep: 1,
+                            tempLabel: "Retry Attempts",
+                            tempVal: 3,
+                            tempMin: 1,
+                            tempMax: 10,
+                            tempStep: 1,
+                            behaviors: [ { label: "Plan Mode", on: true }, { label: "Auto-Push to Remote", on: true } ]
+                        }
+                    }
+                ],
+                uat: [
+                    {
+                        id: "uat-vitest",
+                        title: "Vitest Unit Runner",
+                        role: "Automated Suite Testing",
+                        icon: "fa-vial-circle-check",
+                        color: "rgb(167,139,250)",
+                        status: "All Tests Passed",
+                        stats: [ { label: "Tests Run", val: "142" }, { label: "Success Rate", val: "100%" } ],
+                        barLabel: "Coverage Goal",
+                        barVal: 95,
+                        badges: ["Vitest", "Coverage", "Mock API"],
+                        config: {
+                            prompt: "Execute localized unit and integration tests under node-watcher parameters...",
+                            workspace: "/tests/unit",
+                            models: ["Vitest v2.0 Runner", "Jest Legacy Wrapper"],
+                            volLabel: "Coverage Target",
+                            volVal: "85%",
+                            volMin: 50,
+                            volMax: 100,
+                            volStep: 5,
+                            tempLabel: "Failure Allowance",
+                            tempVal: 0,
+                            tempMin: 0,
+                            tempMax: 5,
+                            tempStep: 1,
+                            behaviors: [ { label: "Watch Mode", on: true }, { label: "Coverage Report", on: true } ]
+                        }
+                    },
+                    {
+                        id: "uat-playwright",
+                        title: "Playwright E2E",
+                        role: "Multi-Browser Validation",
+                        icon: "fa-compass",
+                        color: "rgb(167,139,250)",
+                        status: "Ready",
+                        stats: [ { label: "Browsers", val: "Chromium/WebKit" }, { label: "E2E Cases", val: "16" } ],
+                        barLabel: "Sim Time",
+                        barVal: 60,
+                        badges: ["Playwright", "Headless", "Visual Test"],
+                        config: {
+                            prompt: "Launch virtual browser instances to run full user journey workflows...",
+                            workspace: "/tests/e2e",
+                            models: ["Playwright Browser SDK", "Puppeteer Script Engine"],
+                            volLabel: "Action Delay (Slow-mo)",
+                            volVal: "50ms",
+                            volMin: 0,
+                            volMax: 500,
+                            volStep: 10,
+                            tempLabel: "Timeout Cap",
+                            tempVal: "30s",
+                            tempMin: 10,
+                            tempMax: 120,
+                            tempStep: 10,
+                            behaviors: [ { label: "Headless Browser", on: true }, { label: "Screenshot on Failure", on: true } ]
+                        }
+                    },
+                    {
+                        id: "uat-tdr",
+                        title: "TDR Thermal Monitor",
+                        role: "Hardware Safety Systems",
+                        icon: "fa-temperature-half",
+                        color: "rgb(167,139,250)",
+                        status: "Monitoring",
+                        stats: [ { label: "GPU Temp", val: "54°C" }, { label: "Power Draw", val: "112W" } ],
+                        barLabel: "Safety Margin",
+                        barVal: 78,
+                        badges: ["RTX 3060 Standard", "GPU Caution", "Afterburner Monitor"],
+                        config: {
+                            prompt: "Enforce safety boundaries on hardware configurations. Restrict LLM inference if thermal caps are reached...",
+                            workspace: "/telemetry/thermal",
+                            models: ["RTX 3060 Performance Monitor", "Hardware telemetry v1"],
+                            volLabel: "Caution Threshold",
+                            volVal: "71°C",
+                            volMin: 50,
+                            volMax: 90,
+                            volStep: 1,
+                            tempLabel: "Shutoff Threshold",
+                            tempVal: "85°C",
+                            tempMin: 70,
+                            tempMax: 95,
+                            tempStep: 1,
+                            behaviors: [ { label: "Auto-Throttling", on: true }, { label: "Emergency Holdoff", on: true } ]
+                        }
+                    }
+                ],
+                local: [
+                    {
+                        id: "local-llm",
+                        title: "Ollama Local API",
+                        role: "Local Inference Server",
+                        icon: "fa-server",
+                        color: "rgb(34,211,238)",
+                        status: "Ready (Offline)",
+                        stats: [ { label: "Model Engine", val: "Ollama" }, { label: "Active Model", val: "Llama 3 8B" } ],
+                        barLabel: "VRAM Allocation",
+                        barVal: 80,
+                        badges: ["Llama 3", "GGUF", "Zero Network Cost"],
+                        config: {
+                            prompt: "Manage offline inference services using Ollama. Route API queries locally...",
+                            workspace: "/local/ollama",
+                            models: ["Llama 3 (8B) GGUF", "Mistral 7B (LM Studio)", "Phi-3 Medium (Ollama)"],
+                            volLabel: "VRAM Memory Limit",
+                            volVal: "6.5GB",
+                            volMin: 2,
+                            volMax: 12,
+                            volStep: 0.5,
+                            tempLabel: "Local Port Allocation",
+                            tempVal: 11434,
+                            tempMin: 1000,
+                            tempMax: 65535,
+                            tempStep: 1,
+                            behaviors: [ { label: "Keep Alive Mode", on: true }, { label: "GPU Acceleration", on: true } ]
+                        }
+                    },
+                    {
+                        id: "local-watcher",
+                        title: "Filesystem Watcher",
+                        role: "Live Reload Bundler",
+                        icon: "fa-magnifying-glass",
+                        color: "rgb(34,211,238)",
+                        status: "Watching",
+                        stats: [ { label: "Reloads", val: "14" }, { label: "Bundle Size", val: "367.8KB" } ],
+                        barLabel: "Disk I/O",
+                        barVal: 8,
+                        badges: ["Chokidar", "Hot Reload", "Vite Compiler"],
+                        config: {
+                            prompt: "Watch file updates inside /workspace/covibe-app, trigger client/server bundle updates...",
+                            workspace: "/local/watcher",
+                            models: ["Chokidar Watcher", "Node Watcher SDK"],
+                            volLabel: "Poll Delay Target",
+                            volVal: "100ms",
+                            volMin: 50,
+                            volMax: 1000,
+                            volStep: 50,
+                            tempLabel: "Buffer Holdoff Limit",
+                            tempVal: "200ms",
+                            tempMin: 50,
+                            tempMax: 500,
+                            tempStep: 50,
+                            behaviors: [ { label: "Plan Mode", on: true }, { label: "Hot Module Reload", on: true } ]
+                        }
+                    },
+                    {
+                        id: "local-cleaner",
+                        title: "Resource Cleaner",
+                        role: "Memory & VRAM Purger",
+                        icon: "fa-trash-can",
+                        color: "rgb(34,211,238)",
+                        status: "Idle",
+                        stats: [ { label: "VRAM Fragmented", val: "1.2GB" }, { label: "System Load", val: "22%" } ],
+                        barLabel: "Leak Clean Rate",
+                        barVal: 98,
+                        badges: ["Memory Sync", "Garbage Collection", "Unloader"],
+                        config: {
+                            prompt: "Automatically unload models and purge system cache. Keep VRAM allocation clean...",
+                            workspace: "/local/cleaner",
+                            models: ["Active RAM Purger", "Ollama Keep-Alive Unloader"],
+                            volLabel: "Cleanup Interval",
+                            volVal: "5 mins",
+                            volMin: 1,
+                            volMax: 60,
+                            volStep: 1,
+                            tempLabel: "VRAM Clean Threshold",
+                            tempVal: "80%",
+                            tempMin: 50,
+                            tempMax: 95,
+                            tempStep: 5,
+                            behaviors: [ { label: "Plan Mode", on: true }, { label: "Auto VRAM Purging", on: true } ]
+                        }
+                    }
+                ]
+            };
 
-            const cards = viewport.querySelectorAll('.am-card-slot');
-            let currentIdx = 0;
+            const parentViewport = document.getElementById('am-parent-viewport');
+            const childViewport = document.getElementById('am-child-viewport');
+            if (!parentViewport || !childViewport) return;
 
-            function updateCarouselLayout() {
-                const isMobile = window.innerWidth <= 480;
-                // Adjust offsets for mobile vs desktop
-                const xOffset = isMobile ? 80 : 130;
-                const zOffset = isMobile ? -100 : -150;
-                const scaleStep = isMobile ? 0.12 : 0.15;
-                const rotateStep = isMobile ? 12 : 15;
+            const pPrevBtn = document.getElementById('am-p-prev');
+            const pNextBtn = document.getElementById('am-p-next');
+            const cPrevBtn = document.getElementById('am-c-prev');
+            const cNextBtn = document.getElementById('am-c-next');
+            const cDotsContainer = document.getElementById('am-c-dots');
 
-                cards.forEach((card, i) => {
-                    const diff = i - currentIdx;
+            const parentCards = parentViewport.querySelectorAll('.am-parent-slot');
+            const numParents = parentCards.length;
+            const parentKeys = ['eva', 'qwen', 'uat', 'local'];
+
+            let parentIdx = 0;
+            let childIdx = 0;
+
+            // ============================================
+            // 1. Dynamic Child Render
+            // ============================================
+            function renderChildCards(agentKey) {
+                childViewport.innerHTML = '';
+                const modules = agentSubModules[agentKey] || [];
+
+                modules.forEach((mod, idx) => {
+                    const statsHTML = mod.stats.map(s => `
+                        <div class="p-3 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors">
+                            <div class="flex items-center gap-2 text-white/40 mb-1">
+                                <span class="text-[9px] uppercase tracking-widest font-semibold">${s.label}</span>
+                            </div>
+                            <div class="text-xl font-medium text-white">${s.val}</div>
+                        </div>
+                    `).join('');
+
+                    const badgesHTML = mod.badges.map(b => `
+                        <span class="px-2.5 py-0.5 text-[10px] rounded-full bg-white/5 border border-white/10 text-white/70">${b}</span>
+                    `).join('');
+
+                    const modelsHTML = mod.config.models.map(m => `
+                        <option>${m}</option>
+                    `).join('');
+
+                    const behaviorsHTML = mod.config.behaviors.map((b, bIdx) => `
+                        <div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
+                            <span class="text-xs text-white/80 flex items-center gap-2">${b.label}</span>
+                            <div class="am-toggle-track ${b.on ? 'on' : ''}" data-idx="${bIdx}"></div>
+                        </div>
+                    `).join('');
+
+                    const cardColor = mod.color;
+                    
+                    const slotHTML = `
+                        <div class="am-child-slot" data-idx="${idx}" data-am-agent="${agentKey}">
+                            <div class="am-halo" style="background:${cardColor}26"></div>
+                            <div class="am-tilt-wrapper">
+                                <div class="am-flipper">
+                                    <!-- FRONT -->
+                                    <div class="am-face am-face-front">
+                                        <div class="am-shine"></div>
+                                        <div class="relative z-20 flex flex-col h-full p-6 text-left">
+                                            <div class="flex justify-between items-start mb-6">
+                                                <div class="relative">
+                                                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-800 to-black border border-white/10 flex items-center justify-center shadow-inner">
+                                                        <i class="fa-solid ${mod.icon} text-xl" style="color:${cardColor}"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/[0.03] border border-white/5 backdrop-blur-md shadow-sm">
+                                                    <span class="relative flex h-2 w-2">
+                                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                                    </span>
+                                                    <span class="text-[10px] font-medium text-white/70 tracking-wide uppercase">${mod.status}</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <h4 class="text-2xl font-bold tracking-tight text-white mb-1">${mod.title}</h4>
+                                                <p class="text-xs text-white/50 font-medium mb-3">${mod.role}</p>
+                                            </div>
+
+                                            <div class="mt-auto">
+                                                <div class="grid grid-cols-2 gap-3 mb-4">
+                                                    ${statsHTML}
+                                                </div>
+
+                                                <div class="mb-4">
+                                                    <div class="flex justify-between items-center text-[10px] mb-1.5">
+                                                        <span class="text-white/50 font-medium">${mod.barLabel}</span>
+                                                        <span class="font-medium" style="color:${cardColor}">${mod.barVal}%</span>
+                                                    </div>
+                                                    <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                                                        <div class="h-full rounded-full" style="width:${mod.barVal}%; background:linear-gradient(90deg, ${cardColor}80, ${cardColor})"></div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="flex flex-wrap gap-1.5 mb-6">
+                                                    ${badgesHTML}
+                                                </div>
+
+                                                <div class="pt-4 border-t border-white/10 flex items-center justify-between">
+                                                    <span class="text-[10px] text-white/30 uppercase tracking-widest">Sub-module</span>
+                                                    <button class="am-config-btn flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 text-white border border-white/10 backdrop-blur-md text-xs font-medium hover:bg-white/10 transition-all group">
+                                                        <i class="fa-solid fa-sliders group-hover:rotate-90 transition-transform duration-300"></i> Config
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- BACK -->
+                                    <div class="am-face am-face-back">
+                                        <div class="relative z-20 flex flex-col h-full p-6 text-left">
+                                            <div class="flex justify-between items-center mb-4">
+                                                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                                    <i class="fa-solid fa-sliders" style="color:${cardColor}"></i> Config Panel
+                                                </h3>
+                                                <button class="am-close-btn w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors">
+                                                    <i class="fa-solid fa-xmark text-xs"></i>
+                                                </button>
+                                            </div>
+
+                                            <div class="flex-1 overflow-y-auto pr-2 space-y-4 am-scroll-area">
+                                                <div>
+                                                    <label class="block text-[9px] uppercase tracking-widest text-white/40 mb-1">System Prompt</label>
+                                                    <textarea class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl p-2.5 text-xs text-white/80 focus:outline-none focus:border-cyan-400/50 resize-none h-16">${mod.config.prompt}</textarea>
+                                                </div>
+
+                                                <div>
+                                                    <label class="block text-[9px] uppercase tracking-widest text-white/40 mb-1">Workspace Path</label>
+                                                    <input type="text" value="${mod.config.workspace}" class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white/80 focus:outline-none focus:border-cyan-400/50">
+                                                </div>
+
+                                                <div>
+                                                    <label class="block text-[9px] uppercase tracking-widest text-white/40 mb-1.5">Model Options</label>
+                                                    <div class="relative">
+                                                        <select class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-2.5 py-1.5 text-[11px] text-white/80 focus:outline-none appearance-none cursor-pointer">
+                                                            ${modelsHTML}
+                                                        </select>
+                                                        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none"></i>
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <div class="flex justify-between items-center mb-1">
+                                                        <label class="text-[9px] uppercase tracking-widest text-white/40">${mod.config.volLabel}</label>
+                                                        <span class="text-xs font-medium" style="color:${cardColor}">${mod.config.volVal}</span>
+                                                    </div>
+                                                    <input type="range" min="${mod.config.volMin}" max="${mod.config.volMax}" step="${mod.config.volStep}" value="${mod.config.volMin}" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer" style="accent-color:${cardColor}">
+                                                </div>
+
+                                                <div>
+                                                    <div class="flex justify-between items-center mb-1">
+                                                        <label class="text-[9px] uppercase tracking-widest text-white/40">${mod.config.tempLabel}</label>
+                                                        <span class="text-xs" style="color:${cardColor}">${mod.config.tempVal}</span>
+                                                    </div>
+                                                    <input type="range" min="${mod.config.tempMin}" max="${mod.config.tempMax}" step="${mod.config.tempStep}" value="${mod.config.tempMin}" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer" style="accent-color:${cardColor}">
+                                                </div>
+
+                                                <div class="space-y-1.5">
+                                                    <label class="block text-[9px] uppercase tracking-widest text-white/40 mb-1">Agent Behaviors</label>
+                                                    ${behaviorsHTML}
+                                                </div>
+                                            </div>
+
+                                            <div class="pt-3 mt-auto border-t border-white/10 text-center">
+                                                <p class="text-[9px] text-white/30 uppercase tracking-widest">Auto-save state active</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    childViewport.insertAdjacentHTML('beforeend', slotHTML);
+                });
+
+                // Render Dots
+                if (cDotsContainer) {
+                    cDotsContainer.innerHTML = '';
+                    modules.forEach((_, idx) => {
+                        cDotsContainer.insertAdjacentHTML('beforeend', `<div class="am-dot ${idx === childIdx ? 'active' : ''}" data-idx="${idx}"></div>`);
+                    });
+                    cDotsContainer.querySelectorAll('.am-dot').forEach(dot => {
+                        dot.addEventListener('click', () => scrollToChild(parseInt(dot.dataset.idx)));
+                    });
+                }
+
+                // Bind flipper listeners to newly generated child cards
+                const childCards = childViewport.querySelectorAll('.am-child-slot');
+                childCards.forEach(slot => {
+                    const configBtn = slot.querySelector('.am-config-btn');
+                    const closeBtn = slot.querySelector('.am-close-btn');
+                    const flipper = slot.querySelector('.am-flipper');
+
+                    if (configBtn && flipper) {
+                        configBtn.addEventListener('click', e => {
+                            e.stopPropagation();
+                            if (!slot.classList.contains('am-card-active')) return;
+                            flipper.classList.add('am-flipped');
+                        });
+                    }
+                    if (closeBtn && flipper) {
+                        closeBtn.addEventListener('click', e => {
+                            e.stopPropagation();
+                            if (!slot.classList.contains('am-card-active')) return;
+                            flipper.classList.remove('am-flipped');
+                        });
+                    }
+
+                    // Toggles inside cards
+                    slot.querySelectorAll('.am-toggle-track').forEach(track => {
+                        track.addEventListener('click', (e) => {
+                            if (!slot.classList.contains('am-card-active')) {
+                                e.stopPropagation();
+                                return;
+                            }
+                            track.classList.toggle('on');
+                        });
+                    });
+
+                    // 3D Tilt + Shine
+                    const tiltW = slot.querySelector('.am-tilt-wrapper');
+                    if (tiltW) {
+                        slot.addEventListener('mousemove', e => {
+                            if (!slot.classList.contains('am-card-active')) return;
+
+                            const rect = slot.getBoundingClientRect();
+                            const x = e.clientX - rect.left;
+                            const y = e.clientY - rect.top;
+                            const centerX = rect.width / 2;
+                            const centerY = rect.height / 2;
+                            const rotateX = ((y - centerY) / centerY) * -8;
+                            const rotateY = ((x - centerX) / centerX) * 8;
+                            tiltW.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                            slot.style.setProperty('--am-mx', x + 'px');
+                            slot.style.setProperty('--am-my', y + 'px');
+                        });
+
+                        slot.addEventListener('mouseleave', () => {
+                            tiltW.style.transform = 'rotateX(0) rotateY(0)';
+                        });
+                    }
+                });
+            }
+
+            // ============================================
+            // 2. Parent Layout (Vertical drum list)
+            // ============================================
+            function updateParentLayout() {
+                parentCards.forEach((card, i) => {
+                    let diff = i - parentIdx;
+                    // Infinite wrap calculations
+                    if (diff > numParents / 2) diff -= numParents;
+                    if (diff < -numParents / 2) diff += numParents;
+
                     const absDiff = Math.abs(diff);
 
-                    // 1. Calculations
                     const zIndex = 100 - absDiff;
-                    const opacity = Math.max(0, 1 - absDiff * 0.25);
+                    const opacity = Math.max(0, 1 - absDiff * 0.35);
+                    const scale = 1 - absDiff * 0.15;
+                    const translateY = diff * 130;
+                    const translateZ = absDiff * -100;
+                    const rotateX = diff * 20;
+
+                    card.style.zIndex = zIndex;
+                    card.style.opacity = opacity;
+                    card.style.transform = \`translate(-50%, -50%) translate3d(0, \${translateY}px, \${translateZ}px) scale(\${scale}) rotateX(\${rotateX}deg)\`;
+
+                    if (diff === 0) {
+                        card.classList.add('am-parent-active');
+                    } else {
+                        card.classList.remove('am-parent-active');
+                    }
+                });
+            }
+
+            // ============================================
+            // 3. Child Layout (Horizontal Coverflow stack)
+            // ============================================
+            function updateChildLayout() {
+                const childCards = childViewport.querySelectorAll('.am-child-slot');
+                const numChildren = childCards.length;
+                if (numChildren === 0) return;
+
+                const isMobile = window.innerWidth <= 480;
+                const xOffset = isMobile ? 80 : 150;
+                const zOffset = isMobile ? -80 : -120;
+                const scaleStep = isMobile ? 0.1 : 0.15;
+                const rotateStep = isMobile ? 10 : 15;
+
+                childCards.forEach((card, i) => {
+                    let diff = i - childIdx;
+                    // Infinite wrap
+                    if (diff > numChildren / 2) diff -= numChildren;
+                    if (diff < -numChildren / 2) diff += numChildren;
+
+                    const absDiff = Math.abs(diff);
+
+                    const zIndex = 100 - absDiff;
+                    const opacity = Math.max(0, 1 - absDiff * 0.3);
                     const scale = 1 - absDiff * scaleStep;
                     const translateX = diff * xOffset;
                     const translateZ = absDiff * zOffset;
-                    const rotateY = diff < 0 ? rotateStep : (diff > 0 ? -rotateStep : 0);
+                    const rotateY = diff * -rotateStep;
 
-                    // 2. Apply styling
                     card.style.zIndex = zIndex;
                     card.style.opacity = opacity;
-                    card.style.transform = `translate(-50%, -50%) translate3d(${translateX}px, 0, ${translateZ}px) scale(${scale}) rotateY(${rotateY}deg)`;
-                    
-                    // Enable/disable active class
+                    card.style.transform = \`translate(-50%, -50%) translate3d(\${translateX}px, 0, \${translateZ}px) scale(\${scale}) rotateY(\${rotateY}deg)\`;
+
                     if (diff === 0) {
                         card.classList.add('am-card-active');
                     } else {
@@ -4938,131 +5424,73 @@ ${formatTaskDoD(task)}
                     }
                 });
 
-                updateDots();
-            }
-
-            function scrollToCard(idx) {
-                if (idx < 0 || idx >= cards.length) return;
-                currentIdx = idx;
-                updateCarouselLayout();
-            }
-
-            function updateDots() {
-                if (!dotsContainer) return;
-                dotsContainer.querySelectorAll('.am-dot').forEach((dot, i) => {
-                    dot.classList.toggle('active', i === currentIdx);
-                });
-            }
-
-            if (prevBtn) prevBtn.addEventListener('click', () => scrollToCard(currentIdx - 1));
-            if (nextBtn) nextBtn.addEventListener('click', () => scrollToCard(currentIdx + 1));
-            if (dotsContainer) {
-                dotsContainer.querySelectorAll('.am-dot').forEach(dot => {
-                    dot.addEventListener('click', () => scrollToCard(parseInt(dot.dataset.idx)));
-                });
-            }
-
-            // Click card to make it active if it is not
-            cards.forEach((card, i) => {
-                card.addEventListener('click', (e) => {
-                    if (i !== currentIdx) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        scrollToCard(i);
-                    }
-                }, true); // Use capture phase so we intercept clicks on children
-            });
-
-            // Initialize layout
-            updateCarouselLayout();
-
-            // 3D Tilt + Shine per card (only active when card is active)
-            cards.forEach(slot => {
-                const tiltW = slot.querySelector('.am-tilt-wrapper');
-                if (!tiltW) return;
-
-                slot.addEventListener('mousemove', e => {
-                    // Only apply tilt to the active card
-                    if (!slot.classList.contains('am-card-active')) return;
-
-                    const rect = slot.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    const centerX = rect.width / 2;
-                    const centerY = rect.height / 2;
-                    const rotateX = ((y - centerY) / centerY) * -8;
-                    const rotateY = ((x - centerX) / centerX) * 8;
-                    tiltW.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-                    // Shine & border glow CSS vars
-                    slot.style.setProperty('--am-mx', x + 'px');
-                    slot.style.setProperty('--am-my', y + 'px');
-                });
-
-                slot.addEventListener('mouseleave', () => {
-                    tiltW.style.transform = 'rotateX(0) rotateY(0)';
-                });
-            });
-
-            // 3D Flip — Config button opens back, X button closes
-            document.querySelectorAll('#view-A5 .am-config-btn').forEach(btn => {
-                btn.addEventListener('click', e => {
-                    e.stopPropagation();
-                    const cardSlot = btn.closest('.am-card-slot');
-                    if (!cardSlot || !cardSlot.classList.contains('am-card-active')) return;
-                    const flipper = cardSlot.querySelector('.am-flipper');
-                    if (flipper) flipper.classList.add('am-flipped');
-                });
-            });
-            document.querySelectorAll('#view-A5 .am-close-btn').forEach(btn => {
-                btn.addEventListener('click', e => {
-                    e.stopPropagation();
-                    const cardSlot = btn.closest('.am-card-slot');
-                    if (!cardSlot || !cardSlot.classList.contains('am-card-active')) return;
-                    const flipper = cardSlot.querySelector('.am-flipper');
-                    if (flipper) flipper.classList.remove('am-flipped');
-                });
-            });
-
-            // Toggle tracks (only active card)
-            document.querySelectorAll('#view-A5 .am-toggle-track').forEach(track => {
-                track.addEventListener('click', (e) => {
-                    const cardSlot = track.closest('.am-card-slot');
-                    if (cardSlot && !cardSlot.classList.contains('am-card-active')) {
-                        e.stopPropagation();
-                        return;
-                    }
-                    track.classList.toggle('on');
-                });
-            });
-
-            // Model Source tab buttons (only active card)
-            document.querySelectorAll('#view-A5 .am-src-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const cardSlot = btn.closest('.am-card-slot');
-                    if (cardSlot && !cardSlot.classList.contains('am-card-active')) {
-                        e.stopPropagation();
-                        return;
-                    }
-                    const parent = btn.parentElement;
-                    parent.querySelectorAll('.am-src-btn').forEach(b => {
-                        b.classList.remove('bg-[#FF6363]/20', 'bg-amber-400/20', 'bg-violet-400/20', 'bg-cyan-400/20');
-                        b.classList.add('text-white/50');
-                        b.classList.remove('text-white');
+                // Update dots active class
+                if (cDotsContainer) {
+                    cDotsContainer.querySelectorAll('.am-dot').forEach((dot, i) => {
+                        dot.classList.toggle('active', i === childIdx);
                     });
-                    btn.classList.remove('text-white/50');
-                    btn.classList.add('text-white');
-                    // Detect agent color from closest card
-                    const agent = cardSlot?.dataset.amAgent;
-                    const colorMap = { eva: 'bg-[#FF6363]/20', qwen: 'bg-amber-400/20', uat: 'bg-violet-400/20', local: 'bg-cyan-400/20' };
-                    btn.classList.add(colorMap[agent] || 'bg-[#FF6363]/20');
+                }
+            }
+
+            // ============================================
+            // 4. Scroll / Navigation Logic
+            // ============================================
+            function scrollToParent(idx) {
+                // Infinite loop wrap
+                parentIdx = (idx + numParents) % numParents;
+                updateParentLayout();
+
+                // Switch and render dynamic children
+                renderChildCards(parentKeys[parentIdx]);
+                childIdx = 0;
+                updateChildLayout();
+            }
+
+            function scrollToChild(idx) {
+                const childCards = childViewport.querySelectorAll('.am-child-slot');
+                const numChildren = childCards.length;
+                if (numChildren === 0) return;
+
+                // Infinite loop wrap
+                childIdx = (idx + numChildren) % numChildren;
+                updateChildLayout();
+            }
+
+            // Navigation Button Triggers
+            if (pPrevBtn) pPrevBtn.addEventListener('click', () => scrollToParent(parentIdx - 1));
+            if (pNextBtn) pNextBtn.addEventListener('click', () => scrollToParent(parentIdx + 1));
+            if (cPrevBtn) cPrevBtn.addEventListener('click', () => scrollToChild(childIdx - 1));
+            if (cNextBtn) cNextBtn.addEventListener('click', () => scrollToChild(childIdx + 1));
+
+            // Clicking Parent card directly
+            parentCards.forEach((card, i) => {
+                card.addEventListener('click', () => {
+                    if (i !== parentIdx) {
+                        scrollToParent(i);
+                    }
                 });
             });
 
-            // Re-calculate on window resize
-            window.addEventListener('resize', updateCarouselLayout);
-        }
+            // Clicking Child card directly (intercept side clicks)
+            childViewport.addEventListener('click', (e) => {
+                const card = e.target.closest('.am-child-slot');
+                if (!card) return;
+                const idx = parseInt(card.dataset.idx);
+                if (idx !== childIdx) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    scrollToChild(idx);
+                }
+            }, true); // Capture phase
 
-        // Initialize when A5 view is shown
+            // ============================================
+            // 5. Initialize layout states
+            // ============================================
+            scrollToParent(0);
+
+            // Re-calculate child stack layout on resize
+            window.addEventListener('resize', updateChildLayout);
+        }// Initialize when A5 view is shown
         const _origSwitchMainView = typeof switchMainView === 'function' ? switchMainView : null;
         // We hook into DOMContentLoaded to also init
         document.addEventListener('DOMContentLoaded', () => {
