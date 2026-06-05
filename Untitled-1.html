@@ -7,6 +7,17 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
 
     <!-- Stylesheets & Libraries -->
+    <script>
+        (function() {
+            const originalWarn = console.warn;
+            console.warn = function(...args) {
+                if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
+                    return;
+                }
+                originalWarn.apply(console, args);
+            };
+        })();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.26.0/cytoscape.min.js"></script>
@@ -237,11 +248,9 @@
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
             border-radius: 1rem;
-            position: relative;
             transform-style: preserve-3d;
             transition: transform 0.15s ease-out, border-color 0.4s ease, box-shadow 0.4s ease;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-            overflow: hidden;
         }
         .raycast-agent-card:hover {
             box-shadow: 
@@ -493,6 +502,39 @@
                 stroke-dashoffset: -16;
             }
         }
+
+        /* 3D Flip Card Utilities */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg) !important; }
+        .flipper-wrapper {
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+        .raycast-perspective-container {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            transition: transform 0.15s ease-out;
+        }
+        
+        .shine-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            pointer-events: none;
+            border-radius: inherit;
+            background: radial-gradient(300px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 99, 99, 0.12), transparent 50%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .raycast-agent-card:hover .shine-overlay {
+            opacity: 1;
+        }
+
+        .raycast-agent-card {
+            transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.4s ease, box-shadow 0.4s ease;
+        }
     </style>
 </head>
 
@@ -740,163 +782,422 @@
                                 <h3 class="font-bold text-white text-sm tracking-wide">AI Assist Roster</h3>
                                 <p class="text-[10px] text-cyber-muted">Drag a card to assign an agent to a task</p>
                             </div>
-                            <div class="flex flex-col gap-3">
+                            <div class="flex flex-col gap-4">
                                 <!-- EVA Agent -->
-                                <div class="raycast-perspective-container">
-                                    <div class="raycast-agent-card eva-card p-4 flex flex-col justify-between h-[160px] select-none" data-agent="eva" style="cursor: grab;">
-                                        <!-- Shine overlay tracking mouse -->
-                                        <div class="card-shine"></div>
-                                        
-                                        <!-- Card Header -->
-                                        <div class="card-hdr flex justify-between items-center z-10">
-                                            <div class="brand-info flex items-center gap-2">
-                                                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=eva&backgroundColor=78f4bf" alt="agent Icon" class="brand-icon w-6 h-6 rounded bg-black/40 p-0.5 border border-white/10 shrink-0">
-                                                <span class="brand-title text-xs font-bold text-white">EVA Agent</span>
+                                <div class="raycast-perspective-container relative w-full h-[280px]">
+                                    <div class="flipper-wrapper w-full h-full duration-700 transform-style-3d relative rounded-2xl shadow-lg" id="eva-flipper">
+                                        <!-- FRONT FACE -->
+                                        <div class="absolute inset-0 backface-hidden raycast-agent-card eva-card p-4 flex flex-col justify-between h-full select-none bg-neutral-950/80 border border-white/10 rounded-2xl" data-agent="eva" style="cursor: grab;">
+                                            <div class="shine-overlay"></div>
+                                            <!-- Card Header -->
+                                            <div class="flex justify-between items-start mb-2 z-10">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gray-800 to-black border border-white/10 flex items-center justify-center relative">
+                                                        <i class="fa-solid fa-planet text-raycast-coral text-sm"></i>
+                                                    </div>
+                                                    <div class="flex flex-col">
+                                                        <span class="text-xs font-bold text-white leading-none">EVA Agent</span>
+                                                        <span class="text-[9px] text-cyber-muted font-mono mt-0.5">GPT-4.5 Turbo</span>
+                                                    </div>
+                                                </div>
+                                                <span class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono font-bold uppercase text-[9px] flex items-center gap-1">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Active
+                                                </span>
                                             </div>
-                                            <span class="ext-badge text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono font-bold uppercase">Active</span>
+
+                                            <!-- Stats Grid -->
+                                            <div class="grid grid-cols-2 gap-2 my-1 z-10">
+                                                <div class="p-2 rounded-xl bg-white/[0.02] border border-white/5 text-left">
+                                                    <span class="text-[8px] text-cyber-muted uppercase tracking-wider block">Tasks</span>
+                                                    <span class="text-xs font-semibold text-white">12.4k</span>
+                                                </div>
+                                                <div class="p-2 rounded-xl bg-white/[0.02] border border-white/5 text-left">
+                                                    <span class="text-[8px] text-cyber-muted uppercase tracking-wider block">Accuracy</span>
+                                                    <span class="text-xs font-semibold text-white">99.8%</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Token Limit Section -->
+                                            <div class="token-limit-sec flex flex-col gap-1 w-full z-10">
+                                                <div class="flex justify-between items-center text-[9px] text-cyber-muted font-mono">
+                                                    <span>Session Quota</span>
+                                                    <span class="text-raycast-coral font-bold">78k/100k</span>
+                                                </div>
+                                                <div class="w-full bg-black/40 h-1 rounded-full overflow-hidden border border-white/5">
+                                                    <div class="bg-gradient-to-r from-raycast-coral/60 to-raycast-coral h-full rounded-full" style="width: 78%;"></div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Capability Badges -->
+                                            <div class="flex flex-wrap gap-1 my-1 z-10">
+                                                <span class="px-2 py-0.5 text-[8px] rounded-full bg-white/5 border border-white/10 text-cyber-muted flex items-center gap-1">
+                                                    <i class="fa-solid fa-globe"></i> Web
+                                                </span>
+                                                <span class="px-2 py-0.5 text-[8px] rounded-full bg-white/5 border border-white/10 text-cyber-muted flex items-center gap-1">
+                                                    <i class="fa-solid fa-eye"></i> Vision
+                                                </span>
+                                                <span class="px-2 py-0.5 text-[8px] rounded-full bg-white/5 border border-white/10 text-cyber-muted flex items-center gap-1">
+                                                    <i class="fa-solid fa-code"></i> Code
+                                                </span>
+                                            </div>
+
+                                            <!-- Card Footer -->
+                                            <div class="border-t border-white/5 pt-2 flex justify-between items-center z-10">
+                                                <button class="config-btn flex items-center gap-1 text-[10px] text-cyber-muted hover:text-white transition-colors" data-agent="eva">
+                                                    <i class="fa-solid fa-sliders"></i> Configure
+                                                </button>
+                                            </div>
                                         </div>
 
-                                        <!-- Token Limit Section -->
-                                        <div class="token-limit-sec flex flex-col gap-1 w-full mt-1.5 z-10" style="transform: translateZ(20px);">
-                                            <div class="flex justify-between items-center text-[9px] text-cyber-muted font-mono">
-                                                <span>Tokens Used</span>
-                                                <span>45.2k / 100k</span>
-                                            </div>
-                                            <div class="token-bar-container w-full bg-black/40 h-1 rounded-full overflow-hidden border border-white/5">
-                                                <div class="bg-gradient-to-r from-emerald-400 to-teal-500 h-full rounded-full" style="width: 45.2%;"></div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Floating Accent Logo -->
-                                        <div class="floating-logo absolute right-4 bottom-10 text-white/5 text-4xl pointer-events-none transition-transform duration-300" style="transform: translateZ(30px) rotate(10deg);">
-                                            <i class="fa-solid fa-brain"></i>
-                                        </div>
-
-                                        <!-- Card Footer -->
-                                        <div class="card-footer border-t border-white/5 pt-2 flex justify-between items-center z-10">
-                                            <div class="config flex items-center gap-1.5 text-[10px] text-cyber-muted hover:text-white transition-colors cursor-pointer">
-                                                <span>config</span>
-                                                <i class="fas fa-arrow-right text-[8px] transition-transform duration-200"></i>
+                                        <!-- BACK FACE -->
+                                        <div class="absolute inset-0 backface-hidden rotate-y-180 bg-neutral-950 border border-white/10 rounded-2xl p-4 flex flex-col justify-between h-full select-none text-xs">
+                                            <div class="flex flex-col gap-2 h-full justify-between">
+                                                <div class="flex justify-between items-center border-b border-white/5 pb-1.5">
+                                                    <span class="font-bold text-white font-mono text-[10px] uppercase">CONFIG — EVA</span>
+                                                    <button class="flip-back-btn text-[10px] text-cyber-muted hover:text-white transition-colors" data-agent="eva"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="flex-1 overflow-y-auto space-y-2 pr-1 scroll-custom text-[10px]">
+                                                    <div>
+                                                        <label class="block text-cyber-muted mb-0.5">Model Engine</label>
+                                                        <select class="w-full bg-black/50 border border-white/10 rounded px-1.5 py-1 text-[9px] text-white">
+                                                            <option>GPT-4.5 Turbo</option>
+                                                            <option>Gemini 2.5 Flash</option>
+                                                            <option>Claude 3.5 Sonnet</option>
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <div class="flex justify-between text-cyber-muted mb-0.5">
+                                                            <span>Creativity (Temp)</span>
+                                                            <span class="text-raycast-coral">0.7</span>
+                                                        </div>
+                                                        <input type="range" min="0" max="1" step="0.1" value="0.7" class="w-full h-1 bg-white/10 rounded appearance-none cursor-pointer accent-raycast-coral">
+                                                    </div>
+                                                    <div class="space-y-1.5 pt-1">
+                                                        <div class="flex items-center justify-between">
+                                                            <span class="text-white">Plan Mode</span>
+                                                            <input type="checkbox" checked class="accent-raycast-coral">
+                                                        </div>
+                                                        <div class="flex items-center justify-between">
+                                                            <span class="text-white">File Access</span>
+                                                            <input type="checkbox" checked class="accent-raycast-coral">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="border-t border-white/5 pt-1.5 text-center text-[9px] text-cyber-muted">
+                                                    Changes auto-saved
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
                                 <!-- Qwen Coder -->
-                                <div class="raycast-perspective-container">
-                                    <div class="raycast-agent-card qwen-card p-4 flex flex-col justify-between h-[160px] select-none" data-agent="qwen" style="cursor: grab;">
-                                        <!-- Shine overlay tracking mouse -->
-                                        <div class="card-shine"></div>
-                                        
-                                        <!-- Card Header -->
-                                        <div class="card-hdr flex justify-between items-center z-10">
-                                            <div class="brand-info flex items-center gap-2">
-                                                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=qwen&backgroundColor=fbbf24" alt="agent Icon" class="brand-icon w-6 h-6 rounded bg-black/40 p-0.5 border border-white/10 shrink-0">
-                                                <span class="brand-title text-xs font-bold text-white">Qwen Coder</span>
+                                <div class="raycast-perspective-container relative w-full h-[280px]">
+                                    <div class="flipper-wrapper w-full h-full duration-700 transform-style-3d relative rounded-2xl shadow-lg" id="qwen-flipper">
+                                        <!-- FRONT FACE -->
+                                        <div class="absolute inset-0 backface-hidden raycast-agent-card qwen-card p-4 flex flex-col justify-between h-full select-none bg-neutral-950/80 border border-white/10 rounded-2xl" data-agent="qwen" style="cursor: grab;">
+                                            <div class="shine-overlay"></div>
+                                            <!-- Card Header -->
+                                            <div class="flex justify-between items-start mb-2 z-10">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gray-800 to-black border border-white/10 flex items-center justify-center relative">
+                                                        <i class="fa-solid fa-code text-amber-400 text-sm"></i>
+                                                    </div>
+                                                    <div class="flex flex-col">
+                                                        <span class="text-xs font-bold text-white leading-none">Qwen Coder</span>
+                                                        <span class="text-[9px] text-cyber-muted font-mono mt-0.5">Qwen2.5-Coder</span>
+                                                    </div>
+                                                </div>
+                                                <span class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono font-bold uppercase text-[9px] flex items-center gap-1">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Ready
+                                                </span>
                                             </div>
-                                            <span class="ext-badge text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono font-bold uppercase">Ready</span>
+
+                                            <!-- Stats Grid -->
+                                            <div class="grid grid-cols-2 gap-2 my-1 z-10">
+                                                <div class="p-2 rounded-xl bg-white/[0.02] border border-white/5 text-left">
+                                                    <span class="text-[8px] text-cyber-muted uppercase tracking-wider block">Tasks</span>
+                                                    <span class="text-xs font-semibold text-white">8.2k</span>
+                                                </div>
+                                                <div class="p-2 rounded-xl bg-white/[0.02] border border-white/5 text-left">
+                                                    <span class="text-[8px] text-cyber-muted uppercase tracking-wider block">Accuracy</span>
+                                                    <span class="text-xs font-semibold text-white">99.5%</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Token Limit Section -->
+                                            <div class="token-limit-sec flex flex-col gap-1 w-full z-10">
+                                                <div class="flex justify-between items-center text-[9px] text-cyber-muted font-mono">
+                                                    <span>Session Quota</span>
+                                                    <span class="text-raycast-coral font-bold">17.6k/100k</span>
+                                                </div>
+                                                <div class="w-full bg-black/40 h-1 rounded-full overflow-hidden border border-white/5">
+                                                    <div class="bg-gradient-to-r from-amber-400 to-orange-500 h-full rounded-full" style="width: 17.6%;"></div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Capability Badges -->
+                                            <div class="flex flex-wrap gap-1 my-1 z-10">
+                                                <span class="px-2 py-0.5 text-[8px] rounded-full bg-white/5 border border-white/10 text-cyber-muted flex items-center gap-1">
+                                                    <i class="fa-solid fa-code"></i> Code
+                                                </span>
+                                                <span class="px-2 py-0.5 text-[8px] rounded-full bg-white/5 border border-white/10 text-cyber-muted flex items-center gap-1">
+                                                    <i class="fa-solid fa-terminal"></i> Bash
+                                                </span>
+                                            </div>
+
+                                            <!-- Card Footer -->
+                                            <div class="border-t border-white/5 pt-2 flex justify-between items-center z-10">
+                                                <button class="config-btn flex items-center gap-1 text-[10px] text-cyber-muted hover:text-white transition-colors" data-agent="qwen">
+                                                    <i class="fa-solid fa-sliders"></i> Configure
+                                                </button>
+                                            </div>
                                         </div>
 
-                                        <!-- Token Limit Section -->
-                                        <div class="token-limit-sec flex flex-col gap-1 w-full mt-1.5 z-10" style="transform: translateZ(20px);">
-                                            <div class="flex justify-between items-center text-[9px] text-cyber-muted font-mono">
-                                                <span>Tokens Used</span>
-                                                <span>82.4k / 100k</span>
-                                            </div>
-                                            <div class="token-bar-container w-full bg-black/40 h-1 rounded-full overflow-hidden border border-white/5">
-                                                <div class="bg-gradient-to-r from-amber-400 to-orange-500 h-full rounded-full" style="width: 82.4%;"></div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Floating Accent Logo -->
-                                        <div class="floating-logo absolute right-4 bottom-10 text-white/5 text-4xl pointer-events-none transition-transform duration-300" style="transform: translateZ(30px) rotate(-15deg);">
-                                            <i class="fa-solid fa-code"></i>
-                                        </div>
-
-                                        <!-- Card Footer -->
-                                        <div class="card-footer border-t border-white/5 pt-2 flex justify-between items-center z-10">
-                                            <div class="config flex items-center gap-1.5 text-[10px] text-cyber-muted hover:text-white transition-colors cursor-pointer">
-                                                <span>config</span>
-                                                <i class="fas fa-arrow-right text-[8px] transition-transform duration-200"></i>
+                                        <!-- BACK FACE -->
+                                        <div class="absolute inset-0 backface-hidden rotate-y-180 bg-neutral-950 border border-white/10 rounded-2xl p-4 flex flex-col justify-between h-full select-none text-xs">
+                                            <div class="flex flex-col gap-2 h-full justify-between">
+                                                <div class="flex justify-between items-center border-b border-white/5 pb-1.5">
+                                                    <span class="font-bold text-white font-mono text-[10px] uppercase">CONFIG — QWEN</span>
+                                                    <button class="flip-back-btn text-[10px] text-cyber-muted hover:text-white transition-colors" data-agent="qwen"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="flex-1 overflow-y-auto space-y-2 pr-1 scroll-custom text-[10px]">
+                                                    <div>
+                                                        <label class="block text-cyber-muted mb-0.5">Model Engine</label>
+                                                        <select class="w-full bg-black/50 border border-white/10 rounded px-1.5 py-1 text-[9px] text-white">
+                                                            <option>Qwen2.5-Coder</option>
+                                                            <option>Llama 3 (Ollama)</option>
+                                                            <option>Mistral 7B</option>
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <div class="flex justify-between text-cyber-muted mb-0.5">
+                                                            <span>Creativity (Temp)</span>
+                                                            <span class="text-raycast-coral">0.2</span>
+                                                        </div>
+                                                        <input type="range" min="0" max="1" step="0.1" value="0.2" class="w-full h-1 bg-white/10 rounded appearance-none cursor-pointer accent-raycast-coral">
+                                                    </div>
+                                                    <div class="space-y-1.5 pt-1">
+                                                        <div class="flex items-center justify-between">
+                                                            <span class="text-white">Plan Mode</span>
+                                                            <input type="checkbox" checked class="accent-raycast-coral">
+                                                        </div>
+                                                        <div class="flex items-center justify-between">
+                                                            <span class="text-white">Shell Command</span>
+                                                            <input type="checkbox" checked class="accent-raycast-coral">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="border-t border-white/5 pt-1.5 text-center text-[9px] text-cyber-muted">
+                                                    Changes auto-saved
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
                                 <!-- UAT Agent -->
-                                <div class="raycast-perspective-container">
-                                    <div class="raycast-agent-card uat-card p-4 flex flex-col justify-between h-[160px] select-none" data-agent="uat" style="cursor: grab;">
-                                        <!-- Shine overlay tracking mouse -->
-                                        <div class="card-shine"></div>
-                                        
-                                        <!-- Card Header -->
-                                        <div class="card-hdr flex justify-between items-center z-10">
-                                            <div class="brand-info flex items-center gap-2">
-                                                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=uat&backgroundColor=818cf8" alt="agent Icon" class="brand-icon w-6 h-6 rounded bg-black/40 p-0.5 border border-white/10 shrink-0">
-                                                <span class="brand-title text-xs font-bold text-white">UAT Agent</span>
+                                <div class="raycast-perspective-container relative w-full h-[280px]">
+                                    <div class="flipper-wrapper w-full h-full duration-700 transform-style-3d relative rounded-2xl shadow-lg" id="uat-flipper">
+                                        <!-- FRONT FACE -->
+                                        <div class="absolute inset-0 backface-hidden raycast-agent-card uat-card p-4 flex flex-col justify-between h-full select-none bg-neutral-950/80 border border-white/10 rounded-2xl" data-agent="uat" style="cursor: grab;">
+                                            <div class="shine-overlay"></div>
+                                            <!-- Card Header -->
+                                            <div class="flex justify-between items-start mb-2 z-10">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gray-800 to-black border border-white/10 flex items-center justify-center relative">
+                                                        <i class="fa-solid fa-shield-halved text-indigo-400 text-sm"></i>
+                                                    </div>
+                                                    <div class="flex flex-col">
+                                                        <span class="text-xs font-bold text-white leading-none">UAT Agent</span>
+                                                        <span class="text-[9px] text-cyber-muted font-mono mt-0.5">GPT-4o</span>
+                                                    </div>
+                                                </div>
+                                                <span class="px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 font-mono font-bold uppercase text-[9px] flex items-center gap-1">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span> Ready
+                                                </span>
                                             </div>
-                                            <span class="ext-badge text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 font-mono font-bold uppercase">Ready</span>
+
+                                            <!-- Stats Grid -->
+                                            <div class="grid grid-cols-2 gap-2 my-1 z-10">
+                                                <div class="p-2 rounded-xl bg-white/[0.02] border border-white/5 text-left">
+                                                    <span class="text-[8px] text-cyber-muted uppercase tracking-wider block">Tasks</span>
+                                                    <span class="text-xs font-semibold text-white">4.1k</span>
+                                                </div>
+                                                <div class="p-2 rounded-xl bg-white/[0.02] border border-white/5 text-left">
+                                                    <span class="text-[8px] text-cyber-muted uppercase tracking-wider block">Accuracy</span>
+                                                    <span class="text-xs font-semibold text-white">99.9%</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Token Limit Section -->
+                                            <div class="token-limit-sec flex flex-col gap-1 w-full z-10">
+                                                <div class="flex justify-between items-center text-[9px] text-cyber-muted font-mono">
+                                                    <span>Session Quota</span>
+                                                    <span class="text-raycast-coral font-bold">85k/100k</span>
+                                                </div>
+                                                <div class="w-full bg-black/40 h-1 rounded-full overflow-hidden border border-white/5">
+                                                    <div class="bg-gradient-to-r from-indigo-400 to-purple-500 h-full rounded-full" style="width: 85%;"></div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Capability Badges -->
+                                            <div class="flex flex-wrap gap-1 my-1 z-10">
+                                                <span class="px-2 py-0.5 text-[8px] rounded-full bg-white/5 border border-white/10 text-cyber-muted flex items-center gap-1">
+                                                    <i class="fa-solid fa-flask"></i> Testing
+                                                </span>
+                                                <span class="px-2 py-0.5 text-[8px] rounded-full bg-white/5 border border-white/10 text-cyber-muted flex items-center gap-1">
+                                                    <i class="fa-solid fa-code"></i> Code
+                                                </span>
+                                            </div>
+
+                                            <!-- Card Footer -->
+                                            <div class="border-t border-white/5 pt-2 flex justify-between items-center z-10">
+                                                <button class="config-btn flex items-center gap-1 text-[10px] text-cyber-muted hover:text-white transition-colors" data-agent="uat">
+                                                    <i class="fa-solid fa-sliders"></i> Configure
+                                                </button>
+                                            </div>
                                         </div>
 
-                                        <!-- Token Limit Section -->
-                                        <div class="token-limit-sec flex flex-col gap-1 w-full mt-1.5 z-10" style="transform: translateZ(20px);">
-                                            <div class="flex justify-between items-center text-[9px] text-cyber-muted font-mono">
-                                                <span>Tokens Used</span>
-                                                <span>15.0k / 100k</span>
-                                            </div>
-                                            <div class="token-bar-container w-full bg-black/40 h-1 rounded-full overflow-hidden border border-white/5">
-                                                <div class="bg-gradient-to-r from-indigo-400 to-purple-500 h-full rounded-full" style="width: 15%;"></div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Floating Accent Logo -->
-                                        <div class="floating-logo absolute right-4 bottom-10 text-white/5 text-4xl pointer-events-none transition-transform duration-300" style="transform: translateZ(30px) rotate(5deg);">
-                                            <i class="fa-solid fa-shield-halved"></i>
-                                        </div>
-
-                                        <!-- Card Footer -->
-                                        <div class="card-footer border-t border-white/5 pt-2 flex justify-between items-center z-10">
-                                            <div class="config flex items-center gap-1.5 text-[10px] text-cyber-muted hover:text-white transition-colors cursor-pointer">
-                                                <span>config</span>
-                                                <i class="fas fa-arrow-right text-[8px] transition-transform duration-200"></i>
+                                        <!-- BACK FACE -->
+                                        <div class="absolute inset-0 backface-hidden rotate-y-180 bg-neutral-950 border border-white/10 rounded-2xl p-4 flex flex-col justify-between h-full select-none text-xs">
+                                            <div class="flex flex-col gap-2 h-full justify-between">
+                                                <div class="flex justify-between items-center border-b border-white/5 pb-1.5">
+                                                    <span class="font-bold text-white font-mono text-[10px] uppercase">CONFIG — UAT</span>
+                                                    <button class="flip-back-btn text-[10px] text-cyber-muted hover:text-white transition-colors" data-agent="uat"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="flex-1 overflow-y-auto space-y-2 pr-1 scroll-custom text-[10px]">
+                                                    <div>
+                                                        <label class="block text-cyber-muted mb-0.5">Model Engine</label>
+                                                        <select class="w-full bg-black/50 border border-white/10 rounded px-1.5 py-1 text-[9px] text-white">
+                                                            <option>GPT-4o</option>
+                                                            <option>Claude 3.5 Sonnet</option>
+                                                            <option>GPT-4.5 Turbo</option>
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <div class="flex justify-between text-cyber-muted mb-0.5">
+                                                            <span>Creativity (Temp)</span>
+                                                            <span class="text-raycast-coral">0.5</span>
+                                                        </div>
+                                                        <input type="range" min="0" max="1" step="0.1" value="0.5" class="w-full h-1 bg-white/10 rounded appearance-none cursor-pointer accent-raycast-coral">
+                                                    </div>
+                                                    <div class="space-y-1.5 pt-1">
+                                                        <div class="flex items-center justify-between">
+                                                            <span class="text-white">Plan Mode</span>
+                                                            <input type="checkbox" checked class="accent-raycast-coral">
+                                                        </div>
+                                                        <div class="flex items-center justify-between">
+                                                            <span class="text-white">File Access</span>
+                                                            <input type="checkbox" checked class="accent-raycast-coral">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="border-t border-white/5 pt-1.5 text-center text-[9px] text-cyber-muted">
+                                                    Changes auto-saved
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
                                 <!-- Local Dev -->
-                                <div class="raycast-perspective-container">
-                                    <div class="raycast-agent-card local-card p-4 flex flex-col justify-between h-[160px] select-none" data-agent="local" style="cursor: grab;">
-                                        <!-- Shine overlay tracking mouse -->
-                                        <div class="card-shine"></div>
-                                        
-                                        <!-- Card Header -->
-                                        <div class="card-hdr flex justify-between items-center z-10">
-                                            <div class="brand-info flex items-center gap-2">
-                                                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=local&backgroundColor=38bdf8" alt="agent Icon" class="brand-icon w-6 h-6 rounded bg-black/40 p-0.5 border border-white/10 shrink-0">
-                                                <span class="brand-title text-xs font-bold text-white">Local Dev</span>
+                                <div class="raycast-perspective-container relative w-full h-[280px]">
+                                    <div class="flipper-wrapper w-full h-full duration-700 transform-style-3d relative rounded-2xl shadow-lg" id="local-flipper">
+                                        <!-- FRONT FACE -->
+                                        <div class="absolute inset-0 backface-hidden raycast-agent-card local-card p-4 flex flex-col justify-between h-full select-none bg-neutral-950/80 border border-white/10 rounded-2xl" data-agent="local" style="cursor: grab;">
+                                            <div class="shine-overlay"></div>
+                                            <!-- Card Header -->
+                                            <div class="flex justify-between items-start mb-2 z-10">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gray-800 to-black border border-white/10 flex items-center justify-center relative">
+                                                        <i class="fa-solid fa-cube text-sky-400 text-sm"></i>
+                                                    </div>
+                                                    <div class="flex flex-col">
+                                                        <span class="text-xs font-bold text-white leading-none">Local Dev</span>
+                                                        <span class="text-[9px] text-cyber-muted font-mono mt-0.5">Human User</span>
+                                                    </div>
+                                                </div>
+                                                <span class="px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-400 font-mono font-bold uppercase text-[9px] flex items-center gap-1">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span> Idle
+                                                </span>
                                             </div>
-                                            <span class="ext-badge text-[9px] px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-400 font-mono font-bold uppercase">Idle</span>
+
+                                            <!-- Stats Grid -->
+                                            <div class="grid grid-cols-2 gap-2 my-1 z-10">
+                                                <div class="p-2 rounded-xl bg-white/[0.02] border border-white/5 text-left">
+                                                    <span class="text-[8px] text-cyber-muted uppercase tracking-wider block">Tasks</span>
+                                                    <span class="text-xs font-semibold text-white">2.5k</span>
+                                                </div>
+                                                <div class="p-2 rounded-xl bg-white/[0.02] border border-white/5 text-left">
+                                                    <span class="text-[8px] text-cyber-muted uppercase tracking-wider block">Accuracy</span>
+                                                    <span class="text-xs font-semibold text-white">98.2%</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Token Limit Section -->
+                                            <div class="token-limit-sec flex flex-col gap-1 w-full z-10">
+                                                <div class="flex justify-between items-center text-[9px] text-cyber-muted font-mono">
+                                                    <span>Session Quota</span>
+                                                    <span class="text-raycast-coral font-bold">100k/100k</span>
+                                                </div>
+                                                <div class="w-full bg-black/40 h-1 rounded-full overflow-hidden border border-white/5">
+                                                    <div class="bg-gradient-to-r from-sky-400 to-blue-500 h-full rounded-full" style="width: 100%;"></div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Capability Badges -->
+                                            <div class="flex flex-wrap gap-1 my-1 z-10">
+                                                <span class="px-2 py-0.5 text-[8px] rounded-full bg-white/5 border border-white/10 text-cyber-muted flex items-center gap-1">
+                                                    <i class="fa-solid fa-user"></i> Manual
+                                                </span>
+                                            </div>
+
+                                            <!-- Card Footer -->
+                                            <div class="border-t border-white/5 pt-2 flex justify-between items-center z-10">
+                                                <button class="config-btn flex items-center gap-1 text-[10px] text-cyber-muted hover:text-white transition-colors" data-agent="local">
+                                                    <i class="fa-solid fa-sliders"></i> Configure
+                                                </button>
+                                            </div>
                                         </div>
 
-                                        <!-- Token Limit Section -->
-                                        <div class="token-limit-sec flex flex-col gap-1 w-full mt-1.5 z-10" style="transform: translateZ(20px);">
-                                            <div class="flex justify-between items-center text-[9px] text-cyber-muted font-mono">
-                                                <span>Tokens Used</span>
-                                                <span>0 / 100k</span>
-                                            </div>
-                                            <div class="token-bar-container w-full bg-black/40 h-1 rounded-full overflow-hidden border border-white/5">
-                                                <div class="bg-gradient-to-r from-sky-400 to-blue-500 h-full rounded-full" style="width: 0%;"></div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Floating Accent Logo -->
-                                        <div class="floating-logo absolute right-4 bottom-10 text-white/5 text-4xl pointer-events-none transition-transform duration-300" style="transform: translateZ(30px) rotate(-8deg);">
-                                            <i class="fa-solid fa-cube"></i>
-                                        </div>
-
-                                        <!-- Card Footer -->
-                                        <div class="card-footer border-t border-white/5 pt-2 flex justify-between items-center z-10">
-                                            <div class="config flex items-center gap-1.5 text-[10px] text-cyber-muted hover:text-white transition-colors cursor-pointer">
-                                                <span>config</span>
-                                                <i class="fas fa-arrow-right text-[8px] transition-transform duration-200"></i>
+                                        <!-- BACK FACE -->
+                                        <div class="absolute inset-0 backface-hidden rotate-y-180 bg-neutral-950 border border-white/10 rounded-2xl p-4 flex flex-col justify-between h-full select-none text-xs">
+                                            <div class="flex flex-col gap-2 h-full justify-between">
+                                                <div class="flex justify-between items-center border-b border-white/5 pb-1.5">
+                                                    <span class="font-bold text-white font-mono text-[10px] uppercase">CONFIG — LOCAL</span>
+                                                    <button class="flip-back-btn text-[10px] text-cyber-muted hover:text-white transition-colors" data-agent="local"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                                <div class="flex-1 overflow-y-auto space-y-2 pr-1 scroll-custom text-[10px]">
+                                                    <div>
+                                                        <label class="block text-cyber-muted mb-0.5">Execution Shell</label>
+                                                        <select class="w-full bg-black/50 border border-white/10 rounded px-1.5 py-1 text-[9px] text-white">
+                                                            <option>PowerShell</option>
+                                                            <option>CMD</option>
+                                                            <option>Bash (WSL)</option>
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <div class="flex justify-between text-cyber-muted mb-0.5">
+                                                            <span>Keyboard Latency</span>
+                                                            <span class="text-raycast-coral">150ms</span>
+                                                        </div>
+                                                        <input type="range" min="50" max="500" step="50" value="150" class="w-full h-1 bg-white/10 rounded appearance-none cursor-pointer accent-raycast-coral">
+                                                    </div>
+                                                    <div class="space-y-1.5 pt-1">
+                                                        <div class="flex items-center justify-between">
+                                                            <span class="text-white">Workspace Sync</span>
+                                                            <input type="checkbox" checked class="accent-raycast-coral">
+                                                        </div>
+                                                        <div class="flex items-center justify-between">
+                                                            <span class="text-white">Local Server Run</span>
+                                                            <input type="checkbox" checked class="accent-raycast-coral">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="border-t border-white/5 pt-1.5 text-center text-[9px] text-cyber-muted">
+                                                    Changes auto-saved
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -3466,28 +3767,55 @@ ${formatTaskDoD(task)}
                 });
             });
 
+            // Config Button Flip Trigger
+            document.querySelectorAll('.config-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const agent = btn.dataset.agent;
+                    const flipper = document.getElementById(`${agent}-flipper`);
+                    if (flipper) flipper.classList.add('rotate-y-180');
+                });
+            });
+
+            document.querySelectorAll('.flip-back-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const agent = btn.dataset.agent;
+                    const flipper = document.getElementById(`${agent}-flipper`);
+                    if (flipper) flipper.classList.remove('rotate-y-180');
+                });
+            });
+
             // Raycast 3D Card tilt and glare effect
-            document.querySelectorAll('.raycast-agent-card').forEach(card => {
-                card.addEventListener('mousemove', (e) => {
-                    const rect = card.getBoundingClientRect();
+            document.querySelectorAll('.raycast-perspective-container').forEach(container => {
+                container.addEventListener('mousemove', (e) => {
+                    const rect = container.getBoundingClientRect();
                     const x = e.clientX - rect.left;
                     const y = e.clientY - rect.top;
-                    card.style.setProperty('--mouse-x', `${x}px`);
-                    card.style.setProperty('--mouse-y', `${y}px`);
+                    
+                    // Propagate coordinates to card shine layers
+                    const cardShines = container.querySelectorAll('.shine-overlay');
+                    cardShines.forEach(shine => {
+                        shine.style.setProperty('--mouse-x', `${x}px`);
+                        shine.style.setProperty('--mouse-y', `${y}px`);
+                    });
 
-                    const cardWidth = rect.width;
-                    const cardHeight = rect.height;
-                    const centerX = cardWidth / 2;
-                    const centerY = cardHeight / 2;
+                    const width = rect.width;
+                    const height = rect.height;
+                    const centerX = width / 2;
+                    const centerY = height / 2;
                     const rotateX = ((centerY - y) / centerY) * 15; // tilt max 15 deg
                     const rotateY = ((x - centerX) / centerX) * 15;
 
-                    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.04)`;
+                    container.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.04)`;
                 });
-                card.addEventListener('mouseleave', () => {
-                    card.style.transform = `rotateX(0deg) rotateY(0deg) scale(1)`;
-                    card.style.setProperty('--mouse-x', `50%`);
-                    card.style.setProperty('--mouse-y', `50%`);
+                container.addEventListener('mouseleave', () => {
+                    container.style.transform = `rotateX(0deg) rotateY(0deg) scale(1)`;
+                    const cardShines = container.querySelectorAll('.shine-overlay');
+                    cardShines.forEach(shine => {
+                        shine.style.setProperty('--mouse-x', `50%`);
+                        shine.style.setProperty('--mouse-y', `50%`);
+                    });
                 });
             });
 
@@ -3525,6 +3853,7 @@ ${formatTaskDoD(task)}
                 document.querySelectorAll('.raycast-agent-card[data-agent]').forEach(card => {
                     card.addEventListener('mousedown', (e) => {
                         if (e.button !== 0) return;
+                        if (e.target.closest('button') || e.target.closest('select') || e.target.closest('input') || e.target.closest('.flip-back-btn')) return;
                         e.preventDefault();
 
                         activeAgent = card.dataset.agent;
@@ -3536,11 +3865,14 @@ ${formatTaskDoD(task)}
 
                         // Create floating clone
                         floatEl = card.cloneNode(true);
+                        floatEl.classList.remove('absolute', 'inset-0', 'backface-hidden');
                         floatEl.classList.add('agent-drag-float');
                         floatEl.style.width = rect.width + 'px';
                         floatEl.style.height = rect.height + 'px';
                         floatEl.style.left = (e.clientX - offsetX) + 'px';
                         floatEl.style.top = (e.clientY - offsetY) + 'px';
+                        // Reset inline 3D tilt styles on the clone to prevent layout distortion during drag
+                        floatEl.style.transform = 'rotate(-5deg) scale(1.05)';
                         document.body.appendChild(floatEl);
 
                         // Fade original
