@@ -1328,7 +1328,19 @@
             socket.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
-                    if (data.type === 'agent_output') {
+                    if (data.type === 'agent_log') {
+                        const stream = data.stream;
+                        const type = stream === 'stderr' ? 'warn' : (stream === 'system' ? 'sys' : 'eva');
+                        logTerminal(type, data.text);
+                    } else if (data.type === 'agent_status') {
+                        logTerminal('sys', `Task ${data.taskId} status: ${data.status}`);
+                        const taskItem = document.querySelector(`.task-item[data-task-id="${data.taskId}"]`);
+                        if (taskItem) {
+                            setTaskItemState(taskItem, data.status === 'success' ? 'done' : 'todo');
+                            saveStateToStorage();
+                            calculateRoadmapProgress();
+                        }
+                    } else if (data.type === 'agent_output') {
                         const text = data.data.trim();
                         if (text) logTerminal('eva', text);
                     } else if (data.type === 'agent_error') {
@@ -1705,6 +1717,7 @@
                                 <option value="none">Unassigned</option>
                                 <option value="eva">EVA Agent</option>
                                 <option value="qwen">Qwen Coder</option>
+                                <option value="uat">UAT Agent (Playwright)</option>
                                 <option value="local">Local Dev</option>
                             </select>
                             <div class="flex items-center gap-1.5">
@@ -1762,7 +1775,9 @@
                         calculateRoadmapProgress();
 
                         socket.send(JSON.stringify({
-                            task_id: task.id,
+                            type: 'run_agent_task',
+                            taskId: task.id,
+                            taskText: task.text,
                             agent: selectEl ? selectEl.value : 'none',
                             system_prompt: document.getElementById('system-prompt') ? document.getElementById('system-prompt').value : '',
                             workspace_path: document.getElementById('workspace-path') ? document.getElementById('workspace-path').value : ''
